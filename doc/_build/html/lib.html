@@ -1,0 +1,453 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib Package &mdash; ORMPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ORMPY 0.1 documentation" href="index.html" />
+    <link rel="next" title="test Package" href="test.html" />
+    <link rel="prev" title="Welcome to ORMPY’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="test.html" title="test Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to ORMPY’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ORMPY 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="lib-package">
+<h1>lib Package<a class="headerlink" href="#lib-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-lib.norma_loader">
+<span id="norma-loader-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">norma_loader</span></tt> Module<a class="headerlink" href="#module-lib.norma_loader" title="Permalink to this headline">¶</a></h2>
+<p>Module for importing .orm files produced by the NORMA modeling tool</p>
+<dl class="class">
+<dt id="lib.norma_loader.norma_loader">
+<em class="property">class </em><tt class="descclassname">lib.norma_loader.</tt><tt class="descname">norma_loader</tt><big>(</big><em>filename=None</em><big>)</big><a class="reference internal" href="_modules/lib/norma_loader.html#norma_loader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.norma_loader.norma_loader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a .orm file produced by the NORMA modeling tool into an orm_model.model class.</p>
+<dl class="method">
+<dt id="lib.norma_loader.norma_loader.find">
+<tt class="descname">find</tt><big>(</big><em>element</em>, <em>tag</em><big>)</big><a class="reference internal" href="_modules/lib/norma_loader.html#norma_loader.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.norma_loader.norma_loader.find" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.norma_loader.norma_loader.load">
+<tt class="descname">load</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lib/norma_loader.html#norma_loader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.norma_loader.norma_loader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the .orm file named <em>filename</em> into <em>self.model</em> (of class <em>orm_model.model</em>)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.norma_loader.norma_loader.load_constraint">
+<tt class="descname">load_constraint</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/lib/norma_loader.html#norma_loader.load_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.norma_loader.norma_loader.load_constraint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.norma_loader.norma_loader.load_object_type">
+<tt class="descname">load_object_type</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/lib/norma_loader.html#norma_loader.load_object_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.norma_loader.norma_loader.load_object_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads an object type rooted at node <em>element</em> of the <tt class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree</span></tt> created by <a class="reference internal" href="#lib.norma_loader.norma_loader.parse_norma_file" title="lib.norma_loader.norma_loader.parse_norma_file"><tt class="xref py py-func docutils literal"><span class="pre">parse_norma_file()</span></tt></a>
+into a new object_type in the object_type list <em>self.model.object_types</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.norma_loader.norma_loader.load_predicate">
+<tt class="descname">load_predicate</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/lib/norma_loader.html#norma_loader.load_predicate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.norma_loader.norma_loader.load_predicate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.norma_loader.norma_loader.localTag">
+<tt class="descname">localTag</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/lib/norma_loader.html#norma_loader.localTag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.norma_loader.norma_loader.localTag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.norma_loader.norma_loader.parse_norma_file">
+<tt class="descname">parse_norma_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lib/norma_loader.html#norma_loader.parse_norma_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.norma_loader.norma_loader.parse_norma_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a NORMA File (<em>filename</em>) and return the ORMModel node as an <tt class="xref py py-class docutils literal"><span class="pre">xml.etree.Element</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.orm_model">
+<span id="orm-model-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">orm_model</span></tt> Module<a class="headerlink" href="#module-lib.orm_model" title="Permalink to this headline">¶</a></h2>
+<p>This module is part of the ormpy package.  It provides a model class to
+store an ORM model consisting of a set of domains, a set of predicates, and
+a set of constraints.  It also provides an instance class to store instances
+of ORM models.</p>
+<dl class="class">
+<dt id="lib.orm_model.constraint">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">constraint</tt><big>(</big><em>name=''</em>, <em>roles=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A constraint restricts the valid population of an object or fact type.
+This class is an abstract class to be inherited by more 
+specific constraint classes such as uniqueness and mandatory.</p>
+<dl class="method">
+<dt id="lib.orm_model.constraint.display">
+<tt class="descname">display</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#constraint.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.constraint.display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.constraint.predicates">
+<tt class="descname">predicates</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#constraint.predicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.constraint.predicates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.orm_model.domain">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">domain</tt><big>(</big><em>name=''</em>, <em>id=''</em>, <em>enum=</em><span class="optional">[</span><span class="optional">]</span>, <em>min=-inf</em>, <em>max=inf</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>A domain identifies a set of elements of a particular data type.  
+A domain may either be an enumerated list of legal values, or a range
+of legal numeric values.</p>
+<dl class="method">
+<dt id="lib.orm_model.domain.display">
+<tt class="descname">display</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#domain.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.domain.display" title="Permalink to this definition">¶</a></dt>
+<dd><p>Displays the name of the domain.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.domain.newval">
+<tt class="descname">newval</tt><big>(</big><em>domain_pop</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#domain.newval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.domain.newval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a legal value not in a population of this domain.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.domain.randval">
+<tt class="descname">randval</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#domain.randval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.domain.randval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a random value from the domain.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.orm_model.exclusion">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">exclusion</tt><big>(</big><em>name=''</em>, <em>roles=</em><span class="optional">[</span><span class="optional">]</span>, <em>roles2=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#exclusion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.exclusion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.orm_model.setconstraint" title="lib.orm_model.setconstraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.orm_model.setconstraint</span></tt></a></p>
+<p>An exclusion constraint requires that the population of two sets of roles is disjoint.</p>
+<dl class="method">
+<dt id="lib.orm_model.exclusion.check">
+<tt class="descname">check</tt><big>(</big><em>instance</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#exclusion.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.exclusion.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the proportion of tuples covered by the constraint that satisfy the constraint.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.exclusion.repair">
+<tt class="descname">repair</tt><big>(</big><em>instance</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#exclusion.repair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.exclusion.repair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove tuples that violate the constraint.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.orm_model.instance">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">instance</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#instance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>The instance class stores a population of a model. It consists of
+a reference to the model, a population of object types, and a 
+population of fact types.</p>
+<dl class="method">
+<dt id="lib.orm_model.instance.add_fact">
+<tt class="descname">add_fact</tt><big>(</big><em>predicate</em>, <em>fact</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#instance.add_fact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.instance.add_fact" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.instance.display">
+<tt class="descname">display</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#instance.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.instance.display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.instance.domain_pop">
+<tt class="descname">domain_pop</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#instance.domain_pop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.instance.domain_pop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.instance.random_pop">
+<tt class="descname">random_pop</tt><big>(</big><em>predicate</em>, <em>max_size</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#instance.random_pop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.instance.random_pop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.instance.rebuild_objects">
+<tt class="descname">rebuild_objects</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#instance.rebuild_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.instance.rebuild_objects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.orm_model.mandatory">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">mandatory</tt><big>(</big><em>name=''</em>, <em>roles=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#mandatory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.mandatory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.orm_model.constraint" title="lib.orm_model.constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.orm_model.constraint</span></tt></a></p>
+<p>A mandatory constraint requires that all elements in a domain play a role at least once.</p>
+<dl class="method">
+<dt id="lib.orm_model.mandatory.check">
+<tt class="descname">check</tt><big>(</big><em>instance</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#mandatory.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.mandatory.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether the mandatory constraint is satisfied on the covered role.  Returns
+the number of unique elements playing the role divided by the number of elements
+in the domain of the role.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.mandatory.repair">
+<tt class="descname">repair</tt><big>(</big><em>instance</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#mandatory.repair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.mandatory.repair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Repairs a violated mandatory constraint by adding tuples to the affected predicate
+until the mandatory constraint is satisfied.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.orm_model.model">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">model</tt><a class="reference internal" href="_modules/lib/orm_model.html#model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>The model class is the ORMPY internal representation of an ORM model.
+It consists of a dictionary of domains (object types), a dictionary
+of predicates (fact types), and a list of constraints.</p>
+<dl class="method">
+<dt id="lib.orm_model.model.add_cons">
+<tt class="descname">add_cons</tt><big>(</big><em>constraint</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#model.add_cons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.model.add_cons" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.model.add_dom">
+<tt class="descname">add_dom</tt><big>(</big><em>domain</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#model.add_dom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.model.add_dom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.model.add_pred">
+<tt class="descname">add_pred</tt><big>(</big><em>predicate</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#model.add_pred"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.model.add_pred" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.model.display">
+<tt class="descname">display</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#model.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.model.display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.orm_model.predicate">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">predicate</tt><big>(</big><em>name=''</em>, <em>id=''</em>, <em>roles=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#predicate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.predicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
+<p>A predicate is a fact type in an ORM model.  Implemented as a named 
+list of roles.</p>
+<dl class="method">
+<dt id="lib.orm_model.predicate.display">
+<tt class="descname">display</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#predicate.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.predicate.display" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the predicate</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.orm_model.role">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">role</tt><big>(</big><em>predicate</em>, <em>position</em>, <em>roledef</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#role"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.role" title="Permalink to this definition">¶</a></dt>
+<dd><p>A role is the smallest unit of a predicate.  Each role in a predicate
+is played by objects of a single domain.</p>
+<dl class="method">
+<dt id="lib.orm_model.role.newval">
+<tt class="descname">newval</tt><big>(</big><em>model_inst</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#role.newval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.role.newval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a legal value not already playing role in a model instance.
+First, select an unused element from the domain population. 
+Otherwise, select a legal value from domain that is not in the population.
+If neither is possible, return a random value already playing that role.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.role.pop">
+<tt class="descname">pop</tt><big>(</big><em>model_inst</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#role.pop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.role.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return population of objects playing role in model instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.role.todict">
+<tt class="descname">todict</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#role.todict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.role.todict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format the role as a dictionary for display.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.orm_model.rolesequence">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">rolesequence</tt><big>(</big><em>roles=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#rolesequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.rolesequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
+<dl class="method">
+<dt id="lib.orm_model.rolesequence.instance">
+<tt class="descname">instance</tt><big>(</big><em>inst</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#rolesequence.instance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.rolesequence.instance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.rolesequence.names">
+<tt class="descname">names</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#rolesequence.names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.rolesequence.names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.rolesequence.project">
+<tt class="descname">project</tt><big>(</big><em>inst</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#rolesequence.project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.rolesequence.project" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.orm_model.setconstraint">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">setconstraint</tt><big>(</big><em>name=''</em>, <em>roles=</em><span class="optional">[</span><span class="optional">]</span>, <em>roles2=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#setconstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.setconstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.orm_model.constraint" title="lib.orm_model.constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.orm_model.constraint</span></tt></a></p>
+<p>Class setconstraint is an abstract class intend to be inherited by
+specific set-based constraint implementations (e.g. subset)</p>
+<dl class="method">
+<dt id="lib.orm_model.setconstraint.display">
+<tt class="descname">display</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#setconstraint.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.setconstraint.display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.setconstraint.predicates">
+<tt class="descname">predicates</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#setconstraint.predicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.setconstraint.predicates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.orm_model.subset">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">subset</tt><big>(</big><em>name=''</em>, <em>roles=</em><span class="optional">[</span><span class="optional">]</span>, <em>roles2=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.orm_model.setconstraint" title="lib.orm_model.setconstraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.orm_model.setconstraint</span></tt></a></p>
+<p>A subset constraint requires that the population of one set of roles
+is a subset of the population of another set of roles.</p>
+<dl class="method">
+<dt id="lib.orm_model.subset.check">
+<tt class="descname">check</tt><big>(</big><em>instance</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#subset.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.subset.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the proportion of tuples covered by the constrain that satisfy the constraint.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.subset.repair">
+<tt class="descname">repair</tt><big>(</big><em>instance</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#subset.repair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.subset.repair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete tuples that violate the constraint.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.orm_model.unique">
+<em class="property">class </em><tt class="descclassname">lib.orm_model.</tt><tt class="descname">unique</tt><big>(</big><em>name=''</em>, <em>roles=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.orm_model.constraint" title="lib.orm_model.constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.orm_model.constraint</span></tt></a></p>
+<p>A uniqueness constraint requires that all tuples in the covered roles are unique.</p>
+<dl class="method">
+<dt id="lib.orm_model.unique.check">
+<tt class="descname">check</tt><big>(</big><em>instance</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#unique.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.unique.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether the uniqueness constraint is satisifed on a given instance.
+Returns a value from 0 to 1 indicating the number of unique tuples in 
+the covered roles divided by the total number of tuples in the covered roles.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.orm_model.unique.repair">
+<tt class="descname">repair</tt><big>(</big><em>instance</em><big>)</big><a class="reference internal" href="_modules/lib/orm_model.html#unique.repair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.orm_model.unique.repair" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">lib Package</a><ul>
+<li><a class="reference internal" href="#module-lib.norma_loader"><tt class="docutils literal"><span class="pre">norma_loader</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.orm_model"><tt class="docutils literal"><span class="pre">orm_model</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to ORMPY&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="test.html"
+                        title="next chapter">test Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lib.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="test.html" title="test Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to ORMPY’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">ORMPY 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Nizol.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

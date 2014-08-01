@@ -1,0 +1,7 @@
+#/bin/bash
+
+# Set-up environment
+export ORMPY_TEST_DATA_DIR=./test/data
+
+# Run tests
+python -m unittest -v test.test_norma_loader

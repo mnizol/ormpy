@@ -1,0 +1,6 @@
+#/bin/bash
+
+sphinx-apidoc -o doc .
+cd doc
+make clean
+make html

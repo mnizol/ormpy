@@ -1,0 +1,4 @@
+import os
+ORMPY_TEST_DATA_DIR = os.getenv("ORMPY_TEST_DATA_DIR")
+
+

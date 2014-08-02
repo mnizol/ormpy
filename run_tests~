@@ -1,7 +1,11 @@
 #/bin/bash
 
 # Set-up environment
-export ORMPY_TEST_DATA_DIR=./test/data
+export ORMPY_TEST_DATA_DIR=./test/data/
 
 # Run tests
-python -m unittest -v test.test_norma_loader
+if [ "$1" -eq --cover ]; then
+    nosetests --cover-inclusive --with-coverage --cover-erase --cover-package=lib
+else
+    nosetests --verbose
+fi

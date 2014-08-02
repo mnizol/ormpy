@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.NormaLoader &mdash; ORMPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ORMPY 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.NormaLoader</h1><div class="highlight"><pre>
+<span class="c">##############################################################################</span>
+<span class="c"># Package: ormpy</span>
+<span class="c"># File:    NormaLoader.py</span>
+<span class="c"># Author:  Matthew Nizol</span>
+<span class="c">##############################################################################</span>
+
+<span class="sd">&quot;&quot;&quot; Module for importing .orm files produced by the NORMA modeling tool.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">lib.Model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">import</span> <span class="nn">lib.ObjectType</span> <span class="kn">as</span> <span class="nn">ObjectType</span>
+
+<span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="kn">as</span> <span class="nn">xml</span>
+
+<div class="viewcode-block" id="NormaLoader"><a class="viewcode-back" href="../../lib.html#lib.NormaLoader.NormaLoader">[docs]</a><span class="k">class</span> <span class="nc">NormaLoader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Loads an .orm file produced by the NORMA modeling tool into a</span>
+<span class="sd">        :class:`Model.Model`.  There are no public methods in this class.  To</span>
+<span class="sd">        load a model, just call:: </span>
+<span class="sd"> </span>
+<span class="sd">            loader = NormaLoader(&quot;/path/to/file/example.orm&quot;)</span>
+<span class="sd">            model = loader.model  </span>
+
+<span class="sd">        The only other publically accessible attribute is the *omissions* list,</span>
+<span class="sd">        which contains a list of model elements the loader ignored.      </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c">###########################################################################</span>
+    <span class="c"># Constructor: Only public method!</span>
+    <span class="c">###########################################################################</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize object and load *filename*.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># NORMA namespace constants.  If the .ORM file is based on updated</span>
+        <span class="c"># namespaces, we will not load it.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ns_root</span> <span class="o">=</span> <span class="s">&quot;{http://schemas.neumont.edu/ORM/2006-04/ORMRoot}&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">=</span> <span class="s">&quot;{http://schemas.neumont.edu/ORM/2006-04/ORMCore}&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span> <span class="c"># Create a new ORMPY model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c"># Omitted model elements to report to the user</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c"># Dictionary of {id, element} pairs </span>
+    
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_boolean</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_mappings</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    
+    <span class="c">###########################################################################</span>
+    <span class="c"># Private Utility Functions</span>
+    <span class="c">###########################################################################</span>
+    <span class="k">def</span> <span class="nf">_build_mappings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Build mappings used by instances of the class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Mapping from XML element tag to loader functions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;Objects&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_elements</span><span class="p">,</span>
+            <span class="s">&#39;EntityType&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_entity_type</span><span class="p">,</span>
+            <span class="s">&#39;ValueType&#39;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value_type</span><span class="p">,</span>
+            <span class="s">&#39;ObjectifiedType&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_objectified_type</span><span class="p">,</span>
+            <span class="s">&#39;NestedPredicate&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_nested_fact_type</span><span class="p">,</span>
+            <span class="s">&#39;SubtypeDerivationRule&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_subtype_derivation</span><span class="p">,</span>
+            <span class="s">&#39;PreferredIdentifier&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_preffered_identifier</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_boolean</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;true&#39;</span> <span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+            <span class="s">&#39;false&#39;</span> <span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+             <span class="bp">None</span><span class="p">:</span> <span class="bp">None</span>
+        <span class="p">}</span>
+
+
+    <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads the .orm file named *filename* into *self.model* &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_norma_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_elements</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_parse_norma_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Parse a NORMA File and return the ORMModel element. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="s">&quot;ORM&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Input filename must have .orm extension.&quot;</span><span class="p">)</span>
+
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ns_root</span> <span class="o">+</span> <span class="s">&quot;ORM2&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Root of input file must be &lt;ormRoot:ORM2&gt;.&quot;</span><span class="p">)</span>
+
+        <span class="n">model_node</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;ORMModel&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">model_node</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Cannot find &lt;orm:ORMModel&gt; in input file.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">model_node</span>
+
+    <span class="k">def</span> <span class="nf">_load_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Call the loader function associated with each child element of the </span>
+<span class="sd">            *parent* element.  *target* is the object into which the XML data</span>
+<span class="sd">            will be loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local_tag</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+        
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span><span class="p">[</span><span class="n">tag</span><span class="p">](</span><span class="n">child</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span> <span class="c"># No loading function defined.</span>
+
+
+    <span class="k">def</span> <span class="nf">_local_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Strips namespace from tag element. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="c">##########################################################################</span>
+    <span class="c"># Private Functions to Load Object Types</span>
+    <span class="c">##########################################################################</span>
+    <span class="k">def</span> <span class="nf">_load_entity_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads an entity type rooted at node *element* &quot;&quot;&quot;</span>
+        <span class="n">entity_type</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">EntityType</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_object_type</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">entity_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_value_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads a value type rooted at node *element* &quot;&quot;&quot;</span>
+        <span class="n">value_type</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ValueType</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_object_type</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">value_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_objectified_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads an objectified type rooted at node *element* &quot;&quot;&quot;</span>
+        <span class="n">objectified_type</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ObjectifiedType</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_object_type</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">objectified_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_object_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads object type rooted at node *element* into *object_type*. &quot;&quot;&quot;</span> 
+        <span class="c"># Basic attributes</span>
+        <span class="n">object_type</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">)</span>
+        <span class="n">object_type</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">,</span> <span class="s">&quot;_&quot;</span><span class="p">)</span>
+        <span class="n">object_type</span><span class="o">.</span><span class="n">independent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_boolean</span><span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsIndependent&quot;</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsImplicitBooleanValue&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&quot;true&quot;</span><span class="p">:</span> <span class="c"># Skip if implicit</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_elements</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">object_type</span><span class="o">.</span><span class="n">_id</span><span class="p">:</span>  <span class="c"># Will be None if element should be skipped</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">object_type</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">object_type</span><span class="o">.</span><span class="n">_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">object_type</span>
+
+    <span class="k">def</span> <span class="nf">_load_nested_fact_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads NestedPredicate element into object_type. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsImplied&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">:</span>  <span class="c"># Skip implied object types</span>
+            <span class="n">object_type</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="bp">None</span> 
+        <span class="k">else</span><span class="p">:</span> <span class="c"># Store GUID of nested fact type</span>
+            <span class="n">object_type</span><span class="o">.</span><span class="n">nested_fact_type</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ref&quot;</span><span class="p">)</span>  
+
+    <span class="k">def</span> <span class="nf">_load_subtype_derivation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads SubtypeDerivationRule into object_type. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Subtype derivation rule for &quot;</span> <span class="o">+</span> <span class="n">object_type</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_preffered_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads PreferredIdentifier into object_type. &quot;&quot;&quot;</span>
+        <span class="n">object_type</span><span class="o">.</span><span class="n">identifier</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ref&quot;</span><span class="p">)</span>  <span class="c"># GUID for uniq constraint</span>
+        
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        # Data Type</span>
+<span class="sd">        node = self._find(element, &quot;ConceptualDataType&quot;)</span>
+<span class="sd">        if datatype_element:</span>
+<span class="sd">            datatype_ref = datatype_element.get(&quot;ref&quot;)  # GUID for data type</span>
+<span class="sd">            datatype_scale = datatype_element.get(&quot;Scale&quot;)</span>
+<span class="sd">            datatype_length = datatype_element.get(&quot;Length&quot;)</span>
+
+<span class="sd">        # Check for value constraints</span>
+<span class="sd">        # NOTE: Only handling string lists.  Need to update for min+max range</span>
+<span class="sd">        enum = []</span>
+<span class="sd">        for item in element.iter(self.namespace + &quot;ValueRange&quot;):</span>
+<span class="sd">            enum.append(item.get(&quot;MinValue&quot;))</span>
+
+<span class="sd">         # Create domain object</span>
+<span class="sd">        domain = orm.domain(id = id, name = name, enum = enum, </span>
+<span class="sd">                            min = 0, max = self.maxint)</span>
+
+<span class="sd">        # Load domain into model and element dictionary</span>
+<span class="sd">        self.model.domains[name] = domain</span>
+<span class="sd">        self.elements[id] = domain</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    def load_predicate(self, element):</span>
+<span class="sd">        type = self.localTag(element)</span>
+
+<span class="sd">        if type != &quot;Fact&quot;: # Ignoring ImpliedFact, at least</span>
+<span class="sd">            return #raise Exception(&quot;Unexpected predicate type: &quot; + type)</span>
+
+<span class="sd">        # Create FactType</span>
+<span class="sd">        name = element.get(&quot;_Name&quot;)</span>
+<span class="sd">        id = element.get(&quot;id&quot;)</span>
+
+<span class="sd">        # Get roles        </span>
+<span class="sd">        rolelist = []</span>
+
+<span class="sd">        for role in self.find(element, &quot;FactRoles&quot;):</span>
+<span class="sd">            if self.localTag(role) == &quot;Role&quot;:</span>
+<span class="sd">                domid = self.find(role, &quot;RolePlayer&quot;).get(&quot;ref&quot;)</span>
+
+<span class="sd">                roledict = {} # New dictionary every iteration</span>
+<span class="sd">                roledict[&quot;domain&quot;] = self.elements[domid]</span>
+<span class="sd">                roledict[&quot;id&quot;] = role.get(&quot;id&quot;)</span>
+<span class="sd">                roledict[&quot;name&quot;] = role.get(&quot;name&quot;)</span>
+<span class="sd">                </span>
+<span class="sd">                rolelist.append(roledict)</span>
+<span class="sd"> </span>
+<span class="sd">        # Create predicate</span>
+<span class="sd">        predicate = orm.predicate(name = name, id = id, roles = rolelist)</span>
+<span class="sd">        self.model.predicates[name] = predicate</span>
+<span class="sd">        self.elements[id] = predicate</span>
+
+<span class="sd">        # Add roles to element dictionary [cannot do until predicate creates role objects]</span>
+<span class="sd">        for role in predicate:</span>
+<span class="sd">            self.elements[role.id] = role       </span>
+
+
+<span class="sd">    def load_constraint(self, element):</span>
+<span class="sd">        type = self.localTag(element)</span>
+<span class="sd">        id = element.get(&quot;id&quot;)</span>
+
+<span class="sd">        # Skip if implied</span>
+<span class="sd">        if element.get(&quot;IsImplied&quot;) == &quot;true&quot;:</span>
+<span class="sd">            return</span>
+
+<span class="sd">        roles = []</span>
+<span class="sd">        i = 0</span>
+
+<span class="sd">        for roleseq in element.iter(self.namespace + &quot;RoleSequence&quot;):</span>
+<span class="sd">            roles.append([])</span>
+<span class="sd">            for role in roleseq:</span>
+<span class="sd">                if self.localTag(role) == &quot;Role&quot;:</span>
+<span class="sd">                    id = role.get(&quot;ref&quot;)</span>
+
+<span class="sd">                    if id not in self.elements: # NOTE: Confirm only implied roles can be missing from self.elements</span>
+<span class="sd">                        return # Constrains implied roles</span>
+
+<span class="sd">                    roles[i].append(self.elements[id])</span>
+<span class="sd">            i += 1</span>
+
+<span class="sd">        if type == &quot;UniquenessConstraint&quot;:</span>
+<span class="sd">            cons = orm.unique(roles = roles[0]) </span>
+<span class="sd">        elif type == &quot;MandatoryConstraint&quot;:</span>
+<span class="sd">            cons = orm.mandatory(roles = roles[0])</span>
+<span class="sd">        elif type == &quot;SubsetConstraint&quot;:</span>
+<span class="sd">            cons = orm.subset(roles = roles[0], roles2 = roles[1])</span>
+<span class="sd">        elif type == &quot;ExclusionConstraint&quot;:</span>
+<span class="sd">            cons = orm.exclusion(roles = roles[0], roles2 = roles[1])</span>
+<span class="sd">        else:</span>
+<span class="sd">            raise Exception(&quot;Unexpected constraint type: &quot; + type)</span>
+
+<span class="sd">        self.model.constraints.append(cons)</span>
+
+
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+        
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Nizol.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

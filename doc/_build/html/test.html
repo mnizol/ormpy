@@ -52,44 +52,103 @@
             
   <div class="section" id="test-package">
 <h1>test Package<a class="headerlink" href="#test-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
-<h2><a class="reference internal" href="#module-test" title="test"><tt class="xref py py-mod docutils literal"><span class="pre">test</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-test"></span></div>
-<div class="section" id="module-test.test_norma_loader">
-<span id="test-norma-loader-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">test_norma_loader</span></tt> Module<a class="headerlink" href="#module-test.test_norma_loader" title="Permalink to this headline">¶</a></h2>
-<p>This file contains unit tests for the lib.norma_loader class</p>
+<div class="section" id="module-test.TestModel">
+<span id="testmodel-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestModel</span></tt> Module<a class="headerlink" href="#module-test.TestModel" title="Permalink to this headline">¶</a></h2>
+<p>This file contains unit tests for the lib.Model class</p>
 <dl class="class">
-<dt id="test.test_norma_loader.test_norma_loader">
-<em class="property">class </em><tt class="descclassname">test.test_norma_loader.</tt><tt class="descname">test_norma_loader</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/test_norma_loader.html#test_norma_loader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_norma_loader.test_norma_loader" title="Permalink to this definition">¶</a></dt>
+<dt id="test.TestModel.TestModel">
+<em class="property">class </em><tt class="descclassname">test.TestModel.</tt><tt class="descname">TestModel</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
-<p>Unit tests for the norma_loader class.</p>
+<p>Unit tests for the Model class.</p>
 <dl class="method">
-<dt id="test.test_norma_loader.test_norma_loader.setUp">
-<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/test_norma_loader.html#test_norma_loader.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_norma_loader.test_norma_loader.setUp" title="Permalink to this definition">¶</a></dt>
+<dt id="test.TestModel.TestModel.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.setUp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="test.test_norma_loader.test_norma_loader.test_bad_filename_extension">
-<tt class="descname">test_bad_filename_extension</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/test_norma_loader.html#test_norma_loader.test_bad_filename_extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_norma_loader.test_norma_loader.test_bad_filename_extension" title="Permalink to this definition">¶</a></dt>
-<dd><p>Confirm that exception is raised when input file has .txt extension rather than .orm extension.</p>
+<dt id="test.TestModel.TestModel.test_add_constraint">
+<tt class="descname">test_add_constraint</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm we can add a constraint to the model.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="test.test_norma_loader.test_norma_loader.test_bad_root_element">
-<tt class="descname">test_bad_root_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/test_norma_loader.html#test_norma_loader.test_bad_root_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_norma_loader.test_norma_loader.test_bad_root_element" title="Permalink to this definition">¶</a></dt>
-<dd><p>Confirm that exception is raised when the root element of the XML is not &lt;ormRoot:ORM2&gt;.</p>
+<dt id="test.TestModel.TestModel.test_add_fact_type">
+<tt class="descname">test_add_fact_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_fact_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_fact_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm we can add a fact type to the model.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="test.test_norma_loader.test_norma_loader.test_no_model_element">
-<tt class="descname">test_no_model_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/test_norma_loader.html#test_norma_loader.test_no_model_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_norma_loader.test_norma_loader.test_no_model_element" title="Permalink to this definition">¶</a></dt>
-<dd><p>Confirm that exception is raised when the XML does not contain an ORMModel element.</p>
+<dt id="test.TestModel.TestModel.test_add_invalid">
+<tt class="descname">test_add_invalid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_invalid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_invalid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm we cannot add something invalid to the model.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="test.test_norma_loader.test_norma_loader.test_successful_parse">
-<tt class="descname">test_successful_parse</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/test_norma_loader.html#test_norma_loader.test_successful_parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_norma_loader.test_norma_loader.test_successful_parse" title="Permalink to this definition">¶</a></dt>
+<dt id="test.TestModel.TestModel.test_add_object_type">
+<tt class="descname">test_add_object_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_object_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_object_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm we can add an object type to the model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestModel.TestModel.test_get_missing_elements">
+<tt class="descname">test_get_missing_elements</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_get_missing_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_get_missing_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm a request for a non-existent element returns None.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-test.TestNormaLoader">
+<span id="testnormaloader-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestNormaLoader</span></tt> Module<a class="headerlink" href="#module-test.TestNormaLoader" title="Permalink to this headline">¶</a></h2>
+<p>This file contains unit tests for the lib.NormaLoader class</p>
+<dl class="class">
+<dt id="test.TestNormaLoader.TestNormaLoader">
+<em class="property">class </em><tt class="descclassname">test.TestNormaLoader.</tt><tt class="descname">TestNormaLoader</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Unit tests for the NormaLoader class.</p>
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_bad_filename_extension">
+<tt class="descname">test_bad_filename_extension</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_bad_filename_extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_bad_filename_extension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm that exception is raised when input file has .txt extension 
+rather than .orm extension.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_bad_root_element">
+<tt class="descname">test_bad_root_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_bad_root_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_bad_root_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm that exception is raised when the root element of the
+XML is not &lt;ormRoot:ORM2&gt;.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_empty_model">
+<tt class="descname">test_empty_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_empty_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_empty_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm a successful parse on a small input file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_load_object_types">
+<tt class="descname">test_load_object_types</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_load_object_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_load_object_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test of object type load.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_no_model_element">
+<tt class="descname">test_no_model_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_no_model_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_no_model_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm that exception is raised when the XML does not contain an
+ORMModel element.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_omit_subtype_derivation">
+<tt class="descname">test_omit_subtype_derivation</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_omit_subtype_derivation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_omit_subtype_derivation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm that subtype derivation rule omission note
+is added to self.omissions.</p>
 </dd></dl>
 
 </dd></dl>
@@ -106,8 +165,8 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">test Package</a><ul>
-<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">test</span></tt> Package</a></li>
-<li><a class="reference internal" href="#module-test.test_norma_loader"><tt class="docutils literal"><span class="pre">test_norma_loader</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-test.TestModel"><tt class="docutils literal"><span class="pre">TestModel</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-test.TestNormaLoader"><tt class="docutils literal"><span class="pre">TestNormaLoader</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>

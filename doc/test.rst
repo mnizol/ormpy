@@ -1,18 +1,18 @@
 test Package
 ============
 
-:mod:`test` Package
--------------------
+:mod:`TestModel` Module
+-----------------------
 
-.. automodule:: test
+.. automodule:: test.TestModel
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`test_norma_loader` Module
--------------------------------
+:mod:`TestNormaLoader` Module
+-----------------------------
 
-.. automodule:: test.test_norma_loader
+.. automodule:: test.TestNormaLoader
     :members:
     :undoc-members:
     :show-inheritance:

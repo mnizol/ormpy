@@ -55,7 +55,35 @@
 <span class="c"># Author:  Matthew Nizol</span>
 <span class="c">##############################################################################</span>
 
-<span class="sd">&quot;&quot;&quot; Module for importing .orm files produced by the NORMA modeling tool.</span>
+<span class="sd">&quot;&quot;&quot; Module for importing .orm files produced by the NORMA_ modeling tool,</span>
+<span class="sd">    which is a plugin for Visual Studio.</span>
+
+<span class="sd">    .. _NORMA: http://sourceforge.net/projects/orm</span>
+
+<span class="sd">    NormaLoader.py has been tested on the .orm file format that utilizes the</span>
+<span class="sd">    following namespaces:</span>
+
+<span class="sd">    * ormRoot: http://schemas.neumont.edu/ORM/2006-04/ORMRoot </span>
+<span class="sd">    * orm: http://schemas.neumont.edu/ORM/2006-04/ORMCore</span>
+
+<span class="sd">    NormaLoader intentionally ignores much of the .orm file structure when</span>
+<span class="sd">    loading the file into a :class:`lib.Model.Model` object (much of the .orm</span>
+<span class="sd">    file is not relevant to the analyses performed by ORMPY).  All information</span>
+<span class="sd">    outside of the &lt;orm:ORMModel&gt; element is ignored, which includes things</span>
+<span class="sd">    like diagram (shape) data and extensions.  NormaLoader also ignores the </span>
+<span class="sd">    following (not necessarily exhaustive) list of items:</span>
+
+<span class="sd">    * Sample (instance) data</span>
+<span class="sd">    * Implicit elements not explicitly modeled by the modeler</span>
+<span class="sd">    * Model errors reported by NORMA</span>
+<span class="sd">    * Informal model notes</span>
+<span class="sd">    * Multiple readings for a fact type</span>
+<span class="sd">    * Derivation rules for subtypes, fact types, and roles</span>
+<span class="sd">    * Constraints outside the scope of ORM-- or its extensions</span>
+
+<span class="sd">    A list of important model elements (such as derivations </span>
+<span class="sd">    and constraints) that are ignored by NormaLoader is contained in the</span>
+<span class="sd">    *omissions* attribute after loading the input file.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">lib.Model</span> <span class="kn">import</span> <span class="n">Model</span>
@@ -65,14 +93,11 @@
 
 <div class="viewcode-block" id="NormaLoader"><a class="viewcode-back" href="../../lib.html#lib.NormaLoader.NormaLoader">[docs]</a><span class="k">class</span> <span class="nc">NormaLoader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Loads an .orm file produced by the NORMA modeling tool into a</span>
-<span class="sd">        :class:`Model.Model`.  There are no public methods in this class.  To</span>
-<span class="sd">        load a model, just call:: </span>
+<span class="sd">        :class:`lib.Model.Model`.  There are no public methods in this class.  </span>
+<span class="sd">        An .orm file can be loaded via the constructor.  For example: :: </span>
 <span class="sd"> </span>
 <span class="sd">            loader = NormaLoader(&quot;/path/to/file/example.orm&quot;)</span>
-<span class="sd">            model = loader.model  </span>
-
-<span class="sd">        The only other publically accessible attribute is the *omissions* list,</span>
-<span class="sd">        which contains a list of model elements the loader ignored.      </span>
+<span class="sd">            model = loader.model     </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c">###########################################################################</span>
@@ -81,13 +106,22 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize object and load *filename*.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c"># Public attributes</span>
+
+        <span class="c">#: The ORM model (:class:`lib.Model.Model`) loaded from the .orm file.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span> 
+
+        <span class="c">#: List of items in the .orm file omitted by the NormaLoader</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span> <span class="o">=</span> <span class="p">[]</span>  
+
+        <span class="c"># Private attributes</span>
+
         <span class="c"># NORMA namespace constants.  If the .ORM file is based on updated</span>
         <span class="c"># namespaces, we will not load it.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ns_root</span> <span class="o">=</span> <span class="s">&quot;{http://schemas.neumont.edu/ORM/2006-04/ORMRoot}&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">=</span> <span class="s">&quot;{http://schemas.neumont.edu/ORM/2006-04/ORMCore}&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span> <span class="c"># Create a new ORMPY model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c"># Omitted model elements to report to the user</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c"># Dictionary of {id, element} pairs </span>
     
         <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span> <span class="o">=</span> <span class="p">{}</span>

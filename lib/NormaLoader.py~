@@ -30,7 +30,7 @@
     * Derivation rules for subtypes, fact types, and roles
     * Constraints outside the scope of ORM-- or its extensions
 
-    A list of important model elements (such as derivations 
+    A list of descriptions of important model elements (such as derivations 
     and constraints) that are ignored by NormaLoader is contained in the
     *omissions* attribute after loading the input file.
 """

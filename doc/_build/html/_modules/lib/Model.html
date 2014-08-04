@@ -112,8 +112,14 @@
 </div>
 <div class="viewcode-block" id="Model.num_constraints"><a class="viewcode-back" href="../../lib.html#lib.Model.Model.num_constraints">[docs]</a>    <span class="k">def</span> <span class="nf">num_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Returns the number of constraints in the model. &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="p">)</span></div></div>
-</pre></div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Model.display"><a class="viewcode-back" href="../../lib.html#lib.Model.Model.display">[docs]</a>    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Prints the model to stdout. &quot;&quot;&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;Object Types: &quot;</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_object_types</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="o">*</span><span class="mi">4</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">display_string</span><span class="p">()</span>
+</pre></div></div></div>
 
           </div>
         </div>

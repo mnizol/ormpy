@@ -71,7 +71,12 @@
     <span class="sd">&quot;&quot;&quot; Command line entry point for ORMPY program. &quot;&quot;&quot;</span>
 
     <span class="c"># Parse Command Line</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s">&#39;ORMPY&#39;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s">&#39;Object Role Modeling (ORM) Analysis Tool for Python&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-q&#39;</span><span class="p">,</span> <span class="s">&#39;--quiet&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;quiet&#39;</span><span class="p">,</span> 
+        <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;suppress warning messages&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-m&#39;</span><span class="p">,</span> <span class="s">&#39;--print-model&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> 
+        <span class="n">dest</span><span class="o">=</span><span class="s">&#39;print_model&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;print model contents&#39;</span><span class="p">)</span>        
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;filename&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;File containing ORM model&#39;</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
@@ -83,13 +88,14 @@
         <span class="k">print</span> <span class="n">exception</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">print</span> <span class="s">&quot;The following items were ignored when loading &quot;</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">filename</span>
         <span class="k">for</span> <span class="n">omission</span> <span class="ow">in</span> <span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">:</span>
             <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="n">omission</span>
 
-    <span class="c">#print</span>
-    <span class="c">#model.display()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">print_model</span><span class="p">:</span>
+        <span class="k">print</span>
+        <span class="n">loader</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
 </pre></div></div>
 
           </div>

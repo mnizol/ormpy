@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ormRoot:ORM2 xmlns:orm="http://schemas.neumont.edu/ORM/2006-04/ORMCore" xmlns:ormDiagram="http://schemas.neumont.edu/ORM/2006-04/ORMDiagram" xmlns:ormRoot="http://schemas.neumont.edu/ORM/2006-04/ORMRoot">
+	<orm:ORMModel id="_D0147AA7-31D4-462C-A87C-A51DEE275EBA" Name="ORMModel1">
+		<orm:Objects>
+			<orm:ValueType id="_FFE47225-5426-48D1-86D5-33B88267892F" Name="A">
+				<orm:ConceptualDataType id="_45DB73A5-C7FB-4D41-AF02-579709CE2AD2" ref="_B87FAF13-EF10-4BA2-ADCC-90EAEFA9DCA0" Scale="0" Length="0" />
+				<orm:ValueRestriction>
+					<orm:ValueConstraint id="_9F61B75E-FB59-456F-97A9-E4CF104FABE5" Name="ValueConstraint1">
+						<orm:ValueRanges>
+							<orm:ValueRange id="_38B0C366-6DD5-4060-99E2-C5AFE8A22DD3" MinValue="1" InvariantMinValue="1" MaxValue="2" InvariantMaxValue="2" MinInclusion="NotSet" MaxInclusion="NotSet" />
+							<orm:ValueRange id="_2A6B3C47-9F5D-4A57-BEF1-72C4315AC6E7" MinValue="5" InvariantMinValue="5" MaxValue="6" InvariantMaxValue="6" MinInclusion="Open" MaxInclusion="Closed" />
+							<orm:ValueRange id="_F472103E-6D70-42E8-B27D-247161242274" MinValue="10" InvariantMinValue="10" MaxValue="20" InvariantMaxValue="20" MinInclusion="Closed" MaxInclusion="Open" />
+							<orm:ValueRange id="_CEFC1B00-538E-40C7-979F-3B9737002B15" MinValue="100" InvariantMinValue="100" MaxValue="200" InvariantMaxValue="200" MinInclusion="Open" MaxInclusion="Open" />
+						</orm:ValueRanges>
+					</orm:ValueConstraint>
+				</orm:ValueRestriction>
+			</orm:ValueType>
+		</orm:Objects>
+		<orm:DataTypes>
+			<orm:UnsignedIntegerNumericDataType id="_B87FAF13-EF10-4BA2-ADCC-90EAEFA9DCA0" />
+		</orm:DataTypes>
+		<orm:ReferenceModeKinds>
+			<orm:ReferenceModeKind id="_9BCA4D1A-D800-4CFF-8990-57C04D83A24C" FormatString="{1}" ReferenceModeType="General" />
+			<orm:ReferenceModeKind id="_502ABD19-EDB0-4BB3-A092-90B9DAD29610" FormatString="{0}_{1}" ReferenceModeType="Popular" />
+			<orm:ReferenceModeKind id="_9720F147-B1DA-44F2-8ED8-F7BCE7F6B977" FormatString="{1}Value" ReferenceModeType="UnitBased" />
+		</orm:ReferenceModeKinds>
+	</orm:ORMModel>
+	<ormDiagram:ORMDiagram id="_FC4C8BDC-8720-4100-B049-888048078E34" IsCompleteView="false" Name="ORMModel1" BaseFontName="Tahoma" BaseFontSize="0.0972222238779068">
+		<ormDiagram:Shapes>
+			<ormDiagram:ObjectTypeShape id="_4CF5451F-F9BE-4D7F-A824-C3C794633F41" IsExpanded="true" AbsoluteBounds="2.2902085855603218, 0.88541668653488159, 0.22095666348934173, 0.22950302660465241">
+				<ormDiagram:RelativeShapes>
+					<ormDiagram:ValueConstraintShape id="_25A0C8E1-7FE2-4473-920B-072D77CC54E6" IsExpanded="true" AbsoluteBounds="2.5711652490496637, 0.75591365993022919, 1.5519793033599854, 0.12950302660465241">
+						<ormDiagram:Subject ref="_9F61B75E-FB59-456F-97A9-E4CF104FABE5" />
+					</ormDiagram:ValueConstraintShape>
+				</ormDiagram:RelativeShapes>
+				<ormDiagram:Subject ref="_FFE47225-5426-48D1-86D5-33B88267892F" />
+			</ormDiagram:ObjectTypeShape>
+		</ormDiagram:Shapes>
+		<ormDiagram:Subject ref="_D0147AA7-31D4-462C-A87C-A51DEE275EBA" />
+	</ormDiagram:ORMDiagram>
+</ormRoot:ORM2>

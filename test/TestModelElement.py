@@ -10,7 +10,7 @@
 import sys
 from unittest import TestCase
 
-from lib.ModelElement import ModelElementSet, ModelElement
+from lib.ModelElement import ModelElementSet
 
 from lib.ObjectType import ObjectType
 from lib.FactType import FactType

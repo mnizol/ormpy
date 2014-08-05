@@ -63,6 +63,7 @@
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
+ | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
@@ -74,6 +75,12 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="lib.html#lib.ModelElement.ModelElementSet.add">add() (lib.ModelElement.ModelElementSet method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="lib.html#lib.Constraint.ValueConstraint.add_range">add_range() (lib.Constraint.ValueConstraint method)</a>
   </dt>
 
   </dl></td>
@@ -90,14 +97,22 @@
   <dt><a href="lib.html#lib.Model.Model.constraints">constraints (lib.Model.Model attribute)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="lib.html#lib.Constraint.ConstraintSet">ConstraintSet (class in lib.Constraint)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="lib.html#lib.ModelElement.ModelElementSet.count">count() (lib.ModelElement.ModelElementSet method)</a>
+  </dt>
+
+      
+  <dt><a href="lib.html#lib.Constraint.Constraint.cover">cover() (lib.Constraint.Constraint method)</a>
+  </dt>
+
+      
+  <dt><a href="lib.html#lib.Constraint.Constraint.covers">covers (lib.Constraint.Constraint attribute)</a>
   </dt>
 
   </dl></td>
@@ -249,6 +264,24 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="lib.html#lib.Constraint.ValueRange.max_open">max_open (lib.Constraint.ValueRange attribute)</a>
+  </dt>
+
+      
+  <dt><a href="lib.html#lib.Constraint.ValueRange.max_value">max_value (lib.Constraint.ValueRange attribute)</a>
+  </dt>
+
+      
+  <dt><a href="lib.html#lib.Constraint.ValueRange.min_open">min_open (lib.Constraint.ValueRange attribute)</a>
+  </dt>
+
+      
+  <dt><a href="lib.html#lib.Constraint.ValueRange.min_value">min_value (lib.Constraint.ValueRange attribute)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
   <dt><a href="lib.html#lib.Model.Model">Model (class in lib.Model)</a>
   </dt>
 
@@ -256,8 +289,6 @@
   <dt><a href="lib.html#lib.NormaLoader.NormaLoader.model">model (lib.NormaLoader.NormaLoader attribute)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="lib.html#lib.ModelElement.ModelElement">ModelElement (class in lib.ModelElement)</a>
   </dt>
@@ -323,14 +354,28 @@
   </dl></td>
 </tr></table>
 
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="lib.html#lib.Constraint.ValueConstraint.ranges">ranges (lib.Constraint.ValueConstraint attribute)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="test.html#test.TestModel.TestModel.setUp">setUp() (test.TestModel.TestModel method)</a>
+  <dt><a href="test.html#test.TestConstraint.TestConstraint.setUp">setUp() (test.TestConstraint.TestConstraint method)</a>
   </dt>
 
       <dd><dl>
+        
+  <dt><a href="test.html#test.TestModel.TestModel.setUp">(test.TestModel.TestModel method)</a>
+  </dt>
+
         
   <dt><a href="test.html#test.TestModelElement.TestModelElementSet.setUp">(test.TestModelElement.TestModelElementSet method)</a>
   </dt>
@@ -351,6 +396,10 @@
   </dt>
 
       
+  <dt><a href="test.html#module-test.TestConstraint">test.TestConstraint (module)</a>
+  </dt>
+
+      
   <dt><a href="test.html#module-test.TestModel">test.TestModel (module)</a>
   </dt>
 
@@ -367,11 +416,31 @@
   </dt>
 
       
+  <dt><a href="test.html#test.TestConstraint.TestConstraint.test_add_object_type">test_add_object_type() (test.TestConstraint.TestConstraint method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestConstraint.TestConstraint.test_add_ranges_default_open">test_add_ranges_default_open() (test.TestConstraint.TestConstraint method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestConstraint.TestConstraint.test_add_ranges_explicit_open">test_add_ranges_explicit_open() (test.TestConstraint.TestConstraint method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_adding_invalid_element">test_adding_invalid_element() (test.TestNormaLoader.TestNormaLoader method)</a>
+  </dt>
+
+      
   <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_bad_filename_extension">test_bad_filename_extension() (test.TestNormaLoader.TestNormaLoader method)</a>
   </dt>
 
       
   <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_bad_root_element">test_bad_root_element() (test.TestNormaLoader.TestNormaLoader method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_data_type_load">test_data_type_load() (test.TestNormaLoader.TestNormaLoader method)</a>
   </dt>
 
       
@@ -384,6 +453,8 @@
   </dt>
 
       </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="test.html#test.TestModel.TestModel.test_display_nonempty">test_display_nonempty() (test.TestModel.TestModel method)</a>
   </dt>
@@ -398,8 +469,6 @@
   <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_empty_model">test_empty_model() (test.TestNormaLoader.TestNormaLoader method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="test.html#test.TestModelElement.TestModelElementSet.test_get_element">test_get_element() (test.TestModelElement.TestModelElementSet method)</a>
   </dt>
@@ -422,6 +491,18 @@
 
       
   <dt><a href="test.html#test.TestModelElement.TestModelElementSet.test_overwrite">test_overwrite() (test.TestModelElement.TestModelElementSet method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_unknown_data_type">test_unknown_data_type() (test.TestNormaLoader.TestNormaLoader method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_value_constraint_on_types">test_value_constraint_on_types() (test.TestNormaLoader.TestNormaLoader method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestConstraint.TestConstraint">TestConstraint (class in test.TestConstraint)</a>
   </dt>
 
       
@@ -451,6 +532,16 @@
 
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="lib.html#lib.Constraint.ValueConstraint">ValueConstraint (class in lib.Constraint)</a>
+  </dt>
+
+      
+  <dt><a href="lib.html#lib.Constraint.ValueRange">ValueRange (class in lib.Constraint)</a>
+  </dt>
+
+  </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="lib.html#lib.ObjectType.ValueType">ValueType (class in lib.ObjectType)</a>

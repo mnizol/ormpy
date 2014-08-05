@@ -78,7 +78,10 @@ class TestModelElementSet(TestCase):
         _set.add(ObjectType(name="XYZ"))
         _set.add(ObjectType(name="ABC"))
         _set.display()
-        output = sys.stdout.getvalue()
+
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, "Model Elements:\n    ABC\n    GHI\n    XYZ")
+        
         
 
 

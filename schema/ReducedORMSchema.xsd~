@@ -28,122 +28,26 @@
  
   <!-- =============================================================================================================== -->
 
-  <xs:complexType name="ValueTypeType">
-    <xs:complexContent>
-      <xs:extension base="ObjectTypeType">
-        <xs:sequence>
-          <xs:element name="ValueRestriction" type="ValueTypeValueRestrictionType" minOccurs="0"/> <!-- Object Type Value Constraint -->
-        </xs:sequence>
-
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
+ <ValueRestriction>
+    <ValueConstraint id="" name="">
+        <ValueRanges>
+            <!-- MinValue and MaxValue are required and are strings --> 
+            <!-- MinInclusion and MaxInclusion indiciate whether the range includes the bound.  They
+                 default to "NotSet" but can also be "Open" or "Closed" -->
+            <!-- ValueRange can also include the attributes , 
+                 which are for culture-invariant forms, but I don't understand how to use these. -->
+            <ValueRange id="" MinValue="" MaxValue="" MinInclusion="" MaxInclusion="">
+            </ValueRange>
+            .
+            .
+            .
+            <ValueRange>
+            </ValueRange>
+        </ValueRanges>
+    </ValueConstraint>
+ </ValueRestriction>
 
  
-
-  <xs:complexType name="ValueTypeValueRestrictionType">
-    <xs:annotation>
-      <xs:documentation>Restrict the values allowed for any instance of the containing value type.</xs:documentation>
-    </xs:annotation>
-    <xs:sequence>
-      <xs:element name="ValueConstraint" type="ValueConstraintWithNameType"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="ValueConstraintType">
-    <xs:annotation>
-      <xs:documentation>A constraint limiting the set of allowed values.</xs:documentation>
-    </xs:annotation>
-    <xs:sequence>
-      <xs:element name="ValueRanges" type="ValueRangesType"/>
-    </xs:sequence>
-    <xs:attributeGroup ref="idAttribute"/>
-  </xs:complexType>
-
-  <xs:complexType name="ValueRangesType">
-    <xs:annotation>
-      <xs:documentation>Container for value ranges. A value instance must be contained in the union of these ranges.</xs:documentation>
-    </xs:annotation>
-    <xs:sequence maxOccurs="unbounded">
-      <xs:element name="ValueRange" type="ValueRangeType"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="ValueRangeType">
-    <xs:annotation>
-      <xs:documentation>A simple value range.</xs:documentation>
-    </xs:annotation>
-    <xs:attributeGroup ref="idAttribute"/>
-    <xs:attribute name="MinValue" type="xs:string" use="required">
-      <xs:annotation>
-        <xs:documentation>The lower bound for the range.</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="MaxValue" type="xs:string" use="required">
-      <xs:annotation>
-        <xs:documentation>The upper bound of the range. Duplicate of the MinValue for a single value.</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="MinInclusion" type="RangeInclusionValues" default="NotSet">
-      <xs:annotation>
-        <xs:documentation>Does the range include the lower bound?</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="MaxInclusion" type="RangeInclusionValues" default="NotSet">
-      <xs:annotation>
-        <xs:documentation>Does the range include the upper bound?</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="InvariantMinValue" type="xs:string" use="optional">
-      <xs:annotation>
-        <xs:documentation>A culture-invariant form of the minValue attribute. This value will not be set for a data type where any value is allowed (such as a string) or if the minValue could not be interpreted by the current data type.</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="InvariantMaxValue" type="xs:string" use="optional">
-      <xs:annotation>
-        <xs:documentation>A culture-invariant form of the maxValue attribute. This value will not be set for a data type where any value is allowed (such as a string) or if the minValue could not be interpreted by the current data type.</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-  </xs:complexType>
-
-  <xs:simpleType name="RangeInclusionValues">
-    <xs:annotation>
-      <xs:documentation>Specify whether the endpoint of a range is included in the range.</xs:documentation>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="NotSet">
-        <xs:annotation>
-          <xs:documentation>Inclusion not explicitly set.</xs:documentation>
-        </xs:annotation>
-      </xs:enumeration>
-      <xs:enumeration value="Open">
-        <xs:annotation>
-          <xs:documentation>The endpoint is not included in the range of values.</xs:documentation>
-        </xs:annotation>
-      </xs:enumeration>
-      <xs:enumeration value="Closed">
-        <xs:annotation>
-          <xs:documentation>The endpoint is included in the range of values.</xs:documentation>
-        </xs:annotation>
-      </xs:enumeration>
-    </xs:restriction>
-  </xs:simpleType>
-  
-  <xs:complexType name="ValueConstraintWithNameType">
-    <xs:annotation>
-      <xs:documentation>A named constraint limiting the set of allowed values.</xs:documentation>
-    </xs:annotation>
-    <xs:complexContent>
-      <xs:extension base="ValueConstraintType">
-        <xs:attribute name="Name" type="xs:string" use="required">
-          <xs:annotation>
-            <xs:documentation>The constraint name. Validation errors will be present for any constraint name that is not unique within the model.</xs:documentation>
-          </xs:annotation>
-        </xs:attribute>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-
   <!-- =============================================================================================================== -->
   <!-- FACT TYPES SECTION -->
   <!-- =============================================================================================================== -->
@@ -240,46 +144,7 @@
     </xs:all>
   </xs:complexType>
 
-  <!-- =============================================================================================================== -->
-  <!-- DATA TYPES SECTION -->
-  <!-- =============================================================================================================== -->
-  <xs:complexType name="DataTypesType">
-    <xs:annotation>
-      <xs:documentation>Container for all data types used in the model.</xs:documentation>
-    </xs:annotation>
-    <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="UnspecifiedDataType" type="UnspecifiedDataTypeType"/>
-      <xs:element name="FixedLengthTextDataType" type="FixedLengthTextDataTypeType"/>
-      <xs:element name="VariableLengthTextDataType" type="VariableLengthTextDataTypeType"/>
-      <xs:element name="LargeLengthTextDataType" type="LargeLengthTextDataTypeType"/>
-      <xs:element name="SignedIntegerNumericDataType" type="SignedIntegerNumericDataTypeType"/>
-      <xs:element name="SignedSmallIntegerNumericDataType" type="SignedSmallIntegerNumericDataTypeType"/>
-      <xs:element name="SignedLargeIntegerNumericDataType" type="SignedLargeIntegerNumericDataTypeType"/>
-      <xs:element name="UnsignedIntegerNumericDataType" type="UnsignedIntegerNumericDataTypeType"/>
-      <xs:element name="UnsignedTinyIntegerNumericDataType" type="UnsignedTinyIntegerNumericDataTypeType"/>
-      <xs:element name="UnsignedSmallIntegerNumericDataType" type="UnsignedSmallIntegerNumericDataTypeType"/>
-      <xs:element name="UnsignedLargeIntegerNumericDataType" type="UnsignedLargeIntegerNumericDataTypeType"/>
-      <xs:element name="AutoCounterNumericDataType" type="AutoCounterNumericDataTypeType"/>
-      <xs:element name="FloatingPointNumericDataType" type="FloatingPointNumericDataTypeType"/>
-      <xs:element name="SinglePrecisionFloatingPointNumericDataType" type="SinglePrecisionFloatingPointNumericDataTypeType"/>
-      <xs:element name="DoublePrecisionFloatingPointNumericDataType" type="DoublePrecisionFloatingPointNumericDataTypeType"/>
-      <xs:element name="DecimalNumericDataType" type="DecimalNumericDataTypeType"/>
-      <xs:element name="MoneyNumericDataType" type="MoneyNumericDataTypeType"/>
-      <xs:element name="FixedLengthRawDataDataType" type="FixedLengthRawDataDataTypeType"/>
-      <xs:element name="VariableLengthRawDataDataType" type="VariableLengthRawDataDataTypeType"/>
-      <xs:element name="LargeLengthRawDataDataType" type="LargeLengthRawDataDataTypeType"/>
-      <xs:element name="PictureRawDataDataType" type="PictureRawDataDataTypeType"/>
-      <xs:element name="OleObjectRawDataDataType" type="OleObjectRawDataDataTypeType"/>
-      <xs:element name="AutoTimestampTemporalDataType" type="AutoTimestampTemporalDataTypeType"/>
-      <xs:element name="TimeTemporalDataType" type="TimeTemporalDataTypeType"/>
-      <xs:element name="DateTemporalDataType" type="DateTemporalDataTypeType"/>
-      <xs:element name="DateAndTimeTemporalDataType" type="DateAndTimeTemporalDataTypeType"/>
-      <xs:element name="TrueOrFalseLogicalDataType" type="TrueOrFalseLogicalDataTypeType"/>
-      <xs:element name="YesOrNoLogicalDataType" type="YesOrNoLogicalDataTypeType"/>
-      <xs:element name="RowIdOtherDataType" type="RowIdOtherDataTypeType"/>
-      <xs:element name="ObjectIdOtherDataType" type="ObjectIdOtherDataTypeType"/>
-    </xs:choice>
-  </xs:complexType>
+
   
   <!-- =============================================================================================================== -->
   <!-- CONSTRAINTS SECTION -->

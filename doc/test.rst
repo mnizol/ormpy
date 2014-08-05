@@ -9,6 +9,14 @@ test Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`TestConstraint` Module
+----------------------------
+
+.. automodule:: test.TestConstraint
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`TestModel` Module
 -----------------------
 

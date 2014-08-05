@@ -56,6 +56,42 @@
 <h2><a class="reference internal" href="#module-test" title="test"><tt class="xref py py-mod docutils literal"><span class="pre">test</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-test"></span><p>The <strong>test</strong> package contains unit tests for the ORMPY project.</p>
 </div>
+<div class="section" id="module-test.TestConstraint">
+<span id="testconstraint-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestConstraint</span></tt> Module<a class="headerlink" href="#module-test.TestConstraint" title="Permalink to this headline">¶</a></h2>
+<p>This file contains unit tests for the lib.TestConstraint class</p>
+<dl class="class">
+<dt id="test.TestConstraint.TestConstraint">
+<em class="property">class </em><tt class="descclassname">test.TestConstraint.</tt><tt class="descname">TestConstraint</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Unit tests for the Constraint module.</p>
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_add_object_type">
+<tt class="descname">test_add_object_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_add_object_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_add_object_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the addition of an object type to a constraint.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_add_ranges_default_open">
+<tt class="descname">test_add_ranges_default_open</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_add_ranges_default_open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_add_ranges_default_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the addition of value ranges to a value constraint 
+with default inclusion values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_add_ranges_explicit_open">
+<tt class="descname">test_add_ranges_explicit_open</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_add_ranges_explicit_open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_add_ranges_explicit_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the addition of value ranges to a value constraint 
+with explicit inclusion values.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-test.TestModel">
 <span id="testmodel-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestModel</span></tt> Module<a class="headerlink" href="#module-test.TestModel" title="Permalink to this headline">¶</a></h2>
 <p>This file contains unit tests for <a class="reference internal" href="lib.html#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">lib.Model.Model</span></tt></a></p>
@@ -151,6 +187,13 @@ classes.</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_adding_invalid_element">
+<tt class="descname">test_adding_invalid_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_adding_invalid_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_adding_invalid_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm exception is raised if an invalid object is passed to
+the _add() method.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestNormaLoader.TestNormaLoader.test_bad_filename_extension">
 <tt class="descname">test_bad_filename_extension</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_bad_filename_extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_bad_filename_extension" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm that exception is raised when input file has .txt extension 
@@ -162,6 +205,12 @@ rather than .orm extension.</p>
 <tt class="descname">test_bad_root_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_bad_root_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_bad_root_element" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm that exception is raised when the root element of the
 XML is not &lt;ormRoot:ORM2&gt;.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_data_type_load">
+<tt class="descname">test_data_type_load</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_data_type_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_data_type_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm data types are loaded properly for Value Types.</p>
 </dd></dl>
 
 <dl class="method">
@@ -190,6 +239,19 @@ ORMModel element.</p>
 is added to self.omissions.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_unknown_data_type">
+<tt class="descname">test_unknown_data_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_unknown_data_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_unknown_data_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm that data type defaults to int() if the actual type 
+is unexpected.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_value_constraint_on_types">
+<tt class="descname">test_value_constraint_on_types</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_value_constraint_on_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_value_constraint_on_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm that value constraints on value types are loaded.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -205,6 +267,7 @@ is added to self.omissions.</p>
   <ul>
 <li><a class="reference internal" href="#">test Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">test</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-test.TestConstraint"><tt class="docutils literal"><span class="pre">TestConstraint</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-test.TestModel"><tt class="docutils literal"><span class="pre">TestModel</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-test.TestModelElement"><tt class="docutils literal"><span class="pre">TestModelElement</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-test.TestNormaLoader"><tt class="docutils literal"><span class="pre">TestNormaLoader</span></tt> Module</a></li>

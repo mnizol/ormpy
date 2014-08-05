@@ -11,6 +11,7 @@ from unittest import TestCase
 from datetime import datetime, date, time
 
 from lib.NormaLoader import NormaLoader
+from lib.ModelElement import ModelElement
 import lib.ObjectType as ObjectType
 
 class TestNormaLoader(TestCase):
@@ -24,14 +25,16 @@ class TestNormaLoader(TestCase):
             rather than .orm extension. """
         with self.assertRaises(Exception) as ex:
             NormaLoader("test.txt")
-        self.assertEqual(ex.exception.message, "Input filename must have .orm extension.")
+        self.assertEqual(ex.exception.message, 
+            "Input filename must have .orm extension.")
 
     def test_bad_root_element(self):
         """ Confirm that exception is raised when the root element of the
             XML is not <ormRoot:ORM2>. """
         with self.assertRaises(Exception) as ex:
             NormaLoader(self.data_dir + "bad_root_element.orm")
-        self.assertEqual(ex.exception.message, "Root of input file must be <ormRoot:ORM2>.")
+        self.assertEqual(ex.exception.message, 
+            "Root of input file must be <ormRoot:ORM2>.")
 
     def test_no_model_element(self):
         """ Confirm that exception is raised when the XML does not contain an
@@ -39,7 +42,8 @@ class TestNormaLoader(TestCase):
         """
         with self.assertRaises(Exception) as ex:
             NormaLoader(self.data_dir + "no_model_element.orm")
-        self.assertEqual(ex.exception.message, "Cannot find <orm:ORMModel> in input file.")
+        self.assertEqual(ex.exception.message, 
+            "Cannot find <orm:ORMModel> in input file.")
 
     def test_empty_model(self):
         """ Confirm a successful parse on a small input file. """
@@ -48,12 +52,20 @@ class TestNormaLoader(TestCase):
         self.assertEqual(model.fact_types.count(), 0)
         self.assertEqual(model.constraints.count(), 0)
 
-
+    def test_adding_invalid_element(self):
+        """ Confirm exception is raised if an invalid object is passed to
+            the _add() method."""
+        loader = NormaLoader(self.data_dir + "empty_model.orm")
+        with self.assertRaises(Exception) as ex:
+            loader._add(ModelElement(uid="123", name="ABC"))
+        self.assertEqual(ex.exception.message, "Unexpected model element type")
+        
     def test_omit_subtype_derivation(self):
         """ Confirm that subtype derivation rule omission note
             is added to self.omissions. """
         loader = NormaLoader(self.data_dir + "subtype_with_derivation.orm")
-        self.assertItemsEqual(loader.omissions, ["Subtype derivation rule for B"])
+        self.assertItemsEqual(loader.omissions, 
+            ["Subtype derivation rule for B"])
 
     def test_load_object_types(self):
         """ Test of object type load. """
@@ -69,7 +81,8 @@ class TestNormaLoader(TestCase):
         # Independent Entity
         this = model.object_types.get("D") 
         self.assertTrue(this.independent)
-        self.assertEquals(this.identifying_constraint, "_5D7B0A6D-EF11-43C0-9EB3-398933165BC4")
+        self.assertEquals(this.identifying_constraint, 
+            "_5D7B0A6D-EF11-43C0-9EB3-398933165BC4")
         self.assertIsInstance(this, ObjectType.EntityType)
 
         # Non-independent Entity
@@ -98,11 +111,13 @@ class TestNormaLoader(TestCase):
         # Objectified Non-independent
         this = model.object_types.get("V1HasV2")
         self.assertFalse(this.independent)
-        self.assertEquals(this.identifying_constraint, "_CC5D22B1-DBA7-4383-80F2-29CEAE58A998")
-        self.assertEquals(this.nested_fact_type, "_B6D10F36-FFE2-4B86-BEA4-02F7FCA655F9")
+        self.assertEquals(this.identifying_constraint, 
+            "_CC5D22B1-DBA7-4383-80F2-29CEAE58A998")
+        self.assertEquals(this.nested_fact_type, 
+            "_B6D10F36-FFE2-4B86-BEA4-02F7FCA655F9")
 
-        # Implicit Objectified
-        this = model.object_types.get("V1HasDHasV2") # Created by ternary, should not load
+        # Implicit Objectified (Created by ternary, should not load)
+        this = model.object_types.get("V1HasDHasV2") 
         self.assertIsNone(this)
 
     def test_data_type_load(self):
@@ -134,6 +149,36 @@ class TestNormaLoader(TestCase):
         model = NormaLoader(self.data_dir + "unknown_data_types.orm").model
         self.assertIsInstance(model.object_types.get("A").data_type, int)
         self.assertIsInstance(model.object_types.get("B").data_type, int)
+
+    def test_value_constraint_on_types(self):
+        """ Confirm that value constraints on value types are loaded. """
+        model = NormaLoader(
+            self.data_dir + "test_value_type_value_constraint.orm").model
+        cons1 = model.constraints.get("ValueConstraint1")
+        
+        self.assertEquals(cons1.uid, "_9F61B75E-FB59-456F-97A9-E4CF104FABE5")
+        self.assertIs(cons1.covers[0], model.object_types.get("A"))
+
+        self.assertEquals(cons1.ranges[0].min_value, "1")
+        self.assertEquals(cons1.ranges[0].max_value, "2")
+        self.assertFalse(cons1.ranges[0].min_open)
+        self.assertFalse(cons1.ranges[0].max_open)
+
+        self.assertEquals(cons1.ranges[1].min_value, "5")
+        self.assertEquals(cons1.ranges[1].max_value, "6")
+        self.assertTrue(cons1.ranges[1].min_open)
+        self.assertFalse(cons1.ranges[1].max_open) 
+
+        self.assertEquals(cons1.ranges[2].min_value, "10")
+        self.assertEquals(cons1.ranges[2].max_value, "20")
+        self.assertFalse(cons1.ranges[2].min_open)
+        self.assertTrue(cons1.ranges[2].max_open)  
+
+        self.assertEquals(cons1.ranges[3].min_value, "100")
+        self.assertEquals(cons1.ranges[3].max_value, "200")
+        self.assertTrue(cons1.ranges[3].min_open)
+        self.assertTrue(cons1.ranges[3].max_open) 
+ 
 
         
 

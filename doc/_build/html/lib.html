@@ -78,6 +78,19 @@
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">Constraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>An ORM Constraint.</p>
+<dl class="method">
+<dt id="lib.Constraint.Constraint.cover">
+<tt class="descname">cover</tt><big>(</big><em>model_element</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.cover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.cover" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a model element to the list of elements covered by 
+the constraint.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.Constraint.covers">
+<tt class="descname">covers</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.Constraint.covers" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of roles or object types the constraint covers</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -85,6 +98,56 @@
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ConstraintSet</tt><a class="reference internal" href="_modules/lib/Constraint.html#ConstraintSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ConstraintSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElementSet" title="lib.ModelElement.ModelElementSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElementSet</span></tt></a></p>
 <p>Container for a set of constraints.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Constraint.ValueConstraint">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ValueConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
+<p>A value constraint.</p>
+<dl class="method">
+<dt id="lib.Constraint.ValueConstraint.add_range">
+<tt class="descname">add_range</tt><big>(</big><em>min_value</em>, <em>max_value</em>, <em>min_open=False</em>, <em>max_open=False</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueConstraint.add_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueConstraint.add_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a range of values to the constraint.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.ValueConstraint.ranges">
+<tt class="descname">ranges</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.ValueConstraint.ranges" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of value ranges (<a class="reference internal" href="#lib.Constraint.ValueRange" title="lib.Constraint.ValueRange"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.ValueRange</span></tt></a>)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Constraint.ValueRange">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ValueRange</tt><big>(</big><em>min_value</em>, <em>max_value</em>, <em>min_open=False</em>, <em>max_open=False</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueRange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A range of values.</p>
+<dl class="attribute">
+<dt id="lib.Constraint.ValueRange.max_open">
+<tt class="descname">max_open</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.ValueRange.max_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if maximum value excluded from range</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.ValueRange.max_value">
+<tt class="descname">max_value</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.ValueRange.max_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum value of the range</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.ValueRange.min_open">
+<tt class="descname">min_open</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.ValueRange.min_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if minimum value excluded from range</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.ValueRange.min_value">
+<tt class="descname">min_value</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.ValueRange.min_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minimum value of the range</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -224,12 +287,12 @@ following namespaces:</p>
 <p>NormaLoader intentionally ignores much of the .orm file structure when
 loading the file into a <a class="reference internal" href="#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">lib.Model.Model</span></tt></a> object (much of the .orm
 file is not relevant to the analyses performed by ORMPY).  All information
-outside of the &lt;orm:ORMModel&gt; element is ignored, which includes things
+outside of the &lt;orm:ORMModel&gt; node is ignored, which includes things
 like diagram (shape) data and extensions.  NormaLoader also ignores the 
 following (not necessarily exhaustive) list of items:</p>
 <ul class="simple">
 <li>Sample (instance) data</li>
-<li>Implicit elements not explicitly modeled by the modeler</li>
+<li>Model elements not explicitly modeled by the modeler (implicit elements)</li>
 <li>Model errors reported by NORMA</li>
 <li>Informal model notes</li>
 <li>Multiple readings for a fact type</li>

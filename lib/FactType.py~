@@ -19,5 +19,5 @@ class FactTypeSet(ModelElementSet):
 class FactType(ModelElement):
     """ An ORM Fact Type. """
 
-    def __init__(self, uid=None, name=None):
-        super(FactType, self).__init__(uid=uid, name=name)
+    def __init__(self, id=None, name=None):
+        super(FactType, self).__init__(id=id, name=name)

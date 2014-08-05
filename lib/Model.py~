@@ -33,7 +33,5 @@ class Model(object):
     def display(self):
         """ Prints the model to stdout. """
         self.object_types.display()
-        self.fact_types.display()
-        self.constraints.display()
 
 

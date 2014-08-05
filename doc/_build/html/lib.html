@@ -56,6 +56,10 @@
             
   <div class="section" id="lib-package">
 <h1>lib Package<a class="headerlink" href="#lib-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><a class="reference internal" href="#module-lib" title="lib"><tt class="xref py py-mod docutils literal"><span class="pre">lib</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-lib"></span><p>The <strong>lib</strong> package is the main library of Python modules for ORMPY.</p>
+</div>
 <div class="section" id="module-lib.CommandLine">
 <span id="commandline-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">CommandLine</span></tt> Module<a class="headerlink" href="#module-lib.CommandLine" title="Permalink to this headline">¶</a></h2>
 <p>This program contains the command line UI for the ORMPY program.</p>
@@ -71,9 +75,16 @@
 <p>This module provides a class for ORM constraints.</p>
 <dl class="class">
 <dt id="lib.Constraint.Constraint">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">Constraint</tt><a class="reference internal" href="_modules/lib/Constraint.html#Constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">Constraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>An ORM Constraint.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Constraint.ConstraintSet">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ConstraintSet</tt><a class="reference internal" href="_modules/lib/Constraint.html#ConstraintSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ConstraintSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElementSet" title="lib.ModelElement.ModelElementSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElementSet</span></tt></a></p>
+<p>Container for a set of constraints.</p>
 </dd></dl>
 
 </div>
@@ -82,15 +93,22 @@
 <p>This module provides a class for ORM fact types.</p>
 <dl class="class">
 <dt id="lib.FactType.FactType">
-<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">FactType</tt><a class="reference internal" href="_modules/lib/FactType.html#FactType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">FactType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>An ORM Fact Type.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.FactType.FactTypeSet">
+<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">FactTypeSet</tt><a class="reference internal" href="_modules/lib/FactType.html#FactTypeSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactTypeSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElementSet" title="lib.ModelElement.ModelElementSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElementSet</span></tt></a></p>
+<p>Container for a set of fact types.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-lib.Model">
 <span id="model-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">Model</span></tt> Module<a class="headerlink" href="#module-lib.Model" title="Permalink to this headline">¶</a></h2>
-<p>This module provides a <a class="reference internal" href="#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">Model</span></tt></a> class to store a simplified ORM model 
+<p>Model.py provides a class to store a simplified ORM model 
 consisting of a set of object types, a set of fact types, and a set of 
 constraints.</p>
 <dl class="class">
@@ -98,10 +116,11 @@ constraints.</p>
 <em class="property">class </em><tt class="descclassname">lib.Model.</tt><tt class="descname">Model</tt><a class="reference internal" href="_modules/lib/Model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Model.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Simplified representation of an ORM model.</p>
-<dl class="method">
-<dt id="lib.Model.Model.add">
-<tt class="descname">add</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/lib/Model.html#Model.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Model.Model.add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add an element to the model.</p>
+<dl class="attribute">
+<dt id="lib.Model.Model.constraints">
+<tt class="descname">constraints</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Model.Model.constraints" title="Permalink to this definition">¶</a></dt>
+<dd><p>The set of constraints in the model
+(<a class="reference internal" href="#lib.Constraint.ConstraintSet" title="lib.Constraint.ConstraintSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.ConstraintSet</span></tt></a>)</p>
 </dd></dl>
 
 <dl class="method">
@@ -110,40 +129,83 @@ constraints.</p>
 <dd><p>Prints the model to stdout.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="lib.Model.Model.fact_types">
+<tt class="descname">fact_types</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Model.Model.fact_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>The set of fact types in the model
+(<a class="reference internal" href="#lib.FactType.FactTypeSet" title="lib.FactType.FactTypeSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.FactTypeSet</span></tt></a>)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Model.Model.object_types">
+<tt class="descname">object_types</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Model.Model.object_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>The set of object types in the model
+(<a class="reference internal" href="#lib.ObjectType.ObjectTypeSet" title="lib.ObjectType.ObjectTypeSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ObjectType.ObjectTypeSet</span></tt></a>)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.ModelElement">
+<span id="modelelement-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">ModelElement</span></tt> Module<a class="headerlink" href="#module-lib.ModelElement" title="Permalink to this headline">¶</a></h2>
+<p>ModelElement.py provides an abstract class for a model element (a generic
+element in a model from which an object type, fact type, and constraint
+can be derived) as well as an abstract class for a set of model elements.</p>
+<dl class="class">
+<dt id="lib.ModelElement.ModelElement">
+<em class="property">class </em><tt class="descclassname">lib.ModelElement.</tt><tt class="descname">ModelElement</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>An abstract element in an ORM model.</p>
+<dl class="attribute">
+<dt id="lib.ModelElement.ModelElement.name">
+<tt class="descname">name</tt><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElement.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElement.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique name for the model element. Cannot be changed after
+the model element is created.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ModelElement.ModelElement.uid">
+<tt class="descname">uid</tt><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElement.uid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElement.uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique identifier for the model element. Cannot be changed
+after the model element is created.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.ModelElement.ModelElementSet">
+<em class="property">class </em><tt class="descclassname">lib.ModelElement.</tt><tt class="descname">ModelElementSet</tt><big>(</big><em>name='Model Elements'</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElementSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElementSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A set of model elements.</p>
 <dl class="method">
-<dt id="lib.Model.Model.get_constraint">
-<tt class="descname">get_constraint</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/lib/Model.html#Model.get_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Model.Model.get_constraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a constraint with a given <em>name</em></p>
+<dt id="lib.ModelElement.ModelElementSet.add">
+<tt class="descname">add</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElementSet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElementSet.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an element to the set.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="lib.Model.Model.get_fact_type">
-<tt class="descname">get_fact_type</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/lib/Model.html#Model.get_fact_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Model.Model.get_fact_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a fact type with a given <em>name</em></p>
+<dt id="lib.ModelElement.ModelElementSet.count">
+<tt class="descname">count</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElementSet.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElementSet.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of items in the set.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="lib.Model.Model.get_object_type">
-<tt class="descname">get_object_type</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/lib/Model.html#Model.get_object_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Model.Model.get_object_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an object type with a given <em>name</em></p>
+<dt id="lib.ModelElement.ModelElementSet.display">
+<tt class="descname">display</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElementSet.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElementSet.display" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the set of elements to <strong>stdout</strong>.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="lib.Model.Model.num_constraints">
-<tt class="descname">num_constraints</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Model.html#Model.num_constraints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Model.Model.num_constraints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the number of constraints in the model.</p>
+<dt id="lib.ModelElement.ModelElementSet.get">
+<tt class="descname">get</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElementSet.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElementSet.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an element by name.  Returns <strong>None</strong> if the element is 
+not in the set.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="lib.Model.Model.num_fact_types">
-<tt class="descname">num_fact_types</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Model.html#Model.num_fact_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Model.Model.num_fact_types" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the number of fact types in the model.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.Model.Model.num_object_types">
-<tt class="descname">num_object_types</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Model.html#Model.num_object_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Model.Model.num_object_types" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the number of object types in the model.</p>
+<dl class="attribute">
+<dt id="lib.ModelElement.ModelElementSet.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ModelElement.ModelElementSet.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the set. May be used for display, etc.</p>
 </dd></dl>
 
 </dd></dl>
@@ -205,40 +267,92 @@ An .orm file can be loaded via the constructor.  For example:</p>
 </div>
 <div class="section" id="module-lib.ObjectType">
 <span id="objecttype-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">ObjectType</span></tt> Module<a class="headerlink" href="#module-lib.ObjectType" title="Permalink to this headline">¶</a></h2>
-<p>This module provides classes for the various object types in ORM: 
+<p>ObjectType.py provides classes for the various object types in ORM: 
 entity type, value type, and objectified type.</p>
 <dl class="class">
 <dt id="lib.ObjectType.EntityType">
-<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">EntityType</tt><a class="reference internal" href="_modules/lib/ObjectType.html#EntityType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.EntityType" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">EntityType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#EntityType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.EntityType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ObjectType.ObjectType" title="lib.ObjectType.ObjectType"><tt class="xref py py-class docutils literal"><span class="pre">lib.ObjectType.ObjectType</span></tt></a></p>
 <p>An entity type is an object type that requires identification.</p>
+<dl class="attribute">
+<dt id="lib.ObjectType.EntityType.identifying_constraint">
+<tt class="descname">identifying_constraint</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.EntityType.identifying_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reference to the uniqueness constraint that provides the preferred
+identification scheme for this entity type.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.ObjectType.ObjectType">
-<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectType</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>Abstract class inherited by all object types.</p>
-<dl class="method">
-<dt id="lib.ObjectType.ObjectType.display_string">
-<tt class="descname">display_string</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.display_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.display_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>String containing object type information.</p>
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.implicit">
+<tt class="descname">implicit</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.implicit" title="Permalink to this definition">¶</a></dt>
+<dd><p>True for implicit object types</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.independent">
+<tt class="descname">independent</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.independent" title="Permalink to this definition">¶</a></dt>
+<dd><p>True for independent object types</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.ObjectType.ObjectTypeSet">
+<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectTypeSet</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectTypeSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectTypeSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElementSet" title="lib.ModelElement.ModelElementSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElementSet</span></tt></a></p>
+<p>Container for a set of object types.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.ObjectType.ObjectifiedType">
-<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectifiedType</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectifiedType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectifiedType" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectifiedType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectifiedType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectifiedType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ObjectType.ObjectType" title="lib.ObjectType.ObjectType"><tt class="xref py py-class docutils literal"><span class="pre">lib.ObjectType.ObjectType</span></tt></a></p>
 <p>An objectified type is an object type that objectifies a fact type.</p>
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectifiedType.identifying_constraint">
+<tt class="descname">identifying_constraint</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectifiedType.identifying_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reference to the uniqueness constraint that provides the preferred
+identification scheme for this object type.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectifiedType.nested_fact_type">
+<tt class="descname">nested_fact_type</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectifiedType.nested_fact_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reference to the fact type that this object type objectifies.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.ObjectType.ValueType">
-<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ValueType</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ValueType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ValueType" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ValueType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ValueType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ValueType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ObjectType.ObjectType" title="lib.ObjectType.ObjectType"><tt class="xref py py-class docutils literal"><span class="pre">lib.ObjectType.ObjectType</span></tt></a></p>
 <p>A value type is a self-identifying object type.</p>
+<dl class="attribute">
+<dt id="lib.ObjectType.ValueType.data_type">
+<tt class="descname">data_type</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ValueType.data_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Python data type (mapped from the conceptual data type selected
+by the modeler)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ValueType.data_type_length">
+<tt class="descname">data_type_length</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ValueType.data_type_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Length facet for data_type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ValueType.data_type_scale">
+<tt class="descname">data_type_scale</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ValueType.data_type_scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale facet for data_type</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -253,10 +367,12 @@ entity type, value type, and objectified type.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">lib Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">lib</span></tt> Package</a></li>
 <li><a class="reference internal" href="#module-lib.CommandLine"><tt class="docutils literal"><span class="pre">CommandLine</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.Constraint"><tt class="docutils literal"><span class="pre">Constraint</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.FactType"><tt class="docutils literal"><span class="pre">FactType</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.Model"><tt class="docutils literal"><span class="pre">Model</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.ModelElement"><tt class="docutils literal"><span class="pre">ModelElement</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.NormaLoader"><tt class="docutils literal"><span class="pre">NormaLoader</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.ObjectType"><tt class="docutils literal"><span class="pre">ObjectType</span></tt> Module</a></li>
 </ul>

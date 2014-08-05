@@ -1,6 +1,14 @@
 lib Package
 ===========
 
+:mod:`lib` Package
+------------------
+
+.. automodule:: lib
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`CommandLine` Module
 -------------------------
 
@@ -29,6 +37,14 @@ lib Package
 -------------------
 
 .. automodule:: lib.Model
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`ModelElement` Module
+--------------------------
+
+.. automodule:: lib.ModelElement
     :members:
     :undoc-members:
     :show-inheritance:

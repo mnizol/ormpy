@@ -42,9 +42,8 @@ class ValueType(ObjectType):
     def __init__(self, uid=None, name=None):
         super(ValueType, self).__init__(uid=uid, name=name)
 
-        #: Python data type (mapped from the conceptual data type selected
-        #: by the modeler)
-        self.data_type = None  
+        #: Conceptual data type of the value type
+        self.data_type = None  #: Python data type 
         self.data_type_scale = None  #: Scale facet for data_type
         self.data_type_length = None #: Length facet for data_type
 

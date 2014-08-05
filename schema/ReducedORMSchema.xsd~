@@ -240,7 +240,46 @@
     </xs:all>
   </xs:complexType>
 
-
+  <!-- =============================================================================================================== -->
+  <!-- DATA TYPES SECTION -->
+  <!-- =============================================================================================================== -->
+  <xs:complexType name="DataTypesType">
+    <xs:annotation>
+      <xs:documentation>Container for all data types used in the model.</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="UnspecifiedDataType" type="UnspecifiedDataTypeType"/>
+      <xs:element name="FixedLengthTextDataType" type="FixedLengthTextDataTypeType"/>
+      <xs:element name="VariableLengthTextDataType" type="VariableLengthTextDataTypeType"/>
+      <xs:element name="LargeLengthTextDataType" type="LargeLengthTextDataTypeType"/>
+      <xs:element name="SignedIntegerNumericDataType" type="SignedIntegerNumericDataTypeType"/>
+      <xs:element name="SignedSmallIntegerNumericDataType" type="SignedSmallIntegerNumericDataTypeType"/>
+      <xs:element name="SignedLargeIntegerNumericDataType" type="SignedLargeIntegerNumericDataTypeType"/>
+      <xs:element name="UnsignedIntegerNumericDataType" type="UnsignedIntegerNumericDataTypeType"/>
+      <xs:element name="UnsignedTinyIntegerNumericDataType" type="UnsignedTinyIntegerNumericDataTypeType"/>
+      <xs:element name="UnsignedSmallIntegerNumericDataType" type="UnsignedSmallIntegerNumericDataTypeType"/>
+      <xs:element name="UnsignedLargeIntegerNumericDataType" type="UnsignedLargeIntegerNumericDataTypeType"/>
+      <xs:element name="AutoCounterNumericDataType" type="AutoCounterNumericDataTypeType"/>
+      <xs:element name="FloatingPointNumericDataType" type="FloatingPointNumericDataTypeType"/>
+      <xs:element name="SinglePrecisionFloatingPointNumericDataType" type="SinglePrecisionFloatingPointNumericDataTypeType"/>
+      <xs:element name="DoublePrecisionFloatingPointNumericDataType" type="DoublePrecisionFloatingPointNumericDataTypeType"/>
+      <xs:element name="DecimalNumericDataType" type="DecimalNumericDataTypeType"/>
+      <xs:element name="MoneyNumericDataType" type="MoneyNumericDataTypeType"/>
+      <xs:element name="FixedLengthRawDataDataType" type="FixedLengthRawDataDataTypeType"/>
+      <xs:element name="VariableLengthRawDataDataType" type="VariableLengthRawDataDataTypeType"/>
+      <xs:element name="LargeLengthRawDataDataType" type="LargeLengthRawDataDataTypeType"/>
+      <xs:element name="PictureRawDataDataType" type="PictureRawDataDataTypeType"/>
+      <xs:element name="OleObjectRawDataDataType" type="OleObjectRawDataDataTypeType"/>
+      <xs:element name="AutoTimestampTemporalDataType" type="AutoTimestampTemporalDataTypeType"/>
+      <xs:element name="TimeTemporalDataType" type="TimeTemporalDataTypeType"/>
+      <xs:element name="DateTemporalDataType" type="DateTemporalDataTypeType"/>
+      <xs:element name="DateAndTimeTemporalDataType" type="DateAndTimeTemporalDataTypeType"/>
+      <xs:element name="TrueOrFalseLogicalDataType" type="TrueOrFalseLogicalDataTypeType"/>
+      <xs:element name="YesOrNoLogicalDataType" type="YesOrNoLogicalDataTypeType"/>
+      <xs:element name="RowIdOtherDataType" type="RowIdOtherDataTypeType"/>
+      <xs:element name="ObjectIdOtherDataType" type="ObjectIdOtherDataTypeType"/>
+    </xs:choice>
+  </xs:complexType>
   
   <!-- =============================================================================================================== -->
   <!-- CONSTRAINTS SECTION -->

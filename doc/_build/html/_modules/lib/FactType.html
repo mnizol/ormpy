@@ -58,11 +58,20 @@
 <span class="sd">&quot;&quot;&quot; This module provides a class for ORM fact types.  </span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="FactType"><a class="viewcode-back" href="../../lib.html#lib.FactType.FactType">[docs]</a><span class="k">class</span> <span class="nc">FactType</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; An ORM Fact Type. &quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">lib.ModelElement</span> <span class="kn">import</span> <span class="n">ModelElementSet</span><span class="p">,</span> <span class="n">ModelElement</span>
+
+<div class="viewcode-block" id="FactTypeSet"><a class="viewcode-back" href="../../lib.html#lib.FactType.FactTypeSet">[docs]</a><span class="k">class</span> <span class="nc">FactTypeSet</span><span class="p">(</span><span class="n">ModelElementSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Container for a set of fact types. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;&quot;</span></div>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FactTypeSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Fact Types&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="FactType"><a class="viewcode-back" href="../../lib.html#lib.FactType.FactType">[docs]</a><span class="k">class</span> <span class="nc">FactType</span><span class="p">(</span><span class="n">ModelElement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An ORM Fact Type. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FactType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 </pre></div>
 
           </div>

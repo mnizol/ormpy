@@ -104,8 +104,7 @@
     <span class="c"># Constructor: Only public method!</span>
     <span class="c">###########################################################################</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialize object and load *filename*.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; Initialize object and load *filename*. &quot;&quot;&quot;</span>
         
         <span class="c"># Public attributes</span>
 
@@ -126,8 +125,9 @@
     
         <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_boolean</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_build_mappings</span><span class="p">()</span>
 
+        <span class="c"># Executable part of constructor: build mappings and load file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_mappings</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
     
     <span class="c">###########################################################################</span>
@@ -144,19 +144,48 @@
             <span class="s">&#39;ObjectifiedType&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_objectified_type</span><span class="p">,</span>
             <span class="s">&#39;NestedPredicate&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_nested_fact_type</span><span class="p">,</span>
             <span class="s">&#39;SubtypeDerivationRule&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_subtype_derivation</span><span class="p">,</span>
-            <span class="s">&#39;PreferredIdentifier&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_preffered_identifier</span>
+            <span class="s">&#39;PreferredIdentifier&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_preffered_identifier</span><span class="p">,</span>
+            <span class="s">&#39;ConceptualDataType&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_conceptual_data_type</span>
         <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_boolean</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s">&#39;true&#39;</span> <span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-            <span class="s">&#39;false&#39;</span> <span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-             <span class="bp">None</span><span class="p">:</span> <span class="bp">None</span>
+        <span class="c"># Mapping from XML types defined in ORMCode namespace to Python types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datatypes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;UnspecifiedDataType&quot;</span>                         <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s">&quot;FixedLengthTextDataType&quot;</span>                     <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s">&quot;VariableLengthTextDataType&quot;</span>                  <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s">&quot;LargeLengthTextDataType&quot;</span>                     <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s">&quot;SignedIntegerNumericDataType&quot;</span>                <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s">&quot;SignedSmallIntegerNumericDataType&quot;</span>           <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s">&quot;SignedLargeIntegerNumericDataType&quot;</span>           <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s">&quot;UnsignedIntegerNumericDataType&quot;</span>              <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s">&quot;UnsignedTinyIntegerNumericDataType&quot;</span>          <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s">&quot;UnsignedSmallIntegerNumericDataType&quot;</span>         <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s">&quot;UnsignedLargeIntegerNumericDataType&quot;</span>         <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s">&quot;AutoCounterNumericDataType&quot;</span>                  <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s">&quot;FloatingPointNumericDataType&quot;</span>                <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s">&quot;SinglePrecisionFloatingPointNumericDataType&quot;</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s">&quot;DoublePrecisionFloatingPointNumericDataType&quot;</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s">&quot;DecimalNumericDataType&quot;</span>                      <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s">&quot;MoneyNumericDataType&quot;</span>                        <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s">&quot;FixedLengthRawDataDataType&quot;</span>                  <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s">&quot;VariableLengthRawDataDataType&quot;</span>               <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s">&quot;LargeLengthRawDataDataType&quot;</span>                  <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s">&quot;PictureRawDataDataType&quot;</span>                      <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s">&quot;OleObjectRawDataDataType&quot;</span>                    <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s">&quot;AutoTimestampTemporalDataType&quot;</span>               <span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+            <span class="s">&quot;TimeTemporalDataType&quot;</span>                        <span class="p">:</span> <span class="n">time</span><span class="p">,</span>
+            <span class="s">&quot;DateTemporalDataType&quot;</span>                        <span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+            <span class="s">&quot;DateAndTimeTemporalDataType&quot;</span>                 <span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+            <span class="s">&quot;TrueOrFalseLogicalDataType&quot;</span>                  <span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+            <span class="s">&quot;YesOrNoLogicalDataType&quot;</span>                      <span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+            <span class="s">&quot;RowIdOtherDataType&quot;</span>                          <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s">&quot;ObjectIdOtherDataType&quot;</span>                       <span class="p">:</span> <span class="nb">int</span>
         <span class="p">}</span>
-
 
     <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Loads the .orm file named *filename* into *self.model* &quot;&quot;&quot;</span>
         <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_norma_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_data_types</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_elements</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
 
 
@@ -178,16 +207,34 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">model_node</span>
 
+    <span class="k">def</span> <span class="nf">_load_data_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load the data types in the model so that we can assign the</span>
+<span class="sd">            conceptual data type to each value type. &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;DataTypes&quot;</span><span class="p">):</span>
+            <span class="n">data_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local_tag</span><span class="p">(</span><span class="n">child</span><span class="p">)</span> <span class="c"># Data type element tag</span>
+            <span class="n">data_id</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">)</span>
+
+            <span class="c"># Look-up Python data type</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">python_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_types</span><span class="p">[</span><span class="n">data_type</span><span class="p">]()</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">python_type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">()</span> <span class="c"># Default to int</span>
+
+            <span class="c"># Store type by ID for later retrieval</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">data_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">python_type</span>
+            
+
     <span class="k">def</span> <span class="nf">_load_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Call the loader function associated with each child element of the </span>
 <span class="sd">            *parent* element.  *target* is the object into which the XML data</span>
 <span class="sd">            will be loaded.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="p">:</span>
-            <span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local_tag</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local_tag</span><span class="p">(</span><span class="n">child</span><span class="p">)</span> <span class="c"># Get current element&#39;s tag</span>
         
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span><span class="p">[</span><span class="n">tag</span><span class="p">](</span><span class="n">child</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span><span class="p">[</span><span class="n">tag</span><span class="p">](</span><span class="n">child</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span> <span class="c"># Call loader function</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">pass</span> <span class="c"># No loading function defined.</span>
 
@@ -201,38 +248,39 @@
     <span class="c">##########################################################################</span>
     <span class="k">def</span> <span class="nf">_load_entity_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Loads an entity type rooted at node *element* &quot;&quot;&quot;</span>
-        <span class="n">entity_type</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">EntityType</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_load_object_type</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">entity_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_object_type</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">EntityType</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_value_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Loads a value type rooted at node *element* &quot;&quot;&quot;</span>
-        <span class="n">value_type</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ValueType</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_load_object_type</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">value_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_object_type</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ValueType</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_objectified_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Loads an objectified type rooted at node *element* &quot;&quot;&quot;</span>
-        <span class="n">objectified_type</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ObjectifiedType</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_load_object_type</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">objectified_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_object_type</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ObjectifiedType</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_load_object_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Loads object type rooted at node *element* into *object_type*. &quot;&quot;&quot;</span> 
-        <span class="c"># Basic attributes</span>
-        <span class="n">object_type</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">)</span>
-        <span class="n">object_type</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">,</span> <span class="s">&quot;_&quot;</span><span class="p">)</span>
-        <span class="n">object_type</span><span class="o">.</span><span class="n">independent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_boolean</span><span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsIndependent&quot;</span><span class="p">)]</span>
+    <span class="k">def</span> <span class="nf">_load_object_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">target_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads object type rooted at node element into target type. &quot;&quot;&quot;</span> 
 
-        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsImplicitBooleanValue&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&quot;true&quot;</span><span class="p">:</span> <span class="c"># Skip if implicit</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_load_elements</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">object_type</span><span class="o">.</span><span class="n">_id</span><span class="p">:</span>  <span class="c"># Will be None if element should be skipped</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">object_type</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">object_type</span><span class="o">.</span><span class="n">_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">object_type</span>
+        <span class="c"># Construct object type of appropriate underlying type</span>
+        <span class="n">object_type</span> <span class="o">=</span> <span class="n">target_type</span><span class="p">(</span>
+            <span class="n">uid</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">),</span> 
+            <span class="n">name</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Name&quot;</span><span class="p">))</span>
+
+        <span class="n">object_type</span><span class="o">.</span><span class="n">independent</span> <span class="o">=</span> <span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsIndependent&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">)</span>
+        <span class="n">object_type</span><span class="o">.</span><span class="n">implicit</span> <span class="o">=</span> <span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsImplicitBooleanValue&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">)</span>
+
+        <span class="c"># Load inner elements.  Note, some of these may also set implicit=true</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_elements</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">)</span> 
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">object_type</span><span class="o">.</span><span class="n">implicit</span><span class="p">:</span>  <span class="c"># Ignore implicit object types</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">object_type</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">object_type</span><span class="o">.</span><span class="n">uid</span><span class="p">]</span> <span class="o">=</span> <span class="n">object_type</span>
 
     <span class="k">def</span> <span class="nf">_load_nested_fact_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Loads NestedPredicate element into object_type. &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsImplied&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">:</span>  <span class="c"># Skip implied object types</span>
-            <span class="n">object_type</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="bp">None</span> 
-        <span class="k">else</span><span class="p">:</span> <span class="c"># Store GUID of nested fact type</span>
-            <span class="n">object_type</span><span class="o">.</span><span class="n">nested_fact_type</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ref&quot;</span><span class="p">)</span>  
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsImplied&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">:</span>
+            <span class="n">object_type</span><span class="o">.</span><span class="n">implicit</span> <span class="o">=</span> <span class="bp">True</span> 
+        <span class="n">object_type</span><span class="o">.</span><span class="n">nested_fact_type</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ref&quot;</span><span class="p">)</span> <span class="c"># GUID of fact type</span>
 
     <span class="k">def</span> <span class="nf">_load_subtype_derivation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Loads SubtypeDerivationRule into object_type. &quot;&quot;&quot;</span>
@@ -240,16 +288,22 @@
 
     <span class="k">def</span> <span class="nf">_load_preffered_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Loads PreferredIdentifier into object_type. &quot;&quot;&quot;</span>
-        <span class="n">object_type</span><span class="o">.</span><span class="n">identifier</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ref&quot;</span><span class="p">)</span>  <span class="c"># GUID for uniq constraint</span>
+        <span class="c"># GUID for uniq constraint corresponding to preferred reference scheme</span>
+        <span class="n">object_type</span><span class="o">.</span><span class="n">identifying_constraint</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ref&quot;</span><span class="p">)</span>  
         
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        # Data Type</span>
-<span class="sd">        node = self._find(element, &quot;ConceptualDataType&quot;)</span>
-<span class="sd">        if datatype_element:</span>
-<span class="sd">            datatype_ref = datatype_element.get(&quot;ref&quot;)  # GUID for data type</span>
-<span class="sd">            datatype_scale = datatype_element.get(&quot;Scale&quot;)</span>
-<span class="sd">            datatype_length = datatype_element.get(&quot;Length&quot;)</span>
+    <span class="k">def</span> <span class="nf">_load_conceptual_data_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load ConceptualDataType for a ValueType. &quot;&quot;&quot;</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ref&quot;</span><span class="p">)</span>  <span class="c"># GUID for data type</span>
 
+        <span class="k">try</span><span class="p">:</span> <span class="c"># Look-up pre-loaded data type</span>
+            <span class="n">object_type</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span> 
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">object_type</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">()</span> <span class="c"># Default to int</span>
+
+        <span class="n">object_type</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Scale&quot;</span><span class="p">)</span>
+        <span class="n">object_type</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Length&quot;</span><span class="p">)</span>
+
+        <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        # Check for value constraints</span>
 <span class="sd">        # NOTE: Only handling string lists.  Need to update for min+max range</span>
 <span class="sd">        enum = []</span>

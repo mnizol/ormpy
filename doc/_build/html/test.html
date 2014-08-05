@@ -52,9 +52,13 @@
             
   <div class="section" id="test-package">
 <h1>test Package<a class="headerlink" href="#test-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><a class="reference internal" href="#module-test" title="test"><tt class="xref py py-mod docutils literal"><span class="pre">test</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-test"></span><p>The <strong>test</strong> package contains unit tests for the ORMPY project.</p>
+</div>
 <div class="section" id="module-test.TestModel">
 <span id="testmodel-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestModel</span></tt> Module<a class="headerlink" href="#module-test.TestModel" title="Permalink to this headline">¶</a></h2>
-<p>This file contains unit tests for the lib.Model class</p>
+<p>This file contains unit tests for <a class="reference internal" href="lib.html#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">lib.Model.Model</span></tt></a></p>
 <dl class="class">
 <dt id="test.TestModel.TestModel">
 <em class="property">class </em><tt class="descclassname">test.TestModel.</tt><tt class="descname">TestModel</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel" title="Permalink to this definition">¶</a></dt>
@@ -66,33 +70,68 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="test.TestModel.TestModel.test_add_constraint">
-<tt class="descname">test_add_constraint</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_constraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Confirm we can add a constraint to the model.</p>
+<dt id="test.TestModel.TestModel.test_display_empty">
+<tt class="descname">test_display_empty</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_display_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_display_empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Display of an empty model.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="test.TestModel.TestModel.test_add_fact_type">
-<tt class="descname">test_add_fact_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_fact_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_fact_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Confirm we can add a fact type to the model.</p>
+<dt id="test.TestModel.TestModel.test_display_nonempty">
+<tt class="descname">test_display_nonempty</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_display_nonempty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_display_nonempty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Display of non-empty model.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-test.TestModelElement">
+<span id="testmodelelement-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestModelElement</span></tt> Module<a class="headerlink" href="#module-test.TestModelElement" title="Permalink to this headline">¶</a></h2>
+<p>This file contains unit tests for the ModelElement and ModelElementSet
+classes.</p>
+<dl class="class">
+<dt id="test.TestModelElement.TestModelElementSet">
+<em class="property">class </em><tt class="descclassname">test.TestModelElement.</tt><tt class="descname">TestModelElementSet</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Unit tests for <a class="reference internal" href="lib.html#lib.ModelElement.ModelElementSet" title="lib.ModelElement.ModelElementSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElementSet</span></tt></a></p>
+<dl class="method">
+<dt id="test.TestModelElement.TestModelElementSet.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestModelElement.TestModelElementSet.test_add_element">
+<tt class="descname">test_add_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_add_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_add_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm we can add elements to the set.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="test.TestModel.TestModel.test_add_invalid">
-<tt class="descname">test_add_invalid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_invalid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_invalid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Confirm we cannot add something invalid to the model.</p>
+<dt id="test.TestModelElement.TestModelElementSet.test_display_empty">
+<tt class="descname">test_display_empty</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_display_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_display_empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test display of empty set.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="test.TestModel.TestModel.test_add_object_type">
-<tt class="descname">test_add_object_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_object_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_object_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Confirm we can add an object type to the model.</p>
+<dt id="test.TestModelElement.TestModelElementSet.test_display_nonempty">
+<tt class="descname">test_display_nonempty</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_display_nonempty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_display_nonempty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test display of non-empty set.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="test.TestModel.TestModel.test_get_missing_elements">
-<tt class="descname">test_get_missing_elements</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_get_missing_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_get_missing_elements" title="Permalink to this definition">¶</a></dt>
+<dt id="test.TestModelElement.TestModelElementSet.test_get_element">
+<tt class="descname">test_get_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_get_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_get_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm we can successfully retrieve added elements.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestModelElement.TestModelElementSet.test_get_missing_elements">
+<tt class="descname">test_get_missing_elements</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_get_missing_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_get_missing_elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm a request for a non-existent element returns None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestModelElement.TestModelElementSet.test_overwrite">
+<tt class="descname">test_overwrite</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_overwrite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_overwrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm uniquness of items in set by name.</p>
 </dd></dl>
 
 </dd></dl>
@@ -165,7 +204,9 @@ is added to self.omissions.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">test Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">test</span></tt> Package</a></li>
 <li><a class="reference internal" href="#module-test.TestModel"><tt class="docutils literal"><span class="pre">TestModel</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-test.TestModelElement"><tt class="docutils literal"><span class="pre">TestModelElement</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-test.TestNormaLoader"><tt class="docutils literal"><span class="pre">TestNormaLoader</span></tt> Module</a></li>
 </ul>
 </li>

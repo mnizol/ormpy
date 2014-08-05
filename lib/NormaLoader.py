@@ -35,10 +35,11 @@
     *omissions* attribute after loading the input file.
 """
 
+import xml.etree.cElementTree as xml
+from datetime import datetime, date, time
+
 from lib.Model import Model
 import lib.ObjectType as ObjectType
-
-import xml.etree.cElementTree as xml
 
 class NormaLoader(object):
     """ Loads an .orm file produced by the NORMA modeling tool into a
@@ -53,8 +54,7 @@ class NormaLoader(object):
     # Constructor: Only public method!
     ###########################################################################
     def __init__(self, filename):
-        """ Initialize object and load *filename*.
-        """
+        """ Initialize object and load *filename*. """
         
         # Public attributes
 
@@ -75,8 +75,9 @@ class NormaLoader(object):
     
         self._loader = {}
         self._boolean = {}
-        self._build_mappings()
 
+        # Executable part of constructor: build mappings and load file
+        self._build_mappings()
         self._load(filename)
     
     ###########################################################################
@@ -93,19 +94,60 @@ class NormaLoader(object):
             'ObjectifiedType' : self._load_objectified_type,
             'NestedPredicate' : self._load_nested_fact_type,
             'SubtypeDerivationRule' : self._load_subtype_derivation,
-            'PreferredIdentifier' : self._load_preffered_identifier
+            'PreferredIdentifier' : self._load_preffered_identifier,
+            'ConceptualDataType' : self._load_conceptual_data_type
         }
 
-        self._boolean = {
-            'true' : True,
-            'false' : False,
-             None: None
+        # Mapping from XML types defined in ORMCode namespace to Python types
+        self._data_types = {
+            "UnspecifiedDataType"                         : int,
+            "FixedLengthTextDataType"                     : str,
+            "VariableLengthTextDataType"                  : str,
+            "LargeLengthTextDataType"                     : str,
+            "SignedIntegerNumericDataType"                : int,
+            "SignedSmallIntegerNumericDataType"           : int,
+            "SignedLargeIntegerNumericDataType"           : int,
+            "UnsignedIntegerNumericDataType"              : int,
+            "UnsignedTinyIntegerNumericDataType"          : int,
+            "UnsignedSmallIntegerNumericDataType"         : int,
+            "UnsignedLargeIntegerNumericDataType"         : int,
+            "AutoCounterNumericDataType"                  : int,
+            "FloatingPointNumericDataType"                : float,
+            "SinglePrecisionFloatingPointNumericDataType" : float,
+            "DoublePrecisionFloatingPointNumericDataType" : float,
+            "DecimalNumericDataType"                      : float,
+            "MoneyNumericDataType"                        : float,
+            "FixedLengthRawDataDataType"                  : str,
+            "VariableLengthRawDataDataType"               : str,
+            "LargeLengthRawDataDataType"                  : str,
+            "PictureRawDataDataType"                      : str,
+            "OleObjectRawDataDataType"                    : str,
+            "AutoTimestampTemporalDataType"               : self._datetime,
+            "TimeTemporalDataType"                        : time,
+            "DateTemporalDataType"                        : self._date,
+            "DateAndTimeTemporalDataType"                 : self._datetime,
+            "TrueOrFalseLogicalDataType"                  : bool,
+            "YesOrNoLogicalDataType"                      : bool,
+            "RowIdOtherDataType"                          : int,
+            "ObjectIdOtherDataType"                       : int
         }
 
+    def _date(self):
+        """ Return default date.  The constructor for date() requires 
+            year, month, and day and so we cannot simply pass the name
+            of the class to self._data_types.  """
+        return date(1900, 1, 1)
+
+    def _datetime(self):
+        """ Return default datetime. The constructor for datetime() 
+            requires year, month, and day and so we cannot simply pass
+            the name of the class to self._data_types.  """
+        return datetime(1900, 1, 1)
 
     def _load(self, filename):
         """ Loads the .orm file named *filename* into *self.model* """
         root = self._parse_norma_file(filename)
+        self._load_data_types(root)
         self._load_elements(root, self.model)
 
 
@@ -127,16 +169,36 @@ class NormaLoader(object):
         else:
             return model_node
 
+    def _load_data_types(self, parent):
+        """ Load the data types in the model so that we can assign the
+            conceptual data type to each value type. """
+
+        data_type_node = parent.find(self._ns_core + "DataTypes")
+        if data_type_node:
+            for child in data_type_node:
+                data_type = self._local_tag(child) # Data type element tag
+                data_id = child.get("id")
+
+                # Look-up Python data type
+                try:
+                    python_type = self._data_types[data_type]()
+                except KeyError:
+                    python_type = int() # Default to int
+
+                # Store type by ID for later retrieval
+                self._elements[data_id] = python_type
+            
+
     def _load_elements(self, parent, target):
         """ Call the loader function associated with each child element of the 
             *parent* element.  *target* is the object into which the XML data
             will be loaded.
         """
         for child in parent:
-            tag = self._local_tag(child)
+            tag = self._local_tag(child) # Get current element's tag
         
             try:
-                self._loader[tag](child, target)
+                self._loader[tag](child, target) # Call loader function
             except KeyError:
                 pass # No loading function defined.
 
@@ -150,38 +212,39 @@ class NormaLoader(object):
     ##########################################################################
     def _load_entity_type(self, element, target):
         """ Loads an entity type rooted at node *element* """
-        entity_type = ObjectType.EntityType()
-        self._load_object_type(element, entity_type)
+        self._load_object_type(element, ObjectType.EntityType)
 
     def _load_value_type(self, element, target):
         """ Loads a value type rooted at node *element* """
-        value_type = ObjectType.ValueType()
-        self._load_object_type(element, value_type)
+        self._load_object_type(element, ObjectType.ValueType)
 
     def _load_objectified_type(self, element, target):
         """ Loads an objectified type rooted at node *element* """
-        objectified_type = ObjectType.ObjectifiedType()
-        self._load_object_type(element, objectified_type)
+        self._load_object_type(element, ObjectType.ObjectifiedType)
 
-    def _load_object_type(self, element, object_type):
-        """ Loads object type rooted at node *element* into *object_type*. """ 
-        # Basic attributes
-        object_type._id = element.get("id")
-        object_type.name = element.get("Name").replace(" ", "_")
-        object_type.independent = self._boolean[element.get("IsIndependent")]
+    def _load_object_type(self, element, target_type):
+        """ Loads object type rooted at node element into target type. """ 
 
-        if element.get("IsImplicitBooleanValue") != "true": # Skip if implicit
-            self._load_elements(element, object_type)
-            if object_type._id:  # Will be None if element should be skipped
-                self.model.add(object_type)
-                self._elements[object_type._id] = object_type
+        # Construct object type of appropriate underlying type
+        object_type = target_type(
+            uid = element.get("id"), 
+            name = element.get("Name"))
+
+        object_type.independent = (element.get("IsIndependent") == "true")
+        object_type.implicit = (element.get("IsImplicitBooleanValue") == "true")
+
+        # Load inner elements.  Note, some of these may also set implicit=true
+        self._load_elements(element, object_type) 
+
+        if not object_type.implicit:  # Ignore implicit object types
+            self.model.object_types.add(object_type)
+            self._elements[object_type.uid] = object_type
 
     def _load_nested_fact_type(self, element, object_type):
         """ Loads NestedPredicate element into object_type. """
-        if element.get("IsImplied") == "true":  # Skip implied object types
-            object_type._id = None 
-        else: # Store GUID of nested fact type
-            object_type.nested_fact_type = element.get("ref")  
+        if element.get("IsImplied") == "true":
+            object_type.implicit = True 
+        object_type.nested_fact_type = element.get("ref") # GUID of fact type
 
     def _load_subtype_derivation(self, element, object_type):
         """ Loads SubtypeDerivationRule into object_type. """
@@ -189,16 +252,22 @@ class NormaLoader(object):
 
     def _load_preffered_identifier(self, element, object_type):
         """ Loads PreferredIdentifier into object_type. """
-        object_type.identifier = element.get("ref")  # GUID for uniq constraint
+        # GUID for uniq constraint corresponding to preferred reference scheme
+        object_type.identifying_constraint = element.get("ref")  
         
-        '''
-        # Data Type
-        node = self._find(element, "ConceptualDataType")
-        if datatype_element:
-            datatype_ref = datatype_element.get("ref")  # GUID for data type
-            datatype_scale = datatype_element.get("Scale")
-            datatype_length = datatype_element.get("Length")
+    def _load_conceptual_data_type(self, element, object_type):
+        """ Load ConceptualDataType for a ValueType. """
+        ref = element.get("ref")  # GUID for data type
 
+        try: # Look-up pre-loaded data type
+            object_type.data_type = self._elements[ref] 
+        except KeyError:
+            object_type.data_type = int() # Default to int
+
+        object_type.data_type_scale = element.get("Scale")
+        object_type.data_type_length = element.get("Length")
+
+        '''
         # Check for value constraints
         # NOTE: Only handling string lists.  Need to update for min+max range
         enum = []

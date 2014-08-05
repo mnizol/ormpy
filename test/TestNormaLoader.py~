@@ -8,8 +8,10 @@
 
 import os
 from unittest import TestCase
+from datetime import datetime, date, time
 
 from lib.NormaLoader import NormaLoader
+import lib.ObjectType as ObjectType
 
 class TestNormaLoader(TestCase):
     """ Unit tests for the NormaLoader class. """
@@ -42,9 +44,9 @@ class TestNormaLoader(TestCase):
     def test_empty_model(self):
         """ Confirm a successful parse on a small input file. """
         model = NormaLoader(self.data_dir + "empty_model.orm").model
-        self.assertEqual(model.num_object_types(), 0)
-        self.assertEqual(model.num_fact_types(), 0)
-        self.assertEqual(model.num_constraints(), 0)
+        self.assertEqual(model.object_types.count(), 0)
+        self.assertEqual(model.fact_types.count(), 0)
+        self.assertEqual(model.constraints.count(), 0)
 
 
     def test_omit_subtype_derivation(self):
@@ -60,42 +62,81 @@ class TestNormaLoader(TestCase):
 
         # No derivation rules
         self.assertItemsEqual(loader.omissions, [])
+        
+        # Overall count
+        self.assertEqual(model.object_types.count(), 10)
 
         # Independent Entity
-        me = model.get_object_type("D") 
-        self.assertTrue(me.independent)
-        self.assertEquals(me.identifier, "_5D7B0A6D-EF11-43C0-9EB3-398933165BC4")
+        this = model.object_types.get("D") 
+        self.assertTrue(this.independent)
+        self.assertEquals(this.identifying_constraint, "_5D7B0A6D-EF11-43C0-9EB3-398933165BC4")
+        self.assertIsInstance(this, ObjectType.EntityType)
 
         # Non-independent Entity
-        me = model.get_object_type("C")
-        self.assertFalse(me.independent)
+        this = model.object_types.get("C")
+        self.assertFalse(this.independent)
 
         # Independent value
-        me = model.get_object_type("V2")
-        self.assertTrue(me.independent)
-        self.assertEquals(me._id, "_FD295AC2-D845-48E4-9E09-2E48EC99E3F3")
+        this = model.object_types.get("V2")
+        self.assertTrue(this.independent)
+        self.assertEquals(this.uid, "_FD295AC2-D845-48E4-9E09-2E48EC99E3F3")
+        self.assertIsInstance(this, ObjectType.ValueType)
 
         # Non-independent value
-        me = model.get_object_type("V1")
-        self.assertFalse(me.independent)
+        this = model.object_types.get("V1")
+        self.assertFalse(this.independent)
 
         # Implicit value (created by unary fact type): should not be loaded
-        me = model.get_object_type("A exists")
-        self.assertIsNone(me)
+        this = model.object_types.get("A exists")
+        self.assertIsNone(this)
 
         # Objectified Independent
-        me = model.get_object_type("CHasV1")
-        self.assertTrue(me.independent)
+        this = model.object_types.get("CHasV1")
+        self.assertTrue(this.independent)
+        self.assertIsInstance(this, ObjectType.ObjectifiedType)
 
         # Objectified Non-independent
-        me = model.get_object_type("V1HasV2")
-        self.assertFalse(me.independent)
-        self.assertEquals(me.identifier, "_CC5D22B1-DBA7-4383-80F2-29CEAE58A998")
-        self.assertEquals(me.nested_fact_type, "_B6D10F36-FFE2-4B86-BEA4-02F7FCA655F9")
+        this = model.object_types.get("V1HasV2")
+        self.assertFalse(this.independent)
+        self.assertEquals(this.identifying_constraint, "_CC5D22B1-DBA7-4383-80F2-29CEAE58A998")
+        self.assertEquals(this.nested_fact_type, "_B6D10F36-FFE2-4B86-BEA4-02F7FCA655F9")
 
         # Implicit Objectified
-        me = model.get_object_type("V1HasDHasV2") # Created by ternary, should not load
-        self.assertIsNone(me)
+        this = model.object_types.get("V1HasDHasV2") # Created by ternary, should not load
+        self.assertIsNone(this)
+
+    def test_data_type_load(self):
+        """ Confirm data types are loaded properly for Value Types. """
+        model = NormaLoader(self.data_dir + "data_types.orm").model
+        ot = model.object_types
+
+        self.assertIsInstance(ot.get("A").data_type, int) # data type undefined
+        self.assertIsInstance(ot.get("B").data_type, bool)      # True or false
+        self.assertIsInstance(ot.get("C").data_type, bool)      # Yes or no
+        self.assertIsInstance(ot.get("D").data_type, int)       # auto counter
+        self.assertIsInstance(ot.get("E").data_type, float)     # float
+        self.assertIsInstance(ot.get("F").data_type, float)     # money
+        self.assertIsInstance(ot.get("G").data_type, int)       # big int
+        self.assertIsInstance(ot.get("H").data_type, datetime)  # timestamp
+        self.assertIsInstance(ot.get("I").data_type, date)      # date
+        self.assertIsInstance(ot.get("J").data_type, time)      # time
+        self.assertIsInstance(ot.get("K").data_type, str)       # text
+
+        # Confirm scale and length are read
+        special = ot.get("Special")
+        self.assertIsInstance(special.data_type, float)  # float
+        self.assertEquals(special.data_type_scale, "35")
+        self.assertEquals(special.data_type_length, "29")
+
+    def test_unknown_data_type(self):
+        """ Confirm that data type defaults to int() if the actual type 
+            is unexpected. """
+        model = NormaLoader(self.data_dir + "unknown_data_types.orm").model
+        self.assertIsInstance(model.object_types.get("B").data_type, int)
+
+        
+
+    
         
 
 

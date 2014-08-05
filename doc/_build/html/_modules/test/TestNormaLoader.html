@@ -61,6 +61,7 @@
 <span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
 
 <span class="kn">from</span> <span class="nn">lib.NormaLoader</span> <span class="kn">import</span> <span class="n">NormaLoader</span>
+<span class="kn">import</span> <span class="nn">lib.ObjectType</span> <span class="kn">as</span> <span class="nn">ObjectType</span>
 
 <div class="viewcode-block" id="TestNormaLoader"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader">[docs]</a><span class="k">class</span> <span class="nc">TestNormaLoader</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Unit tests for the NormaLoader class. &quot;&quot;&quot;</span>
@@ -93,9 +94,9 @@
 <div class="viewcode-block" id="TestNormaLoader.test_empty_model"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_empty_model">[docs]</a>    <span class="k">def</span> <span class="nf">test_empty_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Confirm a successful parse on a small input file. &quot;&quot;&quot;</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;empty_model.orm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_object_types</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_fact_types</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">num_constraints</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_omit_subtype_derivation"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_omit_subtype_derivation">[docs]</a>    <span class="k">def</span> <span class="nf">test_omit_subtype_derivation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -111,41 +112,47 @@
 
         <span class="c"># No derivation rules</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">,</span> <span class="p">[])</span>
+        
+        <span class="c"># Overall count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">10</span><span class="p">)</span>
 
         <span class="c"># Independent Entity</span>
-        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_object_type</span><span class="p">(</span><span class="s">&quot;D&quot;</span><span class="p">)</span> 
+        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;D&quot;</span><span class="p">)</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">independent</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="s">&quot;_5D7B0A6D-EF11-43C0-9EB3-398933165BC4&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">identifying_constraint</span><span class="p">,</span> <span class="s">&quot;_5D7B0A6D-EF11-43C0-9EB3-398933165BC4&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">EntityType</span><span class="p">)</span>
 
         <span class="c"># Non-independent Entity</span>
-        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_object_type</span><span class="p">(</span><span class="s">&quot;C&quot;</span><span class="p">)</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;C&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">independent</span><span class="p">)</span>
 
         <span class="c"># Independent value</span>
-        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_object_type</span><span class="p">(</span><span class="s">&quot;V2&quot;</span><span class="p">)</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V2&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">independent</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span> <span class="s">&quot;_FD295AC2-D845-48E4-9E09-2E48EC99E3F3&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span> <span class="s">&quot;_FD295AC2-D845-48E4-9E09-2E48EC99E3F3&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ValueType</span><span class="p">)</span>
 
         <span class="c"># Non-independent value</span>
-        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_object_type</span><span class="p">(</span><span class="s">&quot;V1&quot;</span><span class="p">)</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V1&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">independent</span><span class="p">)</span>
 
         <span class="c"># Implicit value (created by unary fact type): should not be loaded</span>
-        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_object_type</span><span class="p">(</span><span class="s">&quot;A exists&quot;</span><span class="p">)</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;A exists&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
 
         <span class="c"># Objectified Independent</span>
-        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_object_type</span><span class="p">(</span><span class="s">&quot;CHasV1&quot;</span><span class="p">)</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;CHasV1&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">independent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ObjectifiedType</span><span class="p">)</span>
 
         <span class="c"># Objectified Non-independent</span>
-        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_object_type</span><span class="p">(</span><span class="s">&quot;V1HasV2&quot;</span><span class="p">)</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V1HasV2&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">independent</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="s">&quot;_CC5D22B1-DBA7-4383-80F2-29CEAE58A998&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">identifying_constraint</span><span class="p">,</span> <span class="s">&quot;_CC5D22B1-DBA7-4383-80F2-29CEAE58A998&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">nested_fact_type</span><span class="p">,</span> <span class="s">&quot;_B6D10F36-FFE2-4B86-BEA4-02F7FCA655F9&quot;</span><span class="p">)</span>
 
         <span class="c"># Implicit Objectified</span>
-        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_object_type</span><span class="p">(</span><span class="s">&quot;V1HasDHasV2&quot;</span><span class="p">)</span> <span class="c"># Created by ternary, should not load</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V1HasDHasV2&quot;</span><span class="p">)</span> <span class="c"># Created by ternary, should not load</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
         
 

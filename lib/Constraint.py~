@@ -47,8 +47,22 @@ class ValueRange(object):
     """ A range of values. """
     
     def __init__(self, min_value, max_value, min_open=False, max_open=False):
-        self.min_value = min_value
-        self.max_value = max_value
-        self.min_open = min_open
-        self.max_open = max_open
+        self.min_value = min_value #: Minimum value of the range
+        self.max_value = max_value #: Maximum value of the range
+        self.min_open = min_open   #: True if minimum value excluded from range
+        self.max_open = max_open   #: True if maximum value excluded from range
+
+class SubtypeConstraint(Constraint):
+    """ A subtype constraint. """
+
+    def __init__(self, uid=None, name=None):
+        super(SubtypeConstraint, self).__init__(uid=uid, name=name)
+        
+        subtype = None #: Subtype object type
+        supertype = None #: Supertype object type
+
+        #: True if subtype constraint is on path to preferred id.  This is 
+        #: relevant if the subtype inherits one of its supertypes' reference
+        #: schemes, and the supertype graph is not a simple path.
+        preferred_id = None 
 

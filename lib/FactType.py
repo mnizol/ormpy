@@ -21,3 +21,22 @@ class FactType(ModelElement):
 
     def __init__(self, uid=None, name=None):
         super(FactType, self).__init__(uid=uid, name=name)
+
+        self.roles = [] #: List of roles in the fact type
+
+    def add(self, role):
+        """ Add *role* to the fact type. """
+        self.roles.append(role)
+
+    def arity(self):
+        """ Returns the arity of the fact type. """
+        return len(self.roles)
+
+class Role(ModelElement):
+    """ A role in a fact type. """
+
+    def __init__(self, uid=None, name=None):
+        super(Role, self).__init__(uid=uid, name=name)
+        
+        fact_type = None #: Fact type to which role belongs
+        player = None #: Object type that plays the role

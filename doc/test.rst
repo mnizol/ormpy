@@ -17,6 +17,14 @@ test Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`TestFactType` Module
+--------------------------
+
+.. automodule:: test.TestFactType
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`TestModel` Module
 -----------------------
 

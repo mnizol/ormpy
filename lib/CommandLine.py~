@@ -40,7 +40,7 @@ def execute():
     if not args.quiet and len(loader.omissions) > 0:
         print "The following items were ignored when loading " + args.filename
         for omission in loader.omissions:
-            print " "*3, omission
+            print " "*2, omission
 
     if args.print_model:
         print

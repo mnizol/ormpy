@@ -102,6 +102,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="o">=</span> <span class="n">max_value</span> <span class="c">#: Maximum value of the range</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_open</span> <span class="o">=</span> <span class="n">min_open</span>   <span class="c">#: True if minimum value excluded from range</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_open</span> <span class="o">=</span> <span class="n">max_open</span>   <span class="c">#: True if maximum value excluded from range</span>
+</div>
+<div class="viewcode-block" id="SubtypeConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubtypeConstraint">[docs]</a><span class="k">class</span> <span class="nc">SubtypeConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A subtype constraint. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SubtypeConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        
+        <span class="n">subtype</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Subtype object type</span>
+        <span class="n">supertype</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Supertype object type</span>
+
+        <span class="c">#: True if subtype constraint is on path to preferred id.  This is </span>
+        <span class="c">#: relevant if the subtype inherits one of its supertypes&#39; reference</span>
+        <span class="c">#: schemes, and the supertype graph is not a simple path.</span>
+        <span class="n">preferred_id</span> <span class="o">=</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="MandatoryConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.MandatoryConstraint">[docs]</a><span class="k">class</span> <span class="nc">MandatoryConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A mandatory constraint. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MandatoryConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span> 
 </pre></div></div>
 
           </div>

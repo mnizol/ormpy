@@ -63,6 +63,7 @@
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -74,13 +75,23 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="lib.html#lib.ModelElement.ModelElementSet.add">add() (lib.ModelElement.ModelElementSet method)</a>
+  <dt><a href="lib.html#lib.FactType.FactType.add">add() (lib.FactType.FactType method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="lib.html#lib.ModelElement.ModelElementSet.add">(lib.ModelElement.ModelElementSet method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="lib.html#lib.Constraint.ValueConstraint.add_range">add_range() (lib.Constraint.ValueConstraint method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="lib.html#lib.Constraint.ValueConstraint.add_range">add_range() (lib.Constraint.ValueConstraint method)</a>
+  <dt><a href="lib.html#lib.FactType.FactType.arity">arity() (lib.FactType.FactType method)</a>
   </dt>
 
   </dl></td>
@@ -168,15 +179,19 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="lib.html#lib.Model.Model.fact_types">fact_types (lib.Model.Model attribute)</a>
+  <dt><a href="lib.html#lib.FactType.Role.fact_type">fact_type (lib.FactType.Role attribute)</a>
   </dt>
 
       
-  <dt><a href="lib.html#lib.FactType.FactType">FactType (class in lib.FactType)</a>
+  <dt><a href="lib.html#lib.Model.Model.fact_types">fact_types (lib.Model.Model attribute)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="lib.html#lib.FactType.FactType">FactType (class in lib.FactType)</a>
+  </dt>
+
       
   <dt><a href="lib.html#lib.FactType.FactTypeSet">FactTypeSet (class in lib.FactType)</a>
   </dt>
@@ -263,6 +278,10 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="lib.html#lib.Constraint.MandatoryConstraint">MandatoryConstraint (class in lib.Constraint)</a>
+  </dt>
+
       
   <dt><a href="lib.html#lib.Constraint.ValueRange.max_open">max_open (lib.Constraint.ValueRange attribute)</a>
   </dt>
@@ -354,11 +373,37 @@
   </dl></td>
 </tr></table>
 
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="lib.html#lib.FactType.Role.player">player (lib.FactType.Role attribute)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="lib.html#lib.Constraint.SubtypeConstraint.preferred_id">preferred_id (lib.Constraint.SubtypeConstraint attribute)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="lib.html#lib.Constraint.ValueConstraint.ranges">ranges (lib.Constraint.ValueConstraint attribute)</a>
+  </dt>
+
+      
+  <dt><a href="lib.html#lib.FactType.Role">Role (class in lib.FactType)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="lib.html#lib.FactType.FactType.roles">roles (lib.FactType.FactType attribute)</a>
   </dt>
 
   </dl></td>
@@ -373,6 +418,10 @@
 
       <dd><dl>
         
+  <dt><a href="test.html#test.TestFactType.TestFactType.setUp">(test.TestFactType.TestFactType method)</a>
+  </dt>
+
+        
   <dt><a href="test.html#test.TestModel.TestModel.setUp">(test.TestModel.TestModel method)</a>
   </dt>
 
@@ -385,6 +434,20 @@
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="lib.html#lib.Constraint.SubtypeConstraint.subtype">subtype (lib.Constraint.SubtypeConstraint attribute)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="lib.html#lib.Constraint.SubtypeConstraint">SubtypeConstraint (class in lib.Constraint)</a>
+  </dt>
+
+      
+  <dt><a href="lib.html#lib.Constraint.SubtypeConstraint.supertype">supertype (lib.Constraint.SubtypeConstraint attribute)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 
@@ -397,6 +460,10 @@
 
       
   <dt><a href="test.html#module-test.TestConstraint">test.TestConstraint (module)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#module-test.TestFactType">test.TestFactType (module)</a>
   </dt>
 
       
@@ -428,6 +495,10 @@
   </dt>
 
       
+  <dt><a href="test.html#test.TestFactType.TestFactType.test_add_role">test_add_role() (test.TestFactType.TestFactType method)</a>
+  </dt>
+
+      
   <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_adding_invalid_element">test_adding_invalid_element() (test.TestNormaLoader.TestNormaLoader method)</a>
   </dt>
 
@@ -440,7 +511,15 @@
   </dt>
 
       
+  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_constraints_omitted">test_constraints_omitted() (test.TestNormaLoader.TestNormaLoader method)</a>
+  </dt>
+
+      
   <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_data_type_load">test_data_type_load() (test.TestNormaLoader.TestNormaLoader method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_derivation_source">test_derivation_source() (test.TestNormaLoader.TestNormaLoader method)</a>
   </dt>
 
       
@@ -470,11 +549,19 @@
   </dt>
 
       
+  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_forced_implicit">test_forced_implicit() (test.TestNormaLoader.TestNormaLoader method)</a>
+  </dt>
+
+      
   <dt><a href="test.html#test.TestModelElement.TestModelElementSet.test_get_element">test_get_element() (test.TestModelElement.TestModelElementSet method)</a>
   </dt>
 
       
   <dt><a href="test.html#test.TestModelElement.TestModelElementSet.test_get_missing_elements">test_get_missing_elements() (test.TestModelElement.TestModelElementSet method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_load_fact_types">test_load_fact_types() (test.TestNormaLoader.TestNormaLoader method)</a>
   </dt>
 
       
@@ -486,11 +573,15 @@
   </dt>
 
       
-  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_omit_subtype_derivation">test_omit_subtype_derivation() (test.TestNormaLoader.TestNormaLoader method)</a>
+  <dt><a href="test.html#test.TestModelElement.TestModelElementSet.test_overwrite">test_overwrite() (test.TestModelElement.TestModelElementSet method)</a>
   </dt>
 
       
-  <dt><a href="test.html#test.TestModelElement.TestModelElementSet.test_overwrite">test_overwrite() (test.TestModelElement.TestModelElementSet method)</a>
+  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_subtype_exception">test_subtype_exception() (test.TestNormaLoader.TestNormaLoader method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_subtypes">test_subtypes() (test.TestNormaLoader.TestNormaLoader method)</a>
   </dt>
 
       
@@ -503,6 +594,10 @@
 
       
   <dt><a href="test.html#test.TestConstraint.TestConstraint">TestConstraint (class in test.TestConstraint)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestFactType.TestFactType">TestFactType (class in test.TestFactType)</a>
   </dt>
 
       

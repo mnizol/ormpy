@@ -90,16 +90,30 @@ class NormaLoader(object):
         """
         # Mapping from XML node tag to loader functions
         self._loader = {
-            'Objects' : self._load_child_nodes,
-            'EntityType' : self._load_entity_type,
-            'ValueType'  : self._load_value_type,
-            'ObjectifiedType' : self._load_objectified_type,
-            'NestedPredicate' : self._load_nested_fact_type,
+            'EntityType'            : self._load_entity_type,
+            'ValueType'             : self._load_value_type,
+            'ObjectifiedType'       : self._load_objectified_type,
+            'NestedPredicate'       : self._load_nested_fact_type,
             'SubtypeDerivationRule' : self._load_subtype_derivation,
-            'PreferredIdentifier' : self._load_preffered_identifier,
-            'ConceptualDataType' : self._load_conceptual_data_type,
-            'ValueRestriction' : self._load_child_nodes,
-            'ValueConstraint' : self._load_value_restriction
+            'PreferredIdentifier'   : self._load_preffered_identifier,
+            'ConceptualDataType'    : self._load_conceptual_data_type,
+            'ValueRestriction'      : self._load_child_nodes,
+            'ValueConstraint'       : self._load_value_restriction,
+            'RoleValueConstraint'   : self._load_value_restriction,
+            'Fact'                  : self._load_fact,
+            'FactRoles'             : self._load_child_nodes,
+            'Role'                  : self._load_role,
+            'RolePlayer'            : self._load_role_player,
+            'DerivationRule'        : self._load_facttype_derivation,
+            'DerivationSource'      : self._load_role_derivation,
+            'SubtypeFact'           : self._load_subtype_fact,
+            'EqualityConstraint'    : self._load_equality_constraint,     
+            'ExclusionConstraint'   : self._load_exclusion_constraint,   
+            'SubsetConstraint'      : self._load_subset_constraint, 
+            'FrequencyConstraint'   : self._load_frequency_constraint,
+            'MandatoryConstraint'   : self._load_mandatory_constraint,
+            'UniquenessConstraint'  : self._load_uniqueness_constraint,
+            'RingConstraint'        : self._load_ring_constraint             
         }
 
         # Mapping from XML types defined in ORMCode namespace to Python types
@@ -168,17 +182,22 @@ class NormaLoader(object):
     @staticmethod
     def _construct(xml_node, model_element_type):
         """ Construct a new model element from the XML node. """
-        return model_element_type(
-            uid = xml_node.get("id"),
-            name = xml_node.get("Name")
-        )
+        uid = xml_node.get("id")
+        name = xml_node.get("Name")
+
+        if name is None: # Some nodes use "_Name" instead
+            name = xml_node.get("_Name") 
+
+        return model_element_type(uid=uid, name=name)
+
 
     def _load(self, filename):
         """ Loads the .orm file named *filename* into *self.model* """
         root = self._parse_norma_file(filename)
         self._load_data_types(root)
-        self._load_child_nodes(root, self.model)
-
+        self._load_object_types(root)
+        self._load_fact_types(root)
+        self._load_constraints(root)
 
     def _parse_norma_file(self, filename):
         """ Parse a NORMA File and return the ORMModel node. """
@@ -223,9 +242,12 @@ class NormaLoader(object):
             *parent* node.  *target* is the object into which the XML data
             will be loaded.
         """
+        if parent is None:
+            return
+
         for child in parent:
             tag = self._local_tag(child) # Get current node's tag
-        
+
             try:
                 self._loader[tag](child, target) # Call loader function
             except KeyError:
@@ -239,6 +261,11 @@ class NormaLoader(object):
     ##########################################################################
     # Private Functions to Load Object Types
     ##########################################################################
+    def _load_object_types(self, xml_node):
+        """ Load the collection of object types. """
+        object_types_node = xml_node.find(self._ns_core + "Objects")
+        self._load_child_nodes(object_types_node, self.model)
+
     def _load_entity_type(self, xml_node, target):
         """ Loads an entity type rooted at xml_node """
         self._load_object_type(xml_node, ObjectType.EntityType)
@@ -311,81 +338,134 @@ class NormaLoader(object):
 
         self._add(cons) # Add constraint to model
     
-'''
-    def load_predicate(self, element):
-        type = self.localTag(element)
+    ##########################################################################
+    # Private Functions to Load Fact Types
+    ##########################################################################
+    def _load_fact_types(self, xml_node):
+        """ Load the collection of fact types. """
+        fact_types_node = xml_node.find(self._ns_core + "Facts")
+        self._load_child_nodes(fact_types_node, self.model)
 
-        if type != "Fact": # Ignoring ImpliedFact, at least
-            return #raise Exception("Unexpected predicate type: " + type)
+    def _load_fact(self, xml_node, fact_type_set):
+        """ Load a fact node into a fact type in the model. """
+        fact_type = self._construct(xml_node, FactType.FactType)
+        self._load_child_nodes(xml_node, fact_type)
 
-        # Create FactType
-        name = element.get("_Name")
-        id = element.get("id")
+        # If no roles are added, it must be an entirely implicit fact type:
+        if fact_type.arity() > 0:
+            self._add(fact_type)
 
-        # Get roles        
-        rolelist = []
+    def _load_facttype_derivation(self, xml_node, fact_type):
+        """ Load a fact type derivation rule. """
+        self.omissions.append("Fact type derivation rule for " + fact_type.name)
 
-        for role in self.find(element, "FactRoles"):
-            if self.localTag(role) == "Role":
-                domid = self.find(role, "RolePlayer").get("ref")
+    def _load_role(self, xml_node, fact_type):
+        """ Load a role in a fact type. """
+        role = self._construct(xml_node, FactType.Role)
+        role.fact_type = fact_type
 
-                roledict = {} # New dictionary every iteration
-                roledict["domain"] = self.elements[domid]
-                roledict["id"] = role.get("id")
-                roledict["name"] = role.get("name")
-                
-                rolelist.append(roledict)
- 
-        # Create predicate
-        predicate = orm.predicate(name = name, id = id, roles = rolelist)
-        self.model.predicates[name] = predicate
-        self.elements[id] = predicate
+        self._load_child_nodes(xml_node, role)
 
-        # Add roles to element dictionary [cannot do until predicate creates role objects]
-        for role in predicate:
-            self.elements[role.id] = role       
+        # Only add role if the role player exists (i.e. if it was an implicit
+        # object type, we do not want the associated role).  For example,
+        # NORMA binarizes unary roles; this check reverts the fact type to
+        # unary.
+        if role.player:
+            fact_type.add(role)
 
+    def _load_role_player(self, xml_node, role):
+        """ Add the role player to the role. """
+        uid = xml_node.get("ref")
 
-    def load_constraint(self, element):
-        type = self.localTag(element)
-        id = element.get("id")
+        try:
+            object_type = self._elements[uid]
+        except KeyError:
+            object_type = None  # Object type must have been implicit.
 
-        # Skip if implied
-        if element.get("IsImplied") == "true":
+        role.player = object_type
+
+    def _load_role_derivation(self, xml_node, role):
+        """ Load a role derivation rule. """
+        name = role.fact_type.name
+        self.omissions.append("Role derivation rule within " + name)
+        
+
+    def _load_subtype_fact(self, xml_node, fact_type_set):
+        """ Load a subtype fact, which indicates a subtype constraint. """
+        cons = self._construct(xml_node, Constraint.SubtypeConstraint)
+        
+        # Get super and sub type XML nodes
+        supertype_node = xml_node.find(self._ns_core + "FactRoles/" + 
+            self._ns_core + "SupertypeMetaRole/" + 
+            self._ns_core + "RolePlayer")
+        subtype_node = xml_node.find(self._ns_core + "FactRoles/" +
+            self._ns_core + "SubtypeMetaRole/" +
+            self._ns_core + "RolePlayer")
+
+        # Look-up the corresponding object types
+        try:
+            cons.supertype = self._elements[supertype_node.get("ref")]
+            cons.subtype = self._elements[subtype_node.get("ref")]
+        except KeyError:
+            raise Exception("Cannot load subtype constraint.")
+
+        cons.cover(cons.subtype) # Constraint only constrains subtype
+
+        # Does this subtype constraint provide a path to the preferred ID?
+        pref = (xml_node.get("PreferredIdentificationPath") == "true")
+        cons.preferred_id = pref
+
+        self._add(cons) # Add subtype constraint to model
+
+    ##########################################################################
+    # Private Functions to Load Constraints
+    ##########################################################################
+    def _load_constraints(self, xml_node):
+        """ Load the collection of contraints. """
+        constraints_node = xml_node.find(self._ns_core + "Constraints")
+        self._load_child_nodes(constraints_node, self.model)
+
+    def _load_equality_constraint(self, xml_node, constraint_set):
+        """ Load equality constraint. """
+        self.omissions.append("Equality constraint " + xml_node.get("Name"))
+
+    def _load_exclusion_constraint(self, xml_node, constraint_set):
+        """ Load exclusion constraint. """
+        self.omissions.append("Exclusion constraint " + xml_node.get("Name"))
+    
+    def _load_subset_constraint(self, xml_node, constraint_set):
+        """ Load subset constraint. """
+        pass
+
+    def _load_frequency_constraint(self, xml_node, constraint_set):
+        """ Load frequency constraint. """
+        pass
+
+    def _load_mandatory_constraint(self, xml_node, constraint_set):
+        """ Load mandatory constraint. """
+        cons = self._construct(xml_node, Constraint.MandatoryConstraint)
+
+        # Ignore implied mandatory (do not even add to omissions)
+        if xml_node.get("IsImplied") == "true":
             return
 
-        roles = []
-        i = 0
+        role_seq = xml_node.find(self._ns_core + "RoleSequence")
 
-        for roleseq in element.iter(self.namespace + "RoleSequence"):
-            roles.append([])
-            for role in roleseq:
-                if self.localTag(role) == "Role":
-                    id = role.get("ref")
+        # Ignore if part of exclusive-or or inclusive-or constraint
+        if len(role_seq) > 1:
+            self.omissions.append("Inclusive-Or constraint " + cons.name)
+            return
 
-                    if id not in self.elements: # NOTE: Confirm only implied roles can be missing from self.elements
-                        return # Constrains implied roles
+    def _load_uniqueness_constraint(self, xml_node, constraint_set):
+        """ Load uniqueness constraint. """
+        pass
 
-                    roles[i].append(self.elements[id])
-            i += 1
+    def _load_ring_constraint(self, xml_node, constraint_set):
+        """ Load ring constraint. """
+        self.omissions.append("Ring constraint " + xml_node.get("Name"))
 
-        if type == "UniquenessConstraint":
-            cons = orm.unique(roles = roles[0]) 
-        elif type == "MandatoryConstraint":
-            cons = orm.mandatory(roles = roles[0])
-        elif type == "SubsetConstraint":
-            cons = orm.subset(roles = roles[0], roles2 = roles[1])
-        elif type == "ExclusionConstraint":
-            cons = orm.exclusion(roles = roles[0], roles2 = roles[1])
-        else:
-            raise Exception("Unexpected constraint type: " + type)
-
-        self.model.constraints.append(cons)
-
-
-
-'''
-
-        
+    def _load_constraint(self, xml_node, constraint_set):
+        """ Load a constraint into the model. """
+        pass      
 
 

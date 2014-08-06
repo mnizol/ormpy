@@ -92,6 +92,28 @@ with explicit inclusion values.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-test.TestFactType">
+<span id="testfacttype-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestFactType</span></tt> Module<a class="headerlink" href="#module-test.TestFactType" title="Permalink to this headline">¶</a></h2>
+<p>This file contains unit tests for the FactType module</p>
+<dl class="class">
+<dt id="test.TestFactType.TestFactType">
+<em class="property">class </em><tt class="descclassname">test.TestFactType.</tt><tt class="descname">TestFactType</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestFactType.html#TestFactType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestFactType.TestFactType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Unit tests for the FactType module.</p>
+<dl class="method">
+<dt id="test.TestFactType.TestFactType.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestFactType.html#TestFactType.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestFactType.TestFactType.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestFactType.TestFactType.test_add_role">
+<tt class="descname">test_add_role</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestFactType.html#TestFactType.test_add_role"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestFactType.TestFactType.test_add_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm we can add a role to the fact type.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-test.TestModel">
 <span id="testmodel-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestModel</span></tt> Module<a class="headerlink" href="#module-test.TestModel" title="Permalink to this headline">¶</a></h2>
 <p>This file contains unit tests for <a class="reference internal" href="lib.html#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">lib.Model.Model</span></tt></a></p>
@@ -208,15 +230,39 @@ XML is not &lt;ormRoot:ORM2&gt;.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_constraints_omitted">
+<tt class="descname">test_constraints_omitted</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_constraints_omitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_constraints_omitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm omitted constraints get saved to omissions list.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestNormaLoader.TestNormaLoader.test_data_type_load">
 <tt class="descname">test_data_type_load</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_data_type_load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_data_type_load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm data types are loaded properly for Value Types.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_derivation_source">
+<tt class="descname">test_derivation_source</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_derivation_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_derivation_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm depricated DerivationSource element is ignored.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestNormaLoader.TestNormaLoader.test_empty_model">
 <tt class="descname">test_empty_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_empty_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_empty_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm a successful parse on a small input file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_forced_implicit">
+<tt class="descname">test_forced_implicit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_forced_implicit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_forced_implicit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exercise branch in _load_fact_types when arity() = 0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_load_fact_types">
+<tt class="descname">test_load_fact_types</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_load_fact_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_load_fact_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm fact types load successfully.</p>
 </dd></dl>
 
 <dl class="method">
@@ -233,10 +279,17 @@ ORMModel element.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="test.TestNormaLoader.TestNormaLoader.test_omit_subtype_derivation">
-<tt class="descname">test_omit_subtype_derivation</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_omit_subtype_derivation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_omit_subtype_derivation" title="Permalink to this definition">¶</a></dt>
+<dt id="test.TestNormaLoader.TestNormaLoader.test_subtype_exception">
+<tt class="descname">test_subtype_exception</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_subtype_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_subtype_exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm subtype exception fires for corrupted data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_subtypes">
+<tt class="descname">test_subtypes</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_subtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_subtypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm that subtype derivation rule omission note
-is added to self.omissions.</p>
+is added to self.omissions and that subtype constraints load 
+properly.</p>
 </dd></dl>
 
 <dl class="method">
@@ -268,6 +321,7 @@ is unexpected.</p>
 <li><a class="reference internal" href="#">test Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">test</span></tt> Package</a></li>
 <li><a class="reference internal" href="#module-test.TestConstraint"><tt class="docutils literal"><span class="pre">TestConstraint</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-test.TestFactType"><tt class="docutils literal"><span class="pre">TestFactType</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-test.TestModel"><tt class="docutils literal"><span class="pre">TestModel</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-test.TestModelElement"><tt class="docutils literal"><span class="pre">TestModelElement</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-test.TestNormaLoader"><tt class="docutils literal"><span class="pre">TestNormaLoader</span></tt> Module</a></li>

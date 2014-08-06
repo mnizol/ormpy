@@ -101,6 +101,40 @@ the constraint.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="lib.Constraint.MandatoryConstraint">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">MandatoryConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#MandatoryConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.MandatoryConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
+<p>A mandatory constraint.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Constraint.SubtypeConstraint">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">SubtypeConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubtypeConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubtypeConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
+<p>A subtype constraint.</p>
+<dl class="attribute">
+<dt id="lib.Constraint.SubtypeConstraint.preferred_id">
+<tt class="descname">preferred_id</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.SubtypeConstraint.preferred_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if subtype constraint is on path to preferred id.  This is
+relevant if the subtype inherits one of its supertypes&#8217; reference
+schemes, and the supertype graph is not a simple path.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.SubtypeConstraint.subtype">
+<tt class="descname">subtype</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.SubtypeConstraint.subtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subtype object type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.SubtypeConstraint.supertype">
+<tt class="descname">supertype</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.SubtypeConstraint.supertype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Supertype object type</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="lib.Constraint.ValueConstraint">
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ValueConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
@@ -159,6 +193,24 @@ the constraint.</p>
 <em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">FactType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>An ORM Fact Type.</p>
+<dl class="method">
+<dt id="lib.FactType.FactType.add">
+<tt class="descname">add</tt><big>(</big><em>role</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactType.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add <em>role</em> to the fact type.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.FactType.FactType.arity">
+<tt class="descname">arity</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactType.arity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType.arity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the arity of the fact type.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.FactType.FactType.roles">
+<tt class="descname">roles</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.FactType.roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of roles in the fact type</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -166,6 +218,25 @@ the constraint.</p>
 <em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">FactTypeSet</tt><a class="reference internal" href="_modules/lib/FactType.html#FactTypeSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactTypeSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElementSet" title="lib.ModelElement.ModelElementSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElementSet</span></tt></a></p>
 <p>Container for a set of fact types.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.FactType.Role">
+<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">Role</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#Role"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.Role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
+<p>A role in a fact type.</p>
+<dl class="attribute">
+<dt id="lib.FactType.Role.fact_type">
+<tt class="descname">fact_type</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.fact_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fact type to which role belongs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.FactType.Role.player">
+<tt class="descname">player</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.player" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object type that plays the role</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>

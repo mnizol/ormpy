@@ -59,6 +59,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">lib.ModelElement</span> <span class="kn">import</span> <span class="n">ModelElementSet</span><span class="p">,</span> <span class="n">ModelElement</span>
+<span class="kn">from</span> <span class="nn">lib.FactType</span> <span class="kn">import</span> <span class="n">RoleSequence</span>
 
 <div class="viewcode-block" id="ConstraintSet"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ConstraintSet">[docs]</a><span class="k">class</span> <span class="nc">ConstraintSet</span><span class="p">(</span><span class="n">ModelElementSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Container for a set of constraints. &quot;&quot;&quot;</span>
@@ -72,9 +73,17 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Constraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
-        <span class="c">#: List of roles or object types the constraint covers</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="p">[]</span> 
+        <span class="c">#: Roles or object types the constraint covers </span>
+        <span class="c">#: (:class:`lib.FactType.RoleSequence`)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="n">RoleSequence</span><span class="p">()</span>
 
+        <span class="c">#: True if constraint has alethic modality (False implies deontic)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alethic</span> <span class="o">=</span> <span class="bp">True</span>  
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Constraint.fullname"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.fullname">[docs]</a>    <span class="k">def</span> <span class="nf">fullname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;Constraints.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+</div>
 <div class="viewcode-block" id="Constraint.cover"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.cover">[docs]</a>    <span class="k">def</span> <span class="nf">cover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_element</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add a model element to the list of elements covered by </span>
 <span class="sd">            the constraint. &quot;&quot;&quot;</span>
@@ -109,19 +118,72 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SubtypeConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         
-        <span class="n">subtype</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Subtype object type</span>
-        <span class="n">supertype</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Supertype object type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtype</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Subtype object type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supertype</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Supertype object type</span>
 
         <span class="c">#: True if subtype constraint is on path to preferred id.  This is </span>
         <span class="c">#: relevant if the subtype inherits one of its supertypes&#39; reference</span>
         <span class="c">#: schemes, and the supertype graph is not a simple path.</span>
-        <span class="n">preferred_id</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preferred_id</span> <span class="o">=</span> <span class="bp">None</span>
 </div>
 <div class="viewcode-block" id="MandatoryConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.MandatoryConstraint">[docs]</a><span class="k">class</span> <span class="nc">MandatoryConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A mandatory constraint. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MandatoryConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span> 
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">simple</span> <span class="o">=</span> <span class="bp">False</span> <span class="c">#: True for simple mandatory constraints</span>
+</div>
+<div class="viewcode-block" id="SubsetConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubsetConstraint">[docs]</a><span class="k">class</span> <span class="nc">SubsetConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A subset constraint. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SubsetConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c">#: Sequence of subset roles (:class:`lib.FactType.RoleSequence`)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subset</span> <span class="o">=</span> <span class="n">RoleSequence</span><span class="p">()</span>
+
+        <span class="c">#: Sequence of superset roles (:class:`lib.FactType.RoleSequence`)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">superset</span> <span class="o">=</span> <span class="n">RoleSequence</span><span class="p">()</span> 
+
+<div class="viewcode-block" id="SubsetConstraint.cover_subset"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubsetConstraint.cover_subset">[docs]</a>    <span class="k">def</span> <span class="nf">cover_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add a role to the list of subset roles covered by this</span>
+<span class="sd">            constraint.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">role</span><span class="p">)</span> <span class="c"># Add to full list of covered roles</span>
+</div>
+<div class="viewcode-block" id="SubsetConstraint.cover_superset"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubsetConstraint.cover_superset">[docs]</a>    <span class="k">def</span> <span class="nf">cover_superset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add a role to the list of superset roles covered by</span>
+<span class="sd">            this constraint. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">superset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">role</span><span class="p">)</span> <span class="c"># Add to full list of covered roles</span>
+</div></div>
+<div class="viewcode-block" id="UniquenessConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.UniquenessConstraint">[docs]</a><span class="k">class</span> <span class="nc">UniquenessConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A uniqueness constraint. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span> 
+        
+        <span class="c">#: True if constraint covers roles in one fact type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internal</span> <span class="o">=</span> <span class="bp">False</span> 
+
+        <span class="c">#: Object type this constraint identifies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="o">=</span> <span class="bp">None</span> 
+</div>
+<div class="viewcode-block" id="FrequencyConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.FrequencyConstraint">[docs]</a><span class="k">class</span> <span class="nc">FrequencyConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A frequency constraint. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FrequencyConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Minimum frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Maximum frequency</span>
+</div>
+<div class="viewcode-block" id="ExclusionConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ExclusionConstraint">[docs]</a><span class="k">class</span> <span class="nc">ExclusionConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An exclusion constraint. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ExclusionConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 </pre></div></div>
 
           </div>

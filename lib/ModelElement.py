@@ -38,8 +38,22 @@ class ModelElementSet(object):
         self._set = {}
         self.name = name #: The name of the set. May be used for display, etc.
 
+    def __iter__(self):
+        """ Permit iteration over the set. """
+        return self._set.itervalues()
+
     def add(self, element):
-        """ Add an element to the set. """
+        """ Add an element to the set. If the name exists in the set, rename 
+            the element by adding an integer suffix to make it unique in 
+            the set.  For example, if an element named Person is added
+            three times, the set will contain Person, Person2, and Person3. """
+        i = 2
+        name = element.name
+
+        while element.name in self._set:
+            element._name = name + str(i) # Need to access underlying _name
+            i = i + 1
+   
         self._set[element.name] = element
 
     def get(self, name):

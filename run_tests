@@ -6,6 +6,9 @@ export ORMPY_TEST_DATA_DIR=./test/data/
 # Run tests
 if [ "$1" == "--cover" ]; then
     nosetests --cover-inclusive --with-coverage --cover-erase --cover-package=lib
+elif [ "$1" == "--cover-html" ]; then
+    rm test/coverage/*
+    nosetests --cover-inclusive --with-coverage --cover-erase --cover-package=lib --cover-html --cover-html-dir=test/coverage
 else
     nosetests --verbose
 fi

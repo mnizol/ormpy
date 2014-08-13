@@ -10,6 +10,7 @@ from unittest import TestCase
 
 import lib.Constraint as Constraint
 from lib.ObjectType import ObjectType
+from lib.FactType import Role
 
 class TestConstraint(TestCase):
     """ Unit tests for the Constraint module. """
@@ -49,3 +50,21 @@ class TestConstraint(TestCase):
         self.assertEquals(cons.ranges[1].max_value, "10")
         self.assertFalse(cons.ranges[1].min_open)
         self.assertTrue(cons.ranges[1].max_open)
+
+    def test_add_subset_roles(self):
+        """ Test adding subset roles to subset constraint. """
+        cons = Constraint.SubsetConstraint(uid="1", name="S1")
+        role = Role(uid="R1", name="R1")
+        cons.cover_subset(role)
+        self.assertIs(cons.covers[0], role)
+        self.assertIs(cons.subset[0], role)
+
+    def test_add_superset_roles(self):
+        """ Test adding superset roles to subset constraint. """
+        cons = Constraint.SubsetConstraint(uid="1", name="S1")
+        role = Role(uid="R1", name="R1")
+        cons.cover_superset(role)
+        self.assertIs(cons.covers[0], role)
+        self.assertIs(cons.superset[0], role)
+
+

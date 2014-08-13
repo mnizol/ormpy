@@ -345,6 +345,12 @@
 					<orm:Role id="_8341F27B-08E0-4A25-AB6F-26367F077354" ref="_9555FFBF-BCA1-4D7B-8E75-8093B8EDE473" />
 				</orm:RoleSequence>
 			</orm:RingConstraint>
+			<orm:ValueComparisonConstraint id="_BC7FBD66-1F01-47C2-ABB1-FA48A5125101" Name="ValueComparisonConstraint1" Operator="LessThan">
+				<orm:RoleSequence>
+					<orm:Role id="_654D101F-A91E-4268-85F6-7CA92C163249" ref="_9555FFBF-BCA1-4D7B-8E75-8093B8EDE473" />
+					<orm:Role id="_093E6F64-7FB9-4F96-B660-ABCD1B54BC57" ref="_7F16B625-F2AE-41C2-AB89-04045BB88DCB" />
+				</orm:RoleSequence>
+			</orm:ValueComparisonConstraint>
 			<orm:EqualityConstraint id="_D6B1D377-F893-406D-B1FF-3A068D2F8455" Name="EqualityConstraint1">
 				<orm:RoleSequences>
 					<orm:RoleSequence id="_4FCDAB21-AED1-45BF-AFC1-75DD3A7B7010">
@@ -439,6 +445,9 @@
 			<ormDiagram:RingConstraintShape id="_3F03FD32-4ECD-4E80-AFE4-DC769A7C94E7" IsExpanded="true" AbsoluteBounds="1.5925000398197633, 0.67708335320154822, 0.3199999995, 0.213333333">
 				<ormDiagram:Subject ref="_81AACFC3-7FE5-41E5-BB1C-CFF0E84960AA" />
 			</ormDiagram:RingConstraintShape>
+			<ormDiagram:ValueComparisonConstraintShape id="_A1327ADD-C93E-447D-8C39-43D65D6D4D92" IsExpanded="true" AbsoluteBounds="2.4583333333333335, 0.71875001986821485, 0.16, 0.16">
+				<ormDiagram:Subject ref="_BC7FBD66-1F01-47C2-ABB1-FA48A5125101" />
+			</ormDiagram:ValueComparisonConstraintShape>
 		</ormDiagram:Shapes>
 		<ormDiagram:Subject ref="_65771F81-4ED2-4F7A-96B7-8D2509E2588D" />
 	</ormDiagram:ORMDiagram>

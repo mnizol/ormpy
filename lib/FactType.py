@@ -24,6 +24,10 @@ class FactType(ModelElement):
 
         self.roles = [] #: List of roles in the fact type
 
+    @property
+    def fullname(self):
+        return "FactTypes." + self.name
+
     def add(self, role):
         """ Add *role* to the fact type. """
         self.roles.append(role)
@@ -40,3 +44,22 @@ class Role(ModelElement):
         
         fact_type = None #: Fact type to which role belongs
         player = None #: Object type that plays the role
+
+    @property
+    def fullname(self):
+        return "FactTypes." + self.fact_type.name + ".Roles." + self.name
+
+class SubtypeRole(Role):
+    """ A subtype role. """
+
+    def __init__(self, uid=None, name=None):
+        super(SubtypeRole, self).__init__(uid=uid, name=name)
+
+class RoleSequence(list):
+    """ A sequence of roles. """
+
+    def __init__(self):
+        super(RoleSequence, self).__init__()
+
+        self.join_path = None #: Join path for the role sequence
+

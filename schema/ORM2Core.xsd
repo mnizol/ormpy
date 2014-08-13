@@ -214,6 +214,7 @@
 			<xs:element name="Definitions" type="DefinitionsType" minOccurs="0"/>
 			<xs:element name="Notes" type="NotesType" minOccurs="0"/>
 			<xs:element name="Abbreviations" type="AliasesType" minOccurs="0"/>
+			<xs:element name="CardinalityRestriction" type="ObjectTypeCardinalityRestrictionType" minOccurs="0"/>
 			<xs:element name="PlayedRoles" type="PlayedRolesType" minOccurs="0"/>
 			<xs:element name="SubtypeDerivationRule" type="SubtypeDerivationRuleType" minOccurs="0"/>
 		</xs:sequence>
@@ -944,6 +945,7 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="ValueRestriction" type="RoleValueRestrictionType" minOccurs="0"/>
+			<xs:element name="CardinalityRestriction" type="UnaryRoleCardinalityRestrictionType" minOccurs="0"/>
 			<!-- UNDONE: Remove direct DerivationSource support when the format is upgraded -->
 			<xs:element name="DerivationSource" minOccurs="0">
 				<xs:annotation>
@@ -2110,6 +2112,12 @@
 		</xs:annotation>
 		<xs:attributeGroup ref="refAttribute"/>
 	</xs:complexType>
+	<xs:complexType name="ValueComparisonConstraintRef">
+		<xs:annotation>
+			<xs:documentation>A reference to a value comparison constraint.</xs:documentation>
+		</xs:annotation>
+		<xs:attributeGroup ref="refAttribute"/>
+	</xs:complexType>
 	<xs:complexType name="ConstraintsType">
 		<xs:annotation>
 			<xs:documentation>Container for SetConstraints and SetComparisonConstraints.</xs:documentation>
@@ -2122,6 +2130,7 @@
 			<xs:element name="MandatoryConstraint" type="MandatoryConstraintType"/>
 			<xs:element name="UniquenessConstraint" type="UniquenessConstraintType"/>
 			<xs:element name="RingConstraint" type="RingConstraintType"/>
+			<xs:element name="ValueComparisonConstraint" type="ValueComparisonConstraintType"/>
 		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="ConstraintType" abstract="true">
@@ -2211,6 +2220,12 @@
 	<xs:complexType name="ValueConstraintRef">
 		<xs:annotation>
 			<xs:documentation>A reference to a role or value type value constraint.</xs:documentation>
+		</xs:annotation>
+		<xs:attributeGroup ref="refAttribute"/>
+	</xs:complexType>
+	<xs:complexType name="CardinalityConstraintRef">
+		<xs:annotation>
+			<xs:documentation>A reference to an object type or unary role cardinality constraint.</xs:documentation>
 		</xs:annotation>
 		<xs:attributeGroup ref="refAttribute"/>
 	</xs:complexType>
@@ -2453,6 +2468,61 @@
 			</xs:enumeration>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:complexType name="ValueComparisonConstraintType">
+		<xs:annotation>
+			<xs:documentation>A constraint specifying that a comparison between two related values must be satisfied.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="SetConstraintWithJoinType">
+				<xs:sequence>
+					<xs:element name="Extensions" type="ExtensionsType" minOccurs="0"/>
+				</xs:sequence>
+				<xs:attribute name="Operator" type="ValueComparisonOperatorValues" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="ValueComparisonOperatorValues">
+		<xs:annotation>
+			<xs:documentation>Restriction on the comparison operators allowed by a value comparison constraint.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Undefined">
+				<xs:annotation>
+					<xs:documentation>The comparison operator is undefined. Corresponds to a model validation error.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="Equal">
+				<xs:annotation>
+					<xs:documentation>The two values must be equal.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="NotEqual">
+				<xs:annotation>
+					<xs:documentation>The two values must not be equal.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="LessThan">
+				<xs:annotation>
+					<xs:documentation>The first value is less than the second.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="LessThanOrEqual">
+				<xs:annotation>
+					<xs:documentation>The first value is less than or equal to the second.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="GreaterThan">
+				<xs:annotation>
+					<xs:documentation>The first value is greater than the second.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="GreaterThanOrEqual">
+				<xs:annotation>
+					<xs:documentation>The first value is greater than or equal to the second.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
 	<!--End Set constraints-->
 	<!--InternalConstraint -->
 	<xs:complexType name="InternalConstraintsType">
@@ -2573,6 +2643,7 @@
 			<xs:element name="RecognizedPhraseDuplicateNameError" type="RecognizedPhraseDuplicateNameErrorType"/>
 			<xs:element name="GroupDuplicateNameError" type="GroupDuplicateNameErrorType"/>
 			<xs:element name="FunctionDuplicateNameError" type="FunctionDuplicateNameErrorType"/>
+			<xs:element name="DuplicateReadingSignatureError" type="DuplicateReadingSignatureErrorType"/>
 			<xs:element name="GroupMembershipContradictionError" type="GroupMembershipContradictionErrorType"/>
 			<xs:element name="ExternalConstraintRoleSequenceArityMismatchError" type="ExternalConstraintRoleSequenceArityMismatchErrorType"/>
 			<xs:element name="FactTypeRequiresInternalUniquenessConstraintError" type="FactTypeRequiresInternalUniquenessConstraintErrorType"/>
@@ -2601,9 +2672,12 @@
 			<xs:element name="FrequencyConstraintViolatedByUniquenessConstraintError" type="FrequencyConstraintViolatedByUniquenessConstraintErrorType"/>
 			<xs:element name="MinValueMismatchError" type="MinValueMismatchErrorType"/>
 			<xs:element name="MaxValueMismatchError" type="MaxValueMismatchErrorType"/>
+			<xs:element name="CardinalityRangeOverlapError" type="CardinalityRangeOverlapErrorType"/>
 			<xs:element name="ValueRangeOverlapError" type="ValueRangeOverlapErrorType"/>
 			<xs:element name="ValueTypeDetachedError" type="ValueTypeDetachedErrorType"/>
 			<xs:element name="RingConstraintTypeNotSpecifiedError" type="RingConstraintTypeNotSpecifiedErrorType"/>
+			<xs:element name="ValueComparisonConstraintOperatorNotSpecifiedError" type="ValueComparisonConstraintOperatorNotSpecifiedErrorType"/>
+			<xs:element name="ValueComparisonRolesNotComparableError" type="ValueComparisonRolesNotComparableErrorType"/>
 			<xs:element name="ImplicationError" type="ImplicationErrorType"/>
 			<xs:element name="SubsetConstraintImpliedByMandatoryConstraintsError" type="SubsetConstraintImpliedByMandatoryConstraintsErrorType"/>
 			<xs:element name="EqualityConstraintImpliedByMandatoryConstraintsError" type="EqualityConstraintImpliedByMandatoryConstraintsErrorType"/>
@@ -2674,6 +2748,7 @@
 								<xs:element name="SetComparisonConstraint" type="SetComparisonConstraintRef"/>
 								<xs:element name="SetConstraint" type="SetConstraintRef"/>
 								<xs:element name="ValueConstraint" type="ValueConstraintRef"/>
+								<xs:element name="CardinalityConstraint" type="CardinalityConstraintRef"/>
 							</xs:choice>
 						</xs:complexType>
 					</xs:element>
@@ -2737,6 +2812,27 @@
 						<xs:complexType>
 							<xs:sequence minOccurs="2" maxOccurs="unbounded">
 								<xs:element name="Function" type="FunctionRef"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DuplicateReadingSignatureErrorType">
+		<xs:annotation>
+			<xs:documentation>Multiple readings have the same normalized signature, which is a normalized expanded form of the reading text and role player names.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="ModelError">
+				<xs:sequence>
+					<xs:element name="Readings">
+						<xs:annotation>
+							<xs:documentation>Readings with equivalent signatures.</xs:documentation>
+						</xs:annotation>
+						<xs:complexType>
+							<xs:sequence minOccurs="2" maxOccurs="unbounded">
+								<xs:element name="Reading" type="ReadingRef"/>
 							</xs:sequence>
 						</xs:complexType>
 					</xs:element>
@@ -2979,6 +3075,18 @@
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
+	<xs:complexType name="CardinalityRangeOverlapErrorType">
+		<xs:annotation>
+			<xs:documentation>Two or more cardinality constraint ranges are either overlapping or not increasing.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="ModelError">
+				<xs:sequence>
+					<xs:element name="CardinalityConstraint" type="CardinalityConstraintRef"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
 	<xs:complexType name="ValueTypeDetachedErrorType">
 		<xs:annotation>
 			<xs:documentation>A role value constraint is specified for a role that is no longer associated with a value type.</xs:documentation>
@@ -3052,7 +3160,30 @@
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	
+	<xs:complexType name="ValueComparisonConstraintOperatorNotSpecifiedErrorType">
+		<xs:annotation>
+			<xs:documentation>The operator of a value comparison constraint is not specified.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="ModelError">
+				<xs:sequence>
+					<xs:element name="ValueComparisonConstraint" type="ValueComparisonConstraintRef"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ValueComparisonRolesNotComparableErrorType">
+		<xs:annotation>
+			<xs:documentation>The roles in a value comparison constraint cannot be compared.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="ModelError">
+				<xs:sequence>
+					<xs:element name="ValueComparisonConstraint" type="ValueComparisonConstraintRef"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
 	<xs:complexType name="ImplicationErrorType">
 		<xs:annotation>
 			<xs:documentation>A constraint is implied by another constraint in the model.</xs:documentation>
@@ -3817,6 +3948,59 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+	<xs:complexType name="ObjectTypeCardinalityRestrictionType">
+		<xs:annotation>
+			<xs:documentation>Restrict the size of a population of this object type.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="CardinalityConstraint" type="CardinalityConstraintType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="UnaryRoleCardinalityRestrictionType">
+		<xs:annotation>
+			<xs:documentation>Restrict the number of different instances allowed to play this role in a population.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="UnaryRoleCardinalityConstraint" type="CardinalityConstraintType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CardinalityConstraintType">
+		<xs:annotation>
+			<xs:documentation>A constraint limiting the number of instances in a population.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="ConstraintType">
+				<xs:sequence>
+					<xs:element name="Ranges" type="CardinalityRangesType"/>
+					<xs:element name="Extensions" type="ExtensionsType" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CardinalityRangesType">
+		<xs:annotation>
+			<xs:documentation>Container for cardinality ranges.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element name="CardinalityRange" type="CardinalityRangeType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CardinalityRangeType">
+		<xs:annotation>
+			<xs:documentation>A single cardinality range.</xs:documentation>
+		</xs:annotation>
+		<xs:attributeGroup ref="idAttribute"/>
+		<xs:attribute name="From" type="xs:nonNegativeInteger" use="required">
+			<xs:annotation>
+				<xs:documentation>The lower bound of the cardinality range. A value of zero indicates than an empty population is allowed.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="To" type="xs:nonNegativeInteger" use="optional">
+			<xs:annotation>
+				<xs:documentation>The upper bound of the cardinality range. Set to the same value as the 'From' attribute for a single-valued range. If this is omitted, then an unbounded range is assumed.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
 	<xs:simpleType name="ConstraintModalityValues">
 		<xs:annotation>
 			<xs:documentation>The strength of a constraint.</xs:documentation>
@@ -4030,6 +4214,7 @@
 			<xs:element name="GroupTypes" type="GroupTypesType" minOccurs="0"/>
 			<xs:element name="Elements" type="GroupElementsType" minOccurs="0"/>
 			<xs:element name="NestedGroups" type="NestedGroupsType" minOccurs="0"/>
+			<xs:element name="Extensions" type="ExtensionsType" minOccurs="0"/>
 		</xs:all>
 		<xs:attributeGroup ref="idAttribute"/>
 		<xs:attribute name="Name" use="required" type="xs:string">
@@ -4186,4 +4371,9 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+	<xs:element name="ORMModelBrowserDynamicColor" substitutionGroup="DynamicColor">
+		<xs:annotation>
+			<xs:documentation>Dynamic color information displayed in the ORM Model Browser tool window.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
 </xs:schema>

@@ -66,12 +66,20 @@
 <span class="kn">from</span> <span class="nn">lib.FactType</span> <span class="kn">import</span> <span class="n">FactType</span>
 
 <span class="kn">import</span> <span class="nn">lib.ObjectType</span> <span class="kn">as</span> <span class="nn">ObjectType</span>
+<span class="kn">import</span> <span class="nn">lib.Constraint</span> <span class="kn">as</span> <span class="nn">Constraint</span>
 
 <div class="viewcode-block" id="TestNormaLoader"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader">[docs]</a><span class="k">class</span> <span class="nc">TestNormaLoader</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Unit tests for the NormaLoader class. &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TestNormaLoader.setUp"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;ORMPY_TEST_DATA_DIR&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_add_from_empty_stack"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_add_from_empty_stack">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_from_empty_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Check behavior of add_from_stack when empty. &quot;&quot;&quot;</span>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;empty_model.orm&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">loader</span><span class="o">.</span><span class="n">_add_from_stack</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>                
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_bad_filename_extension"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_bad_filename_extension">[docs]</a>    <span class="k">def</span> <span class="nf">test_bad_filename_extension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Confirm that exception is raised when input file has .txt extension </span>
@@ -116,12 +124,16 @@
 <div class="viewcode-block" id="TestNormaLoader.test_subtypes"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_subtypes">[docs]</a>    <span class="k">def</span> <span class="nf">test_subtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Confirm that subtype derivation rule omission note</span>
 <span class="sd">            is added to self.omissions and that subtype constraints load </span>
-<span class="sd">            properly. &quot;&quot;&quot;</span>
+<span class="sd">            properly. Also confirm that if inclusive-or or XOR constraints</span>
+<span class="sd">            are present on a subtype, they are reported in the omissions. &quot;&quot;&quot;</span>
         <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;subtype_with_derivation.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">model</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">,</span> 
-            <span class="p">[</span><span class="s">&quot;Subtype derivation rule for B&quot;</span><span class="p">])</span>
+            <span class="p">[</span><span class="s">&quot;Subtype derivation rule for B&quot;</span><span class="p">,</span> 
+             <span class="s">&quot;Subtype exclusion constraint ExclusiveOrConstraint1&quot;</span><span class="p">,</span>
+             <span class="s">&quot;Subtype inclusive-or constraint InclusiveOrConstraint1&quot;</span><span class="p">,</span>
+             <span class="s">&quot;Subtype inclusive-or constraint InclusiveOrConstraint2&quot;</span><span class="p">])</span>
 
         <span class="n">cons1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;BIsASubtypeOfA&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">subtype</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">))</span>
@@ -152,8 +164,8 @@
         <span class="c"># Independent Entity</span>
         <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;D&quot;</span><span class="p">)</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">independent</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">identifying_constraint</span><span class="p">,</span> 
-            <span class="s">&quot;_5D7B0A6D-EF11-43C0-9EB3-398933165BC4&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">identifying_constraint</span><span class="p">,</span> 
+            <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;InternalUniquenessConstraint7&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">EntityType</span><span class="p">)</span>
 
         <span class="c"># Non-independent Entity</span>
@@ -183,7 +195,7 @@
         <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V1HasV2&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">independent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">identifying_constraint</span><span class="p">,</span> 
-            <span class="s">&quot;_CC5D22B1-DBA7-4383-80F2-29CEAE58A998&quot;</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;InternalUniquenessConstraint14&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">nested_fact_type</span><span class="p">,</span> 
             <span class="s">&quot;_B6D10F36-FFE2-4B86-BEA4-02F7FCA655F9&quot;</span><span class="p">)</span>
 
@@ -322,10 +334,242 @@
             <span class="p">[</span><span class="s">&quot;Equality constraint EqualityConstraint1&quot;</span><span class="p">,</span>
              <span class="s">&quot;Exclusion constraint ExclusionConstraint1&quot;</span><span class="p">,</span>
              <span class="s">&quot;Exclusion constraint ExclusiveOrConstraint1&quot;</span><span class="p">,</span>
-             <span class="s">&quot;Inclusive-Or constraint InclusiveOrConstraint1&quot;</span><span class="p">,</span>
-             <span class="s">&quot;Inclusive-Or constraint InclusiveOrConstraint2&quot;</span><span class="p">,</span>
-             <span class="s">&quot;Ring constraint RingConstraint1&quot;</span><span class="p">])</span>
-  
+             <span class="s">&quot;Inclusive-or constraint InclusiveOrConstraint1&quot;</span><span class="p">,</span>
+             <span class="s">&quot;Inclusive-or constraint InclusiveOrConstraint2&quot;</span><span class="p">,</span>
+             <span class="s">&quot;Ring constraint RingConstraint1&quot;</span><span class="p">,</span>
+             <span class="s">&quot;Value comparison constraint ValueComparisonConstraint1&quot;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_subset_constraint"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_subset_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">test_subset_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm subset constraints load correctly. &quot;&quot;&quot;</span>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;subset_constraint.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">model</span>
+
+        <span class="n">cons1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;SubsetConstraint1&quot;</span><span class="p">)</span>
+        <span class="n">cons2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;SubsetConstraint2&quot;</span><span class="p">)</span>
+        <span class="n">cons3</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;SubsetConstraint3&quot;</span><span class="p">)</span>
+        <span class="n">cons4</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;SubsetConstraint4&quot;</span><span class="p">)</span>
+
+        <span class="n">obj_a</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">)</span>
+        <span class="n">obj_b</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">)</span>
+        <span class="n">ahasb</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;AHasB&quot;</span><span class="p">)</span>
+        <span class="n">alikesb</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ALikesB&quot;</span><span class="p">)</span>
+        <span class="n">aplus</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;CPlusAPlusB&quot;</span><span class="p">)</span>
+        <span class="n">aand</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;AAndBAndC&quot;</span><span class="p">)</span>
+        
+        <span class="c"># Check modality</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">alethic</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">cons2</span><span class="o">.</span><span class="n">alethic</span><span class="p">)</span>
+
+        <span class="c"># Check unary subset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">superset</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">subset</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">subset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">obj_a</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">superset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">obj_a</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">subset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">ahasb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">superset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">alikesb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">covers</span><span class="p">,</span> <span class="n">cons1</span><span class="o">.</span><span class="n">subset</span> <span class="o">+</span> <span class="n">cons1</span><span class="o">.</span><span class="n">superset</span><span class="p">)</span>
+
+        <span class="c"># Check binary subset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cons4</span><span class="o">.</span><span class="n">superset</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cons4</span><span class="o">.</span><span class="n">subset</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons4</span><span class="o">.</span><span class="n">subset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">aplus</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons4</span><span class="o">.</span><span class="n">superset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">aand</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons4</span><span class="o">.</span><span class="n">subset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">cons4</span><span class="o">.</span><span class="n">superset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons4</span><span class="o">.</span><span class="n">subset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">cons4</span><span class="o">.</span><span class="n">superset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons4</span><span class="o">.</span><span class="n">subset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">obj_b</span><span class="p">)</span>
+
+        <span class="c"># Check ternary subset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">cons3</span><span class="p">)</span> <span class="c"># Not loaded</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">,</span> 
+            <span class="p">[</span><span class="s">&quot;Subset constraint SubsetConstraint3 (due to arity &gt; 2)&quot;</span><span class="p">])</span>
+
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_partial_subset"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_partial_subset">[docs]</a>    <span class="k">def</span> <span class="nf">test_partial_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm exception fires for invalid subset constraints. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;partial_subset.orm&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> 
+            <span class="s">&quot;Constraint SubsetConstraint1 does not have exactly two role sequences (sub and super).&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_implicit_role"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_implicit_role">[docs]</a>    <span class="k">def</span> <span class="nf">test_implicit_role</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm constraint that covers implicit role is removed. &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;test_implicit_roles.orm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;SubsetConstraint1&quot;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_deprecated_join"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_deprecated_join">[docs]</a>    <span class="k">def</span> <span class="nf">test_deprecated_join</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm exception fires for models containing deprecated join constraint. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;deprecated_join.orm&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> 
+            <span class="s">&quot;Constraint SubsetConstraint1 has deprecated join rule.&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_join_subset_omission"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_join_subset_omission">[docs]</a>    <span class="k">def</span> <span class="nf">test_join_subset_omission</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm that join subset constraints are (for now) omitted. &quot;&quot;&quot;</span>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;join_subset_omission.orm&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">,</span> 
+            <span class="p">[</span><span class="s">&quot;Join path for SubsetConstraint1.&quot;</span><span class="p">])</span>
+
+        <span class="n">cons</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;SubsetConstraint1&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">superset</span><span class="o">.</span><span class="n">join_path</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_uniqueness_constraint"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_uniqueness_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">test_uniqueness_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm uniqueness constraints load properly. &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;uniqueness_constraints.orm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+
+        <span class="n">int_cons1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;InternalUniquenessConstraint4&quot;</span><span class="p">)</span>
+        <span class="n">int_cons2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;InternalUniquenessConstraint1&quot;</span><span class="p">)</span>
+        <span class="n">int_cons3</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;InternalUniquenessConstraint9&quot;</span><span class="p">)</span>
+        <span class="n">ext_cons1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ExternalUniquenessConstraint1&quot;</span><span class="p">)</span>
+        <span class="n">ext_cons2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ExternalUniquenessConstraint2&quot;</span><span class="p">)</span>
+
+        <span class="n">obj_a</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">)</span>
+        <span class="n">obj_b</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">)</span>
+        <span class="n">obj_z</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Z&quot;</span><span class="p">)</span>
+        <span class="n">ahasb</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;AHasB&quot;</span><span class="p">)</span>
+        <span class="n">alikesb</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ALikesB&quot;</span><span class="p">)</span>
+        <span class="n">tern</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;AAndAHoldsB&quot;</span><span class="p">)</span>
+
+        <span class="c"># Check uid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">int_cons1</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span> <span class="s">&quot;_22FD96ED-BE72-4859-8DA0-1A0C98381FEF&quot;</span><span class="p">)</span>
+
+        <span class="c"># Check internal attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">int_cons1</span><span class="o">.</span><span class="n">internal</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">ext_cons1</span><span class="o">.</span><span class="n">internal</span><span class="p">)</span>
+
+        <span class="c"># Check modality</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">int_cons1</span><span class="o">.</span><span class="n">alethic</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">ext_cons2</span><span class="o">.</span><span class="n">alethic</span><span class="p">)</span>
+
+        <span class="c"># Check Covers sequence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">int_cons1</span><span class="o">.</span><span class="n">covers</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">int_cons1</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">obj_a</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">int_cons1</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">ahasb</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ext_cons2</span><span class="o">.</span><span class="n">covers</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">ext_cons2</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">obj_a</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">ext_cons2</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">obj_b</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">ext_cons2</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">obj_b</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">ext_cons2</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">tern</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">ext_cons2</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">alikesb</span><span class="p">)</span>
+
+        <span class="c"># Confirm implicit constraints excluded</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;InternalUniquenessConstraint2&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">8</span><span class="p">)</span>
+
+        <span class="c"># Test preferred identifier.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">int_cons2</span><span class="o">.</span><span class="n">identifier_for</span><span class="p">)</span> <span class="c"># implicit object type</span>
+
+        <span class="c"># Test preferred identifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">int_cons3</span><span class="o">.</span><span class="n">identifier_for</span><span class="p">,</span> <span class="n">obj_z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">obj_z</span><span class="o">.</span><span class="n">identifying_constraint</span><span class="p">,</span> <span class="n">int_cons3</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_frequency_constraint"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_frequency_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">test_frequency_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm frequency constraints load properly. &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;frequency_constraint.orm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+
+        <span class="n">cons1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;FrequencyConstraint1&quot;</span><span class="p">)</span>
+        <span class="n">cons2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;FrequencyConstraint2&quot;</span><span class="p">)</span>
+        <span class="n">cons3</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;FrequencyConstraint3&quot;</span><span class="p">)</span>
+
+        <span class="n">obj_a</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">)</span>
+        <span class="n">obj_b</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">)</span>
+        <span class="n">ahasb</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;AHasB&quot;</span><span class="p">)</span>
+        <span class="n">alikesb</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ALikesB&quot;</span><span class="p">)</span>
+
+        <span class="c"># Check frequencies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">min_freq</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">max_freq</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons2</span><span class="o">.</span><span class="n">min_freq</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons2</span><span class="o">.</span><span class="n">max_freq</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">min_freq</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">max_freq</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;inf&#39;</span><span class="p">))</span>
+
+        <span class="c"># Check covered roles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">covers</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">obj_b</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">ahasb</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cons2</span><span class="o">.</span><span class="n">covers</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">covers</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">alikesb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">ahasb</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_bad_role_sequence_node"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_bad_role_sequence_node">[docs]</a>    <span class="k">def</span> <span class="nf">test_bad_role_sequence_node</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm exception fires for invalid node in RoleSequence. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;bad_role_sequence.orm&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="s">&quot;Constraint &quot;</span> <span class="o">+</span>
+            <span class="s">&quot;ExternalUniquenessConstraint1 has unexpected role sequence.&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_freq_on_unary"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_freq_on_unary">[docs]</a>    <span class="k">def</span> <span class="nf">test_freq_on_unary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm loader ignores frequency constraint on unary.  </span>
+<span class="sd">            it ignores the constraint because NORMA moves the constraint</span>
+<span class="sd">            to the implicit role of the implicit binarized fact type. &quot;&quot;&quot;</span>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;implicit_freq_constraint.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;FrequencyConstraint2&quot;</span><span class="p">))</span>
+
+        <span class="c"># The 1 constraint is the internal UC on the unary (implicit)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;AExists&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">arity</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_mandatory"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_mandatory">[docs]</a>    <span class="k">def</span> <span class="nf">test_mandatory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm mandatory constraints are successfully loaded. &quot;&quot;&quot;</span>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;mandatory_constraint.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">model</span>
+
+        <span class="c"># Test implied</span>
+        <span class="n">cons1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ImpliedMandatoryConstraint2&quot;</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">cons1</span><span class="p">)</span> <span class="c"># Implied due to disjunctive mandatory</span>
+
+        <span class="n">cons2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;SimpleMandatoryConstraint4&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">cons2</span><span class="p">)</span> <span class="c"># Implied due to objectification</span>
+
+        <span class="c"># Confirm constraint count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">8</span><span class="p">)</span>
+
+        <span class="c"># Confirm all mandatories are simple</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">MandatoryConstraint</span><span class="p">):</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">simple</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c"># Confirm inclusive-or ignored</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">,</span>
+            <span class="p">[</span><span class="s">&quot;Inclusive-or constraint InclusiveOrConstraint1&quot;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_role_names"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_role_names">[docs]</a>    <span class="k">def</span> <span class="nf">test_role_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm role names are generated properly. &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;role_names.orm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+
+        <span class="n">ahasb</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;AHasB&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ahasb</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;R1&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ahasb</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;R2&quot;</span><span class="p">)</span>
+
+        <span class="n">alikesb</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ALikesB&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">alikesb</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;R1&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">alikesb</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;Likee&quot;</span><span class="p">)</span>
+
+        <span class="n">tern</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;AAndALikeB&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">tern</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;R2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">tern</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;R3&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">tern</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;R4&quot;</span><span class="p">)</span>
+        
+
+
+
+
+
+
  
 
         

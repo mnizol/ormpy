@@ -89,7 +89,46 @@ with default inclusion values.</p>
 with explicit inclusion values.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_add_subset_roles">
+<tt class="descname">test_add_subset_roles</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_add_subset_roles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_add_subset_roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test adding subset roles to subset constraint.</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_add_superset_roles">
+<tt class="descname">test_add_superset_roles</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_add_superset_roles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_add_superset_roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test adding superset roles to subset constraint.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-test.TestDomain">
+<span id="testdomain-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestDomain</span></tt> Module<a class="headerlink" href="#module-test.TestDomain" title="Permalink to this headline">¶</a></h2>
+<p>This file contains unit tests for the lib.Domain module.</p>
+<dl class="class">
+<dt id="test.TestDomain.TestDomain">
+<em class="property">class </em><tt class="descclassname">test.TestDomain.</tt><tt class="descname">TestDomain</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#TestDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.TestDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Unit tests for the Domain module.</p>
+<dl class="method">
+<dt id="test.TestDomain.TestDomain.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#TestDomain.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.TestDomain.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestDomain.TestDomain.test_create_domain">
+<tt class="descname">test_create_domain</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#TestDomain.test_create_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.TestDomain.test_create_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test creation of a domain.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="test.TestDomain.main">
+<tt class="descclassname">test.TestDomain.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="module-test.TestFactType">
@@ -187,9 +226,9 @@ classes.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="test.TestModelElement.TestModelElementSet.test_overwrite">
-<tt class="descname">test_overwrite</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_overwrite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_overwrite" title="Permalink to this definition">¶</a></dt>
-<dd><p>Confirm uniquness of items in set by name.</p>
+<dt id="test.TestModelElement.TestModelElementSet.test_rename">
+<tt class="descname">test_rename</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_rename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_rename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm items with same name added to set get renamed.</p>
 </dd></dl>
 
 </dd></dl>
@@ -209,6 +248,12 @@ classes.</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_add_from_empty_stack">
+<tt class="descname">test_add_from_empty_stack</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_add_from_empty_stack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_add_from_empty_stack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check behavior of add_from_stack when empty.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestNormaLoader.TestNormaLoader.test_adding_invalid_element">
 <tt class="descname">test_adding_invalid_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_adding_invalid_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_adding_invalid_element" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm exception is raised if an invalid object is passed to
@@ -220,6 +265,12 @@ the _add() method.</p>
 <tt class="descname">test_bad_filename_extension</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_bad_filename_extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_bad_filename_extension" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm that exception is raised when input file has .txt extension 
 rather than .orm extension.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_bad_role_sequence_node">
+<tt class="descname">test_bad_role_sequence_node</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_bad_role_sequence_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_bad_role_sequence_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm exception fires for invalid node in RoleSequence.</p>
 </dd></dl>
 
 <dl class="method">
@@ -242,6 +293,12 @@ XML is not &lt;ormRoot:ORM2&gt;.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_deprecated_join">
+<tt class="descname">test_deprecated_join</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_deprecated_join"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_deprecated_join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm exception fires for models containing deprecated join constraint.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestNormaLoader.TestNormaLoader.test_derivation_source">
 <tt class="descname">test_derivation_source</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_derivation_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_derivation_source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm depricated DerivationSource element is ignored.</p>
@@ -260,6 +317,32 @@ XML is not &lt;ormRoot:ORM2&gt;.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_freq_on_unary">
+<tt class="descname">test_freq_on_unary</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_freq_on_unary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_freq_on_unary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm loader ignores frequency constraint on unary.  
+it ignores the constraint because NORMA moves the constraint
+to the implicit role of the implicit binarized fact type.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_frequency_constraint">
+<tt class="descname">test_frequency_constraint</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_frequency_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_frequency_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm frequency constraints load properly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_implicit_role">
+<tt class="descname">test_implicit_role</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_implicit_role"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_implicit_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm constraint that covers implicit role is removed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_join_subset_omission">
+<tt class="descname">test_join_subset_omission</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_join_subset_omission"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_join_subset_omission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm that join subset constraints are (for now) omitted.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestNormaLoader.TestNormaLoader.test_load_fact_types">
 <tt class="descname">test_load_fact_types</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_load_fact_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_load_fact_types" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm fact types load successfully.</p>
@@ -272,10 +355,34 @@ XML is not &lt;ormRoot:ORM2&gt;.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_mandatory">
+<tt class="descname">test_mandatory</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_mandatory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_mandatory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm mandatory constraints are successfully loaded.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestNormaLoader.TestNormaLoader.test_no_model_element">
 <tt class="descname">test_no_model_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_no_model_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_no_model_element" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm that exception is raised when the XML does not contain an
 ORMModel element.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_partial_subset">
+<tt class="descname">test_partial_subset</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_partial_subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_partial_subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm exception fires for invalid subset constraints.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_role_names">
+<tt class="descname">test_role_names</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_role_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_role_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm role names are generated properly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_subset_constraint">
+<tt class="descname">test_subset_constraint</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_subset_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_subset_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm subset constraints load correctly.</p>
 </dd></dl>
 
 <dl class="method">
@@ -289,7 +396,14 @@ ORMModel element.</p>
 <tt class="descname">test_subtypes</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_subtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_subtypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm that subtype derivation rule omission note
 is added to self.omissions and that subtype constraints load 
-properly.</p>
+properly. Also confirm that if inclusive-or or XOR constraints
+are present on a subtype, they are reported in the omissions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_uniqueness_constraint">
+<tt class="descname">test_uniqueness_constraint</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_uniqueness_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_uniqueness_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm uniqueness constraints load properly.</p>
 </dd></dl>
 
 <dl class="method">
@@ -308,6 +422,28 @@ is unexpected.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-test.TestORMMinus">
+<span id="testormminus-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestORMMinus</span></tt> Module<a class="headerlink" href="#module-test.TestORMMinus" title="Permalink to this headline">¶</a></h2>
+<p>This file contains unit tests for the lib.ORMMinus module.</p>
+<dl class="class">
+<dt id="test.TestORMMinus.TestORMMinus">
+<em class="property">class </em><tt class="descclassname">test.TestORMMinus.</tt><tt class="descname">TestORMMinus</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Unit tests for the ORMMinus module.</p>
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.test_create_variable">
+<tt class="descname">test_create_variable</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_create_variable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_create_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test creation of a variable.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -321,10 +457,12 @@ is unexpected.</p>
 <li><a class="reference internal" href="#">test Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">test</span></tt> Package</a></li>
 <li><a class="reference internal" href="#module-test.TestConstraint"><tt class="docutils literal"><span class="pre">TestConstraint</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-test.TestDomain"><tt class="docutils literal"><span class="pre">TestDomain</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-test.TestFactType"><tt class="docutils literal"><span class="pre">TestFactType</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-test.TestModel"><tt class="docutils literal"><span class="pre">TestModel</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-test.TestModelElement"><tt class="docutils literal"><span class="pre">TestModelElement</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-test.TestNormaLoader"><tt class="docutils literal"><span class="pre">TestNormaLoader</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-test.TestORMMinus"><tt class="docutils literal"><span class="pre">TestORMMinus</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>

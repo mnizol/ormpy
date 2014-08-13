@@ -1,0 +1,152 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>test.TestDomain &mdash; ORMPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ORMPY 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for test.TestDomain</h1><div class="highlight"><pre>
+<span class="c">##############################################################################</span>
+<span class="c"># Package: ormpy</span>
+<span class="c"># File:    TestDomain.py</span>
+<span class="c"># Author:  Matthew Nizol</span>
+<span class="c">##############################################################################</span>
+
+<span class="sd">&quot;&quot;&quot; This file contains unit tests for the lib.Domain module. &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+
+<span class="kn">import</span> <span class="nn">lib.Domain</span> <span class="kn">as</span> <span class="nn">Domain</span>
+
+<span class="kn">from</span> <span class="nn">lib.Constraint</span> <span class="kn">import</span> <span class="n">ValueConstraint</span>
+
+<div class="viewcode-block" id="TestDomain"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain">[docs]</a><span class="k">class</span> <span class="nc">TestDomain</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Unit tests for the Domain module. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestDomain.setUp"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="TestDomain.test_create_domain"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_create_domain">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test creation of a domain. &quot;&quot;&quot;</span>
+
+
+
+</div></div>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../test.html#test.TestDomain.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">cons</span> <span class="o">=</span> <span class="n">ValueConstraint</span><span class="p">()</span>
+    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">min_open</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">dom</span> <span class="o">=</span> <span class="n">NumericDomain</span><span class="p">(</span><span class="n">constraint</span><span class="o">=</span><span class="n">cons</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+        <span class="k">print</span> <span class="n">dom</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>  
+
+
+    <span class="k">print</span> <span class="s">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span>
+    <span class="n">cons</span> <span class="o">=</span> <span class="n">ValueConstraint</span><span class="p">()</span>
+    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mf">4.4</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mf">5.31</span><span class="p">)</span>
+    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">min_open</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">dom</span> <span class="o">=</span> <span class="n">FloatDomain</span><span class="p">(</span><span class="n">constraint</span><span class="o">=</span><span class="n">cons</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+        <span class="k">print</span> <span class="n">dom</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>  
+
+    <span class="k">print</span> <span class="s">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span>
+    <span class="n">dom</span> <span class="o">=</span> <span class="n">BoolDomain</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+        <span class="k">print</span> <span class="n">dom</span><span class="o">.</span><span class="n">next</span><span class="p">()</span> 
+
+    <span class="k">print</span> <span class="s">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span>
+    <span class="n">cons</span> <span class="o">=</span> <span class="n">ValueConstraint</span><span class="p">()</span>
+    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">dom</span> <span class="o">=</span> <span class="n">BoolDomain</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+        <span class="k">print</span> <span class="n">dom</span><span class="o">.</span><span class="n">next</span><span class="p">()</span> 
+</div>
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Nizol.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

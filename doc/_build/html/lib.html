@@ -78,6 +78,12 @@
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">Constraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>An ORM Constraint.</p>
+<dl class="attribute">
+<dt id="lib.Constraint.Constraint.alethic">
+<tt class="descname">alethic</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.Constraint.alethic" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if constraint has alethic modality (False implies deontic)</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="lib.Constraint.Constraint.cover">
 <tt class="descname">cover</tt><big>(</big><em>model_element</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.cover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.cover" title="Permalink to this definition">¶</a></dt>
@@ -88,8 +94,14 @@ the constraint.</p>
 <dl class="attribute">
 <dt id="lib.Constraint.Constraint.covers">
 <tt class="descname">covers</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.Constraint.covers" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of roles or object types the constraint covers</p>
+<dd><p>Roles or object types the constraint covers
+(<a class="reference internal" href="#lib.FactType.RoleSequence" title="lib.FactType.RoleSequence"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.RoleSequence</span></tt></a>)</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.Constraint.fullname">
+<tt class="descname">fullname</tt><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.fullname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.fullname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -101,10 +113,75 @@ the constraint.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="lib.Constraint.ExclusionConstraint">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ExclusionConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ExclusionConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ExclusionConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
+<p>An exclusion constraint.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Constraint.FrequencyConstraint">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">FrequencyConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#FrequencyConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.FrequencyConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
+<p>A frequency constraint.</p>
+<dl class="attribute">
+<dt id="lib.Constraint.FrequencyConstraint.max_freq">
+<tt class="descname">max_freq</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.FrequencyConstraint.max_freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum frequency</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.FrequencyConstraint.min_freq">
+<tt class="descname">min_freq</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.FrequencyConstraint.min_freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minimum frequency</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="lib.Constraint.MandatoryConstraint">
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">MandatoryConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#MandatoryConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.MandatoryConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
 <p>A mandatory constraint.</p>
+<dl class="attribute">
+<dt id="lib.Constraint.MandatoryConstraint.simple">
+<tt class="descname">simple</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.MandatoryConstraint.simple" title="Permalink to this definition">¶</a></dt>
+<dd><p>True for simple mandatory constraints</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Constraint.SubsetConstraint">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">SubsetConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubsetConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubsetConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
+<p>A subset constraint.</p>
+<dl class="method">
+<dt id="lib.Constraint.SubsetConstraint.cover_subset">
+<tt class="descname">cover_subset</tt><big>(</big><em>role</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubsetConstraint.cover_subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubsetConstraint.cover_subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a role to the list of subset roles covered by this
+constraint.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.Constraint.SubsetConstraint.cover_superset">
+<tt class="descname">cover_superset</tt><big>(</big><em>role</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubsetConstraint.cover_superset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubsetConstraint.cover_superset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a role to the list of superset roles covered by
+this constraint.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.SubsetConstraint.subset">
+<tt class="descname">subset</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.SubsetConstraint.subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sequence of subset roles (<a class="reference internal" href="#lib.FactType.RoleSequence" title="lib.FactType.RoleSequence"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.RoleSequence</span></tt></a>)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.SubsetConstraint.superset">
+<tt class="descname">superset</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.SubsetConstraint.superset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sequence of superset roles (<a class="reference internal" href="#lib.FactType.RoleSequence" title="lib.FactType.RoleSequence"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.RoleSequence</span></tt></a>)</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -130,6 +207,25 @@ schemes, and the supertype graph is not a simple path.</p>
 <dt id="lib.Constraint.SubtypeConstraint.supertype">
 <tt class="descname">supertype</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.SubtypeConstraint.supertype" title="Permalink to this definition">¶</a></dt>
 <dd><p>Supertype object type</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Constraint.UniquenessConstraint">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">UniquenessConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#UniquenessConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.UniquenessConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
+<p>A uniqueness constraint.</p>
+<dl class="attribute">
+<dt id="lib.Constraint.UniquenessConstraint.identifier_for">
+<tt class="descname">identifier_for</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.UniquenessConstraint.identifier_for" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object type this constraint identifies</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.UniquenessConstraint.internal">
+<tt class="descname">internal</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.UniquenessConstraint.internal" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if constraint covers roles in one fact type</p>
 </dd></dl>
 
 </dd></dl>
@@ -185,6 +281,66 @@ schemes, and the supertype graph is not a simple path.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-lib.Domain">
+<span id="domain-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">Domain</span></tt> Module<a class="headerlink" href="#module-lib.Domain" title="Permalink to this headline">¶</a></h2>
+<p>The Domain.py module implements the domains that underly value types.</p>
+<dl class="class">
+<dt id="lib.Domain.BoolDomain">
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">BoolDomain</tt><big>(</big><em>constraint=None</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#BoolDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.BoolDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
+<p>A domain for boolean (True/False) values.</p>
+<dl class="method">
+<dt id="lib.Domain.BoolDomain.next">
+<tt class="descname">next</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#BoolDomain.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.BoolDomain.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns next element from the domain, respecting any value
+constraints.  If there is no next element, returns first 
+element from the domain.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Domain.Domain">
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">Domain</tt><big>(</big><em>constraint=None</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A domain, which is essentially a data type that permits you to 
+enumerate the valid values via a call to the next() function.</p>
+<dl class="method">
+<dt id="lib.Domain.Domain.next">
+<tt class="descname">next</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns next element from the domain, respecting any value
+constraints.  If there is no next element, returns first 
+element from the domain.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Domain.FloatDomain">
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">FloatDomain</tt><big>(</big><em>constraint=None</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#FloatDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.FloatDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Domain.NumericDomain" title="lib.Domain.NumericDomain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.NumericDomain</span></tt></a></p>
+<p>A domain for floating point numbers.  Only generates numbers
+in increments of 0.1, so the size of the domain is limited to
+0 to sys.maxsize * 10.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Domain.NumericDomain">
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">NumericDomain</tt><big>(</big><em>constraint=None</em>, <em>precision=0</em>, <em>cast=&lt;type 'int'&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#NumericDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.NumericDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
+<p>A numeric domain. By default, acts an integer domain, but can 
+be inherited by other types (e.g. float) to create other domains.</p>
+<dl class="method">
+<dt id="lib.Domain.NumericDomain.next">
+<tt class="descname">next</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#NumericDomain.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.NumericDomain.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns next element from the domain, respecting any value
+constraints.  If there is no next element, returns first 
+element from the domain.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-lib.FactType">
 <span id="facttype-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">FactType</span></tt> Module<a class="headerlink" href="#module-lib.FactType" title="Permalink to this headline">¶</a></h2>
 <p>This module provides a class for ORM fact types.</p>
@@ -204,6 +360,11 @@ schemes, and the supertype graph is not a simple path.</p>
 <tt class="descname">arity</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactType.arity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType.arity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the arity of the fact type.</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="lib.FactType.FactType.fullname">
+<tt class="descname">fullname</tt><a class="reference internal" href="_modules/lib/FactType.html#FactType.fullname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType.fullname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.FactType.FactType.roles">
@@ -232,11 +393,36 @@ schemes, and the supertype graph is not a simple path.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="lib.FactType.Role.fullname">
+<tt class="descname">fullname</tt><a class="reference internal" href="_modules/lib/FactType.html#Role.fullname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.Role.fullname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="lib.FactType.Role.player">
 <tt class="descname">player</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.player" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object type that plays the role</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.FactType.RoleSequence">
+<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">RoleSequence</tt><a class="reference internal" href="_modules/lib/FactType.html#RoleSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.RoleSequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
+<p>A sequence of roles.</p>
+<dl class="attribute">
+<dt id="lib.FactType.RoleSequence.join_path">
+<tt class="descname">join_path</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.RoleSequence.join_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Join path for the role sequence</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.FactType.SubtypeRole">
+<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">SubtypeRole</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#SubtypeRole"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.SubtypeRole" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.FactType.Role" title="lib.FactType.Role"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.Role</span></tt></a></p>
+<p>A subtype role.</p>
 </dd></dl>
 
 </div>
@@ -314,7 +500,10 @@ after the model element is created.</p>
 <dl class="method">
 <dt id="lib.ModelElement.ModelElementSet.add">
 <tt class="descname">add</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElementSet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElementSet.add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add an element to the set.</p>
+<dd><p>Add an element to the set. If the name exists in the set, rename 
+the element by adding an integer suffix to make it unique in 
+the set.  For example, if an element named Person is added
+three times, the set will contain Person, Person2, and Person3.</p>
 </dd></dl>
 
 <dl class="method">
@@ -369,6 +558,7 @@ following (not necessarily exhaustive) list of items:</p>
 <li>Multiple readings for a fact type</li>
 <li>Derivation rules for subtypes, fact types, and roles</li>
 <li>Constraints outside the scope of ORM&#8211; or its extensions</li>
+<li>Culture-invariant form of value constraints</li>
 </ul>
 <p>A list of important model elements (such as derivations 
 and constraints) that are ignored by NormaLoader is contained in the
@@ -399,6 +589,154 @@ An .orm file can be loaded via the constructor.  For example:</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-lib.ORMMinus">
+<span id="ormminus-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">ORMMinus</span></tt> Module<a class="headerlink" href="#module-lib.ORMMinus" title="Permalink to this headline">¶</a></h2>
+<p>Module for creating and solving systems of inequalities of the simple
+form permitted by ORM&#8211;.  Specifically, all inequalities are of one of
+two forms:</p>
+<ul class="simple">
+<li>c * x &lt;= y_1 + y_2 + ... + y_n</li>
+<li>c * x &lt;= y_1 * y_2 * ... * y_n</li>
+</ul>
+<dl class="class">
+<dt id="lib.ORMMinus.Inequality">
+<em class="property">class </em><tt class="descclassname">lib.ORMMinus.</tt><tt class="descname">Inequality</tt><big>(</big><em>lhs=None</em>, <em>rhs=None</em><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#Inequality"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Inequality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>An inequality.</p>
+<dl class="method">
+<dt id="lib.ORMMinus.Inequality.display">
+<tt class="descname">display</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#Inequality.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Inequality.display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ORMMinus.Inequality.lhs">
+<tt class="descname">lhs</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinus.Inequality.lhs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Left hand side of the inequality.  A variable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.ORMMinus.Inequality.result">
+<tt class="descname">result</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#Inequality.result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Inequality.result" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ORMMinus.Inequality.rhs">
+<tt class="descname">rhs</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinus.Inequality.rhs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Right hand side of the inequality.  A Sum or Product.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.ORMMinus.InequalitySystem">
+<em class="property">class </em><tt class="descclassname">lib.ORMMinus.</tt><tt class="descname">InequalitySystem</tt><a class="reference internal" href="_modules/lib/ORMMinus.html#InequalitySystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.InequalitySystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
+<p>A system of inequalities.</p>
+<dl class="method">
+<dt id="lib.ORMMinus.InequalitySystem.add">
+<tt class="descname">add</tt><big>(</big><em>inequality</em><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#InequalitySystem.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.InequalitySystem.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an inequality to the system.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.ORMMinus.InequalitySystem.display">
+<tt class="descname">display</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#InequalitySystem.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.InequalitySystem.display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.ORMMinus.InequalitySystem.showvars">
+<tt class="descname">showvars</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#InequalitySystem.showvars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.InequalitySystem.showvars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.ORMMinus.InequalitySystem.update">
+<tt class="descname">update</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#InequalitySystem.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.InequalitySystem.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update all variables in the system.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ORMMinus.InequalitySystem.variables">
+<tt class="descname">variables</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinus.InequalitySystem.variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of variable by model element id</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.ORMMinus.Product">
+<em class="property">class </em><tt class="descclassname">lib.ORMMinus.</tt><tt class="descname">Product</tt><big>(</big><em>coeff=1</em><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#Product"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Product" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
+<p>Represents a product of variables.</p>
+<dl class="method">
+<dt id="lib.ORMMinus.Product.result">
+<tt class="descname">result</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#Product.result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Product.result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the product of the variables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.ORMMinus.Product.tostring">
+<tt class="descname">tostring</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#Product.tostring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Product.tostring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the expression as a string for display.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.ORMMinus.Sum">
+<em class="property">class </em><tt class="descclassname">lib.ORMMinus.</tt><tt class="descname">Sum</tt><a class="reference internal" href="_modules/lib/ORMMinus.html#Sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
+<p>Represents a sum of variables.</p>
+<dl class="method">
+<dt id="lib.ORMMinus.Sum.result">
+<tt class="descname">result</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#Sum.result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Sum.result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the sum of the variables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.ORMMinus.Sum.tostring">
+<tt class="descname">tostring</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#Sum.tostring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Sum.tostring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the expression as a string for display.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.ORMMinus.Variable">
+<em class="property">class </em><tt class="descclassname">lib.ORMMinus.</tt><tt class="descname">Variable</tt><big>(</big><em>element</em>, <em>ubound=None</em><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#Variable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A variable in a system of inequalities.</p>
+<dl class="attribute">
+<dt id="lib.ORMMinus.Variable.element">
+<tt class="descname">element</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinus.Variable.element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model element this variable represents</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ORMMinus.Variable.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinus.Variable.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variable name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.ORMMinus.Variable.result">
+<tt class="descname">result</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#Variable.result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Variable.result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns upper bound when variable is treated as expression.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.ORMMinus.Variable.tostring">
+<tt class="descname">tostring</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#Variable.tostring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.Variable.tostring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string representation of the variable&#8217;s value.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.ORMMinus.main">
+<tt class="descclassname">lib.ORMMinus.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
 <div class="section" id="module-lib.ObjectType">
 <span id="objecttype-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">ObjectType</span></tt> Module<a class="headerlink" href="#module-lib.ObjectType" title="Permalink to this headline">¶</a></h2>
 <p>ObjectType.py provides classes for the various object types in ORM: 
@@ -422,6 +760,11 @@ identification scheme for this entity type.</p>
 <em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>Abstract class inherited by all object types.</p>
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.fullname">
+<tt class="descname">fullname</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.fullname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.fullname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="lib.ObjectType.ObjectType.implicit">
 <tt class="descname">implicit</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.implicit" title="Permalink to this definition">¶</a></dt>
@@ -504,10 +847,12 @@ by the modeler)</p>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">lib</span></tt> Package</a></li>
 <li><a class="reference internal" href="#module-lib.CommandLine"><tt class="docutils literal"><span class="pre">CommandLine</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.Constraint"><tt class="docutils literal"><span class="pre">Constraint</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.Domain"><tt class="docutils literal"><span class="pre">Domain</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.FactType"><tt class="docutils literal"><span class="pre">FactType</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.Model"><tt class="docutils literal"><span class="pre">Model</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.ModelElement"><tt class="docutils literal"><span class="pre">ModelElement</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.NormaLoader"><tt class="docutils literal"><span class="pre">NormaLoader</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-lib.ORMMinus"><tt class="docutils literal"><span class="pre">ORMMinus</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-lib.ObjectType"><tt class="docutils literal"><span class="pre">ObjectType</span></tt> Module</a></li>
 </ul>
 </li>

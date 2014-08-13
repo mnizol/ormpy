@@ -25,6 +25,14 @@ lib Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`Domain` Module
+--------------------
+
+.. automodule:: lib.Domain
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`FactType` Module
 ----------------------
 
@@ -53,6 +61,14 @@ lib Package
 -------------------------
 
 .. automodule:: lib.NormaLoader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`ORMMinus` Module
+----------------------
+
+.. automodule:: lib.ORMMinus
     :members:
     :undoc-members:
     :show-inheritance:

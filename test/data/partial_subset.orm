@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ormRoot:ORM2 xmlns:orm="http://schemas.neumont.edu/ORM/2006-04/ORMCore" xmlns:ormDiagram="http://schemas.neumont.edu/ORM/2006-04/ORMDiagram" xmlns:ormRoot="http://schemas.neumont.edu/ORM/2006-04/ORMRoot">
+	<orm:ORMModel id="_E3199B35-A5D9-447E-86DB-3F8C68F97295" Name="ORMModel2">
+		<orm:Objects>
+			<orm:ValueType id="_D7A79E3D-9D0D-423D-BD10-9DCBD092353D" Name="ValueType1">
+				<orm:PlayedRoles>
+					<orm:Role ref="_72A4A204-F4CD-44FE-84F9-1FD6CC6C48A0" />
+				</orm:PlayedRoles>
+				<orm:ConceptualDataType id="_CBAA1714-6C32-453F-BAEB-5742D09A67E6" ref="_DB6940F0-4454-462F-9597-9DAB0C6365B7" Scale="0" Length="0" />
+			</orm:ValueType>
+			<orm:ValueType id="_69D7D00C-FE21-4A82-88A6-F3B1F96A9852" Name="ValueType2">
+				<orm:PlayedRoles>
+					<orm:Role ref="_4F9E2EAE-4AC6-4F98-82A1-6803AE144956" />
+				</orm:PlayedRoles>
+				<orm:ConceptualDataType id="_DFD9F905-528D-49BD-80C4-AF11C3B14B97" ref="_DB6940F0-4454-462F-9597-9DAB0C6365B7" Scale="0" Length="0" />
+			</orm:ValueType>
+		</orm:Objects>
+		<orm:Facts>
+			<orm:Fact id="_E7206262-320E-4039-B847-794FB84D4260" _Name="ValueType1HasValueType2">
+				<orm:FactRoles>
+					<orm:Role id="_72A4A204-F4CD-44FE-84F9-1FD6CC6C48A0" _IsMandatory="false" _Multiplicity="ZeroToMany" Name="">
+						<orm:RolePlayer ref="_D7A79E3D-9D0D-423D-BD10-9DCBD092353D" />
+					</orm:Role>
+					<orm:Role id="_4F9E2EAE-4AC6-4F98-82A1-6803AE144956" _IsMandatory="false" _Multiplicity="ZeroToOne" Name="">
+						<orm:RolePlayer ref="_69D7D00C-FE21-4A82-88A6-F3B1F96A9852" />
+					</orm:Role>
+				</orm:FactRoles>
+				<orm:ReadingOrders>
+					<orm:ReadingOrder id="_2A01532F-B6A3-44F9-8093-1825385A2902">
+						<orm:Readings>
+							<orm:Reading id="_F57EA818-F6CA-4E16-9467-168DAF225F5D">
+								<orm:Data>{0} has {1}</orm:Data>
+								<orm:ExpandedData>
+									<orm:RoleText RoleIndex="0" FollowingText=" has " />
+								</orm:ExpandedData>
+							</orm:Reading>
+						</orm:Readings>
+						<orm:RoleSequence>
+							<orm:Role ref="_72A4A204-F4CD-44FE-84F9-1FD6CC6C48A0" />
+							<orm:Role ref="_4F9E2EAE-4AC6-4F98-82A1-6803AE144956" />
+						</orm:RoleSequence>
+					</orm:ReadingOrder>
+				</orm:ReadingOrders>
+				<orm:InternalConstraints>
+					<orm:UniquenessConstraint ref="_AFD8C271-2C6A-43C4-8FE7-F9E6FEDBB502" />
+				</orm:InternalConstraints>
+			</orm:Fact>
+		</orm:Facts>
+		<orm:Constraints>
+			<orm:MandatoryConstraint id="_687C98A5-AA15-4F70-A3E3-A568068316BD" Name="ImpliedMandatoryConstraint1" IsImplied="true">
+				<orm:RoleSequence>
+					<orm:Role id="_9D297C51-374F-4B25-A31F-74827A35E36E" ref="_72A4A204-F4CD-44FE-84F9-1FD6CC6C48A0" />
+				</orm:RoleSequence>
+				<orm:ImpliedByObjectType ref="_D7A79E3D-9D0D-423D-BD10-9DCBD092353D" />
+			</orm:MandatoryConstraint>
+			<orm:MandatoryConstraint id="_2626802E-7108-4499-B921-E4E59D22B5C6" Name="ImpliedMandatoryConstraint2" IsImplied="true">
+				<orm:RoleSequence>
+					<orm:Role id="_CEE9F22B-7FAE-4DA7-8C37-34CFD2C90F65" ref="_4F9E2EAE-4AC6-4F98-82A1-6803AE144956" />
+				</orm:RoleSequence>
+				<orm:ImpliedByObjectType ref="_69D7D00C-FE21-4A82-88A6-F3B1F96A9852" />
+			</orm:MandatoryConstraint>
+			<orm:UniquenessConstraint id="_AFD8C271-2C6A-43C4-8FE7-F9E6FEDBB502" Name="InternalUniquenessConstraint1" IsInternal="true">
+				<orm:RoleSequence>
+					<orm:Role id="_A2E951EA-26FF-4AA6-99FA-50A450D50AEE" ref="_72A4A204-F4CD-44FE-84F9-1FD6CC6C48A0" />
+				</orm:RoleSequence>
+			</orm:UniquenessConstraint>
+			<orm:SubsetConstraint id="_6776B9D9-CCF7-4E43-8498-A7ACB33BA08C" Name="SubsetConstraint1">
+				<orm:RoleSequences>
+					<orm:RoleSequence id="_8128BFDE-149C-4C2A-A077-6C3DD9C176AC">
+						<orm:Role id="_4914D31F-C3C7-43EA-91B0-88E7E4528AA2" ref="_4F9E2EAE-4AC6-4F98-82A1-6803AE144956" />
+					</orm:RoleSequence>
+				</orm:RoleSequences>
+			</orm:SubsetConstraint>
+		</orm:Constraints>
+		<orm:DataTypes>
+			<orm:UnsignedIntegerNumericDataType id="_DB6940F0-4454-462F-9597-9DAB0C6365B7" />
+		</orm:DataTypes>
+		<orm:ModelErrors>
+			<orm:TooFewRoleSequencesError id="_3B882C19-B1E4-456E-AE96-C12D0FF94958" Name="Constraint 'SubsetConstraint1' does not have enough role sequences.">
+				<orm:SetComparisonConstraint ref="_6776B9D9-CCF7-4E43-8498-A7ACB33BA08C" />
+			</orm:TooFewRoleSequencesError>
+		</orm:ModelErrors>
+		<orm:ReferenceModeKinds>
+			<orm:ReferenceModeKind id="_E507DCE3-450F-4256-A1AD-12F53B61C75E" FormatString="{1}" ReferenceModeType="General" />
+			<orm:ReferenceModeKind id="_62D3E9BA-90F4-4C04-A33F-63433C63E39A" FormatString="{0}_{1}" ReferenceModeType="Popular" />
+			<orm:ReferenceModeKind id="_366FF597-8A63-445E-AB7C-331185245A15" FormatString="{1}Value" ReferenceModeType="UnitBased" />
+		</orm:ReferenceModeKinds>
+	</orm:ORMModel>
+	<ormDiagram:ORMDiagram id="_14A6F372-B6C4-4411-9733-0CFFB64EC118" IsCompleteView="false" Name="ORMModel2" BaseFontName="Tahoma" BaseFontSize="0.0972222238779068">
+		<ormDiagram:Shapes>
+			<ormDiagram:ObjectTypeShape id="_C5C14C2C-2F03-49AB-BAB6-830426B401BF" IsExpanded="true" AbsoluteBounds="1.3020833730697632, 1.5625, 0.73887383460998535, 0.22950302660465241">
+				<ormDiagram:Subject ref="_D7A79E3D-9D0D-423D-BD10-9DCBD092353D" />
+			</ormDiagram:ObjectTypeShape>
+			<ormDiagram:ObjectTypeShape id="_A1EF51B0-AFE1-4ADD-9AAE-D7B41A5F8C37" IsExpanded="true" AbsoluteBounds="3.8020832538604736, 1.7395833730697632, 0.73887383460998535, 0.22950302660465241">
+				<ormDiagram:Subject ref="_69D7D00C-FE21-4A82-88A6-F3B1F96A9852" />
+			</ormDiagram:ObjectTypeShape>
+			<ormDiagram:FactTypeShape id="_7C83B2FF-21F1-4014-B48A-A8FC7F1FD47C" IsExpanded="true" AbsoluteBounds="2.75, 1.71125, 0.38388888899236917, 0.24388888899236916">
+				<ormDiagram:RelativeShapes>
+					<ormDiagram:ReadingShape id="_F2D6CB56-09FA-4409-9E2C-538CD103A45C" IsExpanded="true" AbsoluteBounds="2.75, 2.0198904022946955, 0.18545643985271454, 0.12950302660465241">
+						<ormDiagram:Subject ref="_2A01532F-B6A3-44F9-8093-1825385A2902" />
+					</ormDiagram:ReadingShape>
+				</ormDiagram:RelativeShapes>
+				<ormDiagram:Subject ref="_E7206262-320E-4039-B847-794FB84D4260" />
+			</ormDiagram:FactTypeShape>
+			<ormDiagram:ExternalConstraintShape id="_BBAF1E5A-226E-46B9-A0C4-09FB9458A40C" IsExpanded="true" AbsoluteBounds="2.9895832538604736, 1.3333333730697632, 0.16, 0.16">
+				<ormDiagram:Subject ref="_6776B9D9-CCF7-4E43-8498-A7ACB33BA08C" />
+			</ormDiagram:ExternalConstraintShape>
+		</ormDiagram:Shapes>
+		<ormDiagram:Subject ref="_E3199B35-A5D9-447E-86DB-3F8C68F97295" />
+	</ormDiagram:ORMDiagram>
+</ormRoot:ORM2>

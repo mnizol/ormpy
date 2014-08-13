@@ -56,13 +56,16 @@ class TestModelElementSet(TestCase):
         _set = ModelElementSet()
         self.assertIsNone(_set.get("Does not exist"))
 
-    def test_overwrite(self):
-        """ Confirm uniquness of items in set by name. """
+    def test_rename(self):
+        """ Confirm items with same name added to set get renamed. """
         _set = ModelElementSet()
-        _set.add(ObjectType(name="Item 1"))
-        _set.add(FactType(name="Item 1"))
-        self.assertEqual(_set.count(), 1)
-        self.assertIsInstance(_set.get("Item 1"), FactType)
+        _set.add(ObjectType(name="Item"))
+        _set.add(FactType(name="Item"))
+        _set.add(FactType(name="Item"))
+        self.assertEqual(_set.count(), 3)
+        self.assertIsInstance(_set.get("Item"), ObjectType)
+        self.assertIsInstance(_set.get("Item2"), FactType)
+        self.assertIsInstance(_set.get("Item3"), FactType)
 
     def test_display_empty(self):
         """ Test display of empty set. """

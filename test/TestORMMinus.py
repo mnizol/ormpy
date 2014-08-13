@@ -1,0 +1,75 @@
+##############################################################################
+# Package: ormpy
+# File:    TestORMMinus.py
+# Author:  Matthew Nizol
+##############################################################################
+
+""" This file contains unit tests for the lib.ORMMinus module. """
+
+from unittest import TestCase
+
+import sys
+
+import lib.ORMMinus as ORMMinus
+
+import lib.ObjectType as ObjectType
+import lib.FactType as FactType
+import lib.Constraint as Constraint
+
+class TestORMMinus(TestCase):
+    """ Unit tests for the ORMMinus module. """
+
+    def setUp(self):
+        pass
+
+    def test_create_variable(self):
+        """ Test creation of a variable. """
+
+        # Entity type
+        e1 = ObjectType.EntityType(name="E1")
+        var1 = ORMMinus.Variable(e1)
+        self.assertIs(var1.element, e1)
+        self.assertEquals(var1.name, "ObjectTypes.E1")
+        self.assertEquals(var1.ubound, float('inf'))
+
+        # Objectified type
+        o1 = ObjectType.ObjectifiedType(name="O1")
+        var1 = ORMMinus.Variable(o1, ubound=30)
+        self.assertIs(var1.element, o1)
+        self.assertEquals(var1.name, "ObjectTypes.O1")
+        self.assertEquals(var1.ubound, 30) 
+
+        # Fact type
+        f1 = FactType.FactType(name="F1")
+        var1 = ORMMinus.Variable(f1)
+        self.assertIs(var1.element, f1)
+        self.assertEquals(var1.name, "FactTypes.F1")
+        self.assertEquals(var1.ubound, float('inf'))
+
+        # Role
+        r1 = FactType.Role(name="R1")
+        r1.fact_type = f1
+        var1 = ORMMinus.Variable(r1)
+        self.assertEquals(var1.name, "FactTypes.F1.Roles.R1")
+    
+        # Constraint
+        c1 = Constraint.Constraint(name="C1")
+        var1 = ORMMinus.Variable(c1)
+        self.assertEquals(var1.name, "Constraints.C1")
+
+        """
+        # Value Type int
+        v1 = ObjectType.ValueType(name="V1")
+        v1.data_type = int()
+        var1 = ORMMinus.Variable(v1)    
+        self.assertEquals(var1.name, "ObjectTypes.V1")
+        self.assertEquals(var1.ubound, sys.maxsize)
+        
+        v1.data_type = bool()
+        var1 = ORMMinus.Variable(v1)
+        self.assertEquals(var1.ubound, 2)
+        """
+
+               
+
+        

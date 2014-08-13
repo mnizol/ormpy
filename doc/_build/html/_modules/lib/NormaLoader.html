@@ -80,6 +80,7 @@
 <span class="sd">    * Multiple readings for a fact type</span>
 <span class="sd">    * Derivation rules for subtypes, fact types, and roles</span>
 <span class="sd">    * Constraints outside the scope of ORM-- or its extensions</span>
+<span class="sd">    * Culture-invariant form of value constraints</span>
 
 <span class="sd">    A list of important model elements (such as derivations </span>
 <span class="sd">    and constraints) that are ignored by NormaLoader is contained in the</span>
@@ -124,8 +125,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_ns_root</span> <span class="o">=</span> <span class="s">&quot;{http://schemas.neumont.edu/ORM/2006-04/ORMRoot}&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">=</span> <span class="s">&quot;{http://schemas.neumont.edu/ORM/2006-04/ORMCore}&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c"># Dictionary of {id, element} pairs </span>
-    
+        <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c"># Dictionary of {id, element} pairs</span>
+
+        <span class="c"># Stack of elements to add to model.  Some items are generated (e.g. </span>
+        <span class="c"># value constraints) before we are certain that the parent element will</span>
+        <span class="c"># be added to the model.  Thus, we add tentative elements to the stack.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_element_stack</span> <span class="o">=</span> <span class="p">[]</span> 
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_loader</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_types</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -164,7 +170,8 @@
             <span class="s">&#39;FrequencyConstraint&#39;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_frequency_constraint</span><span class="p">,</span>
             <span class="s">&#39;MandatoryConstraint&#39;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_mandatory_constraint</span><span class="p">,</span>
             <span class="s">&#39;UniquenessConstraint&#39;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_uniqueness_constraint</span><span class="p">,</span>
-            <span class="s">&#39;RingConstraint&#39;</span>        <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_ring_constraint</span>             
+            <span class="s">&#39;RingConstraint&#39;</span>        <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_ring_constraint</span><span class="p">,</span>
+            <span class="s">&#39;ValueComparisonConstraint&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value_comp_constraint</span>        
         <span class="p">}</span>
 
         <span class="c"># Mapping from XML types defined in ORMCode namespace to Python types</span>
@@ -227,8 +234,28 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">model_element</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_element</span><span class="p">,</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">Constraint</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">model_element</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_element</span><span class="p">,</span> <span class="n">FactType</span><span class="o">.</span><span class="n">Role</span><span class="p">):</span>
+            <span class="k">pass</span> <span class="c"># Must add to specific fact type</span>
         <span class="k">else</span><span class="p">:</span> 
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Unexpected model element type&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Push an item to the element stack. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_element_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Pop an item from the element stack. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_add_from_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">guard</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; If condition is True, add items in the stack to the</span>
+<span class="sd">            model until we reach the guard item. &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element_stack</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">condition</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="n">guard</span><span class="p">:</span>
+                <span class="k">break</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_construct</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">model_element_type</span><span class="p">):</span>
@@ -240,7 +267,6 @@
             <span class="n">name</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;_Name&quot;</span><span class="p">)</span> 
 
         <span class="k">return</span> <span class="n">model_element_type</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-
 
     <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Loads the .orm file named *filename* into *self.model* &quot;&quot;&quot;</span>
@@ -334,6 +360,7 @@
 
         <span class="c"># Construct object type of appropriate underlying type</span>
         <span class="n">object_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">target_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_push</span><span class="p">(</span><span class="n">object_type</span><span class="p">)</span>
 
         <span class="n">object_type</span><span class="o">.</span><span class="n">independent</span> <span class="o">=</span> <span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsIndependent&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">)</span>
         <span class="n">object_type</span><span class="o">.</span><span class="n">implicit</span> <span class="o">=</span> <span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsImplicitBooleanValue&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">)</span>
@@ -342,8 +369,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_child_nodes</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">object_type</span><span class="p">)</span> 
 
         <span class="c"># Add object type the model, unless it is an implicit object type</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">object_type</span><span class="o">.</span><span class="n">implicit</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">object_type</span><span class="p">)</span>
+        <span class="n">explicit</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="n">object_type</span><span class="o">.</span><span class="n">implicit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_from_stack</span><span class="p">(</span><span class="n">condition</span><span class="o">=</span><span class="n">explicit</span><span class="p">,</span> <span class="n">guard</span><span class="o">=</span><span class="n">object_type</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_load_nested_fact_type</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
@@ -387,7 +414,7 @@
                 <span class="n">max_open</span> <span class="o">=</span> <span class="p">(</span><span class="n">value_range</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MaxInclusion&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;Open&quot;</span><span class="p">)</span>
             <span class="p">)</span>           
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span> <span class="c"># Add constraint to model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_push</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span> <span class="c"># Add constraint to stack</span>
     
     <span class="c">##########################################################################</span>
     <span class="c"># Private Functions to Load Fact Types</span>
@@ -400,11 +427,13 @@
     <span class="k">def</span> <span class="nf">_load_fact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">fact_type_set</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Load a fact node into a fact type in the model. &quot;&quot;&quot;</span>
         <span class="n">fact_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">FactType</span><span class="o">.</span><span class="n">FactType</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_push</span><span class="p">(</span><span class="n">fact_type</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_child_nodes</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">fact_type</span><span class="p">)</span>
 
-        <span class="c"># If no roles are added, it must be an entirely implicit fact type:</span>
-        <span class="k">if</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">arity</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">fact_type</span><span class="p">)</span>
+        <span class="c"># Add fact type and children from stack, unless arity == 0, which </span>
+        <span class="c"># means it must be an entirely implicit fact type:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_from_stack</span><span class="p">(</span><span class="n">condition</span><span class="o">=</span><span class="n">fact_type</span><span class="o">.</span><span class="n">arity</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">guard</span><span class="o">=</span><span class="n">fact_type</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_facttype_derivation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">fact_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Load a fact type derivation rule. &quot;&quot;&quot;</span>
@@ -412,7 +441,17 @@
 
     <span class="k">def</span> <span class="nf">_load_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">fact_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Load a role in a fact type. &quot;&quot;&quot;</span>
-        <span class="n">role</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">FactType</span><span class="o">.</span><span class="n">Role</span><span class="p">)</span>
+        <span class="c"># Note: NOT using self._construct because we may generate name </span>
+        <span class="n">uid</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Name&quot;</span><span class="p">)</span>
+
+        <span class="c"># Unnamed role.  Find a unique name within the fact type.</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_role_name</span><span class="p">(</span><span class="n">fact_type</span><span class="p">)</span>    
+
+        <span class="n">role</span> <span class="o">=</span> <span class="n">FactType</span><span class="o">.</span><span class="n">Role</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_push</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+
         <span class="n">role</span><span class="o">.</span><span class="n">fact_type</span> <span class="o">=</span> <span class="n">fact_type</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_child_nodes</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
@@ -421,8 +460,18 @@
         <span class="c"># object type, we do not want the associated role).  For example,</span>
         <span class="c"># NORMA binarizes unary roles; this check reverts the fact type to</span>
         <span class="c"># unary.</span>
-        <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">player</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_from_stack</span><span class="p">(</span><span class="n">condition</span><span class="o">=</span><span class="n">role</span><span class="o">.</span><span class="n">player</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="n">guard</span><span class="o">=</span><span class="n">role</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">player</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># Need to explicitly add role to fact_type</span>
             <span class="n">fact_type</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_next_role_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fact_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get next available unique name for a role in a fact type. &quot;&quot;&quot;</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">role</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span><span class="p">])</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">arity</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="s">&quot;R&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="s">&quot;R&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_role_player</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add the role player to the role. &quot;&quot;&quot;</span>
@@ -446,12 +495,16 @@
         <span class="n">cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">SubtypeConstraint</span><span class="p">)</span>
         
         <span class="c"># Get super and sub type XML nodes</span>
-        <span class="n">supertype_node</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;FactRoles/&quot;</span> <span class="o">+</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;SupertypeMetaRole/&quot;</span> <span class="o">+</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;RolePlayer&quot;</span><span class="p">)</span>
-        <span class="n">subtype_node</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;FactRoles/&quot;</span> <span class="o">+</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;SubtypeMetaRole/&quot;</span> <span class="o">+</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;RolePlayer&quot;</span><span class="p">)</span>
+        <span class="n">super_node</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;FactRoles/&quot;</span> <span class="o">+</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;SupertypeMetaRole&quot;</span><span class="p">)</span>
+        <span class="n">sub_node</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;FactRoles/&quot;</span> <span class="o">+</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;SubtypeMetaRole&quot;</span><span class="p">)</span>
+
+        <span class="n">superrole</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct</span><span class="p">(</span><span class="n">super_node</span><span class="p">,</span> <span class="n">FactType</span><span class="o">.</span><span class="n">SubtypeRole</span><span class="p">)</span>
+        <span class="n">subrole</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct</span><span class="p">(</span><span class="n">sub_node</span><span class="p">,</span> <span class="n">FactType</span><span class="o">.</span><span class="n">SubtypeRole</span><span class="p">)</span>
+
+        <span class="n">supertype_node</span> <span class="o">=</span> <span class="n">super_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;RolePlayer&quot;</span><span class="p">)</span>
+        <span class="n">subtype_node</span> <span class="o">=</span> <span class="n">sub_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;RolePlayer&quot;</span><span class="p">)</span>
 
         <span class="c"># Look-up the corresponding object types</span>
         <span class="k">try</span><span class="p">:</span>
@@ -468,6 +521,14 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span> <span class="c"># Add subtype constraint to model</span>
 
+        <span class="c"># Add supertype and subtype roles to _elements dictionary, so that </span>
+        <span class="c"># constraints can test whether they constrain a subtype. </span>
+        <span class="c"># </span>
+        <span class="c"># IMPORTANT: These roles will be in self._elements but will NOT</span>
+        <span class="c"># be part of any fact type in the model.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">superrole</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">subrole</span><span class="p">)</span>
+
     <span class="c">##########################################################################</span>
     <span class="c"># Private Functions to Load Constraints</span>
     <span class="c">##########################################################################</span>
@@ -482,42 +543,177 @@
 
     <span class="k">def</span> <span class="nf">_load_exclusion_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_set</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Load exclusion constraint. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Exclusion constraint &quot;</span> <span class="o">+</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Name&quot;</span><span class="p">))</span>
+        <span class="c"># NOTE: THIS CONSTRAINT IS NOT IMPLEMENTED.  CODE BELOW SIMPLY CHECKS</span>
+        <span class="c"># WHETHER CONSTRAINT IS USED IN A SUBTYPE.</span>
+
+        <span class="n">cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_constraint</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">ExclusionConstraint</span><span class="p">)</span>
+ 
+        <span class="n">seq_node</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;RoleSequences/&quot;</span> <span class="o">+</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;RoleSequence&quot;</span><span class="p">)</span>
+        <span class="n">first_seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_role_sequence</span><span class="p">(</span><span class="n">seq_node</span><span class="p">,</span> <span class="n">cons</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">FactType</span><span class="o">.</span><span class="n">SubtypeRole</span><span class="p">):</span>
+            <span class="n">preamble</span> <span class="o">=</span> <span class="s">&quot;Subtype exclusion constraint&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">preamble</span> <span class="o">=</span> <span class="s">&quot;Exclusion constraint&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">preamble</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Name&quot;</span><span class="p">))</span>
     
     <span class="k">def</span> <span class="nf">_load_subset_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_set</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Load subset constraint. &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_constraint</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">SubsetConstraint</span><span class="p">)</span>
+
+        <span class="c"># Find RoleSequences node (should have exactly 2 RoleSequence children)</span>
+        <span class="n">sequences_node</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;RoleSequences&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequences_node</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Constraint &quot;</span> <span class="o">+</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> 
+                <span class="s">&quot; does not have exactly two role sequences (sub and super).&quot;</span><span class="p">)</span>
+
+        <span class="c"># Load subset and superset role sequences</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">subset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_role_sequence</span><span class="p">(</span><span class="n">sequences_node</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cons</span><span class="p">)</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">superset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_role_sequence</span><span class="p">(</span><span class="n">sequences_node</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cons</span><span class="p">)</span>            
+                
+        <span class="c"># Role sequence will be None if sequence has unsupported feature</span>
+        <span class="k">if</span> <span class="n">cons</span><span class="o">.</span><span class="n">subset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">cons</span><span class="o">.</span><span class="n">superset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cons</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">subset</span> <span class="o">+</span> <span class="n">cons</span><span class="o">.</span><span class="n">superset</span> <span class="c"># All covered roles</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">superset</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Subset constraint &quot;</span> <span class="o">+</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot; (due to arity &gt; 2)&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_frequency_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_set</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Load frequency constraint. &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">FrequencyConstraint</span><span class="p">)</span>
+
+        <span class="c"># Parse frequency attributes</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MinFrequency&quot;</span><span class="p">))</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MaxFrequency&quot;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">cons</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c"># Unbounded</span>
+            <span class="n">cons</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;inf&#39;</span><span class="p">)</span>
+
+        <span class="c"># Get sequence of covered roles</span>
+        <span class="n">seq_node</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;RoleSequence&quot;</span><span class="p">)</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_role_sequence</span><span class="p">(</span><span class="n">seq_node</span><span class="p">,</span> <span class="n">cons</span><span class="p">)</span>
+
+        <span class="c"># Add to model</span>
+        <span class="k">if</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># None indicates constraint is unsupported</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_mandatory_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_set</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Load mandatory constraint. &quot;&quot;&quot;</span>
         <span class="n">cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">MandatoryConstraint</span><span class="p">)</span>
 
+        <span class="n">cons</span><span class="o">.</span><span class="n">simple</span> <span class="o">=</span> <span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsSimple&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">)</span>
+
         <span class="c"># Ignore implied mandatory (do not even add to omissions)</span>
         <span class="k">if</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsImplied&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="n">role_seq</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;RoleSequence&quot;</span><span class="p">)</span>
+        <span class="n">seq_node</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;RoleSequence&quot;</span><span class="p">)</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_role_sequence</span><span class="p">(</span><span class="n">seq_node</span><span class="p">,</span> <span class="n">cons</span><span class="p">)</span>
 
-        <span class="c"># Ignore if part of exclusive-or or inclusive-or constraint</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">role_seq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Inclusive-Or constraint &quot;</span> <span class="o">+</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="c"># Unsupported or implicit</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c"># Part of XOR or inclusive-or constraint</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">FactType</span><span class="o">.</span><span class="n">SubtypeRole</span><span class="p">):</span>
+                <span class="n">preamble</span> <span class="o">=</span> <span class="s">&quot;Subtype inclusive-or constraint&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">preamble</span> <span class="o">=</span> <span class="s">&quot;Inclusive-or constraint&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">preamble</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_uniqueness_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_set</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Load uniqueness constraint. &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_constraint</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">UniquenessConstraint</span><span class="p">)</span>
+        
+        <span class="n">cons</span><span class="o">.</span><span class="n">internal</span> <span class="o">=</span> <span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IsInternal&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">)</span>
+        
+        <span class="c"># Get object type that this constraint is a preferred id for</span>
+        <span class="n">pref_node</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;PreferredIdentifierFor&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pref_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_identifier_for</span><span class="p">(</span><span class="n">pref_node</span><span class="p">,</span> <span class="n">cons</span><span class="p">)</span>
+    
+        <span class="c"># Get sequence of covered roles</span>
+        <span class="n">seq_node</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;RoleSequence&quot;</span><span class="p">)</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_role_sequence</span><span class="p">(</span><span class="n">seq_node</span><span class="p">,</span> <span class="n">cons</span><span class="p">)</span>
+
+        <span class="c"># Add to model</span>
+        <span class="k">if</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># None indicates constraint is unsupported</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_identifier_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads the object type that a uniqueness constraint is a preferred</span>
+<span class="sd">            identifier for. &quot;&quot;&quot;</span>
+        <span class="n">uid</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ref&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">object_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">uid</span><span class="p">]</span>
+            <span class="n">constraint</span><span class="o">.</span><span class="n">identifier_for</span> <span class="o">=</span> <span class="n">object_type</span>
+            <span class="n">object_type</span><span class="o">.</span><span class="n">identifying_constraint</span> <span class="o">=</span> <span class="n">constraint</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span> <span class="c"># An implicit object?         </span>
 
     <span class="k">def</span> <span class="nf">_load_ring_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_set</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Load ring constraint. &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Ring constraint &quot;</span> <span class="o">+</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Name&quot;</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_load_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_set</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Load a constraint into the model. &quot;&quot;&quot;</span>
-        <span class="k">pass</span>      
+    <span class="k">def</span> <span class="nf">_load_value_comp_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_set</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load value comparison constraint. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Value comparison constraint &quot;</span> <span class="o">+</span>
+            <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Name&quot;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_init_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize a constraint from an xml_node. &quot;&quot;&quot;</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct</span><span class="p">(</span><span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_type</span><span class="p">)</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">alethic</span> <span class="o">=</span> <span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Modality&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&quot;Deontic&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cons</span>
+
+    <span class="k">def</span> <span class="nf">_load_role_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns a sequence of roles covered by the constraint. </span>
+<span class="sd">            xml_node points to the RoleSequence node. &quot;&quot;&quot;</span>
+
+        <span class="n">role_sequence</span> <span class="o">=</span> <span class="n">FactType</span><span class="o">.</span><span class="n">RoleSequence</span><span class="p">()</span> 
+        <span class="n">ignore</span> <span class="o">=</span> <span class="bp">False</span> <span class="c"># Whether to ignore this role sequence</span>
+
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">xml_node</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local_tag</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;Role&quot;</span><span class="p">:</span>
+                <span class="n">role</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_constraint_role</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">constraint</span><span class="p">)</span>
+                <span class="n">ignore</span> <span class="o">=</span> <span class="p">(</span><span class="n">role</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="c"># Constraint covers implied role</span>
+                <span class="n">role_sequence</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local_tag</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;JoinRule&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_load_join_rule</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">role_sequence</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Constraint &quot;</span> <span class="o">+</span> <span class="n">constraint</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> 
+                    <span class="s">&quot; has unexpected role sequence.&quot;</span><span class="p">)</span>                    
+
+        <span class="k">return</span> <span class="bp">None</span> <span class="k">if</span> <span class="n">ignore</span> <span class="k">else</span> <span class="n">role_sequence</span>
+
+    <span class="k">def</span> <span class="nf">_load_constraint_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns a Role element within the RoleSequence of a constraint. &quot;&quot;&quot;</span>
+     
+        <span class="c"># Confirm deprecated path data is not present</span>
+        <span class="k">if</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;ProjectedFrom&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Constraint &quot;</span> <span class="o">+</span> <span class="n">constraint</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span><span class="s">&quot; has deprecated join rule.&quot;</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>    
+            <span class="n">uid</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ref&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">uid</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>        
+            <span class="k">return</span> <span class="bp">None</span> <span class="c"># Role not in elements[] if part of implied fact type   </span>
+
+
+    <span class="k">def</span> <span class="nf">_load_join_rule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="n">role_sequence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads a join rule. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Join path for &quot;</span> <span class="o">+</span> <span class="n">constraint</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">role_sequence</span><span class="o">.</span><span class="n">join_path</span> <span class="o">=</span> <span class="s">&quot;&quot;</span> <span class="c"># Just so that it is not None, for now.</span>
+        
+
+        
 </pre></div></div>
 
           </div>

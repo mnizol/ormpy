@@ -17,6 +17,14 @@ test Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`TestDomain` Module
+------------------------
+
+.. automodule:: test.TestDomain
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`TestFactType` Module
 --------------------------
 
@@ -45,6 +53,14 @@ test Package
 -----------------------------
 
 .. automodule:: test.TestNormaLoader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`TestORMMinus` Module
+--------------------------
+
+.. automodule:: test.TestORMMinus
     :members:
     :undoc-members:
     :show-inheritance:

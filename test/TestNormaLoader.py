@@ -15,12 +15,20 @@ from lib.ModelElement import ModelElement
 from lib.FactType import FactType
 
 import lib.ObjectType as ObjectType
+import lib.Constraint as Constraint
 
 class TestNormaLoader(TestCase):
     """ Unit tests for the NormaLoader class. """
 
     def setUp(self):
         self.data_dir = os.getenv("ORMPY_TEST_DATA_DIR")
+
+    def test_add_from_empty_stack(self):
+        """ Check behavior of add_from_stack when empty. """
+        loader = NormaLoader(self.data_dir + "empty_model.orm")
+        self.assertEquals(loader.model.object_types.count(), 0)
+        loader._add_from_stack()
+        self.assertEquals(loader.model.object_types.count(), 0)                
 
     def test_bad_filename_extension(self):
         """ Confirm that exception is raised when input file has .txt extension 
@@ -65,12 +73,16 @@ class TestNormaLoader(TestCase):
     def test_subtypes(self):
         """ Confirm that subtype derivation rule omission note
             is added to self.omissions and that subtype constraints load 
-            properly. """
+            properly. Also confirm that if inclusive-or or XOR constraints
+            are present on a subtype, they are reported in the omissions. """
         loader = NormaLoader(self.data_dir + "subtype_with_derivation.orm")
         model = loader.model
 
         self.assertItemsEqual(loader.omissions, 
-            ["Subtype derivation rule for B"])
+            ["Subtype derivation rule for B", 
+             "Subtype exclusion constraint ExclusiveOrConstraint1",
+             "Subtype inclusive-or constraint InclusiveOrConstraint1",
+             "Subtype inclusive-or constraint InclusiveOrConstraint2"])
 
         cons1 = model.constraints.get("BIsASubtypeOfA")
         self.assertIs(cons1.subtype, model.object_types.get("B"))
@@ -101,8 +113,8 @@ class TestNormaLoader(TestCase):
         # Independent Entity
         this = model.object_types.get("D") 
         self.assertTrue(this.independent)
-        self.assertEquals(this.identifying_constraint, 
-            "_5D7B0A6D-EF11-43C0-9EB3-398933165BC4")
+        self.assertIs(this.identifying_constraint, 
+            model.constraints.get("InternalUniquenessConstraint7"))
         self.assertIsInstance(this, ObjectType.EntityType)
 
         # Non-independent Entity
@@ -132,7 +144,7 @@ class TestNormaLoader(TestCase):
         this = model.object_types.get("V1HasV2")
         self.assertFalse(this.independent)
         self.assertEquals(this.identifying_constraint, 
-            "_CC5D22B1-DBA7-4383-80F2-29CEAE58A998")
+            model.constraints.get("InternalUniquenessConstraint14"))
         self.assertEquals(this.nested_fact_type, 
             "_B6D10F36-FFE2-4B86-BEA4-02F7FCA655F9")
 
@@ -271,10 +283,242 @@ class TestNormaLoader(TestCase):
             ["Equality constraint EqualityConstraint1",
              "Exclusion constraint ExclusionConstraint1",
              "Exclusion constraint ExclusiveOrConstraint1",
-             "Inclusive-Or constraint InclusiveOrConstraint1",
-             "Inclusive-Or constraint InclusiveOrConstraint2",
-             "Ring constraint RingConstraint1"])
-  
+             "Inclusive-or constraint InclusiveOrConstraint1",
+             "Inclusive-or constraint InclusiveOrConstraint2",
+             "Ring constraint RingConstraint1",
+             "Value comparison constraint ValueComparisonConstraint1"])
+
+    def test_subset_constraint(self):
+        """ Confirm subset constraints load correctly. """
+        loader = NormaLoader(self.data_dir + "subset_constraint.orm")
+        model = loader.model
+
+        cons1 = model.constraints.get("SubsetConstraint1")
+        cons2 = model.constraints.get("SubsetConstraint2")
+        cons3 = model.constraints.get("SubsetConstraint3")
+        cons4 = model.constraints.get("SubsetConstraint4")
+
+        obj_a = model.object_types.get("A")
+        obj_b = model.object_types.get("B")
+        ahasb = model.fact_types.get("AHasB")
+        alikesb = model.fact_types.get("ALikesB")
+        aplus = model.fact_types.get("CPlusAPlusB")
+        aand = model.fact_types.get("AAndBAndC")
+        
+        # Check modality
+        self.assertTrue(cons1.alethic)
+        self.assertFalse(cons2.alethic)
+
+        # Check unary subset
+        self.assertEquals(len(cons1.superset), 1)
+        self.assertEquals(len(cons1.subset), 1)
+        self.assertIs(cons1.subset[0].player, obj_a)
+        self.assertIs(cons1.superset[0].player, obj_a)
+        self.assertIs(cons1.subset[0].fact_type, ahasb)
+        self.assertIs(cons1.superset[0].fact_type, alikesb)
+        self.assertItemsEqual(cons1.covers, cons1.subset + cons1.superset)
+
+        # Check binary subset
+        self.assertEquals(len(cons4.superset), 2)
+        self.assertEquals(len(cons4.subset), 2)
+        self.assertIs(cons4.subset[0].fact_type, aplus)
+        self.assertIs(cons4.superset[1].fact_type, aand)
+        self.assertIs(cons4.subset[0].player, cons4.superset[0].player)
+        self.assertIs(cons4.subset[1].player, cons4.superset[1].player)
+        self.assertIs(cons4.subset[1].player, obj_b)
+
+        # Check ternary subset
+        self.assertIsNone(cons3) # Not loaded
+        self.assertItemsEqual(loader.omissions, 
+            ["Subset constraint SubsetConstraint3 (due to arity > 2)"])
+
+
+    def test_partial_subset(self):
+        """ Confirm exception fires for invalid subset constraints. """
+        with self.assertRaises(Exception) as ex:
+            loader = NormaLoader(self.data_dir + "partial_subset.orm")
+        self.assertEquals(ex.exception.message, 
+            "Constraint SubsetConstraint1 does not have exactly two role sequences (sub and super).")
+
+    def test_implicit_role(self):
+        """ Confirm constraint that covers implicit role is removed. """
+        model = NormaLoader(self.data_dir + "test_implicit_roles.orm").model
+        self.assertIsNone(model.constraints.get("SubsetConstraint1"))
+
+    def test_deprecated_join(self):
+        """ Confirm exception fires for models containing deprecated join constraint. """
+        with self.assertRaises(Exception) as ex:
+            loader = NormaLoader(self.data_dir + "deprecated_join.orm")
+        self.assertEquals(ex.exception.message, 
+            "Constraint SubsetConstraint1 has deprecated join rule.")
+
+    def test_join_subset_omission(self):
+        """ Confirm that join subset constraints are (for now) omitted. """
+        loader = NormaLoader(self.data_dir + "join_subset_omission.orm")
+        self.assertItemsEqual(loader.omissions, 
+            ["Join path for SubsetConstraint1."])
+
+        cons = loader.model.constraints.get("SubsetConstraint1")
+        self.assertIsNotNone(cons.superset.join_path)
+
+    def test_uniqueness_constraint(self):
+        """ Confirm uniqueness constraints load properly. """
+        model = NormaLoader(self.data_dir + "uniqueness_constraints.orm").model
+
+        int_cons1 = model.constraints.get("InternalUniquenessConstraint4")
+        int_cons2 = model.constraints.get("InternalUniquenessConstraint1")
+        int_cons3 = model.constraints.get("InternalUniquenessConstraint9")
+        ext_cons1 = model.constraints.get("ExternalUniquenessConstraint1")
+        ext_cons2 = model.constraints.get("ExternalUniquenessConstraint2")
+
+        obj_a = model.object_types.get("A")
+        obj_b = model.object_types.get("B")
+        obj_z = model.object_types.get("Z")
+        ahasb = model.fact_types.get("AHasB")
+        alikesb = model.fact_types.get("ALikesB")
+        tern = model.fact_types.get("AAndAHoldsB")
+
+        # Check uid
+        self.assertEquals(int_cons1.uid, "_22FD96ED-BE72-4859-8DA0-1A0C98381FEF")
+
+        # Check internal attribute
+        self.assertTrue(int_cons1.internal)
+        self.assertFalse(ext_cons1.internal)
+
+        # Check modality
+        self.assertTrue(int_cons1.alethic)
+        self.assertFalse(ext_cons2.alethic)
+
+        # Check Covers sequence
+        self.assertEquals(len(int_cons1.covers), 1)
+        self.assertIs(int_cons1.covers[0].player, obj_a)
+        self.assertIs(int_cons1.covers[0].fact_type, ahasb)
+
+        self.assertEquals(len(ext_cons2.covers), 3)
+        self.assertIs(ext_cons2.covers[0].player, obj_a)
+        self.assertIs(ext_cons2.covers[1].player, obj_b)
+        self.assertIs(ext_cons2.covers[2].player, obj_b)
+        self.assertIs(ext_cons2.covers[1].fact_type, tern)
+        self.assertIs(ext_cons2.covers[2].fact_type, alikesb)
+
+        # Confirm implicit constraints excluded
+        self.assertIsNone(model.constraints.get("InternalUniquenessConstraint2"))
+        self.assertEquals(model.constraints.count(), 8)
+
+        # Test preferred identifier.
+        self.assertIsNone(int_cons2.identifier_for) # implicit object type
+
+        # Test preferred identifier
+        self.assertIs(int_cons3.identifier_for, obj_z)
+        self.assertIs(obj_z.identifying_constraint, int_cons3)
+
+    def test_frequency_constraint(self):
+        """ Confirm frequency constraints load properly. """
+        model = NormaLoader(self.data_dir + "frequency_constraint.orm").model
+
+        cons1 = model.constraints.get("FrequencyConstraint1")
+        cons2 = model.constraints.get("FrequencyConstraint2")
+        cons3 = model.constraints.get("FrequencyConstraint3")
+
+        obj_a = model.object_types.get("A")
+        obj_b = model.object_types.get("B")
+        ahasb = model.fact_types.get("AHasB")
+        alikesb = model.fact_types.get("ALikesB")
+
+        # Check frequencies
+        self.assertEquals(cons1.min_freq, 1)
+        self.assertEquals(cons1.max_freq, 3)
+
+        self.assertEquals(cons2.min_freq, 2)
+        self.assertEquals(cons2.max_freq, 2)
+
+        self.assertEquals(cons3.min_freq, 3)
+        self.assertEquals(cons3.max_freq, float('inf'))
+
+        # Check covered roles
+        self.assertEquals(len(cons1.covers), 1)
+        self.assertIs(cons1.covers[0].player, obj_b)
+        self.assertIs(cons1.covers[0].fact_type, ahasb)
+
+        self.assertEquals(len(cons2.covers), 2)
+
+        self.assertEquals(len(cons3.covers), 2)
+        self.assertIs(cons3.covers[0].fact_type, alikesb)
+        self.assertIs(cons3.covers[1].fact_type, ahasb)
+
+
+    def test_bad_role_sequence_node(self):
+        """ Confirm exception fires for invalid node in RoleSequence. """
+        with self.assertRaises(Exception) as ex:
+            loader = NormaLoader(self.data_dir + "bad_role_sequence.orm")
+        self.assertEquals(ex.exception.message, "Constraint " +
+            "ExternalUniquenessConstraint1 has unexpected role sequence.")
+
+    def test_freq_on_unary(self):
+        """ Confirm loader ignores frequency constraint on unary.  
+            it ignores the constraint because NORMA moves the constraint
+            to the implicit role of the implicit binarized fact type. """
+        loader = NormaLoader(self.data_dir + "implicit_freq_constraint.orm")
+        model = loader.model
+        self.assertIsNone(model.constraints.get("FrequencyConstraint2"))
+
+        # The 1 constraint is the internal UC on the unary (implicit)
+        self.assertEquals(model.constraints.count(), 1)
+        
+        self.assertEquals(model.fact_types.get("AExists").arity(), 1)
+
+    def test_mandatory(self):
+        """ Confirm mandatory constraints are successfully loaded. """
+        loader = NormaLoader(self.data_dir + "mandatory_constraint.orm")
+        model = loader.model
+
+        # Test implied
+        cons1 = model.constraints.get("ImpliedMandatoryConstraint2") 
+        self.assertIsNone(cons1) # Implied due to disjunctive mandatory
+
+        cons2 = model.constraints.get("SimpleMandatoryConstraint4")
+        self.assertIsNone(cons2) # Implied due to objectification
+
+        # Confirm constraint count
+        self.assertEquals(model.constraints.count(), 8)
+
+        # Confirm all mandatories are simple
+        i = 0
+        for cons in model.constraints:
+            if isinstance(cons, Constraint.MandatoryConstraint):
+                i = i+1
+                self.assertTrue(cons.simple)
+                self.assertEquals(len(cons.covers), 1)
+
+        self.assertEquals(i, 2)
+
+        # Confirm inclusive-or ignored
+        self.assertItemsEqual(loader.omissions,
+            ["Inclusive-or constraint InclusiveOrConstraint1"])
+
+    def test_role_names(self):
+        """ Confirm role names are generated properly. """
+        model = NormaLoader(self.data_dir + "role_names.orm").model
+
+        ahasb = model.fact_types.get("AHasB")
+        self.assertEquals(ahasb.roles[0].name, "R1")
+        self.assertEquals(ahasb.roles[1].name, "R2")
+
+        alikesb = model.fact_types.get("ALikesB")
+        self.assertEquals(alikesb.roles[0].name, "R1")
+        self.assertEquals(alikesb.roles[1].name, "Likee")
+
+        tern = model.fact_types.get("AAndALikeB")
+        self.assertEquals(tern.roles[0].name, "R2")
+        self.assertEquals(tern.roles[1].name, "R3")
+        self.assertEquals(tern.roles[2].name, "R4")
+        
+
+
+
+
+
+
  
 
         

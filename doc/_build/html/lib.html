@@ -283,61 +283,46 @@ schemes, and the supertype graph is not a simple path.</p>
 </div>
 <div class="section" id="module-lib.Domain">
 <span id="domain-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">Domain</span></tt> Module<a class="headerlink" href="#module-lib.Domain" title="Permalink to this headline">¶</a></h2>
-<p>The Domain.py module implements the domains that underly value types.</p>
+<p>The Domain.py module implements the domains that underly value types. 
+More specifically, classes in the module provide a means to generate
+a set of values conforming to a particular data type.  For example,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">my_int</span> <span class="o">=</span> <span class="n">IntegerDomain</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will produce a set containing the first 10 unsigned integers.</p>
 <dl class="class">
 <dt id="lib.Domain.BoolDomain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">BoolDomain</tt><big>(</big><em>constraint=None</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#BoolDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.BoolDomain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">BoolDomain</tt><big>(</big><em>size=2</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#BoolDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.BoolDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
 <p>A domain for boolean (True/False) values.</p>
-<dl class="method">
-<dt id="lib.Domain.BoolDomain.next">
-<tt class="descname">next</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#BoolDomain.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.BoolDomain.next" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns next element from the domain, respecting any value
-constraints.  If there is no next element, returns first 
-element from the domain.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.Domain.Domain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">Domain</tt><big>(</big><em>constraint=None</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>A domain, which is essentially a data type that permits you to 
-enumerate the valid values via a call to the next() function.</p>
-<dl class="method">
-<dt id="lib.Domain.Domain.next">
-<tt class="descname">next</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain.next" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns next element from the domain, respecting any value
-constraints.  If there is no next element, returns first 
-element from the domain.</p>
-</dd></dl>
-
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">Domain</tt><big>(</big><em>size</em>, <em>max_size=1000000</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">set</span></tt></p>
+<p>A domain, which is a set of values conforming to a data type.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.Domain.FloatDomain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">FloatDomain</tt><big>(</big><em>constraint=None</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#FloatDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.FloatDomain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.Domain.NumericDomain" title="lib.Domain.NumericDomain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.NumericDomain</span></tt></a></p>
-<p>A domain for floating point numbers.  Only generates numbers
-in increments of 0.1, so the size of the domain is limited to
-0 to sys.maxsize * 10.</p>
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">FloatDomain</tt><big>(</big><em>size</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#FloatDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.FloatDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
+<p>A domain for floating point numbers.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="lib.Domain.NumericDomain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">NumericDomain</tt><big>(</big><em>constraint=None</em>, <em>precision=0</em>, <em>cast=&lt;type 'int'&gt;</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#NumericDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.NumericDomain" title="Permalink to this definition">¶</a></dt>
+<dt id="lib.Domain.IntegerDomain">
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">IntegerDomain</tt><big>(</big><em>size</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#IntegerDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.IntegerDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
-<p>A numeric domain. By default, acts an integer domain, but can 
-be inherited by other types (e.g. float) to create other domains.</p>
-<dl class="method">
-<dt id="lib.Domain.NumericDomain.next">
-<tt class="descname">next</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#NumericDomain.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.NumericDomain.next" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns next element from the domain, respecting any value
-constraints.  If there is no next element, returns first 
-element from the domain.</p>
+<p>An Integer domain.</p>
 </dd></dl>
 
+<dl class="class">
+<dt id="lib.Domain.StrDomain">
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">StrDomain</tt><big>(</big><em>size</em>, <em>prefix=''</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#StrDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.StrDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
+<p>A domain for string values.</p>
 </dd></dl>
 
 </div>

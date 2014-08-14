@@ -108,17 +108,18 @@
         <span class="n">var1</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var1</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;Constraints.C1&quot;</span><span class="p">)</span>
 
-        <span class="c"># Value Type int</span>
-        <span class="n">v1</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ValueType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;V1&quot;</span><span class="p">)</span>
-        <span class="n">v1</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">()</span>
-        <span class="n">var1</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>    
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var1</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;ObjectTypes.V1&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var1</span><span class="o">.</span><span class="n">ubound</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
-        
-        <span class="n">v1</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">()</span>
-        <span class="n">var1</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var1</span><span class="o">.</span><span class="n">ubound</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        # Value Type int</span>
+<span class="sd">        v1 = ObjectType.ValueType(name=&quot;V1&quot;)</span>
+<span class="sd">        v1.data_type = int()</span>
+<span class="sd">        var1 = ORMMinus.Variable(v1)    </span>
+<span class="sd">        self.assertEquals(var1.name, &quot;ObjectTypes.V1&quot;)</span>
+<span class="sd">        self.assertEquals(var1.ubound, sys.maxsize)</span>
+<span class="sd">        </span>
+<span class="sd">        v1.data_type = bool()</span>
+<span class="sd">        var1 = ORMMinus.Variable(v1)</span>
+<span class="sd">        self.assertEquals(var1.ubound, 2)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
                
 

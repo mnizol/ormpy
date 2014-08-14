@@ -4,154 +4,101 @@
 # Author:  Matthew Nizol
 ##############################################################################
 
-""" The Domain.py module implements the domains that underly value types. """
+""" The Domain.py module implements the domains that underly value types. 
+    More specifically, classes in the module provide a means to generate
+    a set of values conforming to a particular data type.  For example, ::
 
-import sys
+        my_int = IntegerDomain(10)
 
-from lib.Constraint import ValueConstraint
+    will produce a set containing the first 10 unsigned integers.  """
 
-class Domain(object):
-    """ A domain, which is essentially a data type that permits you to 
-        enumerate the valid values via a call to the next() function. """
+MAX_SIZE = 1000000 # Essentially arbitrary.  Set well below sys.maxsize.
+
+import datetime # For constants
+from datetime import date, time, timedelta # Do not include datetime class
+
+class Domain(set):
+    """ A domain, which is a set of values conforming to a data type. """
     
-    def __init__(self, constraint=None):
+    def __init__(self, size, max_size = MAX_SIZE):
         """ Initialize the domain. """
-        self._constraint, self.size = self._parse_constraint(constraint)
- 
-        # Start at last value so first call to next() returns first value
-        self._range_index = len(self._constraint.ranges) - 1
-        self._value = self._range.max_value # A value from the domain  
-     
-    def _parse_constraint(self, constraint):
-        """ Return a tuple containing the parsed value constraint
-            for the domain and the size of the domain. """
-        raise NotImplementedError()
+        self.max_size = min(max_size, MAX_SIZE)
+        self.size = min(size, self.max_size)
 
-    def next(self):
-        """ Returns next element from the domain, respecting any value
-            constraints.  If there is no next element, returns first 
-            element from the domain. """
-        raise NotImplementedError()
-
-    @property
-    def _range(self):
-        """ Returns the current value range. """
-        return self._constraint.ranges[self._range_index]
-
-    def _next_range(self):
-        """ Increment index to point to next range. """
-        self._range_index = self._range_index + 1
-        if self._range_index >= len(self._constraint.ranges):
-            self._range_index = 0
-
-    def _next_min(self):
-        """ Increment to next range and return min value. """
-        self._next_range()            
-        self._value = self._range.min_value
-        return self._value
-
-class NumericDomain(Domain):
-    """ A numeric domain. By default, acts an integer domain, but can 
-        be inherited by other types (e.g. float) to create other domains. """
+class IntegerDomain(Domain):
+    """ An integer domain containing the first <size> unsigned integers. """
     
-    def __init__(self, constraint=None, precision=0, cast=int):
-        """ Initialize. """
-        self._add = cast(1) / 10**precision # Add to _value to get next value
-        self._cast = cast # Intended data type, e.g. int, float
-        self._precision = precision # Number of decimal places for rounding
-
-        if constraint is None:
-            constraint = ValueConstraint()
-            constraint.add_range(0, sys.maxsize)
-
-        super(NumericDomain, self).__init__(constraint=constraint)
-
-    
-    def _parse_constraint(self, constraint):
-        """ Return a tuple containing the parsed value constraint
-            for the domain and the size of the domain. """
+    def __init__(self, size):
+        """ Initialize the set with the first <size> unsigned integers. """
+        super(IntegerDomain, self).__init__(size)
+        set.__init__(self, range(0, self.size))
         
-        parsed = ValueConstraint()
-        size = 0
 
-        for rng in constraint.ranges:
-            try:
-                min_value = rng.min_value + (rng.min_open * self._add)
-                max_value = rng.max_value - (rng.max_open * self._add)
-                min_value = self._cast(min_value)
-                max_value = self._cast(max_value)
-            except TypeError: # Ignore this range
-                continue
-    
-            if min_value > max_value: # Ignore this range
-                continue
+class FloatDomain(Domain):
+    """ A floating point domain.  Only contains floating point numbers 
+        in increments of 0.1 (e.g. 0.1, 0.2, 0.3, etc.).  """
 
-            parsed.add_range(min_value, max_value)
-            size += round((max_value - min_value + 1) / self._add)
-
-        return parsed, size 
-
-    def next(self):
-        """ Returns next element from the domain, respecting any value
-            constraints.  If there is no next element, returns first 
-            element from the domain. """
-        self._value = round(self._value + self._add, self._precision)
-        self._value = self._cast(self._value)
-        limit = self._cast(round(self._range.max_value, self._precision))
-        
-        if self._value > limit:
-            return self._next_min()
-        else:
-            return self._value
-
-class FloatDomain(NumericDomain):
-    """ A domain for floating point numbers.  Only generates numbers
-        in increments of 0.1, so the size of the domain is limited to
-        0 to sys.maxsize * 10. """
-
-    def __init__(self, constraint=None):
+    def __init__(self, size):
         """ Initialize. """
-        super(FloatDomain, self).__init__(constraint=constraint, 
-            precision=1, cast=float)
-    
+        super(FloatDomain, self).__init__(size)
+        values = [float(i) / 10.0 for i in xrange(self.size)]
+        set.__init__(self, values)
+
 class BoolDomain(Domain):
     """ A domain for boolean (True/False) values. """
 
-    def __init__(self, constraint=None):
+    def __init__(self, size = 2):
         """ Initialize. """
-        if constraint is None:
-            constraint = ValueConstraint()
-            constraint.add_range(False, True)
+        super(BoolDomain, self).__init__(size, max_size = 2)
+        values = [False, True]
+        set.__init__(self, values[:self.size])
 
-        super(BoolDomain, self).__init__(constraint=constraint)
+class StrDomain(Domain):
+    """ A domain for string values. The constructor includes a prefix
+        parameter.  Generated strings are of the form 'prefix<n>' 
+        where <n> is a monotonically increasing unsigned integer. """
+    
+    def __init__(self, size, prefix=""):
+        """ Initialize. """
+        super(StrDomain, self).__init__(size)
+        values = [prefix + str(i) for i in xrange(self.size)]
+        set.__init__(self, values)
 
-    def _parse_constraint(self, constraint):
-        """ Return a tuple containing the parsed value constraint
-            for the domain and the size of the domain. """
+class DateDomain(Domain):
+    """ A domain for date values.  Generated dates start on <start>
+        which defaults to January 1, 2000."""
+
+    def __init__(self, size, start=date(2000,01,01)):
+        """ Initialize. """
+        max_days = (date(datetime.MAXYEAR, 12, 31) - start).days + 1
+        super(DateDomain, self).__init__(size, max_size = max_days)
+        values = [start + timedelta(i) for i in xrange(self.size)]
+        set.__init__(self, values)
+
+class TimeDomain(Domain):
+    """ A domain for time values.  Generated times start at <start>
+        which defaults to midnight and increment by minutes. """
+
+    def __init__(self, size, start=time()):
+        """ Initialize. """
+        start = datetime.datetime.combine(date.today(), start)
+        stop  = datetime.datetime.combine(date.today(), time(23,59))
+        max_mins = int((stop - start).total_seconds()/60) + 1
+        super(TimeDomain, self).__init__(size, max_size = max_mins)
+        values = [(start + timedelta(minutes=i)).time() for i in xrange(self.size)]
+        set.__init__(self, values) 
+
+class DateTimeDomain(Domain):
+    """ A domain for datetime values.  Generated datetimes start on <start>
+        which defaults to January 1, 2000 at midnight and increment by
+        minutes."""
+
+    def __init__(self, size, start=datetime.datetime(2000,01,01)):
+        """ Initialize. """
+        max_dt = datetime.datetime(datetime.MAXYEAR, 12, 31, 23, 59)
+        max_mins = int((max_dt - start).total_seconds()/60) + 1
+        super(DateTimeDomain, self).__init__(size, max_size = max_mins)
+        values = [start + timedelta(minutes=i) for i in xrange(self.size)]
+        set.__init__(self, values)      
         
-        hastrue = False
-        hasfalse = False
-
-        for rng in constraint.ranges:
-            if bool(rng.min_value) or bool(rng.max_value):
-                hastrue = True
-            if not(bool(rng.min_value) and bool(rng.max_value)):
-                hasfalse = True
-
-        parsed = ValueConstraint()
-        parsed.add_range(not(hasfalse), hastrue)
-
-        return parsed, hastrue + hasfalse 
-
-    def next(self):
-        """ Returns next element from the domain, respecting any value
-            constraints.  If there is no next element, returns first 
-            element from the domain. """
-        if self._value == self._range.min_value:
-            self._value = self._range.max_value
-        else:
-            self._value = self._range.min_value
-
-        return self._value
-
     

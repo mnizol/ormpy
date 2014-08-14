@@ -55,157 +55,64 @@
 <span class="c"># Author:  Matthew Nizol</span>
 <span class="c">##############################################################################</span>
 
-<span class="sd">&quot;&quot;&quot; The Domain.py module implements the domains that underly value types. &quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot; The Domain.py module implements the domains that underly value types. </span>
+<span class="sd">    More specifically, classes in the module provide a means to generate</span>
+<span class="sd">    a set of values conforming to a particular data type.  For example, ::</span>
+
+<span class="sd">        my_int = IntegerDomain(10)</span>
+
+<span class="sd">    will produce a set containing the first 10 unsigned integers.  &quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="kn">from</span> <span class="nn">lib.Constraint</span> <span class="kn">import</span> <span class="n">ValueConstraint</span>
+<span class="n">MAX_SIZE</span> <span class="o">=</span> <span class="mi">1000000</span> <span class="c"># Essentially arbitrary.  Set well-below sys.maxsize.</span>
 
-<div class="viewcode-block" id="Domain"><a class="viewcode-back" href="../../lib.html#lib.Domain.Domain">[docs]</a><span class="k">class</span> <span class="nc">Domain</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A domain, which is essentially a data type that permits you to </span>
-<span class="sd">        enumerate the valid values via a call to the next() function. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Domain"><a class="viewcode-back" href="../../lib.html#lib.Domain.Domain">[docs]</a><span class="k">class</span> <span class="nc">Domain</span><span class="p">(</span><span class="nb">set</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A domain, which is a set of values conforming to a data type. &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">=</span> <span class="n">MAX_SIZE</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize the domain. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_constraint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_constraint</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span>
- 
-        <span class="c"># Start at last value so first call to next() returns first value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_range_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_constraint</span><span class="o">.</span><span class="n">ranges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_range</span><span class="o">.</span><span class="n">max_value</span> <span class="c"># A value from the domain  </span>
-     
-    <span class="k">def</span> <span class="nf">_parse_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Return a tuple containing the parsed value constraint</span>
-<span class="sd">            for the domain and the size of the domain. &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
-
-<div class="viewcode-block" id="Domain.next"><a class="viewcode-back" href="../../lib.html#lib.Domain.Domain.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Returns next element from the domain, respecting any value</span>
-<span class="sd">            constraints.  If there is no next element, returns first </span>
-<span class="sd">            element from the domain. &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_size</span> <span class="o">=</span> <span class="n">MAX_SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_size</span><span class="p">)</span>
 </div>
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Returns the current value range. &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constraint</span><span class="o">.</span><span class="n">ranges</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_index</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">_next_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Increment index to point to next range. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_range_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_range_index</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_range_index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_constraint</span><span class="o">.</span><span class="n">ranges</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_range_index</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">def</span> <span class="nf">_next_min</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Increment to next range and return min value. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_next_range</span><span class="p">()</span>            
-        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_range</span><span class="o">.</span><span class="n">min_value</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+<div class="viewcode-block" id="IntegerDomain"><a class="viewcode-back" href="../../lib.html#lib.Domain.IntegerDomain">[docs]</a><span class="k">class</span> <span class="nc">IntegerDomain</span><span class="p">(</span><span class="n">Domain</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An Integer domain. &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize. &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">IntegerDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="nb">set</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+        
 </div>
-<div class="viewcode-block" id="NumericDomain"><a class="viewcode-back" href="../../lib.html#lib.Domain.NumericDomain">[docs]</a><span class="k">class</span> <span class="nc">NumericDomain</span><span class="p">(</span><span class="n">Domain</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A numeric domain. By default, acts an integer domain, but can </span>
-<span class="sd">        be inherited by other types (e.g. float) to create other domains. &quot;&quot;&quot;</span>
-    
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cast</span><span class="o">=</span><span class="nb">int</span><span class="p">):</span>
+<div class="viewcode-block" id="FloatDomain"><a class="viewcode-back" href="../../lib.html#lib.Domain.FloatDomain">[docs]</a><span class="k">class</span> <span class="nc">FloatDomain</span><span class="p">(</span><span class="n">Domain</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A domain for floating point numbers.  &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span><span class="o">**</span><span class="n">precision</span> <span class="c"># Add to _value to get next value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cast</span> <span class="o">=</span> <span class="n">cast</span> <span class="c"># Intended data type, e.g. int, float</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_precision</span> <span class="o">=</span> <span class="n">precision</span> <span class="c"># Number of decimal places for rounding</span>
-
-        <span class="k">if</span> <span class="n">constraint</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">constraint</span> <span class="o">=</span> <span class="n">ValueConstraint</span><span class="p">()</span>
-            <span class="n">constraint</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
-
-        <span class="nb">super</span><span class="p">(</span><span class="n">NumericDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">constraint</span><span class="o">=</span><span class="n">constraint</span><span class="p">)</span>
-
-    
-    <span class="k">def</span> <span class="nf">_parse_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Return a tuple containing the parsed value constraint</span>
-<span class="sd">            for the domain and the size of the domain. &quot;&quot;&quot;</span>
-        
-        <span class="n">parsed</span> <span class="o">=</span> <span class="n">ValueConstraint</span><span class="p">()</span>
-        <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="k">for</span> <span class="n">rng</span> <span class="ow">in</span> <span class="n">constraint</span><span class="o">.</span><span class="n">ranges</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">min_value</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">min_value</span> <span class="o">+</span> <span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">min_open</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">)</span>
-                <span class="n">max_value</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">max_value</span> <span class="o">-</span> <span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">max_open</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">)</span>
-                <span class="n">min_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cast</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span>
-                <span class="n">max_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cast</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span> <span class="c"># Ignore this range</span>
-                <span class="k">continue</span>
-    
-            <span class="k">if</span> <span class="n">min_value</span> <span class="o">&gt;</span> <span class="n">max_value</span><span class="p">:</span> <span class="c"># Ignore this range</span>
-                <span class="k">continue</span>
-
-            <span class="n">parsed</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">)</span>
-            <span class="n">size</span> <span class="o">+=</span> <span class="nb">round</span><span class="p">((</span><span class="n">max_value</span> <span class="o">-</span> <span class="n">min_value</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">parsed</span><span class="p">,</span> <span class="n">size</span> 
-
-<div class="viewcode-block" id="NumericDomain.next"><a class="viewcode-back" href="../../lib.html#lib.Domain.NumericDomain.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Returns next element from the domain, respecting any value</span>
-<span class="sd">            constraints.  If there is no next element, returns first </span>
-<span class="sd">            element from the domain. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precision</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
-        <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cast</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_range</span><span class="o">.</span><span class="n">max_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precision</span><span class="p">))</span>
-        
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">&gt;</span> <span class="n">limit</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_min</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
-</div></div>
-<div class="viewcode-block" id="FloatDomain"><a class="viewcode-back" href="../../lib.html#lib.Domain.FloatDomain">[docs]</a><span class="k">class</span> <span class="nc">FloatDomain</span><span class="p">(</span><span class="n">NumericDomain</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A domain for floating point numbers.  Only generates numbers</span>
-<span class="sd">        in increments of 0.1, so the size of the domain is limited to</span>
-<span class="sd">        0 to sys.maxsize * 10. &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialize. &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">FloatDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">constraint</span><span class="o">=</span><span class="n">constraint</span><span class="p">,</span> 
-            <span class="n">precision</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cast</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    </div>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FloatDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">/</span> <span class="mf">10.0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
+        <span class="nb">set</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="BoolDomain"><a class="viewcode-back" href="../../lib.html#lib.Domain.BoolDomain">[docs]</a><span class="k">class</span> <span class="nc">BoolDomain</span><span class="p">(</span><span class="n">Domain</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A domain for boolean (True/False) values. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize. &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">constraint</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">constraint</span> <span class="o">=</span> <span class="n">ValueConstraint</span><span class="p">()</span>
-            <span class="n">constraint</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BoolDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">]</span>
+        <span class="nb">set</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="StrDomain"><a class="viewcode-back" href="../../lib.html#lib.Domain.StrDomain">[docs]</a><span class="k">class</span> <span class="nc">StrDomain</span><span class="p">(</span><span class="n">Domain</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A domain for string values. &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize. &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">StrDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
+        <span class="nb">set</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">(</span><span class="n">BoolDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">constraint</span><span class="o">=</span><span class="n">constraint</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_parse_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Return a tuple containing the parsed value constraint</span>
-<span class="sd">            for the domain and the size of the domain. &quot;&quot;&quot;</span>
-        
-        <span class="n">hastrue</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="n">hasfalse</span> <span class="o">=</span> <span class="bp">False</span>
-
-        <span class="k">for</span> <span class="n">rng</span> <span class="ow">in</span> <span class="n">constraint</span><span class="o">.</span><span class="n">ranges</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">min_value</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">max_value</span><span class="p">):</span>
-                <span class="n">hastrue</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">min_value</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">max_value</span><span class="p">)):</span>
-                <span class="n">hasfalse</span> <span class="o">=</span> <span class="bp">True</span>
-
-        <span class="n">parsed</span> <span class="o">=</span> <span class="n">ValueConstraint</span><span class="p">()</span>
-        <span class="n">parsed</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="ow">not</span><span class="p">(</span><span class="n">hasfalse</span><span class="p">),</span> <span class="n">hastrue</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">parsed</span><span class="p">,</span> <span class="n">hastrue</span> <span class="o">+</span> <span class="n">hasfalse</span> 
-
-<div class="viewcode-block" id="BoolDomain.next"><a class="viewcode-back" href="../../lib.html#lib.Domain.BoolDomain.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Returns next element from the domain, respecting any value</span>
-<span class="sd">            constraints.  If there is no next element, returns first </span>
-<span class="sd">            element from the domain. &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_range</span><span class="o">.</span><span class="n">min_value</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_range</span><span class="o">.</span><span class="n">max_value</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_range</span><span class="o">.</span><span class="n">min_value</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
-
-    </div></div>
+    </div>
 </pre></div>
 
           </div>

@@ -61,53 +61,60 @@
 
 <span class="kn">import</span> <span class="nn">lib.Domain</span> <span class="kn">as</span> <span class="nn">Domain</span>
 
-<span class="kn">from</span> <span class="nn">lib.Constraint</span> <span class="kn">import</span> <span class="n">ValueConstraint</span>
-
 <div class="viewcode-block" id="TestDomain"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain">[docs]</a><span class="k">class</span> <span class="nc">TestDomain</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Unit tests for the Domain module. &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TestDomain.setUp"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="TestDomain.test_create_domain"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_create_domain">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Test creation of a domain. &quot;&quot;&quot;</span>
-
-
-
-</div></div>
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../test.html#test.TestDomain.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">cons</span> <span class="o">=</span> <span class="n">ValueConstraint</span><span class="p">()</span>
-    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">min_open</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">dom</span> <span class="o">=</span> <span class="n">NumericDomain</span><span class="p">(</span><span class="n">constraint</span><span class="o">=</span><span class="n">cons</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
-        <span class="k">print</span> <span class="n">dom</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>  
-
-
-    <span class="k">print</span> <span class="s">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span>
-    <span class="n">cons</span> <span class="o">=</span> <span class="n">ValueConstraint</span><span class="p">()</span>
-    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mf">4.4</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mf">5.31</span><span class="p">)</span>
-    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">min_open</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">dom</span> <span class="o">=</span> <span class="n">FloatDomain</span><span class="p">(</span><span class="n">constraint</span><span class="o">=</span><span class="n">cons</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
-        <span class="k">print</span> <span class="n">dom</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>  
-
-    <span class="k">print</span> <span class="s">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span>
-    <span class="n">dom</span> <span class="o">=</span> <span class="n">BoolDomain</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
-        <span class="k">print</span> <span class="n">dom</span><span class="o">.</span><span class="n">next</span><span class="p">()</span> 
-
-    <span class="k">print</span> <span class="s">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span>
-    <span class="n">cons</span> <span class="o">=</span> <span class="n">ValueConstraint</span><span class="p">()</span>
-    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">dom</span> <span class="o">=</span> <span class="n">BoolDomain</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
-        <span class="k">print</span> <span class="n">dom</span><span class="o">.</span><span class="n">next</span><span class="p">()</span> 
+<div class="viewcode-block" id="TestDomain.test_int_domain"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_int_domain">[docs]</a>    <span class="k">def</span> <span class="nf">test_int_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test an IntegerDomain. &quot;&quot;&quot;</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">max_size</span><span class="p">,</span> <span class="n">Domain</span><span class="o">.</span><span class="n">MAX_SIZE</span><span class="p">)</span>
 </div>
-<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">main</span><span class="p">()</span>
-</pre></div>
+<div class="viewcode-block" id="TestDomain.test_float_domain"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_float_domain">[docs]</a>    <span class="k">def</span> <span class="nf">test_float_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a FloatDomain. &quot;&quot;&quot;</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">Domain</span><span class="o">.</span><span class="n">FloatDomain</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">max_size</span><span class="p">,</span> <span class="n">Domain</span><span class="o">.</span><span class="n">MAX_SIZE</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestDomain.test_bool_domain_full"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_bool_domain_full">[docs]</a>    <span class="k">def</span> <span class="nf">test_bool_domain_full</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a complete BoolDomain. &quot;&quot;&quot;</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">Domain</span><span class="o">.</span><span class="n">BoolDomain</span><span class="p">()</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">max_size</span><span class="p">,</span> <span class="n">Domain</span><span class="o">.</span><span class="n">MAX_SIZE</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestDomain.test_bool_domain_partial"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_bool_domain_partial">[docs]</a>    <span class="k">def</span> <span class="nf">test_bool_domain_partial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a complete BoolDomain. &quot;&quot;&quot;</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">Domain</span><span class="o">.</span><span class="n">BoolDomain</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">max_size</span><span class="p">,</span> <span class="n">Domain</span><span class="o">.</span><span class="n">MAX_SIZE</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestDomain.test_string_domain_no_prefix"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_string_domain_no_prefix">[docs]</a>    <span class="k">def</span> <span class="nf">test_string_domain_no_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a StrDomain with no prefix. &quot;&quot;&quot;</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">Domain</span><span class="o">.</span><span class="n">StrDomain</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;0&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="s">&#39;3&#39;</span><span class="p">,</span> <span class="s">&#39;4&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">max_size</span><span class="p">,</span> <span class="n">Domain</span><span class="o">.</span><span class="n">MAX_SIZE</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestDomain.test_string_domain_prefix"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_string_domain_prefix">[docs]</a>    <span class="k">def</span> <span class="nf">test_string_domain_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a StrDomain with a prefix. &quot;&quot;&quot;</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">Domain</span><span class="o">.</span><span class="n">StrDomain</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&#39;Test&#39;</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Test0&#39;</span><span class="p">,</span> <span class="s">&#39;Test1&#39;</span><span class="p">,</span> <span class="s">&#39;Test2&#39;</span><span class="p">,</span> <span class="s">&#39;Test3&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">actual</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+          
+</pre></div></div></div>
 
           </div>
         </div>

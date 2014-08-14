@@ -10,6 +10,7 @@ from unittest import TestCase
 
 import lib.Domain as Domain
 
+import sys
 from datetime import date, time, datetime
 
 class TestDomain(TestCase):
@@ -29,8 +30,8 @@ class TestDomain(TestCase):
     Commented out because it takes almost a second to run.
     def test_full_domain(self):
         """ Test an exceeded domain. """
-        actual = Domain.IntegerDomain(Domain.MAX_SIZE + 1)
-        expected = range(Domain.MAX_SIZE)
+        actual = Domain.IntegerDomain(sys.maxsize + 1)
+        expected = range(sys.maxsize)
         self.assertItemsEqual(actual, expected)
         self.assertEquals(actual.size, actual.max_size)
     '''
@@ -41,7 +42,7 @@ class TestDomain(TestCase):
         expected = [0, 1, 2, 3, 4, 5, 6, 7]
         self.assertItemsEqual(actual, expected)
         self.assertEquals(actual.size, 8)
-        self.assertEquals(actual.max_size, Domain.MAX_SIZE)
+        self.assertEquals(actual.max_size, sys.maxsize)
 
     def test_float_domain(self):
         """ Test a FloatDomain. """
@@ -49,7 +50,7 @@ class TestDomain(TestCase):
         expected = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1]
         self.assertItemsEqual(actual, expected)
         self.assertEquals(actual.size, 12)
-        self.assertEquals(actual.max_size, Domain.MAX_SIZE)
+        self.assertEquals(actual.max_size, sys.maxsize)
 
     def test_bool_domain_full(self):
         """ Test a complete BoolDomain. """
@@ -73,7 +74,7 @@ class TestDomain(TestCase):
         expected = ['0', '1', '2', '3', '4']
         self.assertItemsEqual(actual, expected)
         self.assertEquals(actual.size, 5)
-        self.assertEquals(actual.max_size, Domain.MAX_SIZE)
+        self.assertEquals(actual.max_size, sys.maxsize)
 
     def test_string_domain_prefix(self):
         """ Test a StrDomain with a prefix. """
@@ -93,7 +94,10 @@ class TestDomain(TestCase):
         actual = Domain.DateDomain(3, start=date(1961,2,28))
         expected = [date(1961,2,28), date(1961,3,1), date(1961,3,2)]
         self.assertItemsEqual(actual, expected)
-        self.assertEqual(actual.max_size, Domain.MAX_SIZE)
+
+        diff = (date(9999,12,31) - date(1961,2,28)).total_seconds()
+        diff = int(diff) / (60*60*24)
+        self.assertEqual(actual.max_size, diff + 1)
 
     def test_date_overflow(self):
         """ Confirm date domain does not overflow. """

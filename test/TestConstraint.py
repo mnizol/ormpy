@@ -24,32 +24,83 @@ class TestConstraint(TestCase):
         cons.cover(ObjectType(uid="2", name="O1"))
         self.assertEquals(cons.covers[0].name, "O1")
 
-    def test_add_ranges_default_open(self):
+    def test_vc_add_enum(self):
+        """ Test the addition of enumerated items to a value constraint."""
+        cons = Constraint.ValueConstraint(uid="1", name="VC1")
+        cons.add_range("Dog", "Dog")
+        cons.add_range("Cat")
+        cons.add_range(1.35)
+        cons.add_range(9)
+        self.assertItemsEqual(cons.domain, set(["Dog","Cat", 1.35,9]))
+        self.assertEquals(cons.size, 4)
+
+    def test_vc_bad_enum(self):
+        """ Test invalid enumerations in value constraint. """
+        cons = Constraint.ValueConstraint()
+        with self.assertRaises(Constraint.ValueConstraintError) as ex:
+            cons.add_range("Dog", max_open=True)
+        self.assertEquals(ex.exception.message, 
+            "Value constraints only support integer ranges")
+
+        with self.assertRaises(Constraint.ValueConstraintError) as ex:
+            cons.add_range("Dog", min_open=True)
+        self.assertEquals(ex.exception.message, 
+            "Value constraints only support integer ranges")
+
+    def test_vc_bad_ranges(self):
+        """ Test a value constraint with a range of non-integers. """
+        cons = Constraint.ValueConstraint()
+        with self.assertRaises(Constraint.ValueConstraintError) as ex:
+            cons.add_range("1.45", "5.6")
+        self.assertEquals(ex.exception.message,
+            "Value constraints only support integer ranges")
+
+    def test_vc_int_ranges(self):
         """ Test the addition of value ranges to a value constraint 
             with default inclusion values. """
         cons = Constraint.ValueConstraint(uid="1", name="VC1")
-        cons.add_range("1", "2")
-        self.assertEquals(cons.ranges[0].min_value, "1")
-        self.assertEquals(cons.ranges[0].max_value, "2")
-        self.assertFalse(cons.ranges[0].min_open)
-        self.assertFalse(cons.ranges[0].max_open)
+        cons.add_range("1", "4")
+        self.assertItemsEqual(cons.domain, set([1,2,3,4]))
+        self.assertEquals(cons.size, 4)
+        cons.add_range("3", "5")
+        self.assertItemsEqual(cons.domain, set([1,2,3,4,5]))
 
-    def test_add_ranges_explicit_open(self):
+    def test_vc_int_ranges_open(self):
         """ Test the addition of value ranges to a value constraint 
             with explicit inclusion values. """
         cons = Constraint.ValueConstraint(uid="1", name="VC1")
         cons.add_range("1", "2", min_open=True)
         cons.add_range("5", "10", max_open=True)
+        cons.add_range("11", "13", min_open=True, max_open=True)
+        self.assertItemsEqual(cons.domain, set([2,5,6,7,8,9,12]))
+        self.assertEquals(cons.size, 7)
 
-        self.assertEquals(cons.ranges[0].min_value, "1")
-        self.assertEquals(cons.ranges[0].max_value, "2")
-        self.assertTrue(cons.ranges[0].min_open)
-        self.assertFalse(cons.ranges[0].max_open)
+    def test_vc_invalid_range(self):
+        """ Test a value constraint with an invalid integer range. """
+        cons = Constraint.ValueConstraint()
+        with self.assertRaises(Constraint.ValueConstraintError) as ex:
+            cons.add_range("12", "13", min_open=True, max_open=True)
+        self.assertEquals(ex.exception.message,
+            "The range of the value constraint is invalid")
 
-        self.assertEquals(cons.ranges[1].min_value, "5")
-        self.assertEquals(cons.ranges[1].max_value, "10")
-        self.assertFalse(cons.ranges[1].min_open)
-        self.assertTrue(cons.ranges[1].max_open)
+        with self.assertRaises(Constraint.ValueConstraintError) as ex:
+            cons.add_range("3", "2")
+        self.assertEquals(ex.exception.message,
+            "The range of the value constraint is invalid")
+
+    def test_vc_too_large(self):
+        """ Test a value constraint range that is too large. """
+        cons = Constraint.ValueConstraint()
+        with self.assertRaises(Constraint.ValueConstraintError) as ex:
+            cons.add_range(0, Constraint.ValueConstraint.MAX_SIZE)
+        self.assertEquals(ex.exception.message,
+            "The range of the value constraint is too large")
+
+        cons = Constraint.ValueConstraint()
+        with self.assertRaises(Constraint.ValueConstraintError) as ex:
+            cons.add_range(75, float('inf'))
+        self.assertEquals(ex.exception.message,
+            "Value constraints only support integer ranges")       
 
     def test_add_subset_roles(self):
         """ Test adding subset roles to subset constraint. """

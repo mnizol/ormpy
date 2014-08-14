@@ -172,8 +172,16 @@
   <dt><a href="lib.html#lib.ObjectType.ValueType.data_type_scale">data_type_scale (lib.ObjectType.ValueType attribute)</a>
   </dt>
 
+      
+  <dt><a href="lib.html#lib.Domain.DateDomain">DateDomain (class in lib.Domain)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="lib.html#lib.Domain.DateTimeDomain">DateTimeDomain (class in lib.Domain)</a>
+  </dt>
+
       
   <dt><a href="lib.html#lib.Model.Model.display">display() (lib.Model.Model method)</a>
   </dt>
@@ -194,6 +202,10 @@
       </dl></dd>
       
   <dt><a href="lib.html#lib.Domain.Domain">Domain (class in lib.Domain)</a>
+  </dt>
+
+      
+  <dt><a href="lib.html#lib.Constraint.ValueConstraint.domain">domain (lib.Constraint.ValueConstraint attribute)</a>
   </dt>
 
   </dl></td>
@@ -407,11 +419,7 @@
   </dt>
 
       
-  <dt><a href="lib.html#lib.Constraint.ValueRange.max_open">max_open (lib.Constraint.ValueRange attribute)</a>
-  </dt>
-
-      
-  <dt><a href="lib.html#lib.Constraint.ValueRange.max_value">max_value (lib.Constraint.ValueRange attribute)</a>
+  <dt><a href="lib.html#lib.Constraint.ValueConstraint.MAX_SIZE">MAX_SIZE (lib.Constraint.ValueConstraint attribute)</a>
   </dt>
 
       
@@ -420,14 +428,6 @@
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="lib.html#lib.Constraint.ValueRange.min_open">min_open (lib.Constraint.ValueRange attribute)</a>
-  </dt>
-
-      
-  <dt><a href="lib.html#lib.Constraint.ValueRange.min_value">min_value (lib.Constraint.ValueRange attribute)</a>
-  </dt>
-
       
   <dt><a href="lib.html#lib.Model.Model">Model (class in lib.Model)</a>
   </dt>
@@ -529,10 +529,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="lib.html#lib.Constraint.ValueConstraint.ranges">ranges (lib.Constraint.ValueConstraint attribute)</a>
-  </dt>
-
-      
   <dt><a href="lib.html#lib.ORMMinus.Inequality.result">result() (lib.ORMMinus.Inequality method)</a>
   </dt>
 
@@ -554,12 +550,12 @@
   <dt><a href="lib.html#lib.ORMMinus.Inequality.rhs">rhs (lib.ORMMinus.Inequality attribute)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="lib.html#lib.FactType.Role">Role (class in lib.FactType)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="lib.html#lib.FactType.FactType.roles">roles (lib.FactType.FactType attribute)</a>
   </dt>
@@ -610,6 +606,10 @@
 
       
   <dt><a href="lib.html#lib.Constraint.MandatoryConstraint.simple">simple (lib.Constraint.MandatoryConstraint attribute)</a>
+  </dt>
+
+      
+  <dt><a href="lib.html#lib.Constraint.ValueConstraint.size">size (lib.Constraint.ValueConstraint attribute)</a>
   </dt>
 
       
@@ -757,6 +757,30 @@
   </dt>
 
       
+  <dt><a href="test.html#test.TestDomain.TestDomain.test_date_domain">test_date_domain() (test.TestDomain.TestDomain method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestDomain.TestDomain.test_date_domain_default">test_date_domain_default() (test.TestDomain.TestDomain method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestDomain.TestDomain.test_date_overflow">test_date_overflow() (test.TestDomain.TestDomain method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestDomain.TestDomain.test_datetime_domain">test_datetime_domain() (test.TestDomain.TestDomain method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestDomain.TestDomain.test_datetime_domain_default">test_datetime_domain_default() (test.TestDomain.TestDomain method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestDomain.TestDomain.test_datetime_domain_overflow">test_datetime_domain_overflow() (test.TestDomain.TestDomain method)</a>
+  </dt>
+
+      
   <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_deprecated_join">test_deprecated_join() (test.TestNormaLoader.TestNormaLoader method)</a>
   </dt>
 
@@ -785,15 +809,19 @@
 
       </dl></dd>
       
-  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_empty_model">test_empty_model() (test.TestNormaLoader.TestNormaLoader method)</a>
+  <dt><a href="test.html#test.TestDomain.TestDomain.test_empty_domain">test_empty_domain() (test.TestDomain.TestDomain method)</a>
   </dt>
 
       
-  <dt><a href="test.html#test.TestDomain.TestDomain.test_float_domain">test_float_domain() (test.TestDomain.TestDomain method)</a>
+  <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_empty_model">test_empty_model() (test.TestNormaLoader.TestNormaLoader method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="test.html#test.TestDomain.TestDomain.test_float_domain">test_float_domain() (test.TestDomain.TestDomain method)</a>
+  </dt>
+
       
   <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_forced_implicit">test_forced_implicit() (test.TestNormaLoader.TestNormaLoader method)</a>
   </dt>
@@ -875,6 +903,18 @@
   </dt>
 
       
+  <dt><a href="test.html#test.TestDomain.TestDomain.test_time_domain">test_time_domain() (test.TestDomain.TestDomain method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestDomain.TestDomain.test_time_domain_default">test_time_domain_default() (test.TestDomain.TestDomain method)</a>
+  </dt>
+
+      
+  <dt><a href="test.html#test.TestDomain.TestDomain.test_time_overflow">test_time_overflow() (test.TestDomain.TestDomain method)</a>
+  </dt>
+
+      
   <dt><a href="test.html#test.TestNormaLoader.TestNormaLoader.test_uniqueness_constraint">test_uniqueness_constraint() (test.TestNormaLoader.TestNormaLoader method)</a>
   </dt>
 
@@ -912,6 +952,10 @@
 
       
   <dt><a href="test.html#test.TestORMMinus.TestORMMinus">TestORMMinus (class in test.TestORMMinus)</a>
+  </dt>
+
+      
+  <dt><a href="lib.html#lib.Domain.TimeDomain">TimeDomain (class in lib.Domain)</a>
   </dt>
 
       
@@ -959,7 +1003,7 @@
   </dt>
 
       
-  <dt><a href="lib.html#lib.Constraint.ValueRange">ValueRange (class in lib.Constraint)</a>
+  <dt><a href="lib.html#lib.Constraint.ValueConstraintException">ValueConstraintException</a>
   </dt>
 
       

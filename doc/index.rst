@@ -9,7 +9,7 @@ Welcome to ORMPY's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    lib
    test

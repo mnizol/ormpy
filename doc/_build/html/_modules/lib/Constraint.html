@@ -90,28 +90,77 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_element</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="ValueConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint">[docs]</a><span class="k">class</span> <span class="nc">ValueConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A value constraint. &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot; A value constraint.  This implementation supports only a limited</span>
+<span class="sd">        form of value constraint: specifically, enumerations (i.e. min</span>
+<span class="sd">        value = max value), bounded integer ranges, or a combination</span>
+<span class="sd">        of the two.  For example:</span>
+<span class="sd"> </span>
+<span class="sd">        *Supported:*</span>
+
+<span class="sd">        * {&#39;Dog&#39;, &#39;Cat&#39;, &#39;Monkey&#39;}</span>
+<span class="sd">        * {1..25, 20..30}</span>
+<span class="sd">        * {1.54, 1.78, 1.99}</span>
+<span class="sd">        * {2001/12/31, 2002/02/13}</span>
+<span class="sd">        * {&#39;Dog&#39;, 1..25, &#39;Cat&#39;, 1.45, 20..30}</span>
+
+<span class="sd">        *Not supported:*</span>
+
+<span class="sd">        * Range of text values: {&#39;Dog&#39;..&#39;Donna&#39;}</span>
+<span class="sd">        * Unbounded integer range: {&gt;1}</span>
+<span class="sd">        * Invalid range: {3..2}</span>
+<span class="sd">        * Range of float values: {3.6..3.7}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
     
+    <span class="n">MAX_SIZE</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c">#: Arbitrary, for performance.</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ValueConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
-        <span class="c">#: List of value ranges (:class:`lib.Constraint.ValueRange`)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ranges</span> <span class="o">=</span> <span class="p">[]</span> 
+        <span class="c">#: set of valid values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> 
 
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ValueConstraint.size"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The number of items in the domain defined by the constraint. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="ValueConstraint.add_range"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.add_range">[docs]</a>    <span class="k">def</span> <span class="nf">add_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">min_open</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add a range of values to the constraint. &quot;&quot;&quot;</span>
-        <span class="n">value_range</span> <span class="o">=</span> <span class="n">ValueRange</span><span class="p">(</span><span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">min_open</span><span class="p">,</span> <span class="n">max_open</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ranges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value_range</span><span class="p">)</span>
-        </div></div>
-<div class="viewcode-block" id="ValueRange"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueRange">[docs]</a><span class="k">class</span> <span class="nc">ValueRange</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A range of values. &quot;&quot;&quot;</span>
-    
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">min_open</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_value</span> <span class="o">=</span> <span class="n">min_value</span> <span class="c">#: Minimum value of the range</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="o">=</span> <span class="n">max_value</span> <span class="c">#: Maximum value of the range</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_open</span> <span class="o">=</span> <span class="n">min_open</span>   <span class="c">#: True if minimum value excluded from range</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_open</span> <span class="o">=</span> <span class="n">max_open</span>   <span class="c">#: True if maximum value excluded from range</span>
-</div>
+        <span class="k">if</span> <span class="n">min_value</span> <span class="o">==</span> <span class="n">max_value</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="n">min_open</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="n">max_open</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span>  <span class="c"># Single element of any data type.</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c"># Possible range of integers</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">min_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">min_open</span> <span class="o">==</span> <span class="bp">True</span><span class="p">)</span>
+                <span class="n">max_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">max_open</span> <span class="o">==</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Value constraints only support integer ranges&quot;</span>
+                <span class="k">raise</span> <span class="n">ValueConstraintException</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="c"># If we reach this point, we are working with a range of integers.</span>
+            <span class="k">if</span> <span class="n">min_int</span> <span class="o">&gt;</span> <span class="n">max_int</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;The range of the value constraint is invalid&quot;</span>
+                <span class="k">raise</span> <span class="n">ValueConstraintException</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">max_int</span> <span class="o">-</span> <span class="n">min_int</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ValueConstraint</span><span class="o">.</span><span class="n">MAX_SIZE</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;The range of the value constraint is too large&quot;</span>
+                <span class="k">raise</span> <span class="n">ValueConstraintException</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">min_int</span><span class="p">,</span> <span class="n">max_int</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+</div></div>
+<div class="viewcode-block" id="ValueConstraintException"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraintException">[docs]</a><span class="k">class</span> <span class="nc">ValueConstraintException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An exception raised by an invalid value constraint. &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+        </div>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">class ValueRange(object):</span>
+<span class="sd">    &quot;&quot;&quot; A range of values. &quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    def __init__(self, min_value, max_value, min_open=False, max_open=False):</span>
+<span class="sd">        self.min_value = min_value #: Minimum value of the range</span>
+<span class="sd">        self.max_value = max_value #: Maximum value of the range</span>
+<span class="sd">        self.min_open = min_open   #: True if minimum value excluded from range</span>
+<span class="sd">        self.max_open = max_open   #: True if maximum value excluded from range</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
 <div class="viewcode-block" id="SubtypeConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubtypeConstraint">[docs]</a><span class="k">class</span> <span class="nc">SubtypeConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A subtype constraint. &quot;&quot;&quot;</span>
 

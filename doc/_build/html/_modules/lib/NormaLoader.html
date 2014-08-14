@@ -66,12 +66,12 @@
 <span class="sd">    * ormRoot: http://schemas.neumont.edu/ORM/2006-04/ORMRoot </span>
 <span class="sd">    * orm: http://schemas.neumont.edu/ORM/2006-04/ORMCore</span>
 
-<span class="sd">    NormaLoader intentionally ignores much of the .orm file structure when</span>
-<span class="sd">    loading the file into a :class:`lib.Model.Model` object (much of the .orm</span>
-<span class="sd">    file is not relevant to the analyses performed by ORMPY).  All information</span>
-<span class="sd">    outside of the &lt;orm:ORMModel&gt; node is ignored, which includes things</span>
-<span class="sd">    like diagram (shape) data and extensions.  NormaLoader also ignores the </span>
-<span class="sd">    following (not necessarily exhaustive) list of items:</span>
+<span class="sd">    **Omissions:** NormaLoader intentionally ignores much of the .orm file </span>
+<span class="sd">    structure when loading the file into a :class:`lib.Model.Model` object </span>
+<span class="sd">    (much of the .orm file is not relevant to the analyses performed by ORMPY).</span>
+<span class="sd">    All information outside of the &lt;orm:ORMModel&gt; node is ignored, which </span>
+<span class="sd">    includes things like diagram (shape) data and extensions.  NormaLoader </span>
+<span class="sd">    also ignores the following (not necessarily exhaustive) list of items:</span>
 
 <span class="sd">    * Sample (instance) data</span>
 <span class="sd">    * Model elements not explicitly modeled by the modeler (implicit elements)</span>
@@ -85,6 +85,11 @@
 <span class="sd">    A list of important model elements (such as derivations </span>
 <span class="sd">    and constraints) that are ignored by NormaLoader is contained in the</span>
 <span class="sd">    *omissions* attribute after loading the input file.</span>
+
+<span class="sd">    **Data Types:** NormaLoader maps all data types specified in the .orm file</span>
+<span class="sd">    into one of the following Python types: int, str, float, bool, date,</span>
+<span class="sd">    datetime, or time. NormaLoader ignores the length and scale facets </span>
+<span class="sd">    specified in the .orm file.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="kn">as</span> <span class="nn">xml</span>

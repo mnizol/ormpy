@@ -15,12 +15,12 @@
     * ormRoot: http://schemas.neumont.edu/ORM/2006-04/ORMRoot 
     * orm: http://schemas.neumont.edu/ORM/2006-04/ORMCore
 
-    NormaLoader intentionally ignores much of the .orm file structure when
-    loading the file into a :class:`lib.Model.Model` object (much of the .orm
-    file is not relevant to the analyses performed by ORMPY).  All information
-    outside of the <orm:ORMModel> node is ignored, which includes things
-    like diagram (shape) data and extensions.  NormaLoader also ignores the 
-    following (not necessarily exhaustive) list of items:
+    **Omissions:** NormaLoader intentionally ignores much of the .orm file 
+    structure when loading the file into a :class:`lib.Model.Model` object 
+    (much of the .orm file is not relevant to the analyses performed by ORMPY).
+    All information outside of the <orm:ORMModel> node is ignored, which 
+    includes things like diagram (shape) data and extensions.  NormaLoader 
+    also ignores the following (not necessarily exhaustive) list of items:
 
     * Sample (instance) data
     * Model elements not explicitly modeled by the modeler (implicit elements)
@@ -34,6 +34,11 @@
     A list of important model elements (such as derivations 
     and constraints) that are ignored by NormaLoader is contained in the
     *omissions* attribute after loading the input file.
+
+    **Data Types:** NormaLoader maps all data types specified in the .orm file
+    into one of the following Python types: int, str, float, bool, date,
+    datetime, or time. NormaLoader ignores the length and scale facets 
+    specified in the .orm file.
 """
 
 import xml.etree.cElementTree as xml

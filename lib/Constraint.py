@@ -39,28 +39,69 @@ class Constraint(ModelElement):
         self.covers.append(model_element)
 
 class ValueConstraint(Constraint):
-    """ A value constraint. """
+    """ A value constraint.  This implementation supports only a limited
+        form of value constraint: specifically, enumerations (i.e. min
+        value == max value), bounded integer ranges, or a combination
+        of the two.  For example:
+ 
+        *Supported:*
+
+        * {'Dog', 'Cat', 'Monkey'}
+        * {1..25, 20..30}
+        * {1.54, 1.78, 1.99}
+        * {2001/12/31, 2002/02/13}
+        * {'Dog', 1..25, 'Cat', 1.45, 20..30}
+
+        *Not supported:*
+
+        * Range of text values: {'Dog'..'Donna'}
+        * Unbounded integer range: {>1}
+        * Invalid range: {3..2}
+        * Range of float values: {3.6..3.7}
+        """
     
+    MAX_SIZE = 1000 #: Arbitrary, for performance.
+
     def __init__(self, uid=None, name=None):
         super(ValueConstraint, self).__init__(uid=uid, name=name)
 
-        #: List of value ranges (:class:`lib.Constraint.ValueRange`)
-        self.ranges = [] 
+        #: set of valid values
+        self.domain = set() 
 
-    def add_range(self, min_value, max_value, min_open=False, max_open=False):
+    @property
+    def size(self):
+        """ The number of items in the domain defined by the constraint. """
+        return len(self.domain)
+
+    def add_range(self, min_value, max_value=None, min_open=False, max_open=False):
         """ Add a range of values to the constraint. """
-        value_range = ValueRange(min_value, max_value, min_open, max_open)
-        self.ranges.append(value_range)
-        
-class ValueRange(object):
-    """ A range of values. """
-    
-    def __init__(self, min_value, max_value, min_open=False, max_open=False):
-        self.min_value = min_value #: Minimum value of the range
-        self.max_value = max_value #: Maximum value of the range
-        self.min_open = min_open   #: True if minimum value excluded from range
-        self.max_open = max_open   #: True if maximum value excluded from range
+        if max_value is None: # Easier specification of enumerations
+            max_value = min_value
 
+        if min_value == max_value and not(min_open) and not(max_open):
+            self.domain.add(min_value)  # Single element of any data type.
+        else: # Possible range of integers
+            try:
+                min_int = int(min_value) + (min_open == True)
+                max_int = int(max_value) - (max_open == True)
+            except (ValueError, OverflowError):
+                msg = "Value constraints only support integer ranges"
+                raise ValueConstraintError(msg)
+
+            # If we reach this point, we are working with a range of integers.
+            if min_int > max_int:
+                msg = "The range of the value constraint is invalid"
+                raise ValueConstraintError(msg)
+            if (max_int - min_int + 1 + self.size) > ValueConstraint.MAX_SIZE:
+                msg = "The range of the value constraint is too large"
+                raise ValueConstraintError(msg)
+            else:
+                self.domain.update(range(min_int, max_int+1))
+
+class ValueConstraintError(Exception):
+    """ An exception raised by an invalid value constraint. """
+    pass
+        
 class SubtypeConstraint(Constraint):
     """ A subtype constraint. """
 

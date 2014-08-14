@@ -12,17 +12,16 @@
 
     will produce a set containing the first 10 unsigned integers.  """
 
-MAX_SIZE = 1000000 # Essentially arbitrary.  Set well below sys.maxsize.
-
+import sys
 import datetime # For constants
 from datetime import date, time, timedelta # Do not include datetime class
 
 class Domain(set):
     """ A domain, which is a set of values conforming to a data type. """
     
-    def __init__(self, size, max_size = MAX_SIZE):
+    def __init__(self, size, max_size = sys.maxsize):
         """ Initialize the domain. """
-        self.max_size = min(max_size, MAX_SIZE)
+        self.max_size = min(max_size, sys.maxsize)
         self.size = min(size, self.max_size)
 
 class IntegerDomain(Domain):

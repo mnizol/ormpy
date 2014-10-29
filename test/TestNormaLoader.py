@@ -191,25 +191,9 @@ class TestNormaLoader(TestCase):
         self.assertEquals(cons1.uid, "_9F61B75E-FB59-456F-97A9-E4CF104FABE5")
         self.assertIs(cons1.covers[0], model.object_types.get("A"))
 
-        self.assertEquals(cons1.ranges[0].min_value, "1")
-        self.assertEquals(cons1.ranges[0].max_value, "2")
-        self.assertFalse(cons1.ranges[0].min_open)
-        self.assertFalse(cons1.ranges[0].max_open)
-
-        self.assertEquals(cons1.ranges[1].min_value, "5")
-        self.assertEquals(cons1.ranges[1].max_value, "6")
-        self.assertTrue(cons1.ranges[1].min_open)
-        self.assertFalse(cons1.ranges[1].max_open) 
-
-        self.assertEquals(cons1.ranges[2].min_value, "10")
-        self.assertEquals(cons1.ranges[2].max_value, "20")
-        self.assertFalse(cons1.ranges[2].min_open)
-        self.assertTrue(cons1.ranges[2].max_open)  
-
-        self.assertEquals(cons1.ranges[3].min_value, "100")
-        self.assertEquals(cons1.ranges[3].max_value, "200")
-        self.assertTrue(cons1.ranges[3].min_open)
-        self.assertTrue(cons1.ranges[3].max_open) 
+        expected = set([1,2,6] + range(10,20) + range(101, 200))
+        self.assertEquals(cons1.domain, expected)
+        self.assertEquals(cons1.size, 112)
 
     def test_load_fact_types(self):
         """ Confirm fact types load successfully. """
@@ -217,14 +201,14 @@ class TestNormaLoader(TestCase):
         model = loader.model
 
         # Confirm reference scheme fact type loads
-        ftype1 = model.fact_types.get("AHasA_id")
+        ftype1 = model.fact_types.get("AHasAId")
         self.assertEquals(ftype1.uid, "_8C96FD40-5E82-4E8F-B5EE-C6CEE8BCF74B")
         self.assertIsInstance(ftype1, FactType)  
 
         # Confirm derivation rule added to omissions
         self.assertItemsEqual(loader.omissions, 
             ["Fact type derivation rule for AHasB",
-             "Fact type derivation rule for AHasA_id"])
+             "Fact type derivation rule for AHasAId"])
 
         # Check role player
         typea = model.object_types.get("A")
@@ -245,20 +229,9 @@ class TestNormaLoader(TestCase):
         # Test role value constraint
         cons1 = model.constraints.get("RoleValueConstraint1")
 
-        self.assertEquals(cons1.ranges[0].min_value, "A")
-        self.assertEquals(cons1.ranges[0].max_value, "B")
-        self.assertFalse(cons1.ranges[0].min_open)
-        self.assertFalse(cons1.ranges[0].max_open)
+        expected = set(['A', 'Dog', '3.567', '12/23/2014'])
+        self.assertEquals(cons1.domain, expected)
 
-        self.assertEquals(cons1.ranges[1].min_value, "C")
-        self.assertEquals(cons1.ranges[1].max_value, "E")
-        self.assertTrue(cons1.ranges[1].min_open)
-        self.assertFalse(cons1.ranges[1].max_open) 
-
-        self.assertEquals(cons1.ranges[2].min_value, "F")
-        self.assertEquals(cons1.ranges[2].max_value, "G")
-        self.assertFalse(cons1.ranges[2].min_open)
-        self.assertTrue(cons1.ranges[2].max_open) 
 
     def test_forced_implicit(self):
         """ Exercise branch in _load_fact_types when arity() = 0. """

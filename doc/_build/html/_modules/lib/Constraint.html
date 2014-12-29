@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -55,7 +53,7 @@
 <span class="c"># Author:  Matthew Nizol</span>
 <span class="c">##############################################################################</span>
 
-<span class="sd">&quot;&quot;&quot; This module provides a class for ORM constraints.  </span>
+<span class="sd">&quot;&quot;&quot; This module provides a class for ORM constraints.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">lib.ModelElement</span> <span class="kn">import</span> <span class="n">ModelElementSet</span><span class="p">,</span> <span class="n">ModelElement</span>
@@ -73,28 +71,28 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Constraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
-        <span class="c">#: Roles or object types the constraint covers </span>
+        <span class="c">#: Roles or object types the constraint covers</span>
         <span class="c">#: (:class:`lib.FactType.RoleSequence`)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="n">RoleSequence</span><span class="p">()</span>
 
         <span class="c">#: True if constraint has alethic modality (False implies deontic)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">alethic</span> <span class="o">=</span> <span class="bp">True</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">alethic</span> <span class="o">=</span> <span class="bp">True</span>
 
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="Constraint.fullname"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.fullname">[docs]</a>    <span class="k">def</span> <span class="nf">fullname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;Constraints.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-</div>
+    <span class="c">#@property</span>
+    <span class="c">#def fullname(self):</span>
+    <span class="c">#    return &quot;Constraints.&quot; + self.name</span>
+
 <div class="viewcode-block" id="Constraint.cover"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.cover">[docs]</a>    <span class="k">def</span> <span class="nf">cover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_element</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add a model element to the list of elements covered by </span>
+        <span class="sd">&quot;&quot;&quot; Add a model element to the list of elements covered by</span>
 <span class="sd">            the constraint. &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_element</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="ValueConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint">[docs]</a><span class="k">class</span> <span class="nc">ValueConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A value constraint.  This implementation supports only a limited</span>
 <span class="sd">        form of value constraint: specifically, enumerations (i.e. min</span>
-<span class="sd">        value = max value), bounded integer ranges, or a combination</span>
+<span class="sd">        value == max value), bounded integer ranges, or a combination</span>
 <span class="sd">        of the two.  For example:</span>
-<span class="sd"> </span>
+
 <span class="sd">        *Supported:*</span>
 
 <span class="sd">        * {&#39;Dog&#39;, &#39;Cat&#39;, &#39;Monkey&#39;}</span>
@@ -110,67 +108,59 @@
 <span class="sd">        * Invalid range: {3..2}</span>
 <span class="sd">        * Range of float values: {3.6..3.7}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-    
+
     <span class="n">MAX_SIZE</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c">#: Arbitrary, for performance.</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ValueConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
         <span class="c">#: set of valid values</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="ValueConstraint.size"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The number of items in the domain defined by the constraint. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ValueConstraint.add_range"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.add_range">[docs]</a>    <span class="k">def</span> <span class="nf">add_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">min_open</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ValueConstraint.add_range"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.add_range">[docs]</a>    <span class="k">def</span> <span class="nf">add_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">min_open</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add a range of values to the constraint. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">max_value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># Easier specification of enumerations</span>
+            <span class="n">max_value</span> <span class="o">=</span> <span class="n">min_value</span>
+
         <span class="k">if</span> <span class="n">min_value</span> <span class="o">==</span> <span class="n">max_value</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="n">min_open</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="n">max_open</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span>  <span class="c"># Single element of any data type.</span>
         <span class="k">else</span><span class="p">:</span> <span class="c"># Possible range of integers</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">min_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">min_open</span> <span class="o">==</span> <span class="bp">True</span><span class="p">)</span>
                 <span class="n">max_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">max_open</span> <span class="o">==</span> <span class="bp">True</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">OverflowError</span><span class="p">):</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Value constraints only support integer ranges&quot;</span>
-                <span class="k">raise</span> <span class="n">ValueConstraintException</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">ValueConstraintError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
             <span class="c"># If we reach this point, we are working with a range of integers.</span>
             <span class="k">if</span> <span class="n">min_int</span> <span class="o">&gt;</span> <span class="n">max_int</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;The range of the value constraint is invalid&quot;</span>
-                <span class="k">raise</span> <span class="n">ValueConstraintException</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">ValueConstraintError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">max_int</span> <span class="o">-</span> <span class="n">min_int</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ValueConstraint</span><span class="o">.</span><span class="n">MAX_SIZE</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;The range of the value constraint is too large&quot;</span>
-                <span class="k">raise</span> <span class="n">ValueConstraintException</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">ValueConstraintError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">min_int</span><span class="p">,</span> <span class="n">max_int</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
 </div></div>
-<div class="viewcode-block" id="ValueConstraintException"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraintException">[docs]</a><span class="k">class</span> <span class="nc">ValueConstraintException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="ValueConstraintError"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraintError">[docs]</a><span class="k">class</span> <span class="nc">ValueConstraintError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An exception raised by an invalid value constraint. &quot;&quot;&quot;</span>
     <span class="k">pass</span>
-        </div>
-<span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">class ValueRange(object):</span>
-<span class="sd">    &quot;&quot;&quot; A range of values. &quot;&quot;&quot;</span>
-<span class="sd">    </span>
-<span class="sd">    def __init__(self, min_value, max_value, min_open=False, max_open=False):</span>
-<span class="sd">        self.min_value = min_value #: Minimum value of the range</span>
-<span class="sd">        self.max_value = max_value #: Maximum value of the range</span>
-<span class="sd">        self.min_open = min_open   #: True if minimum value excluded from range</span>
-<span class="sd">        self.max_open = max_open   #: True if maximum value excluded from range</span>
-<span class="sd">&#39;&#39;&#39;</span>
-
+</div>
 <div class="viewcode-block" id="SubtypeConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubtypeConstraint">[docs]</a><span class="k">class</span> <span class="nc">SubtypeConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A subtype constraint. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SubtypeConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">subtype</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Subtype object type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">supertype</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Supertype object type</span>
 
-        <span class="c">#: True if subtype constraint is on path to preferred id.  This is </span>
+        <span class="c">#: True if subtype constraint is on path to preferred id.  This is</span>
         <span class="c">#: relevant if the subtype inherits one of its supertypes&#39; reference</span>
         <span class="c">#: schemes, and the supertype graph is not a simple path.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preferred_id</span> <span class="o">=</span> <span class="bp">None</span>
@@ -179,7 +169,7 @@
     <span class="sd">&quot;&quot;&quot; A mandatory constraint. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">MandatoryConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span> 
+        <span class="nb">super</span><span class="p">(</span><span class="n">MandatoryConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">simple</span> <span class="o">=</span> <span class="bp">False</span> <span class="c">#: True for simple mandatory constraints</span>
 </div>
@@ -193,7 +183,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">subset</span> <span class="o">=</span> <span class="n">RoleSequence</span><span class="p">()</span>
 
         <span class="c">#: Sequence of superset roles (:class:`lib.FactType.RoleSequence`)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">superset</span> <span class="o">=</span> <span class="n">RoleSequence</span><span class="p">()</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">superset</span> <span class="o">=</span> <span class="n">RoleSequence</span><span class="p">()</span>
 
 <div class="viewcode-block" id="SubsetConstraint.cover_subset"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubsetConstraint.cover_subset">[docs]</a>    <span class="k">def</span> <span class="nf">cover_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add a role to the list of subset roles covered by this</span>
@@ -211,13 +201,13 @@
     <span class="sd">&quot;&quot;&quot; A uniqueness constraint. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span> 
-        
+        <span class="nb">super</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
         <span class="c">#: True if constraint covers roles in one fact type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">internal</span> <span class="o">=</span> <span class="bp">False</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">internal</span> <span class="o">=</span> <span class="bp">False</span>
 
         <span class="c">#: Object type this constraint identifies</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="o">=</span> <span class="bp">None</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="o">=</span> <span class="bp">None</span>
 </div>
 <div class="viewcode-block" id="FrequencyConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.FrequencyConstraint">[docs]</a><span class="k">class</span> <span class="nc">FrequencyConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A frequency constraint. &quot;&quot;&quot;</span>
@@ -272,7 +262,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, Matthew Nizol.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

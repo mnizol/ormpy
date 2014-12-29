@@ -4,7 +4,7 @@
 # Author:  Matthew Nizol
 ##############################################################################
 
-""" This module provides a class for ORM fact types.  
+""" This module provides a class for ORM fact types.
 """
 
 from lib.ModelElement import ModelElementSet, ModelElement
@@ -24,9 +24,9 @@ class FactType(ModelElement):
 
         self.roles = [] #: List of roles in the fact type
 
-    @property
-    def fullname(self):
-        return "FactTypes." + self.name
+    #@property
+    #def fullname(self):
+    #    return "FactTypes." + self.name
 
     def add(self, role):
         """ Add *role* to the fact type. """
@@ -41,13 +41,13 @@ class Role(ModelElement):
 
     def __init__(self, uid=None, name=None):
         super(Role, self).__init__(uid=uid, name=name)
-        
+
         fact_type = None #: Fact type to which role belongs
         player = None #: Object type that plays the role
 
-    @property
-    def fullname(self):
-        return "FactTypes." + self.fact_type.name + ".Roles." + self.name
+    #@property
+    #def fullname(self):
+    #    return "FactTypes." + self.fact_type.name + ".Roles." + self.name
 
 class SubtypeRole(Role):
     """ A subtype role. """

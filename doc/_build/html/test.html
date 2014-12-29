@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,14 +6,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>test Package &mdash; ORMPY 0.1 documentation</title>
+    <title>test package &mdash; ORMPY 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -26,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ORMPY 0.1 documentation" href="index.html" />
-    <link rel="prev" title="lib Package" href="lib.html" /> 
+    <link rel="prev" title="lib package" href="lib.html" /> 
   </head>
   <body>
     <div class="related">
@@ -39,7 +37,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="lib.html" title="lib Package"
+          <a href="lib.html" title="lib package"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">ORMPY 0.1 documentation</a> &raquo;</li> 
       </ul>
@@ -51,13 +49,12 @@
           <div class="body">
             
   <div class="section" id="test-package">
-<h1>test Package<a class="headerlink" href="#test-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
-<h2><a class="reference internal" href="#module-test" title="test"><tt class="xref py py-mod docutils literal"><span class="pre">test</span></tt></a> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-test"></span><p>The <strong>test</strong> package contains unit tests for the ORMPY project.</p>
+<h1>test package<a class="headerlink" href="#test-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-test.TestConstraint">
-<span id="testconstraint-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestConstraint</span></tt> Module<a class="headerlink" href="#module-test.TestConstraint" title="Permalink to this headline">¶</a></h2>
+<span id="test-testconstraint-module"></span><h2>test.TestConstraint module<a class="headerlink" href="#module-test.TestConstraint" title="Permalink to this headline">¶</a></h2>
 <p>This file contains unit tests for the lib.TestConstraint class</p>
 <dl class="class">
 <dt id="test.TestConstraint.TestConstraint">
@@ -76,20 +73,6 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="test.TestConstraint.TestConstraint.test_add_ranges_default_open">
-<tt class="descname">test_add_ranges_default_open</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_add_ranges_default_open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_add_ranges_default_open" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test the addition of value ranges to a value constraint 
-with default inclusion values.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="test.TestConstraint.TestConstraint.test_add_ranges_explicit_open">
-<tt class="descname">test_add_ranges_explicit_open</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_add_ranges_explicit_open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_add_ranges_explicit_open" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test the addition of value ranges to a value constraint 
-with explicit inclusion values.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="test.TestConstraint.TestConstraint.test_add_subset_roles">
 <tt class="descname">test_add_subset_roles</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_add_subset_roles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_add_subset_roles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test adding subset roles to subset constraint.</p>
@@ -101,11 +84,55 @@ with explicit inclusion values.</p>
 <dd><p>Test adding superset roles to subset constraint.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_vc_add_enum">
+<tt class="descname">test_vc_add_enum</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_vc_add_enum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_vc_add_enum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the addition of enumerated items to a value constraint.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_vc_bad_enum">
+<tt class="descname">test_vc_bad_enum</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_vc_bad_enum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_vc_bad_enum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test invalid enumerations in value constraint.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_vc_bad_ranges">
+<tt class="descname">test_vc_bad_ranges</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_vc_bad_ranges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_vc_bad_ranges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a value constraint with a range of non-integers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_vc_int_ranges">
+<tt class="descname">test_vc_int_ranges</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_vc_int_ranges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_vc_int_ranges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the addition of value ranges to a value constraint 
+with default inclusion values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_vc_int_ranges_open">
+<tt class="descname">test_vc_int_ranges_open</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_vc_int_ranges_open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_vc_int_ranges_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the addition of value ranges to a value constraint 
+with explicit inclusion values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_vc_invalid_range">
+<tt class="descname">test_vc_invalid_range</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_vc_invalid_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_vc_invalid_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a value constraint with an invalid integer range.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_vc_too_large">
+<tt class="descname">test_vc_too_large</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_vc_too_large"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_vc_too_large" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a value constraint range that is too large.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
 <div class="section" id="module-test.TestDomain">
-<span id="testdomain-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestDomain</span></tt> Module<a class="headerlink" href="#module-test.TestDomain" title="Permalink to this headline">¶</a></h2>
+<span id="test-testdomain-module"></span><h2>test.TestDomain module<a class="headerlink" href="#module-test.TestDomain" title="Permalink to this headline">¶</a></h2>
 <p>This file contains unit tests for the lib.Domain module.</p>
 <dl class="class">
 <dt id="test.TestDomain.TestDomain">
@@ -217,7 +244,7 @@ with explicit inclusion values.</p>
 
 </div>
 <div class="section" id="module-test.TestFactType">
-<span id="testfacttype-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestFactType</span></tt> Module<a class="headerlink" href="#module-test.TestFactType" title="Permalink to this headline">¶</a></h2>
+<span id="test-testfacttype-module"></span><h2>test.TestFactType module<a class="headerlink" href="#module-test.TestFactType" title="Permalink to this headline">¶</a></h2>
 <p>This file contains unit tests for the FactType module</p>
 <dl class="class">
 <dt id="test.TestFactType.TestFactType">
@@ -238,8 +265,120 @@ with explicit inclusion values.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-test.TestInequalitySystem">
+<span id="test-testinequalitysystem-module"></span><h2>test.TestInequalitySystem module<a class="headerlink" href="#module-test.TestInequalitySystem" title="Permalink to this headline">¶</a></h2>
+<p>This file contains unit tests for the lib.InequalitySystem module.</p>
+<dl class="class">
+<dt id="test.TestInequalitySystem.TestInequalitySystem">
+<em class="property">class </em><tt class="descclassname">test.TestInequalitySystem.</tt><tt class="descname">TestInequalitySystem</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Unit tests for the InequalitySystem module.</p>
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_add_inequalities_with_dupe_vars">
+<tt class="descname">test_add_inequalities_with_dupe_vars</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_add_inequalities_with_dupe_vars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_add_inequalities_with_dupe_vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test adding two inequalities to the system with overlapping vars.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_add_inequality">
+<tt class="descname">test_add_inequality</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_add_inequality"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_add_inequality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test adding an inequality to the system.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_change_candidate">
+<tt class="descname">test_change_candidate</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_change_candidate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_change_candidate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test change to candidate value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_create_custom_variable">
+<tt class="descname">test_create_custom_variable</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_create_custom_variable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_create_custom_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test creation of a variable with custom settings.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_create_default_variable">
+<tt class="descname">test_create_default_variable</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_create_default_variable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_create_default_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test creation of a variable with default settings.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_default_inequality">
+<tt class="descname">test_default_inequality</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_default_inequality"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_default_inequality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test an inequality with default settings.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_inequality">
+<tt class="descname">test_inequality</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_inequality"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_inequality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test an inequality with custom coefficient.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_invalid">
+<tt class="descname">test_invalid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_invalid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_invalid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a change to candidate value that invalidates bounds.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_product">
+<tt class="descname">test_product</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_product"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_product" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a normal Product class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_product_empty">
+<tt class="descname">test_product_empty</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_product_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_product_empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test an empty Product class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_simple_sat_system">
+<tt class="descname">test_simple_sat_system</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_simple_sat_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_simple_sat_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a simple satisfiable system.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_simple_unsat_system">
+<tt class="descname">test_simple_unsat_system</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_simple_unsat_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_simple_unsat_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a simple unsatisfiable system.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_stable">
+<tt class="descname">test_stable</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_stable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_stable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a change to candidate value that leaves bounds unchanged.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_sum">
+<tt class="descname">test_sum</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a normal Sum class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_sum_empty">
+<tt class="descname">test_sum_empty</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_sum_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_sum_empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test an empty Sum class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_unsat_system_from_paper">
+<tt class="descname">test_unsat_system_from_paper</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_unsat_system_from_paper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_unsat_system_from_paper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test an unsatisfiable system of inequalities from Smaragdakis.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-test.TestModel">
-<span id="testmodel-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestModel</span></tt> Module<a class="headerlink" href="#module-test.TestModel" title="Permalink to this headline">¶</a></h2>
+<span id="test-testmodel-module"></span><h2>test.TestModel module<a class="headerlink" href="#module-test.TestModel" title="Permalink to this headline">¶</a></h2>
 <p>This file contains unit tests for <a class="reference internal" href="lib.html#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">lib.Model.Model</span></tt></a></p>
 <dl class="class">
 <dt id="test.TestModel.TestModel">
@@ -267,7 +406,7 @@ with explicit inclusion values.</p>
 
 </div>
 <div class="section" id="module-test.TestModelElement">
-<span id="testmodelelement-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestModelElement</span></tt> Module<a class="headerlink" href="#module-test.TestModelElement" title="Permalink to this headline">¶</a></h2>
+<span id="test-testmodelelement-module"></span><h2>test.TestModelElement module<a class="headerlink" href="#module-test.TestModelElement" title="Permalink to this headline">¶</a></h2>
 <p>This file contains unit tests for the ModelElement and ModelElementSet
 classes.</p>
 <dl class="class">
@@ -320,7 +459,7 @@ classes.</p>
 
 </div>
 <div class="section" id="module-test.TestNormaLoader">
-<span id="testnormaloader-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestNormaLoader</span></tt> Module<a class="headerlink" href="#module-test.TestNormaLoader" title="Permalink to this headline">¶</a></h2>
+<span id="test-testnormaloader-module"></span><h2>test.TestNormaLoader module<a class="headerlink" href="#module-test.TestNormaLoader" title="Permalink to this headline">¶</a></h2>
 <p>This file contains unit tests for the lib.NormaLoader class</p>
 <dl class="class">
 <dt id="test.TestNormaLoader.TestNormaLoader">
@@ -507,27 +646,9 @@ is unexpected.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-test.TestORMMinus">
-<span id="testormminus-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">TestORMMinus</span></tt> Module<a class="headerlink" href="#module-test.TestORMMinus" title="Permalink to this headline">¶</a></h2>
-<p>This file contains unit tests for the lib.ORMMinus module.</p>
-<dl class="class">
-<dt id="test.TestORMMinus.TestORMMinus">
-<em class="property">class </em><tt class="descclassname">test.TestORMMinus.</tt><tt class="descname">TestORMMinus</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
-<p>Unit tests for the ORMMinus module.</p>
-<dl class="method">
-<dt id="test.TestORMMinus.TestORMMinus.setUp">
-<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.setUp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="test.TestORMMinus.TestORMMinus.test_create_variable">
-<tt class="descname">test_create_variable</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_create_variable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_create_variable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test creation of a variable.</p>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="module-test">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-test" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>test</strong> package contains unit tests for the ORMPY project.</p>
 </div>
 </div>
 
@@ -539,22 +660,23 @@ is unexpected.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">test Package</a><ul>
-<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">test</span></tt> Package</a></li>
-<li><a class="reference internal" href="#module-test.TestConstraint"><tt class="docutils literal"><span class="pre">TestConstraint</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-test.TestDomain"><tt class="docutils literal"><span class="pre">TestDomain</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-test.TestFactType"><tt class="docutils literal"><span class="pre">TestFactType</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-test.TestModel"><tt class="docutils literal"><span class="pre">TestModel</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-test.TestModelElement"><tt class="docutils literal"><span class="pre">TestModelElement</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-test.TestNormaLoader"><tt class="docutils literal"><span class="pre">TestNormaLoader</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-test.TestORMMinus"><tt class="docutils literal"><span class="pre">TestORMMinus</span></tt> Module</a></li>
+<li><a class="reference internal" href="#">test package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-test.TestConstraint">test.TestConstraint module</a></li>
+<li><a class="reference internal" href="#module-test.TestDomain">test.TestDomain module</a></li>
+<li><a class="reference internal" href="#module-test.TestFactType">test.TestFactType module</a></li>
+<li><a class="reference internal" href="#module-test.TestInequalitySystem">test.TestInequalitySystem module</a></li>
+<li><a class="reference internal" href="#module-test.TestModel">test.TestModel module</a></li>
+<li><a class="reference internal" href="#module-test.TestModelElement">test.TestModelElement module</a></li>
+<li><a class="reference internal" href="#module-test.TestNormaLoader">test.TestNormaLoader module</a></li>
+<li><a class="reference internal" href="#module-test">Module contents</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="lib.html"
-                        title="previous chapter">lib Package</a></p>
+                        title="previous chapter">lib package</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/test.txt"
@@ -587,14 +709,14 @@ is unexpected.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="lib.html" title="lib Package"
+          <a href="lib.html" title="lib package"
              >previous</a> |</li>
         <li><a href="index.html">ORMPY 0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Matthew Nizol.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

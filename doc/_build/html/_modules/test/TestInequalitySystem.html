@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>test.TestInequalitySystem &mdash; ORMPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ORMPY 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for test.TestInequalitySystem</h1><div class="highlight"><pre>
+<span class="c">##############################################################################</span>
+<span class="c"># Package: ormpy</span>
+<span class="c"># File:    TestInequalitySystem.py</span>
+<span class="c"># Author:  Matthew Nizol</span>
+<span class="c">##############################################################################</span>
+
+<span class="sd">&quot;&quot;&quot; This file contains unit tests for the lib.InequalitySystem module. &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">lib.InequalitySystem</span> <span class="kn">as</span> <span class="nn">IneqSys</span>
+<span class="kn">from</span> <span class="nn">lib.InequalitySystem</span> <span class="kn">import</span> <span class="n">_VariableStatus</span>
+
+<div class="viewcode-block" id="TestInequalitySystem"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem">[docs]</a><span class="k">class</span> <span class="nc">TestInequalitySystem</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Unit tests for the InequalitySystem module. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestInequalitySystem.setUp"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_create_default_variable"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_create_default_variable">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_default_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test creation of a variable with default settings. &quot;&quot;&quot;</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s">&quot;inf&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">_candidate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">valid</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_create_custom_variable"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_create_custom_variable">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_custom_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    	<span class="sd">&quot;&quot;&quot; Test creation of a variable with custom settings. &quot;&quot;&quot;</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">_candidate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">valid</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_change_candidate"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_change_candidate">[docs]</a>    <span class="k">def</span> <span class="nf">test_change_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    	<span class="sd">&quot;&quot;&quot; Test change to candidate value. &quot;&quot;&quot;</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">declare_less_than</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">_candidate</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">valid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">is_stable</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">is_invalid</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_stable"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_stable">[docs]</a>    <span class="k">def</span> <span class="nf">test_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a change to candidate value that leaves bounds unchanged. &quot;&quot;&quot;</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">declare_less_than</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">_candidate</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c"># Unchanged</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">stable</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">is_stable</span><span class="p">())</span>
+
+        </div>
+<div class="viewcode-block" id="TestInequalitySystem.test_invalid"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_invalid">[docs]</a>    <span class="k">def</span> <span class="nf">test_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a change to candidate value that invalidates bounds. &quot;&quot;&quot;</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">declare_less_than</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">invalid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">is_invalid</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_sum_empty"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_sum_empty">[docs]</a>    <span class="k">def</span> <span class="nf">test_sum_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test an empty Sum class. &quot;&quot;&quot;</span>
+        <span class="n">sum1</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">sum1</span><span class="o">.</span><span class="n">result</span><span class="p">(),</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">sum1</span><span class="o">.</span><span class="n">tostring</span><span class="p">(),</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_sum"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_sum">[docs]</a>    <span class="k">def</span> <span class="nf">test_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a normal Sum class. &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+        <span class="n">sum1</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">sum1</span><span class="o">.</span><span class="n">result</span><span class="p">(),</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">sum1</span><span class="o">.</span><span class="n">tostring</span><span class="p">(),</span> <span class="s">&quot;x + y&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_product_empty"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_product_empty">[docs]</a>    <span class="k">def</span> <span class="nf">test_product_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test an empty Product class. &quot;&quot;&quot;</span>
+        <span class="n">prod1</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Product</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">prod1</span><span class="o">.</span><span class="n">result</span><span class="p">(),</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">prod1</span><span class="o">.</span><span class="n">tostring</span><span class="p">(),</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_product"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_product">[docs]</a>    <span class="k">def</span> <span class="nf">test_product</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a normal Product class. &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+        <span class="n">prod1</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Product</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">prod1</span><span class="o">.</span><span class="n">result</span><span class="p">(),</span> <span class="mi">35</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">prod1</span><span class="o">.</span><span class="n">tostring</span><span class="p">(),</span> <span class="s">&quot;x * y&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_default_inequality"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_default_inequality">[docs]</a>    <span class="k">def</span> <span class="nf">test_default_inequality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test an inequality with default settings. &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+       
+        <span class="n">ineq</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ineq</span><span class="o">.</span><span class="n">_coeff</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ineq</span><span class="o">.</span><span class="n">tostring</span><span class="p">(),</span> <span class="s">&quot;x &lt;= y + z&quot;</span><span class="p">)</span>
+
+        <span class="n">ineq</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">70</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">valid</span><span class="p">)</span>
+        
+     </div>
+<div class="viewcode-block" id="TestInequalitySystem.test_inequality"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_inequality">[docs]</a>    <span class="k">def</span> <span class="nf">test_inequality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test an inequality with custom coefficient. &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+       
+        <span class="n">ineq</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">coeff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lhs</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ineq</span><span class="o">.</span><span class="n">_coeff</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ineq</span><span class="o">.</span><span class="n">tostring</span><span class="p">(),</span> <span class="s">&quot;10 * x &lt;= y + z&quot;</span><span class="p">)</span> 
+
+        <span class="n">ineq</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">is_invalid</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_add_inequality"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_add_inequality">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_inequality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test adding an inequality to the system. &quot;&quot;&quot;</span>
+        <span class="n">sys</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">InequalitySystem</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="p">[</span><span class="n">q</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">_variables</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">})</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_add_inequalities_with_dupe_vars"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_add_inequalities_with_dupe_vars">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_inequalities_with_dupe_vars</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test adding two inequalities to the system with overlapping vars.&quot;&quot;&quot;</span>
+        <span class="n">sys</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">InequalitySystem</span><span class="p">()</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">w</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">]))</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">w</span><span class="p">]))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">_variables</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;w&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">})</span>
+       </div>
+<div class="viewcode-block" id="TestInequalitySystem.test_simple_sat_system"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_simple_sat_system">[docs]</a>    <span class="k">def</span> <span class="nf">test_simple_sat_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a simple satisfiable system. &quot;&quot;&quot;</span>
+        <span class="n">sys</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">InequalitySystem</span><span class="p">()</span>
+
+        <span class="n">a</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;c&#39;</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">a</span><span class="p">]))</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Product</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]))</span>
+
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&#39;b&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&#39;b&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&#39;c&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&#39;c&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">2500</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestInequalitySystem.test_simple_unsat_system"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_simple_unsat_system">[docs]</a>    <span class="k">def</span> <span class="nf">test_simple_unsat_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a simple unsatisfiable system. &quot;&quot;&quot;</span>
+        <span class="n">sys</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">InequalitySystem</span><span class="p">()</span>
+
+        <span class="n">a</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&#39;c&#39;</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">a</span><span class="p">]))</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Product</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]))</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">c</span><span class="p">]))</span>
+
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+  </div>
+<div class="viewcode-block" id="TestInequalitySystem.test_unsat_system_from_paper"><a class="viewcode-back" href="../../test.html#test.TestInequalitySystem.TestInequalitySystem.test_unsat_system_from_paper">[docs]</a>    <span class="k">def</span> <span class="nf">test_unsat_system_from_paper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test an unsatisfiable system of inequalities from Smaragdakis. &quot;&quot;&quot;</span>
+        <span class="n">sys</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">InequalitySystem</span><span class="p">()</span>
+
+        <span class="c"># Two object types related by a binary fact type</span>
+        <span class="n">obj1</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&quot;obj1&quot;</span><span class="p">)</span>
+        <span class="n">obj2</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&quot;obj2&quot;</span><span class="p">)</span>
+        <span class="n">rol1</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&quot;rol1&quot;</span><span class="p">)</span>
+        <span class="n">rol2</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&quot;rol2&quot;</span><span class="p">)</span>
+        <span class="n">fact</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&quot;fact&quot;</span><span class="p">)</span>
+
+        <span class="c"># Constants</span>
+        <span class="n">cons1</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&quot;con1&quot;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">1000000</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">1000000</span><span class="p">)</span>
+        <span class="n">cons2</span> <span class="o">=</span> <span class="n">IneqSys</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s">&quot;con2&quot;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c"># Inequalities that represent Smaragdakis&#39; rules</span>
+
+        <span class="c"># Cardinality: # &gt;= 1000000 for obj1, # &lt;= 2 for obj2</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">cons1</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">obj1</span><span class="p">])))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">obj2</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">cons2</span><span class="p">])))</span>
+
+        <span class="c"># Role 1 is mandatory</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">obj1</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">rol1</span><span class="p">])))</span>
+
+        <span class="c"># Simple uniqueness constraints</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">fact</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">rol1</span><span class="p">])))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">fact</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">rol2</span><span class="p">])))</span>
+
+        <span class="c"># Semantics of roles        </span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">rol1</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">obj1</span><span class="p">])))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">rol1</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">fact</span><span class="p">])))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">rol2</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">fact</span><span class="p">])))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">rol2</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">IneqSys</span><span class="o">.</span><span class="n">Sum</span><span class="p">([</span><span class="n">obj2</span><span class="p">])))</span>
+
+        <span class="c"># Solve the system and assert that there is no solution</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        </div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Nizol.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

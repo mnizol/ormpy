@@ -22,10 +22,10 @@ def execute():
     # Parse Command Line
     parser = argparse.ArgumentParser(
         description='Object Role Modeling (ORM) Analysis Tool for Python')
-    parser.add_argument('-q', '--quiet', action='store_true', dest='quiet', 
+    parser.add_argument('-q', '--quiet', action='store_true', dest='quiet',
         default=False, help='suppress warning messages')
-    parser.add_argument('-m', '--print-model', action='store_true', 
-        dest='print_model', default=False, help='print model contents')        
+    parser.add_argument('-m', '--print-model', action='store_true',
+        dest='print_model', default=False, help='print model contents')
     parser.add_argument('filename', type=str, help='File containing ORM model')
     args = parser.parse_args()
 

@@ -4,8 +4,8 @@
 # Author:  Matthew Nizol
 ##############################################################################
 
-""" ObjectType.py provides classes for the various object types in ORM: 
-entity type, value type, and objectified type.  
+""" ObjectType.py provides classes for the various object types in ORM:
+entity type, value type, and objectified type.
 """
 
 from lib.ModelElement import ModelElementSet, ModelElement
@@ -25,9 +25,9 @@ class ObjectType(ModelElement):
         self.independent = False #: True for independent object types
         self.implicit = False    #: True for implicit object types
 
-    @property
-    def fullname(self):
-        return "ObjectTypes." + self.name
+    #@property
+    #def fullname(self):
+    #    return "ObjectTypes." + self.name
 
 class EntityType(ObjectType):
     """ An entity type is an object type that requires identification. """
@@ -37,7 +37,7 @@ class EntityType(ObjectType):
 
         #: Reference to the uniqueness constraint that provides the preferred
         #: identification scheme for this entity type.
-        self.identifying_constraint = None  
+        self.identifying_constraint = None
 
 class ValueType(ObjectType):
     """ A value type is a self-identifying object type. """
@@ -47,7 +47,7 @@ class ValueType(ObjectType):
 
         #: Python data type (mapped from the conceptual data type selected
         #: by the modeler)
-        self.data_type = None  
+        self.data_type = None
         self.data_type_scale = None  #: Scale facet for data_type
         self.data_type_length = None #: Length facet for data_type
 
@@ -65,4 +65,4 @@ class ObjectifiedType(ObjectType):
         self.nested_fact_type = None
 
 
-    
+

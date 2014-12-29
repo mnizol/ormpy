@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -55,7 +53,7 @@
 <span class="c"># Author:  Matthew Nizol</span>
 <span class="c">##############################################################################</span>
 
-<span class="sd">&quot;&quot;&quot; This module provides a class for ORM fact types.  </span>
+<span class="sd">&quot;&quot;&quot; This module provides a class for ORM fact types.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">lib.ModelElement</span> <span class="kn">import</span> <span class="n">ModelElementSet</span><span class="p">,</span> <span class="n">ModelElement</span>
@@ -75,10 +73,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">roles</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: List of roles in the fact type</span>
 
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="FactType.fullname"><a class="viewcode-back" href="../../lib.html#lib.FactType.FactType.fullname">[docs]</a>    <span class="k">def</span> <span class="nf">fullname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;FactTypes.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-</div>
+    <span class="c">#@property</span>
+    <span class="c">#def fullname(self):</span>
+    <span class="c">#    return &quot;FactTypes.&quot; + self.name</span>
+
 <div class="viewcode-block" id="FactType.add"><a class="viewcode-back" href="../../lib.html#lib.FactType.FactType.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add *role* to the fact type. &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
@@ -92,14 +90,14 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Role</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        
+
         <span class="n">fact_type</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Fact type to which role belongs</span>
         <span class="n">player</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Object type that plays the role</span>
 
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="Role.fullname"><a class="viewcode-back" href="../../lib.html#lib.FactType.Role.fullname">[docs]</a>    <span class="k">def</span> <span class="nf">fullname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;FactTypes.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact_type</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;.Roles.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-</div></div>
+    <span class="c">#@property</span>
+    <span class="c">#def fullname(self):</span>
+    <span class="c">#    return &quot;FactTypes.&quot; + self.fact_type.name + &quot;.Roles.&quot; + self.name</span>
+</div>
 <div class="viewcode-block" id="SubtypeRole"><a class="viewcode-back" href="../../lib.html#lib.FactType.SubtypeRole">[docs]</a><span class="k">class</span> <span class="nc">SubtypeRole</span><span class="p">(</span><span class="n">Role</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A subtype role. &quot;&quot;&quot;</span>
 
@@ -152,7 +150,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, Matthew Nizol.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

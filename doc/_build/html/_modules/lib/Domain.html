@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -55,7 +53,7 @@
 <span class="c"># Author:  Matthew Nizol</span>
 <span class="c">##############################################################################</span>
 
-<span class="sd">&quot;&quot;&quot; The Domain.py module implements the domains that underly value types. </span>
+<span class="sd">&quot;&quot;&quot; The Domain.py module implements the domains that underly value types.</span>
 <span class="sd">    More specifically, classes in the module provide a means to generate</span>
 <span class="sd">    a set of values conforming to a particular data type.  For example, ::</span>
 
@@ -69,23 +67,24 @@
 
 <div class="viewcode-block" id="Domain"><a class="viewcode-back" href="../../lib.html#lib.Domain.Domain">[docs]</a><span class="k">class</span> <span class="nc">Domain</span><span class="p">(</span><span class="nb">set</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A domain, which is a set of values conforming to a data type. &quot;&quot;&quot;</span>
-    
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize the domain. &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Domain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_size</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_size</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="IntegerDomain"><a class="viewcode-back" href="../../lib.html#lib.Domain.IntegerDomain">[docs]</a><span class="k">class</span> <span class="nc">IntegerDomain</span><span class="p">(</span><span class="n">Domain</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An integer domain containing the first &lt;size&gt; unsigned integers. &quot;&quot;&quot;</span>
-    
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize the set with the first &lt;size&gt; unsigned integers. &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">IntegerDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
         <span class="nb">set</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
-        
+
 </div>
 <div class="viewcode-block" id="FloatDomain"><a class="viewcode-back" href="../../lib.html#lib.Domain.FloatDomain">[docs]</a><span class="k">class</span> <span class="nc">FloatDomain</span><span class="p">(</span><span class="n">Domain</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A floating point domain.  Only contains floating point numbers </span>
+    <span class="sd">&quot;&quot;&quot; A floating point domain.  Only contains floating point numbers</span>
 <span class="sd">        in increments of 0.1 (e.g. 0.1, 0.2, 0.3, etc.).  &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
@@ -97,17 +96,17 @@
 <div class="viewcode-block" id="BoolDomain"><a class="viewcode-back" href="../../lib.html#lib.Domain.BoolDomain">[docs]</a><span class="k">class</span> <span class="nc">BoolDomain</span><span class="p">(</span><span class="n">Domain</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A domain for boolean (True/False) values. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize. &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">BoolDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BoolDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">]</span>
         <span class="nb">set</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">])</span>
 </div>
 <div class="viewcode-block" id="StrDomain"><a class="viewcode-back" href="../../lib.html#lib.Domain.StrDomain">[docs]</a><span class="k">class</span> <span class="nc">StrDomain</span><span class="p">(</span><span class="n">Domain</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A domain for string values. The constructor includes a prefix</span>
-<span class="sd">        parameter.  Generated strings are of the form &#39;prefix&lt;n&gt;&#39; </span>
+<span class="sd">        parameter.  Generated strings are of the form &#39;prefix&lt;n&gt;&#39;</span>
 <span class="sd">        where &lt;n&gt; is a monotonically increasing unsigned integer. &quot;&quot;&quot;</span>
-    
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize. &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">StrDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
@@ -118,10 +117,10 @@
     <span class="sd">&quot;&quot;&quot; A domain for date values.  Generated dates start on &lt;start&gt;</span>
 <span class="sd">        which defaults to January 1, 2000.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span><span class="mo">01</span><span class="p">,</span><span class="mo">01</span><span class="p">)):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mo">01</span><span class="p">,</span> <span class="mo">01</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot; Initialize. &quot;&quot;&quot;</span>
         <span class="n">max_days</span> <span class="o">=</span> <span class="p">(</span><span class="n">date</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">MAXYEAR</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">days</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">DateDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">=</span> <span class="n">max_days</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DateDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="n">max_days</span><span class="p">)</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
         <span class="nb">set</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 </div>
@@ -132,27 +131,25 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">time</span><span class="p">()):</span>
         <span class="sd">&quot;&quot;&quot; Initialize. &quot;&quot;&quot;</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">(),</span> <span class="n">start</span><span class="p">)</span>
-        <span class="n">stop</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">(),</span> <span class="n">time</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span><span class="mi">59</span><span class="p">))</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">(),</span> <span class="n">time</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">59</span><span class="p">))</span>
         <span class="n">max_mins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="mi">60</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">TimeDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">=</span> <span class="n">max_mins</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TimeDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="n">max_mins</span><span class="p">)</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">[(</span><span class="n">start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">i</span><span class="p">))</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
-        <span class="nb">set</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span> 
+        <span class="nb">set</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="DateTimeDomain"><a class="viewcode-back" href="../../lib.html#lib.Domain.DateTimeDomain">[docs]</a><span class="k">class</span> <span class="nc">DateTimeDomain</span><span class="p">(</span><span class="n">Domain</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A domain for datetime values.  Generated datetimes start on &lt;start&gt;</span>
 <span class="sd">        which defaults to January 1, 2000 at midnight and increment by</span>
 <span class="sd">        minutes.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span><span class="mo">01</span><span class="p">,</span><span class="mo">01</span><span class="p">)):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mo">01</span><span class="p">,</span> <span class="mo">01</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot; Initialize. &quot;&quot;&quot;</span>
         <span class="n">max_dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">MAXYEAR</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">59</span><span class="p">)</span>
         <span class="n">max_mins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">max_dt</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="mi">60</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">DateTimeDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">=</span> <span class="n">max_mins</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DateTimeDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="n">max_mins</span><span class="p">)</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
-        <span class="nb">set</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>      
-        
-    </div>
-</pre></div>
+        <span class="nb">set</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+</pre></div></div>
 
           </div>
         </div>
@@ -191,7 +188,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, Matthew Nizol.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

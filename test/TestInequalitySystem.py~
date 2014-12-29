@@ -1,0 +1,66 @@
+##############################################################################
+# Package: ormpy
+# File:    TestInequalitySystem.py
+# Author:  Matthew Nizol
+##############################################################################
+
+""" This file contains unit tests for the lib.InequalitySystem module. """
+
+from unittest import TestCase
+
+import sys
+
+import lib.InequalitySystem as IneqSys
+from lib.InequalitySystem import VariableStatus
+
+class TestInequalitySystem(TestCase):
+    """ Unit tests for the InequalitySystem module. """
+
+    def setUp(self):
+        pass
+
+    def test_create_default_variable(self):
+        """ Test creation of a variable with default settings. """
+        var = IneqSys.Variable()
+        self.assertEquals(var.lower, 1)
+        self.assertEquals(var.upper, float("inf"))
+        self.assertEquals(var.upper, var.candidate)
+        self.assertEquals(var.status, VariableStatus.valid)
+
+    def test_create_custom_variable(self):
+    	""" Test creation of a variable with custom settings. """
+        var = IneqSys.Variable(lower=5, upper=10)
+        self.assertEquals(var.lower, 5)
+        self.assertEquals(var.upper, 10)
+        self.assertEquals(var.upper, var.candidate)
+        self.assertEquals(var.status, VariableStatus.valid)
+
+    def test_change_candidate(self):
+    	""" Test change to candidate value. """
+        var = IneqSys.Variable(lower=5, upper=10)
+        var.declareLessThan(7)
+        self.assertEquals(var.candidate, 7)
+        var.update()
+        self.assertEquals(var.upper, 7)
+        self.assertEquals(var.status, VariableStatus.valid)
+
+    def test_stable(self):
+	""" Test a change to candidate value that leaves bounds unchanged. """
+        var = var = IneqSys.Variable(lower=5, upper=10)
+        var.declareLessThan(11)
+        self.assertEquals(var.candidate, 10) # Unchanged
+        var.update()
+        self.assertEquals(var.upper, 10)
+        self.assertEquals(var.status, VariableStatus.stable)
+
+        
+    def test_invalid(self):
+	""" Test a change to candidate value that invalidates bounds. """
+        var = var = IneqSys.Variable(lower=5, upper=10)
+        var.declareLessThan(4)
+        var.update()
+        self.assertEquals(var.upper, 4)
+        self.assertEquals(var.status, VariableStatus.invalid)
+               
+
+        

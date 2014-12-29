@@ -4,9 +4,9 @@
 # Author:  Matthew Nizol
 ##############################################################################
 
-""" Model.py provides a class to store a simplified ORM model 
-    consisting of a set of object types, a set of fact types, and a set of 
-    constraints.  
+""" Model.py provides a class to store a simplified ORM model
+    consisting of a set of object types, a set of fact types, and a set of
+    constraints.
 """
 
 from lib.ObjectType import ObjectTypeSet
@@ -29,7 +29,7 @@ class Model(object):
         #: (:class:`lib.Constraint.ConstraintSet`)
         self.constraints = ConstraintSet()
 
- 
+
     def display(self):
         """ Prints the model to stdout. """
         self.object_types.display()

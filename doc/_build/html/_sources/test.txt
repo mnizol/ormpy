@@ -1,67 +1,70 @@
-test Package
+test package
 ============
 
-:mod:`test` Package
--------------------
+Submodules
+----------
 
-.. automodule:: test
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`TestConstraint` Module
-----------------------------
+test.TestConstraint module
+--------------------------
 
 .. automodule:: test.TestConstraint
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`TestDomain` Module
-------------------------
+test.TestDomain module
+----------------------
 
 .. automodule:: test.TestDomain
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`TestFactType` Module
---------------------------
+test.TestFactType module
+------------------------
 
 .. automodule:: test.TestFactType
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`TestModel` Module
------------------------
+test.TestInequalitySystem module
+--------------------------------
+
+.. automodule:: test.TestInequalitySystem
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+test.TestModel module
+---------------------
 
 .. automodule:: test.TestModel
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`TestModelElement` Module
-------------------------------
+test.TestModelElement module
+----------------------------
 
 .. automodule:: test.TestModelElement
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`TestNormaLoader` Module
------------------------------
+test.TestNormaLoader module
+---------------------------
 
 .. automodule:: test.TestNormaLoader
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`TestORMMinus` Module
---------------------------
 
-.. automodule:: test.TestORMMinus
+Module contents
+---------------
+
+.. automodule:: test
     :members:
     :undoc-members:
     :show-inheritance:
-

@@ -55,7 +55,7 @@ class TestORMMinus(TestCase):
         # Constraint
         c1 = Constraint.Constraint(name="C1")
         var1 = ORMMinus.Variable(c1)
-        self.assertEquals(var1.name, "Constraints.C1")
+        self.assertEquals(var1.name, "Constraints.C")
 
         """
         # Value Type int

@@ -4,7 +4,7 @@
 # Author:  Matthew Nizol
 ##############################################################################
 
-""" This module provides a class for ORM constraints.  
+""" This module provides a class for ORM constraints.
 """
 
 from lib.ModelElement import ModelElementSet, ModelElement
@@ -22,19 +22,19 @@ class Constraint(ModelElement):
     def __init__(self, uid=None, name=None):
         super(Constraint, self).__init__(uid=uid, name=name)
 
-        #: Roles or object types the constraint covers 
+        #: Roles or object types the constraint covers
         #: (:class:`lib.FactType.RoleSequence`)
         self.covers = RoleSequence()
 
         #: True if constraint has alethic modality (False implies deontic)
-        self.alethic = True  
+        self.alethic = True
 
-    @property
-    def fullname(self):
-        return "Constraints." + self.name
+    #@property
+    #def fullname(self):
+    #    return "Constraints." + self.name
 
     def cover(self, model_element):
-        """ Add a model element to the list of elements covered by 
+        """ Add a model element to the list of elements covered by
             the constraint. """
         self.covers.append(model_element)
 
@@ -43,7 +43,7 @@ class ValueConstraint(Constraint):
         form of value constraint: specifically, enumerations (i.e. min
         value == max value), bounded integer ranges, or a combination
         of the two.  For example:
- 
+
         *Supported:*
 
         * {'Dog', 'Cat', 'Monkey'}
@@ -59,14 +59,14 @@ class ValueConstraint(Constraint):
         * Invalid range: {3..2}
         * Range of float values: {3.6..3.7}
         """
-    
+
     MAX_SIZE = 1000 #: Arbitrary, for performance.
 
     def __init__(self, uid=None, name=None):
         super(ValueConstraint, self).__init__(uid=uid, name=name)
 
         #: set of valid values
-        self.domain = set() 
+        self.domain = set()
 
     @property
     def size(self):
@@ -101,17 +101,17 @@ class ValueConstraint(Constraint):
 class ValueConstraintError(Exception):
     """ An exception raised by an invalid value constraint. """
     pass
-        
+
 class SubtypeConstraint(Constraint):
     """ A subtype constraint. """
 
     def __init__(self, uid=None, name=None):
         super(SubtypeConstraint, self).__init__(uid=uid, name=name)
-        
+
         self.subtype = None #: Subtype object type
         self.supertype = None #: Supertype object type
 
-        #: True if subtype constraint is on path to preferred id.  This is 
+        #: True if subtype constraint is on path to preferred id.  This is
         #: relevant if the subtype inherits one of its supertypes' reference
         #: schemes, and the supertype graph is not a simple path.
         self.preferred_id = None
@@ -120,7 +120,7 @@ class MandatoryConstraint(Constraint):
     """ A mandatory constraint. """
 
     def __init__(self, uid=None, name=None):
-        super(MandatoryConstraint, self).__init__(uid=uid, name=name) 
+        super(MandatoryConstraint, self).__init__(uid=uid, name=name)
 
         self.simple = False #: True for simple mandatory constraints
 
@@ -134,7 +134,7 @@ class SubsetConstraint(Constraint):
         self.subset = RoleSequence()
 
         #: Sequence of superset roles (:class:`lib.FactType.RoleSequence`)
-        self.superset = RoleSequence() 
+        self.superset = RoleSequence()
 
     def cover_subset(self, role):
         """ Add a role to the list of subset roles covered by this
@@ -152,13 +152,13 @@ class UniquenessConstraint(Constraint):
     """ A uniqueness constraint. """
 
     def __init__(self, uid=None, name=None):
-        super(UniquenessConstraint, self).__init__(uid=uid, name=name) 
-        
+        super(UniquenessConstraint, self).__init__(uid=uid, name=name)
+
         #: True if constraint covers roles in one fact type
-        self.internal = False 
+        self.internal = False
 
         #: Object type this constraint identifies
-        self.identifier_for = None 
+        self.identifier_for = None
 
 class FrequencyConstraint(Constraint):
     """ A frequency constraint. """

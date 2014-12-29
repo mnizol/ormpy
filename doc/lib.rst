@@ -1,83 +1,86 @@
-lib Package
+lib package
 ===========
 
-:mod:`lib` Package
-------------------
+Submodules
+----------
 
-.. automodule:: lib
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`CommandLine` Module
--------------------------
+lib.CommandLine module
+----------------------
 
 .. automodule:: lib.CommandLine
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`Constraint` Module
-------------------------
+lib.Constraint module
+---------------------
 
 .. automodule:: lib.Constraint
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`Domain` Module
---------------------
+lib.Domain module
+-----------------
 
 .. automodule:: lib.Domain
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`FactType` Module
-----------------------
+lib.FactType module
+-------------------
 
 .. automodule:: lib.FactType
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`Model` Module
--------------------
+lib.InequalitySystem module
+---------------------------
+
+.. automodule:: lib.InequalitySystem
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.Model module
+----------------
 
 .. automodule:: lib.Model
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`ModelElement` Module
---------------------------
+lib.ModelElement module
+-----------------------
 
 .. automodule:: lib.ModelElement
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`NormaLoader` Module
--------------------------
+lib.NormaLoader module
+----------------------
 
 .. automodule:: lib.NormaLoader
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`ORMMinus` Module
-----------------------
-
-.. automodule:: lib.ORMMinus
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`ObjectType` Module
-------------------------
+lib.ObjectType module
+---------------------
 
 .. automodule:: lib.ObjectType
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: lib
+    :members:
+    :undoc-members:
+    :show-inheritance:

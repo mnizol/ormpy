@@ -6,12 +6,12 @@
 
 """ ModelElement.py provides an abstract class for a model element (a generic
     element in a model from which an object type, fact type, and constraint
-    can be derived) as well as an abstract class for a set of model elements. 
+    can be derived) as well as an abstract class for a set of model elements.
 """
 
 class ModelElement(object):
     """ An abstract element in an ORM model. """
-    
+
     def __init__(self, uid=None, name=None):
         # The UID (Unique ID) and Name cannot change once the model element
         # is created.  Therefore, it is defined as a ready-only property.
@@ -43,8 +43,8 @@ class ModelElementSet(object):
         return self._set.itervalues()
 
     def add(self, element):
-        """ Add an element to the set. If the name exists in the set, rename 
-            the element by adding an integer suffix to make it unique in 
+        """ Add an element to the set. If the name exists in the set, rename
+            the element by adding an integer suffix to make it unique in
             the set.  For example, if an element named Person is added
             three times, the set will contain Person, Person2, and Person3. """
         i = 2
@@ -53,16 +53,16 @@ class ModelElementSet(object):
         while element.name in self._set:
             element._name = name + str(i) # Need to access underlying _name
             i = i + 1
-   
+
         self._set[element.name] = element
 
     def get(self, name):
-        """ Retrieve an element by name.  Returns **None** if the element is 
+        """ Retrieve an element by name.  Returns **None** if the element is
             not in the set. """
         try:
             return self._set[name]
         except KeyError:
-            return None 
+            return None
 
     def count(self):
         """ Returns the number of items in the set. """

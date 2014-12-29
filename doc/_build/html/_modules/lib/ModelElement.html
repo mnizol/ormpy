@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -57,12 +55,12 @@
 
 <span class="sd">&quot;&quot;&quot; ModelElement.py provides an abstract class for a model element (a generic</span>
 <span class="sd">    element in a model from which an object type, fact type, and constraint</span>
-<span class="sd">    can be derived) as well as an abstract class for a set of model elements. </span>
+<span class="sd">    can be derived) as well as an abstract class for a set of model elements.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ModelElement"><a class="viewcode-back" href="../../lib.html#lib.ModelElement.ModelElement">[docs]</a><span class="k">class</span> <span class="nc">ModelElement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An abstract element in an ORM model. &quot;&quot;&quot;</span>
-    
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="c"># The UID (Unique ID) and Name cannot change once the model element</span>
         <span class="c"># is created.  Therefore, it is defined as a ready-only property.</span>
@@ -94,8 +92,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()</span>
 
 <div class="viewcode-block" id="ModelElementSet.add"><a class="viewcode-back" href="../../lib.html#lib.ModelElement.ModelElementSet.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add an element to the set. If the name exists in the set, rename </span>
-<span class="sd">            the element by adding an integer suffix to make it unique in </span>
+        <span class="sd">&quot;&quot;&quot; Add an element to the set. If the name exists in the set, rename</span>
+<span class="sd">            the element by adding an integer suffix to make it unique in</span>
 <span class="sd">            the set.  For example, if an element named Person is added</span>
 <span class="sd">            three times, the set will contain Person, Person2, and Person3. &quot;&quot;&quot;</span>
         <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span>
@@ -104,16 +102,16 @@
         <span class="k">while</span> <span class="n">element</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">:</span>
             <span class="n">element</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="c"># Need to access underlying _name</span>
             <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
-   
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">element</span>
 </div>
 <div class="viewcode-block" id="ModelElementSet.get"><a class="viewcode-back" href="../../lib.html#lib.ModelElement.ModelElementSet.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Retrieve an element by name.  Returns **None** if the element is </span>
+        <span class="sd">&quot;&quot;&quot; Retrieve an element by name.  Returns **None** if the element is</span>
 <span class="sd">            not in the set. &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">None</span> 
+            <span class="k">return</span> <span class="bp">None</span>
 </div>
 <div class="viewcode-block" id="ModelElementSet.count"><a class="viewcode-back" href="../../lib.html#lib.ModelElement.ModelElementSet.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Returns the number of items in the set. &quot;&quot;&quot;</span>
@@ -163,7 +161,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, Matthew Nizol.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

@@ -60,6 +60,14 @@ test.TestNormaLoader module
     :undoc-members:
     :show-inheritance:
 
+test.TestORMMinus module
+------------------------
+
+.. automodule:: test.TestORMMinus
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

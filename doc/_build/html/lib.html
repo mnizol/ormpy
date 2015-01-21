@@ -537,11 +537,11 @@ in the inequality.</p>
 <dl class="method">
 <dt id="lib.InequalitySystem.InequalitySystem.solve">
 <tt class="descname">solve</tt><big>(</big><em>debug=False</em><big>)</big><a class="reference internal" href="_modules/lib/InequalitySystem.html#InequalitySystem.solve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.InequalitySystem.InequalitySystem.solve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve the system.  If there is a solution, returns a dictionary 
+<dd><p>Solve the system.  If there is a solution, returns a dictionary
 whose keys are the names of the variables in the system and
-whose values are the corresponding objects of type 
-<a class="reference internal" href="#lib.InequalitySystem.Variable" title="lib.InequalitySystem.Variable"><tt class="xref py py-class docutils literal"><span class="pre">lib.InequalitySystem.Variable</span></tt></a>.  For each variable v, 
-v.upper is the value of the variable in the solution.  
+whose values are the corresponding objects of type
+<a class="reference internal" href="#lib.InequalitySystem.Variable" title="lib.InequalitySystem.Variable"><tt class="xref py py-class docutils literal"><span class="pre">lib.InequalitySystem.Variable</span></tt></a>.  For each variable v,
+v.upper is the value of the variable in the solution.
 If there is no solution, returns None.</p>
 </dd></dl>
 
@@ -563,7 +563,7 @@ If there is no solution, returns None.</p>
 
 <dl class="class">
 <dt id="lib.InequalitySystem.Variable">
-<em class="property">class </em><tt class="descclassname">lib.InequalitySystem.</tt><tt class="descname">Variable</tt><big>(</big><em>name</em>, <em>lower=1</em>, <em>upper=inf</em><big>)</big><a class="reference internal" href="_modules/lib/InequalitySystem.html#Variable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.InequalitySystem.Variable" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.InequalitySystem.</tt><tt class="descname">Variable</tt><big>(</big><em>name</em>, <em>lower=1</em>, <em>upper=9223372036854775807</em><big>)</big><a class="reference internal" href="_modules/lib/InequalitySystem.html#Variable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.InequalitySystem.Variable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Represents a variable with an upper and lower bound.</p>
 <dl class="method">
@@ -782,6 +782,36 @@ An .orm file can be loaded via the constructor.  For example:</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-lib.ORMMinus">
+<span id="lib-ormminus-module"></span><h2>lib.ORMMinus module<a class="headerlink" href="#module-lib.ORMMinus" title="Permalink to this headline">¶</a></h2>
+<p>Module to implement ORMMinus satisfiability and population algorithm.</p>
+<dl class="class">
+<dt id="lib.ORMMinus.ORMMinus">
+<em class="property">class </em><tt class="descclassname">lib.ORMMinus.</tt><tt class="descname">ORMMinus</tt><big>(</big><em>model=None</em>, <em>ubound=9223372036854775807</em><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#ORMMinus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.ORMMinus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Implements ORMMinus algorithm (Smaragdakis et al.).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model</strong> &#8211; A <a class="reference internal" href="#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">lib.Model.Model</span></tt></a> to instantiate</li>
+<li><strong>ubound</strong> &#8211; Upper bound on size of model elements</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="lib.ORMMinus.ORMMinus.check">
+<tt class="descname">check</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#ORMMinus.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.ORMMinus.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks model for satisifiability.  Returns true if satisfiable and
+false otherwise.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-lib.ObjectType">
 <span id="lib-objecttype-module"></span><h2>lib.ObjectType module<a class="headerlink" href="#module-lib.ObjectType" title="Permalink to this headline">¶</a></h2>
 <p>ObjectType.py provides classes for the various object types in ORM:
@@ -897,6 +927,7 @@ by the modeler)</p>
 <li><a class="reference internal" href="#module-lib.Model">lib.Model module</a></li>
 <li><a class="reference internal" href="#module-lib.ModelElement">lib.ModelElement module</a></li>
 <li><a class="reference internal" href="#module-lib.NormaLoader">lib.NormaLoader module</a></li>
+<li><a class="reference internal" href="#module-lib.ORMMinus">lib.ORMMinus module</a></li>
 <li><a class="reference internal" href="#module-lib.ObjectType">lib.ObjectType module</a></li>
 <li><a class="reference internal" href="#module-lib">Module contents</a></li>
 </ul>

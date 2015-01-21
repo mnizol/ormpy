@@ -10,6 +10,8 @@ import os
 from unittest import TestCase
 from datetime import datetime, date, time
 
+import lib.TestDataLocator as TestDataLocator
+
 from lib.NormaLoader import NormaLoader
 from lib.ModelElement import ModelElement
 from lib.FactType import FactType
@@ -21,7 +23,7 @@ class TestNormaLoader(TestCase):
     """ Unit tests for the NormaLoader class. """
 
     def setUp(self):
-        self.data_dir = os.getenv("ORMPY_TEST_DATA_DIR")
+        self.data_dir = TestDataLocator.get_data_dir() + os.sep
 
     def test_add_from_empty_stack(self):
         """ Check behavior of add_from_stack when empty. """

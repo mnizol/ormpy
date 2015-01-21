@@ -24,9 +24,9 @@ class FactType(ModelElement):
 
         self.roles = [] #: List of roles in the fact type
 
-    #@property
-    #def fullname(self):
-    #    return "FactTypes." + self.name
+    @property
+    def fullname(self):
+        return "FactTypes." + self.name
 
     def add(self, role):
         """ Add *role* to the fact type. """
@@ -45,9 +45,9 @@ class Role(ModelElement):
         fact_type = None #: Fact type to which role belongs
         player = None #: Object type that plays the role
 
-    #@property
-    #def fullname(self):
-    #    return "FactTypes." + self.fact_type.name + ".Roles." + self.name
+    @property
+    def fullname(self):
+        return "FactTypes." + self.fact_type.name + ".Roles." + self.name
 
 class SubtypeRole(Role):
     """ A subtype role. """

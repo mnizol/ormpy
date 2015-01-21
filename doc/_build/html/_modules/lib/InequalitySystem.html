@@ -61,7 +61,7 @@
 <span class="sd">    * c * x &lt;= y_1 * y_2 * ... * y_n</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">operator</span><span class="o">,</span> <span class="nn">sys</span>
 
 <span class="k">class</span> <span class="nc">_VariableStatus</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Enumeration of variable statuses. &quot;&quot;&quot;</span>
@@ -72,7 +72,7 @@
 <div class="viewcode-block" id="Variable"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable">[docs]</a><span class="k">class</span> <span class="nc">Variable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Represents a variable with an upper and lower bound. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s">&quot;inf&quot;</span><span class="p">)):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">maxint</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>    <span class="c">#: Variable name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lower</span> <span class="o">=</span> <span class="n">lower</span>  <span class="c">#: Lower bound for the variable</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">=</span> <span class="n">upper</span>  <span class="c">#: Upper bound for the variable</span>
@@ -220,11 +220,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span>
 </div>
 <div class="viewcode-block" id="InequalitySystem.solve"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.InequalitySystem.solve">[docs]</a>    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Solve the system.  If there is a solution, returns a dictionary </span>
+        <span class="sd">&quot;&quot;&quot; Solve the system.  If there is a solution, returns a dictionary</span>
 <span class="sd">            whose keys are the names of the variables in the system and</span>
-<span class="sd">            whose values are the corresponding objects of type </span>
-<span class="sd">            :class:`lib.InequalitySystem.Variable`.  For each variable v, </span>
-<span class="sd">            v.upper is the value of the variable in the solution.  </span>
+<span class="sd">            whose values are the corresponding objects of type</span>
+<span class="sd">            :class:`lib.InequalitySystem.Variable`.  For each variable v,</span>
+<span class="sd">            v.upper is the value of the variable in the solution.</span>
 <span class="sd">            If there is no solution, returns None.&quot;&quot;&quot;</span>
 
         <span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
@@ -249,7 +249,7 @@
                 <span class="n">var</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
 
                 <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-                    <span class="k">print</span> <span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span> <span class="s">&quot; &lt;= &quot;</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot; &lt;= &quot;</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">upper</span>
+                    <span class="k">print</span> <span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;: &quot;</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">upper</span>
 
                 <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">is_stable</span><span class="p">():</span>
                     <span class="n">num_stable</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -262,11 +262,11 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_stable</span> <span class="o">=</span> <span class="bp">True</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span> 
+            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
                 <span class="k">print</span> <span class="s">&quot;Found solution.&quot;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span> 
+            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
                 <span class="k">print</span> <span class="s">&quot;System has no solution.&quot;</span>
             <span class="k">return</span> <span class="bp">None</span>
 </pre></div></div></div>

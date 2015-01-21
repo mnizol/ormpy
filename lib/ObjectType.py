@@ -25,9 +25,9 @@ class ObjectType(ModelElement):
         self.independent = False #: True for independent object types
         self.implicit = False    #: True for implicit object types
 
-    #@property
-    #def fullname(self):
-    #    return "ObjectTypes." + self.name
+    @property
+    def fullname(self):
+        return "ObjectTypes." + self.name
 
 class EntityType(ObjectType):
     """ An entity type is an object type that requires identification. """

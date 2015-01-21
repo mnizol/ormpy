@@ -68,6 +68,14 @@ lib.NormaLoader module
     :undoc-members:
     :show-inheritance:
 
+lib.ORMMinus module
+-------------------
+
+.. automodule:: lib.ORMMinus
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lib.ObjectType module
 ---------------------
 

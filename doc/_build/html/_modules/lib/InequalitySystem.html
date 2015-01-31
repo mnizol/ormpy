@@ -63,52 +63,6 @@
 
 <span class="kn">import</span> <span class="nn">operator</span><span class="o">,</span> <span class="nn">sys</span>
 
-<span class="k">class</span> <span class="nc">_VariableStatus</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Enumeration of variable statuses. &quot;&quot;&quot;</span>
-    <span class="n">stable</span> <span class="o">=</span> <span class="mi">0</span> <span class="c">#: Variable&#39;s bounds did not change during an update.</span>
-    <span class="n">valid</span> <span class="o">=</span> <span class="mi">1</span> <span class="c">#: Variable is in valid state, but not yet stable.</span>
-    <span class="n">invalid</span> <span class="o">=</span> <span class="mi">2</span> <span class="c">#: Bounds have crossed: lower bound &gt; upper bound</span>
-
-<div class="viewcode-block" id="Variable"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable">[docs]</a><span class="k">class</span> <span class="nc">Variable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Represents a variable with an upper and lower bound. &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">maxint</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>    <span class="c">#: Variable name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lower</span> <span class="o">=</span> <span class="n">lower</span>  <span class="c">#: Lower bound for the variable</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">=</span> <span class="n">upper</span>  <span class="c">#: Upper bound for the variable</span>
-
-	<span class="c">#: Lowest upper bound observed while evaluating inequalities</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span> <span class="o">=</span> <span class="n">upper</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">valid</span> <span class="c">#: Status of the variable</span>
-
-<div class="viewcode-block" id="Variable.declare_less_than"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable.declare_less_than">[docs]</a>    <span class="k">def</span> <span class="nf">declare_less_than</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Update candidate if it is greater than value. Called whenever a</span>
-<span class="sd">            variable&#39;s upper bound is potentially changed by evaluating an</span>
-<span class="sd">            inequality. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Variable.update"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Update upper bound and status based on candidate value.</span>
-<span class="sd">            Called for each variable in the system after a complete iteration</span>
-<span class="sd">            of evaluating the inequalities in the system.  &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">invalid</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">upper</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">valid</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">stable</span>
-</div>
-<div class="viewcode-block" id="Variable.is_stable"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable.is_stable">[docs]</a>    <span class="k">def</span> <span class="nf">is_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Returns true if variable is in a stable state. &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">stable</span>
-</div>
-<div class="viewcode-block" id="Variable.is_invalid"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable.is_invalid">[docs]</a>    <span class="k">def</span> <span class="nf">is_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Returns true if variable bounds are invalid. &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">invalid</span>
-</div></div>
 <div class="viewcode-block" id="Expression"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Expression">[docs]</a><span class="k">class</span> <span class="nc">Expression</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A restricted expression over a list of variables.  The</span>
 <span class="sd">        expression is restricted in the sense that it permits</span>
@@ -137,7 +91,69 @@
         <span class="sd">&quot;&quot;&quot; Returns the expression as a string for display. &quot;&quot;&quot;</span>
         <span class="n">expression</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sym</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+
+         </div></div>
+<span class="k">class</span> <span class="nc">_VariableStatus</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Enumeration of variable statuses. &quot;&quot;&quot;</span>
+    <span class="n">stable</span> <span class="o">=</span> <span class="mi">0</span> <span class="c">#: Variable&#39;s bounds did not change during an update.</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="mi">1</span> <span class="c">#: Variable is in valid state, but not yet stable.</span>
+    <span class="n">invalid</span> <span class="o">=</span> <span class="mi">2</span> <span class="c">#: Bounds have crossed: lower bound &gt; upper bound</span>
+
+<div class="viewcode-block" id="Variable"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable">[docs]</a><span class="k">class</span> <span class="nc">Variable</span><span class="p">(</span><span class="n">Expression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Represents a variable with an upper and lower bound. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">maxint</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Variable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>    <span class="c">#: Variable name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower</span> <span class="o">=</span> <span class="n">lower</span>  <span class="c">#: Lower bound for the variable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">=</span> <span class="n">upper</span>  <span class="c">#: Upper bound for the variable</span>
+
+	    <span class="c">#: Lowest upper bound observed while evaluating inequalities</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span> <span class="o">=</span> <span class="n">upper</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">valid</span> <span class="c">#: Status of the variable</span>
+
+<div class="viewcode-block" id="Variable.result"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable.result">[docs]</a>    <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Override Expression.result. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">upper</span>
+</div>
+<div class="viewcode-block" id="Variable.tostring"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable.tostring">[docs]</a>    <span class="k">def</span> <span class="nf">tostring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return variable upper bound as a string. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Variable.declare_less_than"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable.declare_less_than">[docs]</a>    <span class="k">def</span> <span class="nf">declare_less_than</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Update candidate if it is greater than value. Called whenever a</span>
+<span class="sd">            variable&#39;s upper bound is potentially changed by evaluating an</span>
+<span class="sd">            inequality. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Variable.update"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Update upper bound and status based on candidate value.</span>
+<span class="sd">            Called for each variable in the system after a complete iteration</span>
+<span class="sd">            of evaluating the inequalities in the system.  &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">invalid</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">upper</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_candidate</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">valid</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">stable</span>
+</div>
+<div class="viewcode-block" id="Variable.is_stable"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable.is_stable">[docs]</a>    <span class="k">def</span> <span class="nf">is_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns true if variable is in a stable state. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">stable</span>
+</div>
+<div class="viewcode-block" id="Variable.is_invalid"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Variable.is_invalid">[docs]</a>    <span class="k">def</span> <span class="nf">is_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns true if variable bounds are invalid. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="n">_VariableStatus</span><span class="o">.</span><span class="n">invalid</span>
+
 </div></div>
+<div class="viewcode-block" id="Constant"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Constant">[docs]</a><span class="k">class</span> <span class="nc">Constant</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Represents a constant. &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Constant</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">lower</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="Sum"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Sum">[docs]</a><span class="k">class</span> <span class="nc">Sum</span><span class="p">(</span><span class="n">Expression</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Represents a sum of variables. &quot;&quot;&quot;</span>
 
@@ -153,7 +169,13 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">Product</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">thelist</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">mul</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sym</span> <span class="o">=</span> <span class="s">&#39; * &#39;</span>
-</div>
+
+<div class="viewcode-block" id="Product.tostring"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Product.tostring">[docs]</a>    <span class="k">def</span> <span class="nf">tostring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns the expression as a string for display. &quot;&quot;&quot;</span>
+        <span class="n">is_unity</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Constant</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="o">==</span><span class="mi">1</span>
+        <span class="n">expression</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">is_unity</span><span class="p">(</span><span class="n">var</span><span class="p">))]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sym</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+</div></div>
 <div class="viewcode-block" id="Inequality"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Inequality">[docs]</a><span class="k">class</span> <span class="nc">Inequality</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An inequality of the form:</span>
 
@@ -187,7 +209,7 @@
 <div class="viewcode-block" id="Inequality.evaluate"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Inequality.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Evaluates right-hand side of inequality and updates candidate</span>
 <span class="sd">            value of left-hand side. &quot;&quot;&quot;</span>
-        <span class="n">candidate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rhs</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeff</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rhs</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeff</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lhs</span><span class="o">.</span><span class="n">declare_less_than</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Inequality.tostring"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Inequality.tostring">[docs]</a>    <span class="k">def</span> <span class="nf">tostring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

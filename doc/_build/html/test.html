@@ -85,6 +85,18 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_of_type_with_hit">
+<tt class="descname">test_of_type_with_hit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_of_type_with_hit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_of_type_with_hit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test of_type method with non-empty result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_of_type_without_hit">
+<tt class="descname">test_of_type_without_hit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_of_type_without_hit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_of_type_without_hit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test of_type method with empty result.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestConstraint.TestConstraint.test_vc_add_enum">
 <tt class="descname">test_vc_add_enum</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_vc_add_enum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_vc_add_enum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test the addition of enumerated items to a value constraint.</p>
@@ -294,6 +306,12 @@ with explicit inclusion values.</p>
 <dt id="test.TestInequalitySystem.TestInequalitySystem.test_change_candidate">
 <tt class="descname">test_change_candidate</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_change_candidate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_change_candidate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test change to candidate value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestInequalitySystem.TestInequalitySystem.test_constant">
+<tt class="descname">test_constant</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestInequalitySystem.html#TestInequalitySystem.test_constant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestInequalitySystem.TestInequalitySystem.test_constant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test creation of a constant.</p>
 </dd></dl>
 
 <dl class="method">
@@ -682,6 +700,88 @@ is unexpected.</p>
 <div class="section" id="module-test.TestORMMinus">
 <span id="test-testormminus-module"></span><h2>test.TestORMMinus module<a class="headerlink" href="#module-test.TestORMMinus" title="Permalink to this headline">¶</a></h2>
 <p>This file contains unit tests for the lib.ORMMinus module.</p>
+<dl class="class">
+<dt id="test.TestORMMinus.TestORMMinus">
+<em class="property">class </em><tt class="descclassname">test.TestORMMinus.</tt><tt class="descname">TestORMMinus</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Unit tests for the ORMMinus module.</p>
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.test_create_inequalities_1">
+<tt class="descname">test_create_inequalities_1</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_create_inequalities_1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_create_inequalities_1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test creation of inequalities for Paper Has Author model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.test_create_variables">
+<tt class="descname">test_create_variables</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_create_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_create_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test creation of variables dictionary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.test_disjunctive_mandatory">
+<tt class="descname">test_disjunctive_mandatory</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_disjunctive_mandatory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_disjunctive_mandatory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that exception is raised for disjunctive 
+mandatory constraints.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.test_implicit_disjunctive_ineq">
+<tt class="descname">test_implicit_disjunctive_ineq</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_implicit_disjunctive_ineq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_implicit_disjunctive_ineq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test implicit disjunctive mandatory inequalities.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.test_overlapping_iuc">
+<tt class="descname">test_overlapping_iuc</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_overlapping_iuc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_overlapping_iuc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that exception is raised for overlapping IUCs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.test_solve_1">
+<tt class="descname">test_solve_1</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_solve_1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_solve_1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test solution to Paper Has Author model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.test_unsat_smarag_2">
+<tt class="descname">test_unsat_smarag_2</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_unsat_smarag_2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_unsat_smarag_2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test 2nd unsatisfiable model provided by Smaragdakis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.test_unsat_smarag_3">
+<tt class="descname">test_unsat_smarag_3</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_unsat_smarag_3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_unsat_smarag_3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test 3rd unsatisfiable model provided by Smaragdakis.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-test.TestTestDataLocator">
+<span id="test-testtestdatalocator-module"></span><h2>test.TestTestDataLocator module<a class="headerlink" href="#module-test.TestTestDataLocator" title="Permalink to this headline">¶</a></h2>
+<p>This file contains unit tests for the lib.TestDataLocator module.</p>
+<dl class="class">
+<dt id="test.TestTestDataLocator.TestTestDataLocator">
+<em class="property">class </em><tt class="descclassname">test.TestTestDataLocator.</tt><tt class="descname">TestTestDataLocator</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestTestDataLocator.html#TestTestDataLocator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestTestDataLocator.TestTestDataLocator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="test.TestTestDataLocator.TestTestDataLocator.setup">
+<tt class="descname">setup</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestTestDataLocator.html#TestTestDataLocator.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestTestDataLocator.TestTestDataLocator.setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestTestDataLocator.TestTestDataLocator.test_get_data_dir">
+<tt class="descname">test_get_data_dir</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestTestDataLocator.html#TestTestDataLocator.test_get_data_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestTestDataLocator.TestTestDataLocator.test_get_data_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm get_data_dir() can locate one of our test files</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-test">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-test" title="Permalink to this headline">¶</a></h2>
@@ -707,6 +807,7 @@ is unexpected.</p>
 <li><a class="reference internal" href="#module-test.TestModelElement">test.TestModelElement module</a></li>
 <li><a class="reference internal" href="#module-test.TestNormaLoader">test.TestNormaLoader module</a></li>
 <li><a class="reference internal" href="#module-test.TestORMMinus">test.TestORMMinus module</a></li>
+<li><a class="reference internal" href="#module-test.TestTestDataLocator">test.TestTestDataLocator module</a></li>
 <li><a class="reference internal" href="#module-test">Module contents</a></li>
 </ul>
 </li>

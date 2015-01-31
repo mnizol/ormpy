@@ -14,52 +14,6 @@
 
 import operator, sys
 
-class _VariableStatus(object):
-    """ Enumeration of variable statuses. """
-    stable = 0 #: Variable's bounds did not change during an update.
-    valid = 1 #: Variable is in valid state, but not yet stable.
-    invalid = 2 #: Bounds have crossed: lower bound > upper bound
-
-class Variable(object):
-    """ Represents a variable with an upper and lower bound. """
-
-    def __init__(self, name, lower=1, upper=sys.maxint):
-        self.name = name    #: Variable name
-        self.lower = lower  #: Lower bound for the variable
-        self.upper = upper  #: Upper bound for the variable
-
-	#: Lowest upper bound observed while evaluating inequalities
-        self._candidate = upper
-        self._status = _VariableStatus.valid #: Status of the variable
-
-    def declare_less_than(self, value):
-        """ Update candidate if it is greater than value. Called whenever a
-            variable's upper bound is potentially changed by evaluating an
-            inequality. """
-        self._candidate = min(value, self._candidate)
-
-    def update(self):
-        """ Update upper bound and status based on candidate value.
-            Called for each variable in the system after a complete iteration
-            of evaluating the inequalities in the system.  """
-
-        if self._candidate < self.lower:
-            self.upper = self._candidate
-            self._status = _VariableStatus.invalid
-        elif self._candidate < self.upper:
-            self.upper = self._candidate
-            self._status = _VariableStatus.valid
-        else:
-            self._status = _VariableStatus.stable
-
-    def is_stable(self):
-        """ Returns true if variable is in a stable state. """
-        return self._status == _VariableStatus.stable
-
-    def is_invalid(self):
-        """ Returns true if variable bounds are invalid. """
-        return self._status == _VariableStatus.invalid
-
 class Expression(list):
     """ A restricted expression over a list of variables.  The
         expression is restricted in the sense that it permits
@@ -89,6 +43,68 @@ class Expression(list):
         expression = [var.name for var in self]
         return self._sym.join(expression)
 
+
+class _VariableStatus(object):
+    """ Enumeration of variable statuses. """
+    stable = 0 #: Variable's bounds did not change during an update.
+    valid = 1 #: Variable is in valid state, but not yet stable.
+    invalid = 2 #: Bounds have crossed: lower bound > upper bound
+
+class Variable(Expression):
+    """ Represents a variable with an upper and lower bound. """
+
+    def __init__(self, name, lower=1, upper=sys.maxint):
+        super(Variable, self).__init__([])
+        self.name = name    #: Variable name
+        self.lower = lower  #: Lower bound for the variable
+        self.upper = upper  #: Upper bound for the variable
+
+	    #: Lowest upper bound observed while evaluating inequalities
+        self._candidate = upper
+        self._status = _VariableStatus.valid #: Status of the variable
+
+    def result(self):
+        """ Override Expression.result. """
+        return self.upper
+
+    def tostring(self):
+        """ Return variable upper bound as a string. """
+        return str(self.name)
+
+    def declare_less_than(self, value):
+        """ Update candidate if it is greater than value. Called whenever a
+            variable's upper bound is potentially changed by evaluating an
+            inequality. """
+        self._candidate = min(value, self._candidate)
+
+    def update(self):
+        """ Update upper bound and status based on candidate value.
+            Called for each variable in the system after a complete iteration
+            of evaluating the inequalities in the system.  """
+
+        if self._candidate < self.lower:
+            self.upper = self._candidate
+            self._status = _VariableStatus.invalid
+        elif self._candidate < self.upper:
+            self.upper = self._candidate
+            self._status = _VariableStatus.valid
+        else:
+            self._status = _VariableStatus.stable
+
+    def is_stable(self):
+        """ Returns true if variable is in a stable state. """
+        return self._status == _VariableStatus.stable
+
+    def is_invalid(self):
+        """ Returns true if variable bounds are invalid. """
+        return self._status == _VariableStatus.invalid
+
+
+class Constant(Variable):
+    """ Represents a constant. """
+    def __init__(self, value):
+        super(Constant, self).__init__(str(value), lower=value, upper=value)
+
 class Sum(Expression):
     """ Represents a sum of variables. """
 
@@ -104,6 +120,12 @@ class Product(Expression):
         super(Product, self).__init__(thelist)
         self._op = operator.mul
         self._sym = ' * '
+
+    def tostring(self):
+        """ Returns the expression as a string for display. """
+        is_unity = lambda x: isinstance(x, Constant) and x.upper == 1
+        expression = [var.name for var in self if not is_unity(var)]
+        return self._sym.join(expression)
 
 class Inequality(object):
     """ An inequality of the form:
@@ -138,7 +160,7 @@ class Inequality(object):
     def evaluate(self):
         """ Evaluates right-hand side of inequality and updates candidate
             value of left-hand side. """
-        candidate = self._rhs.result() / self._coeff
+        candidate = int(self._rhs.result() / self._coeff)
         self._lhs.declare_less_than(candidate)
 
     def tostring(self):

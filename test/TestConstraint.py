@@ -118,4 +118,33 @@ class TestConstraint(TestCase):
         self.assertIs(cons.covers[0], role)
         self.assertIs(cons.superset[0], role)
 
+    def test_of_type_with_hit(self):
+        """ Test of_type method with non-empty result. """
+        cons_set = Constraint.ConstraintSet()
+        cons1 = Constraint.SubsetConstraint(uid="1", name="S1")
+        cons2 = Constraint.ValueConstraint(uid="2", name="V1")
+        cons3 = Constraint.SubsetConstraint(uid="3", name="S2")
+
+        cons_set.add(cons1)
+        cons_set.add(cons2)
+        cons_set.add(cons3)
+        
+        actual = cons_set.of_type(Constraint.SubsetConstraint)
+        expect = [cons1, cons3]
+        self.assertItemsEqual(actual, expect)
+        
+    def test_of_type_without_hit(self):
+        """ Test of_type method with empty result. """
+        cons_set = Constraint.ConstraintSet()
+        cons1 = Constraint.SubsetConstraint(uid="1", name="S1")
+        cons2 = Constraint.ValueConstraint(uid="2", name="V1")
+        cons3 = Constraint.SubsetConstraint(uid="3", name="S2")
+
+        cons_set.add(cons1)
+        cons_set.add(cons2)
+        cons_set.add(cons3)
+        
+        actual = cons_set.of_type(Constraint.MandatoryConstraint)
+        expect = []
+        self.assertItemsEqual(actual, expect)
 

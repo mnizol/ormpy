@@ -35,6 +35,15 @@ class TestInequalitySystem(TestCase):
         self.assertEquals(var.upper, var._candidate)
         self.assertEquals(var._status, _VariableStatus.valid)
 
+    def test_constant(self):
+        """ Test creation of a constant. """
+        cons = IneqSys.Constant(36)
+        self.assertEquals(cons.name, "36")
+        self.assertEquals(cons.lower, 36)
+        self.assertEquals(cons.upper, 36)
+        self.assertEquals(cons.result(), 36)
+        self.assertEquals(cons.tostring(), "36")
+
     def test_change_candidate(self):
     	""" Test change to candidate value. """
         var = IneqSys.Variable('x', lower=5, upper=10)

@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>test.TestORMMinus &mdash; ORMPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ORMPY 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for test.TestORMMinus</h1><div class="highlight"><pre>
+<span class="c">##############################################################################</span>
+<span class="c"># Package: ormpy</span>
+<span class="c"># File:    TestORMMinus.py</span>
+<span class="c"># Author:  Matthew Nizol</span>
+<span class="c">##############################################################################</span>
+
+<span class="sd">&quot;&quot;&quot; This file contains unit tests for the lib.ORMMinus module. &quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+
+<span class="kn">import</span> <span class="nn">lib.TestDataLocator</span> <span class="kn">as</span> <span class="nn">TestDataLocator</span>
+<span class="kn">from</span> <span class="nn">lib.ORMMinus</span> <span class="kn">import</span> <span class="n">ORMMinus</span>
+<span class="kn">from</span> <span class="nn">lib.InequalitySystem</span> <span class="kn">import</span> <span class="n">Constant</span>
+<span class="kn">from</span> <span class="nn">lib.NormaLoader</span> <span class="kn">import</span> <span class="n">NormaLoader</span>
+<span class="kn">import</span> <span class="nn">lib.Constraint</span> <span class="kn">as</span> <span class="nn">Constraint</span>
+
+<div class="viewcode-block" id="TestORMMinus"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus">[docs]</a><span class="k">class</span> <span class="nc">TestORMMinus</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Unit tests for the ORMMinus module. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestORMMinus.setUp"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">TestDataLocator</span><span class="o">.</span><span class="n">get_data_dir</span><span class="p">()</span>
+
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;paper_has_author.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solution1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TestORMMinus.test_overlapping_iuc"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_overlapping_iuc">[docs]</a>    <span class="k">def</span> <span class="nf">test_overlapping_iuc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that exception is raised for overlapping IUCs. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;overlapping_iuc.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> 
+            <span class="s">&quot;Cannot run ORM- algorithm: InternalUniquenessConstraint4 overlaps with another frequency constraint.&quot;</span><span class="p">)</span>                
+</div>
+<div class="viewcode-block" id="TestORMMinus.test_disjunctive_mandatory"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_disjunctive_mandatory">[docs]</a>    <span class="k">def</span> <span class="nf">test_disjunctive_mandatory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that exception is raised for disjunctive </span>
+<span class="sd">            mandatory constraints. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;disjunctive_mandatory.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="c"># NormaLoader actually drops the disjunctive mandatory, so create a</span>
+        <span class="c"># fake one to test that the exception is raised</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">MandatoryConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Cons1&quot;</span><span class="p">)</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;EntityType1A&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">simple</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> 
+            <span class="s">&quot;Cannot run ORM- algorithm: Cons1 is a non-simple mandatory constraint.&quot;</span><span class="p">)</span>  
+        </div>
+<div class="viewcode-block" id="TestORMMinus.test_create_variables"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_create_variables">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test creation of variables dictionary. &quot;&quot;&quot;</span>
+        <span class="n">actual_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> 
+                       <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span><span class="o">.</span><span class="n">_variables</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()]</span>
+        <span class="n">expect_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;ObjectTypes.Paper&quot;</span><span class="p">,</span>
+                       <span class="s">&quot;ObjectTypes.Author&quot;</span><span class="p">,</span>
+                       <span class="s">&quot;FactTypes.PaperHasAuthor&quot;</span><span class="p">,</span>
+                       <span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R1&quot;</span><span class="p">,</span>
+                       <span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R2&quot;</span><span class="p">,</span>
+                       <span class="s">&quot;Constraints.FrequencyConstraint1&quot;</span><span class="p">,</span>
+                       <span class="s">&quot;Constraints.InternalUniquenessConstraint1&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual_vars</span><span class="p">,</span> <span class="n">expect_vars</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestORMMinus.test_create_inequalities_1"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_create_inequalities_1">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_inequalities_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test creation of inequalities for Paper Has Author model. &quot;&quot;&quot;</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="p">[</span><span class="n">ineq</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span> <span class="k">for</span> <span class="n">ineq</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span><span class="o">.</span><span class="n">_ineqsys</span><span class="p">]</span>
+
+        <span class="n">expect</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R1 &lt;= ObjectTypes.Paper&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R1 &lt;= FactTypes.PaperHasAuthor&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R2 &lt;= ObjectTypes.Author&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R2 &lt;= FactTypes.PaperHasAuthor&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;ObjectTypes.Paper &lt;= 10&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;ObjectTypes.Author &lt;= 5&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;ObjectTypes.Author &lt;= FactTypes.PaperHasAuthor.Roles.R2&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.PaperHasAuthor &lt;= 3 * Constraints.FrequencyConstraint1&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Constraints.FrequencyConstraint1 &lt;= 0.5 * FactTypes.PaperHasAuthor&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Constraints.FrequencyConstraint1 &lt;= FactTypes.PaperHasAuthor.Roles.R1&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R1 &lt;= Constraints.FrequencyConstraint1&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.PaperHasAuthor &lt;= Constraints.InternalUniquenessConstraint1&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Constraints.InternalUniquenessConstraint1 &lt;= FactTypes.PaperHasAuthor&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Constraints.InternalUniquenessConstraint1 &lt;= FactTypes.PaperHasAuthor.Roles.R2&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R2 &lt;= Constraints.InternalUniquenessConstraint1&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;ObjectTypes.Paper &lt;= FactTypes.PaperHasAuthor.Roles.R1&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;ObjectTypes.Author &lt;= FactTypes.PaperHasAuthor.Roles.R2&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestORMMinus.test_solve_1"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_solve_1">[docs]</a>    <span class="k">def</span> <span class="nf">test_solve_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test solution to Paper Has Author model. &quot;&quot;&quot;</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">upper</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution1</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">Constant</span><span class="p">))]</span>
+        
+        <span class="n">expect</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&quot;ObjectTypes.Author&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+                  <span class="p">(</span><span class="s">&quot;ObjectTypes.Paper&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                  <span class="p">(</span><span class="s">&quot;FactTypes.PaperHasAuthor&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+                  <span class="p">(</span><span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R1&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                  <span class="p">(</span><span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R2&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+                  <span class="p">(</span><span class="s">&quot;Constraints.FrequencyConstraint1&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                  <span class="p">(</span><span class="s">&quot;Constraints.InternalUniquenessConstraint1&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+                 <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestORMMinus.test_implicit_disjunctive_ineq"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_implicit_disjunctive_ineq">[docs]</a>    <span class="k">def</span> <span class="nf">test_implicit_disjunctive_ineq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test implicit disjunctive mandatory inequalities. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;implicit_disjunctive_test.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="p">[</span><span class="n">ineq</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span> <span class="k">for</span> <span class="n">ineq</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_ineqsys</span><span class="p">]</span>
+
+        <span class="n">expect</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;FactTypes.ALikesA.Roles.R1 &lt;= ObjectTypes.A&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ALikesA.Roles.R1 &lt;= FactTypes.ALikesA&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ALikesA.Roles.R2 &lt;= ObjectTypes.A&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ALikesA.Roles.R2 &lt;= FactTypes.ALikesA&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ASharesB.Roles.R3 &lt;= ObjectTypes.A&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ASharesB.Roles.R3 &lt;= FactTypes.ASharesB&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ASharesB.Roles.R4 &lt;= ObjectTypes.B&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ASharesB.Roles.R4 &lt;= FactTypes.ASharesB&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.AOwnsD.Roles.R5 &lt;= ObjectTypes.A&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.AOwnsD.Roles.R5 &lt;= FactTypes.AOwnsD&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.AOwnsD.Roles.R6 &lt;= ObjectTypes.D&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.AOwnsD.Roles.R6 &lt;= FactTypes.AOwnsD&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ALikesA &lt;= Constraints.IUC1&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Constraints.IUC1 &lt;= FactTypes.ALikesA&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Constraints.IUC1 &lt;= FactTypes.ALikesA.Roles.R1&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ALikesA.Roles.R1 &lt;= Constraints.IUC1&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ASharesB &lt;= Constraints.IUC2&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Constraints.IUC2 &lt;= FactTypes.ASharesB&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Constraints.IUC2 &lt;= FactTypes.ASharesB.Roles.R3&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ASharesB.Roles.R3 &lt;= Constraints.IUC2&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.AOwnsD &lt;= Constraints.IUC3&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Constraints.IUC3 &lt;= FactTypes.AOwnsD&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Constraints.IUC3 &lt;= FactTypes.AOwnsD.Roles.R5&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.AOwnsD.Roles.R5 &lt;= Constraints.IUC3&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;ObjectTypes.A &lt;= FactTypes.AOwnsD.Roles.R5 + FactTypes.ASharesB.Roles.R3 + FactTypes.ALikesA.Roles.R1 + FactTypes.ALikesA.Roles.R2&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;ObjectTypes.D &lt;= FactTypes.AOwnsD.Roles.R6&quot;</span> 
+                 <span class="p">]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestORMMinus.test_unsat_smarag_2"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_unsat_smarag_2">[docs]</a>    <span class="k">def</span> <span class="nf">test_unsat_smarag_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test 2nd unsatisfiable model provided by Smaragdakis. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;unsat_smarag_2.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="TestORMMinus.test_unsat_smarag_3"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_unsat_smarag_3">[docs]</a>    <span class="k">def</span> <span class="nf">test_unsat_smarag_3</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test 3rd unsatisfiable model provided by Smaragdakis. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;unsat_smarag_3.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">())</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Nizol.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

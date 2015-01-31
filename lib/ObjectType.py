@@ -27,6 +27,7 @@ class ObjectType(ModelElement):
 
     @property
     def fullname(self):
+        """ Returns name that is unique within the model. """
         return "ObjectTypes." + self.name
 
 class EntityType(ObjectType):

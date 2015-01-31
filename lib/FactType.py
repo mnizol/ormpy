@@ -26,6 +26,7 @@ class FactType(ModelElement):
 
     @property
     def fullname(self):
+        """ Returns name that is unique within the model. """
         return "FactTypes." + self.name
 
     def add(self, role):
@@ -42,11 +43,12 @@ class Role(ModelElement):
     def __init__(self, uid=None, name=None):
         super(Role, self).__init__(uid=uid, name=name)
 
-        fact_type = None #: Fact type to which role belongs
-        player = None #: Object type that plays the role
+        self.fact_type = None #: Fact type to which role belongs
+        self.player = None #: Object type that plays the role
 
     @property
     def fullname(self):
+        """ Returns name that is unique within the model. """
         return "FactTypes." + self.fact_type.name + ".Roles." + self.name
 
 class SubtypeRole(Role):

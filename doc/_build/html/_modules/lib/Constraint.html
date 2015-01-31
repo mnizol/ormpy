@@ -64,7 +64,11 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ConstraintSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Constraints&quot;</span><span class="p">)</span>
-</div>
+
+<div class="viewcode-block" id="ConstraintSet.of_type"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ConstraintSet.of_type">[docs]</a>    <span class="k">def</span> <span class="nf">of_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cons_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return a list of constraints limited to a given type. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">cons</span> <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">cons_type</span><span class="p">)]</span>
+</div></div>
 <div class="viewcode-block" id="Constraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint">[docs]</a><span class="k">class</span> <span class="nc">Constraint</span><span class="p">(</span><span class="n">ModelElement</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An ORM Constraint. &quot;&quot;&quot;</span>
 
@@ -78,10 +82,10 @@
         <span class="c">#: True if constraint has alethic modality (False implies deontic)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alethic</span> <span class="o">=</span> <span class="bp">True</span>
 
-    <span class="c">#@property</span>
-    <span class="c">#def fullname(self):</span>
-    <span class="c">#    return &quot;Constraints.&quot; + self.name</span>
-
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Constraint.fullname"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.fullname">[docs]</a>    <span class="k">def</span> <span class="nf">fullname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;Constraints.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+</div>
 <div class="viewcode-block" id="Constraint.cover"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.cover">[docs]</a>    <span class="k">def</span> <span class="nf">cover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_element</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add a model element to the list of elements covered by</span>
 <span class="sd">            the constraint. &quot;&quot;&quot;</span>
@@ -197,18 +201,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">superset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">role</span><span class="p">)</span> <span class="c"># Add to full list of covered roles</span>
 </div></div>
-<div class="viewcode-block" id="UniquenessConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.UniquenessConstraint">[docs]</a><span class="k">class</span> <span class="nc">UniquenessConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A uniqueness constraint. &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-
-        <span class="c">#: True if constraint covers roles in one fact type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">internal</span> <span class="o">=</span> <span class="bp">False</span>
-
-        <span class="c">#: Object type this constraint identifies</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="o">=</span> <span class="bp">None</span>
-</div>
 <div class="viewcode-block" id="FrequencyConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.FrequencyConstraint">[docs]</a><span class="k">class</span> <span class="nc">FrequencyConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A frequency constraint. &quot;&quot;&quot;</span>
 
@@ -217,6 +209,23 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Minimum frequency</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Maximum frequency</span>
+</div>
+<div class="viewcode-block" id="UniquenessConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.UniquenessConstraint">[docs]</a><span class="k">class</span> <span class="nc">UniquenessConstraint</span><span class="p">(</span><span class="n">FrequencyConstraint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A uniqueness constraint (a special case of Frequency Constraint). &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c">#: A uniqueness constraint is a special case of a frequency constraint</span>
+        <span class="c">#: in which the min and max frequencies are both 1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c">#: True if constraint covers roles in one fact type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internal</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="c">#: Object type this constraint identifies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="o">=</span> <span class="bp">None</span>
 </div>
 <div class="viewcode-block" id="ExclusionConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ExclusionConstraint">[docs]</a><span class="k">class</span> <span class="nc">ExclusionConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An exclusion constraint. &quot;&quot;&quot;</span>

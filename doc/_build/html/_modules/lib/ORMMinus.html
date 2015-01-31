@@ -55,12 +55,26 @@
 
 <span class="sd">&quot;&quot;&quot; Module to implement ORMMinus satisfiability and population algorithm. &quot;&quot;&quot;</span>
 
+<span class="c"># TODO: This module does not yet implement all ORM- inequalities.</span>
+<span class="c">#       Specifically, it does not implement the following:</span>
+<span class="c">#       * Cardinality constraint inequalities</span>
+<span class="c">#       * Subtype inequalities</span>
+<span class="c">#       * Inequalities described by McGill&#39;s or Nizol&#39;s extensions to ORM-</span>
+<span class="c">#       * Inequality to express implicit uniqueness over a predicate.</span>
+<span class="c">#         (This is the 2nd to last bullet on pg 86 of Smaragdakis. Because</span>
+<span class="c">#          standard ORM practice is to cover all but (at most) one role with</span>
+<span class="c">#          an IUC, I don&#39;t think this inequality matters in practice because</span>
+<span class="c">#          it is implied by any IUC inequality on the predicate).</span>
+
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">lib.InequalitySystem</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">lib.InequalitySystem</span> \
+    <span class="kn">import</span> <span class="n">InequalitySystem</span><span class="p">,</span> <span class="n">Inequality</span><span class="p">,</span> <span class="n">Variable</span><span class="p">,</span> <span class="n">Constant</span><span class="p">,</span> <span class="n">Sum</span><span class="p">,</span> <span class="n">Product</span>
+<span class="kn">from</span> <span class="nn">lib.Constraint</span> \
+    <span class="kn">import</span> <span class="n">FrequencyConstraint</span><span class="p">,</span> <span class="n">MandatoryConstraint</span><span class="p">,</span> <span class="n">ValueConstraint</span>
 
 <div class="viewcode-block" id="ORMMinus"><a class="viewcode-back" href="../../lib.html#lib.ORMMinus.ORMMinus">[docs]</a><span class="k">class</span> <span class="nc">ORMMinus</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Implements ORMMinus algorithm (Smaragdakis et al.). </span>
-<span class="sd">    </span>
+    <span class="sd">&quot;&quot;&quot; Implements ORMMinus algorithm (Smaragdakis et al.).</span>
+
 <span class="sd">        :param model: A :class:`lib.Model.Model` to instantiate</span>
 <span class="sd">        :param ubound: Upper bound on size of model elements</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -70,28 +84,119 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_ubound</span> <span class="o">=</span> <span class="n">ubound</span> <span class="c">#: Bound on model element size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ineqsys</span> <span class="o">=</span> <span class="n">InequalitySystem</span><span class="p">()</span> <span class="c">#: System of inequalities</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span> <span class="o">=</span> <span class="p">{}</span> <span class="c">#: Dictionary from model element to variable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj_roles</span> <span class="o">=</span> <span class="p">{}</span> <span class="c">#: Dictionary from object type to roles</span>
 
 <div class="viewcode-block" id="ORMMinus.check"><a class="viewcode-back" href="../../lib.html#lib.ORMMinus.ORMMinus.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Checks model for satisifiability.  Returns true if satisfiable and</span>
-<span class="sd">            false otherwise. &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; Checks model for satisifiability.  Returns solution if satisfiable</span>
+<span class="sd">            and None otherwise. &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_variables</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_obj_roles_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_inequalities</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ineqsys</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
 </div>
     <span class="k">def</span> <span class="nf">_create_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Create set of variables to be used in system of inequalities. &quot;&quot;&quot;</span>
 
+        <span class="c"># Create one variable for each object type</span>
         <span class="k">for</span> <span class="n">obj_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">obj_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">obj_type</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">obj_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">obj_type</span><span class="o">.</span><span class="n">fullname</span><span class="p">,</span>
                                                  <span class="n">upper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ubound</span><span class="p">)</span>
 
+        <span class="c"># Create one variable for each fact type and role</span>
         <span class="k">for</span> <span class="n">fact_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">fact_types</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">fact_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">fact_type</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">fact_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">fact_type</span><span class="o">.</span><span class="n">fullname</span><span class="p">,</span>
                                                   <span class="n">upper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ubound</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">fullname</span><span class="p">,</span>
                                                  <span class="n">upper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ubound</span><span class="p">)</span>
-</pre></div></div>
+
+
+        <span class="n">already_covered</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> <span class="c"># Roles covered by a frequency constraint</span>
+
+        <span class="c"># Create one variable for each frequency constraint</span>
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">FrequencyConstraint</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">cons</span><span class="p">]</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">fullname</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ubound</span><span class="p">)</span>
+
+            <span class="c"># Confirm constraints are not overlapping</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">already_covered</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Cannot run ORM- algorithm: &quot;</span> <span class="o">+</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span>
+                    <span class="s">&quot; overlaps with another frequency constraint.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">already_covered</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_obj_roles_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Map each object type to the roles it plays. &quot;&quot;&quot;</span>        
+        <span class="k">for</span> <span class="n">fact_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">fact_types</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">player</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_obj_roles</span><span class="p">[</span><span class="n">obj</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj_roles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">[])</span> <span class="o">+</span> <span class="p">[</span><span class="n">role</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_create_inequalities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate system of inequalities based on rules in Smaragdakis and</span>
+<span class="sd">            McGill. &quot;&quot;&quot;</span>
+
+        <span class="n">add</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ineqsys</span><span class="o">.</span><span class="n">add</span> <span class="c"># Simplify code to add inequalities to system</span>
+
+        <span class="c"># Create inequalities to represent role semantics</span>
+        <span class="k">for</span> <span class="n">fact_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">fact_types</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+                <span class="n">role_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role</span><span class="p">]</span>
+                <span class="n">fact_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">fact_type</span><span class="p">]</span>
+                <span class="n">obj_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">player</span><span class="p">]</span>
+
+                <span class="n">add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">role_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">fact_var</span><span class="p">))</span>
+                <span class="n">add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">role_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">obj_var</span><span class="p">))</span>
+
+        <span class="c"># Create inequalities for value constraints</span>
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">ValueConstraint</span><span class="p">):</span>
+            <span class="n">obj_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">obj_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">Constant</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">size</span><span class="p">)))</span>
+
+        <span class="c"># Create inequalities for mandatory constraints</span>
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">MandatoryConstraint</span><span class="p">):</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">role_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role</span><span class="p">]</span>
+            <span class="n">obj_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">player</span><span class="p">]</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">obj_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">role_var</span><span class="p">))</span>
+
+            <span class="c"># Raise exception for disjunctive mandatory constraints</span>
+            <span class="k">if</span> <span class="n">cons</span><span class="o">.</span><span class="n">simple</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Cannot run ORM- algorithm: &quot;</span> <span class="o">+</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span>
+                    <span class="s">&quot; is a non-simple mandatory constraint.&quot;</span><span class="p">)</span>
+
+        <span class="c"># Create inequalities for internal frequency constraints</span>
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">FrequencyConstraint</span><span class="p">):</span>
+            <span class="c"># Get variables that will be used in the inequalities</span>
+            <span class="n">role_seq</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span>
+            <span class="n">role_vars</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">role_seq</span><span class="p">]</span>
+
+            <span class="n">min_var</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">cons</span><span class="o">.</span><span class="n">min_freq</span><span class="p">)</span>
+            <span class="n">max_var</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">max_freq</span><span class="p">)</span>
+
+            <span class="n">fact_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">]</span>
+            <span class="n">freq_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">cons</span><span class="p">]</span>
+
+            <span class="c"># Generate the four types of inequalities required by Smaragdakis</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">fact_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">Product</span><span class="p">([</span><span class="n">max_var</span><span class="p">,</span> <span class="n">freq_var</span><span class="p">])))</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">freq_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">Product</span><span class="p">([</span><span class="n">min_var</span><span class="p">,</span> <span class="n">fact_var</span><span class="p">])))</span>
+            <span class="n">add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">freq_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">Product</span><span class="p">(</span><span class="n">role_vars</span><span class="p">)))</span>
+
+            <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">role_seq</span><span class="p">:</span>
+                <span class="n">role_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role</span><span class="p">]</span>
+                <span class="n">add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">role_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">freq_var</span><span class="p">))</span>
+
+        <span class="c"># Create inequalities for implicit disjunctive constraint</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>            
+            <span class="n">role_seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj_roles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">independent</span> <span class="o">==</span> <span class="bp">False</span> <span class="ow">and</span> <span class="n">role_seq</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">obj_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">obj</span><span class="p">]</span>
+                <span class="n">role_vars</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">role_seq</span><span class="p">]</span> 
+                <span class="n">add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">obj_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="n">role_vars</span><span class="p">)))</span>
+                
+            </div>
+</pre></div>
 
           </div>
         </div>

@@ -16,6 +16,10 @@ class ConstraintSet(ModelElementSet):
     def __init__(self):
         super(ConstraintSet, self).__init__(name="Constraints")
 
+    def of_type(self, cons_type):
+        """ Return a list of constraints limited to a given type. """
+        return [cons for cons in self if isinstance(cons, cons_type)]
+
 class Constraint(ModelElement):
     """ An ORM Constraint. """
 
@@ -29,9 +33,10 @@ class Constraint(ModelElement):
         #: True if constraint has alethic modality (False implies deontic)
         self.alethic = True
 
-    #@property
-    #def fullname(self):
-    #    return "Constraints." + self.name
+    @property
+    def fullname(self):
+        """ Returns name that is unique within the model. """
+        return "Constraints." + self.name
 
     def cover(self, model_element):
         """ Add a model element to the list of elements covered by
@@ -73,12 +78,13 @@ class ValueConstraint(Constraint):
         """ The number of items in the domain defined by the constraint. """
         return len(self.domain)
 
-    def add_range(self, min_value, max_value=None, min_open=False, max_open=False):
+    def add_range(self, min_value, max_value=None,
+                  min_open=False, max_open=False):
         """ Add a range of values to the constraint. """
         if max_value is None: # Easier specification of enumerations
             max_value = min_value
 
-        if min_value == max_value and not(min_open) and not(max_open):
+        if min_value == max_value and not min_open and not max_open:
             self.domain.add(min_value)  # Single element of any data type.
         else: # Possible range of integers
             try:
@@ -148,18 +154,6 @@ class SubsetConstraint(Constraint):
         self.superset.append(role)
         self.cover(role) # Add to full list of covered roles
 
-class UniquenessConstraint(Constraint):
-    """ A uniqueness constraint. """
-
-    def __init__(self, uid=None, name=None):
-        super(UniquenessConstraint, self).__init__(uid=uid, name=name)
-
-        #: True if constraint covers roles in one fact type
-        self.internal = False
-
-        #: Object type this constraint identifies
-        self.identifier_for = None
-
 class FrequencyConstraint(Constraint):
     """ A frequency constraint. """
 
@@ -168,6 +162,23 @@ class FrequencyConstraint(Constraint):
 
         self.min_freq = None #: Minimum frequency
         self.max_freq = None #: Maximum frequency
+
+class UniquenessConstraint(FrequencyConstraint):
+    """ A uniqueness constraint (a special case of Frequency Constraint). """
+
+    def __init__(self, uid=None, name=None):
+        super(UniquenessConstraint, self).__init__(uid=uid, name=name)
+
+        #: A uniqueness constraint is a special case of a frequency constraint
+        #: in which the min and max frequencies are both 1
+        self.min_freq = 1
+        self.max_freq = 1
+
+        #: True if constraint covers roles in one fact type
+        self.internal = False
+
+        #: Object type this constraint identifies
+        self.identifier_for = None
 
 class ExclusionConstraint(Constraint):
     """ An exclusion constraint. """

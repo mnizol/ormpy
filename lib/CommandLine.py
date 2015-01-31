@@ -12,6 +12,7 @@ import sys
 import argparse
 
 from lib.NormaLoader import NormaLoader
+from lib.ORMMinus import ORMMinus
 
 ###############################################################################
 # Main function
@@ -26,6 +27,8 @@ def execute():
         default=False, help='suppress warning messages')
     parser.add_argument('-m', '--print-model', action='store_true',
         dest='print_model', default=False, help='print model contents')
+    parser.add_argument('-c', '--check-model', action='store_true',
+        dest='check_model', default=False, help='check if model is satisfiable')
     parser.add_argument('filename', type=str, help='File containing ORM model')
     args = parser.parse_args()
 
@@ -41,9 +44,22 @@ def execute():
         print "The following items were ignored when loading " + args.filename
         for omission in loader.omissions:
             print " "*3, omission
+        print
 
     if args.print_model:
-        print
         loader.model.display()
+
+    if args.check_model:
+        try:
+            solution = ORMMinus(model=loader.model).check()
+            if solution == None:
+                print "Model is unsatisfiable."
+            else:
+                print "Model is satisfiable."
+        except Exception as exception:
+            print exception
+            
+        
+
 
 

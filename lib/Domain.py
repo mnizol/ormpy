@@ -85,7 +85,8 @@ class TimeDomain(Domain):
         stop = datetime.datetime.combine(date.today(), time(23, 59))
         max_mins = int((stop - start).total_seconds()/60) + 1
         super(TimeDomain, self).__init__(size, max_size=max_mins)
-        values = [(start + timedelta(minutes=i)).time() for i in xrange(self.size)]
+        values = \
+            [(start + timedelta(minutes=i)).time() for i in xrange(self.size)]
         set.__init__(self, values)
 
 class DateTimeDomain(Domain):

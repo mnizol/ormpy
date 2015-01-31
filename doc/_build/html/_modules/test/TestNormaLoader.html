@@ -59,6 +59,8 @@
 <span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span>
 
+<span class="kn">import</span> <span class="nn">lib.TestDataLocator</span> <span class="kn">as</span> <span class="nn">TestDataLocator</span>
+
 <span class="kn">from</span> <span class="nn">lib.NormaLoader</span> <span class="kn">import</span> <span class="n">NormaLoader</span>
 <span class="kn">from</span> <span class="nn">lib.ModelElement</span> <span class="kn">import</span> <span class="n">ModelElement</span>
 <span class="kn">from</span> <span class="nn">lib.FactType</span> <span class="kn">import</span> <span class="n">FactType</span>
@@ -70,7 +72,7 @@
     <span class="sd">&quot;&quot;&quot; Unit tests for the NormaLoader class. &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TestNormaLoader.setUp"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;ORMPY_TEST_DATA_DIR&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">TestDataLocator</span><span class="o">.</span><span class="n">get_data_dir</span><span class="p">()</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span>
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_add_from_empty_stack"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_add_from_empty_stack">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_from_empty_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Check behavior of add_from_stack when empty. &quot;&quot;&quot;</span>

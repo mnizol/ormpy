@@ -84,6 +84,14 @@ lib.ObjectType module
     :undoc-members:
     :show-inheritance:
 
+lib.TestDataLocator module
+--------------------------
+
+.. automodule:: lib.TestDataLocator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

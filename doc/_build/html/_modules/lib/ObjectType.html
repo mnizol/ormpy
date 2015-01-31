@@ -74,10 +74,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">independent</span> <span class="o">=</span> <span class="bp">False</span> <span class="c">#: True for independent object types</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implicit</span> <span class="o">=</span> <span class="bp">False</span>    <span class="c">#: True for implicit object types</span>
 
-    <span class="c">#@property</span>
-    <span class="c">#def fullname(self):</span>
-    <span class="c">#    return &quot;ObjectTypes.&quot; + self.name</span>
-</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ObjectType.fullname"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.fullname">[docs]</a>    <span class="k">def</span> <span class="nf">fullname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;ObjectTypes.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+</div></div>
 <div class="viewcode-block" id="EntityType"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.EntityType">[docs]</a><span class="k">class</span> <span class="nc">EntityType</span><span class="p">(</span><span class="n">ObjectType</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An entity type is an object type that requires identification. &quot;&quot;&quot;</span>
 

@@ -68,6 +68,14 @@ test.TestORMMinus module
     :undoc-members:
     :show-inheritance:
 
+test.TestTestDataLocator module
+-------------------------------
+
+.. automodule:: test.TestTestDataLocator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

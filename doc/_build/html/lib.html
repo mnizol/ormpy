@@ -95,6 +95,11 @@ the constraint.</p>
 (<a class="reference internal" href="#lib.FactType.RoleSequence" title="lib.FactType.RoleSequence"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.RoleSequence</span></tt></a>)</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="lib.Constraint.Constraint.fullname">
+<tt class="descname">fullname</tt><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.fullname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.fullname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -102,6 +107,12 @@ the constraint.</p>
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ConstraintSet</tt><a class="reference internal" href="_modules/lib/Constraint.html#ConstraintSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ConstraintSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElementSet" title="lib.ModelElement.ModelElementSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElementSet</span></tt></a></p>
 <p>Container for a set of constraints.</p>
+<dl class="method">
+<dt id="lib.Constraint.ConstraintSet.of_type">
+<tt class="descname">of_type</tt><big>(</big><em>cons_type</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ConstraintSet.of_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ConstraintSet.of_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of constraints limited to a given type.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -206,8 +217,8 @@ schemes, and the supertype graph is not a simple path.</p>
 <dl class="class">
 <dt id="lib.Constraint.UniquenessConstraint">
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">UniquenessConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#UniquenessConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.UniquenessConstraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
-<p>A uniqueness constraint.</p>
+<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.FrequencyConstraint" title="lib.Constraint.FrequencyConstraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.FrequencyConstraint</span></tt></a></p>
+<p>A uniqueness constraint (a special case of Frequency Constraint).</p>
 <dl class="attribute">
 <dt id="lib.Constraint.UniquenessConstraint.identifier_for">
 <tt class="descname">identifier_for</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.UniquenessConstraint.identifier_for" title="Permalink to this definition">¶</a></dt>
@@ -218,6 +229,13 @@ schemes, and the supertype graph is not a simple path.</p>
 <dt id="lib.Constraint.UniquenessConstraint.internal">
 <tt class="descname">internal</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.UniquenessConstraint.internal" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if constraint covers roles in one fact type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Constraint.UniquenessConstraint.min_freq">
+<tt class="descname">min_freq</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.UniquenessConstraint.min_freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>A uniqueness constraint is a special case of a frequency constraint
+in which the min and max frequencies are both 1</p>
 </dd></dl>
 
 </dd></dl>
@@ -373,6 +391,11 @@ which defaults to midnight and increment by minutes.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="lib.FactType.FactType.fullname">
+<tt class="descname">fullname</tt><a class="reference internal" href="_modules/lib/FactType.html#FactType.fullname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType.fullname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="lib.FactType.FactType.roles">
 <tt class="descname">roles</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.FactType.roles" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of roles in the fact type</p>
@@ -397,6 +420,11 @@ which defaults to midnight and increment by minutes.</p>
 <tt class="descname">fact_type</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.fact_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fact type to which role belongs</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="lib.FactType.Role.fullname">
+<tt class="descname">fullname</tt><a class="reference internal" href="_modules/lib/FactType.html#Role.fullname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.Role.fullname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="lib.FactType.Role.player">
@@ -436,6 +464,13 @@ two forms:</p>
 <li>c * x &lt;= y_1 + y_2 + ... + y_n</li>
 <li>c * x &lt;= y_1 * y_2 * ... * y_n</li>
 </ul>
+<dl class="class">
+<dt id="lib.InequalitySystem.Constant">
+<em class="property">class </em><tt class="descclassname">lib.InequalitySystem.</tt><tt class="descname">Constant</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/lib/InequalitySystem.html#Constant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.InequalitySystem.Constant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.InequalitySystem.Variable" title="lib.InequalitySystem.Variable"><tt class="xref py py-class docutils literal"><span class="pre">lib.InequalitySystem.Variable</span></tt></a></p>
+<p>Represents a constant.</p>
+</dd></dl>
+
 <dl class="class">
 <dt id="lib.InequalitySystem.Expression">
 <em class="property">class </em><tt class="descclassname">lib.InequalitySystem.</tt><tt class="descname">Expression</tt><big>(</big><em>var_list</em><big>)</big><a class="reference internal" href="_modules/lib/InequalitySystem.html#Expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.InequalitySystem.Expression" title="Permalink to this definition">¶</a></dt>
@@ -552,6 +587,12 @@ If there is no solution, returns None.</p>
 <em class="property">class </em><tt class="descclassname">lib.InequalitySystem.</tt><tt class="descname">Product</tt><big>(</big><em>thelist</em><big>)</big><a class="reference internal" href="_modules/lib/InequalitySystem.html#Product"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.InequalitySystem.Product" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.InequalitySystem.Expression" title="lib.InequalitySystem.Expression"><tt class="xref py py-class docutils literal"><span class="pre">lib.InequalitySystem.Expression</span></tt></a></p>
 <p>Represents a product of variables.</p>
+<dl class="method">
+<dt id="lib.InequalitySystem.Product.tostring">
+<tt class="descname">tostring</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/InequalitySystem.html#Product.tostring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.InequalitySystem.Product.tostring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the expression as a string for display.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -564,7 +605,7 @@ If there is no solution, returns None.</p>
 <dl class="class">
 <dt id="lib.InequalitySystem.Variable">
 <em class="property">class </em><tt class="descclassname">lib.InequalitySystem.</tt><tt class="descname">Variable</tt><big>(</big><em>name</em>, <em>lower=1</em>, <em>upper=9223372036854775807</em><big>)</big><a class="reference internal" href="_modules/lib/InequalitySystem.html#Variable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.InequalitySystem.Variable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dd><p>Bases: <a class="reference internal" href="#lib.InequalitySystem.Expression" title="lib.InequalitySystem.Expression"><tt class="xref py py-class docutils literal"><span class="pre">lib.InequalitySystem.Expression</span></tt></a></p>
 <p>Represents a variable with an upper and lower bound.</p>
 <dl class="method">
 <dt id="lib.InequalitySystem.Variable.declare_less_than">
@@ -596,6 +637,18 @@ inequality.</p>
 <dt id="lib.InequalitySystem.Variable.name">
 <tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#lib.InequalitySystem.Variable.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Variable name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.InequalitySystem.Variable.result">
+<tt class="descname">result</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/InequalitySystem.html#Variable.result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.InequalitySystem.Variable.result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override Expression.result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.InequalitySystem.Variable.tostring">
+<tt class="descname">tostring</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/InequalitySystem.html#Variable.tostring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.InequalitySystem.Variable.tostring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return variable upper bound as a string.</p>
 </dd></dl>
 
 <dl class="method">
@@ -805,8 +858,8 @@ An .orm file can be loaded via the constructor.  For example:</p>
 <dl class="method">
 <dt id="lib.ORMMinus.ORMMinus.check">
 <tt class="descname">check</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#ORMMinus.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.ORMMinus.check" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks model for satisifiability.  Returns true if satisfiable and
-false otherwise.</p>
+<dd><p>Checks model for satisifiability.  Returns solution if satisfiable
+and None otherwise.</p>
 </dd></dl>
 
 </dd></dl>
@@ -835,6 +888,11 @@ identification scheme for this entity type.</p>
 <em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>Abstract class inherited by all object types.</p>
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.fullname">
+<tt class="descname">fullname</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.fullname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.fullname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="lib.ObjectType.ObjectType.implicit">
 <tt class="descname">implicit</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.implicit" title="Permalink to this definition">¶</a></dt>
@@ -903,6 +961,17 @@ by the modeler)</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-lib.TestDataLocator">
+<span id="lib-testdatalocator-module"></span><h2>lib.TestDataLocator module<a class="headerlink" href="#module-lib.TestDataLocator" title="Permalink to this headline">¶</a></h2>
+<p>Locates test data directory without resorting to environment variable.</p>
+<dl class="function">
+<dt id="lib.TestDataLocator.get_data_dir">
+<tt class="descclassname">lib.TestDataLocator.</tt><tt class="descname">get_data_dir</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/TestDataLocator.html#get_data_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.TestDataLocator.get_data_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return test data directory.
+See <a class="reference external" href="http://stackoverflow.com/questions/2632199/how-do-i-get-the-path-of-the-current-executed-file-in-python/2632297#2632297">http://stackoverflow.com/questions/2632199/how-do-i-get-the-path-of-the-current-executed-file-in-python/2632297#2632297</a></p>
+</dd></dl>
+
+</div>
 <div class="section" id="module-lib">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-lib" title="Permalink to this headline">¶</a></h2>
 <p>The <strong>lib</strong> package is the main library of Python modules for ORMPY.</p>
@@ -929,6 +998,7 @@ by the modeler)</p>
 <li><a class="reference internal" href="#module-lib.NormaLoader">lib.NormaLoader module</a></li>
 <li><a class="reference internal" href="#module-lib.ORMMinus">lib.ORMMinus module</a></li>
 <li><a class="reference internal" href="#module-lib.ObjectType">lib.ObjectType module</a></li>
+<li><a class="reference internal" href="#module-lib.TestDataLocator">lib.TestDataLocator module</a></li>
 <li><a class="reference internal" href="#module-lib">Module contents</a></li>
 </ul>
 </li>

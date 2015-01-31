@@ -8,13 +8,13 @@ The primary algorithm is based upon research by
 **ormpy** is a work-in-progress.  Currently, the Smaragdakis algorithm
 is only partially implemented, and we are working to add extensions
 by [McGill, et al.](http://dl.acm.org/citation.cfm?id=2001428) and
-[Nizol, et al.](http://dl.acm.org/citation.cfm?id=2593771).
+[Nizol, et al.](http://dl.acm.org/citation.cfm?id=2593771)
 
 ## Dependencies
 **ormpy** has been tested with Python 2.7 on a 64-bit Linux machine.  To 
 build ORM models consumable by **ormpy**, you must use 
 [NORMA](http://sourceforge.net/projects/orm/), which is a Visual Studio plug-in.
-However, several test models are available at [test/data](./test/data).
+However, several test models are available at [./test/data](./test/data).
 These can be viewed online using the 
 [ORM Solutions ORM Viewer](http://ormsolutions.com/tools/orm.aspx) without
 installing NORMA.
@@ -30,7 +30,7 @@ This script requires
 [sphinx](http://sphinx-doc.org/man/sphinx-apidoc.html).
 
 ## Unit Tests
-The test subdirectory contains a suite of unit tests and test data.
+The [./test](./test) subdirectory contains a suite of unit tests and test data.
 You can run all tests in the test suite via the [run_tests](./run_tests) script.
 This script requires [nosetests](https://nose.readthedocs.org/en/latest/) and
 [coverage.py](http://nedbatchelder.com/code/coverage/).

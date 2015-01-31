@@ -14,24 +14,24 @@ by [McGill, et al.](http://dl.acm.org/citation.cfm?id=2001428) and
 **ormpy** has been tested with Python 2.7 on a 64-bit Linux machine.  To 
 build ORM models consumable by **ormpy**, you must use 
 [NORMA](http://sourceforge.net/projects/orm/), which is a Visual Studio plug-in.
-However, several test models are available in the test/data subdirectory.
-These can be viewed online at [http://ormsolutions.com/tools/orm.aspx] without
+However, several test models are available at [test/data](./test/data).
+These can be viewed online using the 
+[ORM Solutions ORM Viewer](http://ormsolutions.com/tools/orm.aspx) without
 installing NORMA.
 
 ## Command-line use
 **ormpy** includes a command-line interface which can be exectued via the
-`ormpy` script in the root directory.  Run `ormpy -h` for usage instructions.
+[ormpy](./ormpy) script.  Run `ormpy -h` for usage instructions.
 
 ## API Documentation
-API documentation is at doc/_build/html/index.html.  To rebuild the documentation
-after an update to the code, run the `update_doc` script in the root directory,
-which requires 
+API documentation is at [./doc/_build/html](./doc/_build/html).  To rebuild the documentation
+after an update to the code, run the [update_doc](./update_doc) script.
+This script requires 
 [sphinx](http://sphinx-doc.org/man/sphinx-apidoc.html).
 
 ## Unit Tests
 The test subdirectory contains a suite of unit tests and test data.
-You can run all tests in the test suite via the `run_tests` script located
-in the root directory.
+You can run all tests in the test suite via the [run_tests](./run_tests) script.
 This script requires [nosetests](https://nose.readthedocs.org/en/latest/) and
 [coverage.py](http://nedbatchelder.com/code/coverage/).
 Executing `run_tests --cover` provides test coverage information via

@@ -163,6 +163,9 @@ class FrequencyConstraint(Constraint):
         self.min_freq = None #: Minimum frequency
         self.max_freq = None #: Maximum frequency
 
+        #: True if constraint covers roles in one fact type
+        self.internal = False
+
 class UniquenessConstraint(FrequencyConstraint):
     """ A uniqueness constraint (a special case of Frequency Constraint). """
 
@@ -173,9 +176,6 @@ class UniquenessConstraint(FrequencyConstraint):
         #: in which the min and max frequencies are both 1
         self.min_freq = 1
         self.max_freq = 1
-
-        #: True if constraint covers roles in one fact type
-        self.internal = False
 
         #: Object type this constraint identifies
         self.identifier_for = None

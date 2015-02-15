@@ -84,6 +84,7 @@
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Constraint.fullname"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.fullname">[docs]</a>    <span class="k">def</span> <span class="nf">fullname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns name that is unique within the model. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s">&quot;Constraints.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 </div>
 <div class="viewcode-block" id="Constraint.cover"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.cover">[docs]</a>    <span class="k">def</span> <span class="nf">cover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_element</span><span class="p">):</span>
@@ -126,12 +127,13 @@
         <span class="sd">&quot;&quot;&quot; The number of items in the domain defined by the constraint. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ValueConstraint.add_range"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.add_range">[docs]</a>    <span class="k">def</span> <span class="nf">add_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">min_open</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ValueConstraint.add_range"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.add_range">[docs]</a>    <span class="k">def</span> <span class="nf">add_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                  <span class="n">min_open</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add a range of values to the constraint. &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">max_value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># Easier specification of enumerations</span>
             <span class="n">max_value</span> <span class="o">=</span> <span class="n">min_value</span>
 
-        <span class="k">if</span> <span class="n">min_value</span> <span class="o">==</span> <span class="n">max_value</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="n">min_open</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="n">max_open</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">min_value</span> <span class="o">==</span> <span class="n">max_value</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">min_open</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">max_open</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span>  <span class="c"># Single element of any data type.</span>
         <span class="k">else</span><span class="p">:</span> <span class="c"># Possible range of integers</span>
             <span class="k">try</span><span class="p">:</span>

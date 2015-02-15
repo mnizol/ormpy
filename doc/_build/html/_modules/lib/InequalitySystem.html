@@ -92,7 +92,7 @@
         <span class="n">expression</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sym</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
 
-         </div></div>
+</div></div>
 <span class="k">class</span> <span class="nc">_VariableStatus</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Enumeration of variable statuses. &quot;&quot;&quot;</span>
     <span class="n">stable</span> <span class="o">=</span> <span class="mi">0</span> <span class="c">#: Variable&#39;s bounds did not change during an update.</span>
@@ -172,8 +172,8 @@
 
 <div class="viewcode-block" id="Product.tostring"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Product.tostring">[docs]</a>    <span class="k">def</span> <span class="nf">tostring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Returns the expression as a string for display. &quot;&quot;&quot;</span>
-        <span class="n">is_unity</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Constant</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="o">==</span><span class="mi">1</span>
-        <span class="n">expression</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">is_unity</span><span class="p">(</span><span class="n">var</span><span class="p">))]</span>
+        <span class="n">is_unity</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Constant</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">upper</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">expression</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">is_unity</span><span class="p">(</span><span class="n">var</span><span class="p">)]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sym</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="Inequality"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.Inequality">[docs]</a><span class="k">class</span> <span class="nc">Inequality</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>

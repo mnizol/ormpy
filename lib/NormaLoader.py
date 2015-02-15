@@ -552,9 +552,15 @@ class NormaLoader(object):
         # Get sequence of covered roles
         seq_node = xml_node.find(self._ns_core + "RoleSequence")
         cons.covers = self._load_role_sequence(seq_node, cons)
-
-        # Add to model
+     
         if cons.covers is not None: # None indicates constraint is unsupported
+            # Detect whether frequency constraint is internal
+            fact_types = set()
+            for role in cons.covers:
+                fact_types.add(role.fact_type)
+            cons.internal = (len(fact_types) == 1)
+
+            # Add to model
             self._add(cons)
 
     def _load_mandatory_constraint(self, xml_node, constraint_set):

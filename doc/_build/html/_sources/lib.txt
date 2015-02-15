@@ -84,6 +84,14 @@ lib.ObjectType module
     :undoc-members:
     :show-inheritance:
 
+lib.Population module
+---------------------
+
+.. automodule:: lib.Population
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lib.TestDataLocator module
 --------------------------
 

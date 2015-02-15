@@ -421,6 +421,11 @@ class TestNormaLoader(TestCase):
         self.assertIs(cons3.covers[0].fact_type, alikesb)
         self.assertIs(cons3.covers[1].fact_type, ahasb)
 
+        # Check internal property
+        self.assertTrue(cons1.internal)
+        self.assertTrue(cons2.internal)
+        self.assertFalse(cons3.internal)
+
 
     def test_bad_role_sequence_node(self):
         """ Confirm exception fires for invalid node in RoleSequence. """

@@ -39,7 +39,7 @@ class Population(object):
         # (1) Populate any object type with a ValueConstraint by drawing
         #     from that ValueConstraint
         # (2) Populate ValueType by drawing from its domain
-        # (3) Populate EntityType as Name<n>
+        # (3) Populate EntityType and ObjectifiedType as Name<n>
         # (4) Populate sub types per Smarag
         pass
 

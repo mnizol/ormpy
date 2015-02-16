@@ -50,14 +50,14 @@ def execute():
         loader.model.display()
 
     if args.check_model:
-        try:
+        #try:
             solution = ORMMinus(model=loader.model).check()
             if solution == None:
                 print "Model is unsatisfiable."
             else:
                 print "Model is satisfiable."
-        except Exception as exception:
-            print exception
+        #except Exception as exception:
+        #    print exception
             
         
 

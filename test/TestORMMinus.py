@@ -27,35 +27,58 @@ class TestORMMinus(TestCase):
         self.paper_has_author = ORMMinus(model=model)
         self.solution1 = self.paper_has_author.check()
 
-    def test_overlapping_iuc(self):
-        """ Test that exception is raised for overlapping IUCs. """
+    def test_overlapping_and_external_iuc(self):
+        """ Test that overlapping and external IUCs are ignored. """
         fname = os.path.join(self.data_dir, "overlapping_iuc.orm")
         model = NormaLoader(fname).model
         ormminus = ORMMinus(model=model)
+        solution = ormminus.check()
 
-        with self.assertRaises(Exception) as ex:
-            solution = ormminus.check()
-        self.assertEqual(ex.exception.message, 
-            "Cannot run ORM- algorithm: InternalUniquenessConstraint4 overlaps with another frequency constraint.")                
+        actual_vars = [var.name for var in ormminus._variables.itervalues()]
+
+        expected_vars = ["ObjectTypes.ValueType1",
+                         "ObjectTypes.ValueType2",
+                         "ObjectTypes.ValueType3",
+                         "FactTypes.ValueType1HasValueType3HasValueType2",
+                         "FactTypes.ValueType1HasValueType3HasValueType2.Roles.R1",
+                         "FactTypes.ValueType1HasValueType3HasValueType2.Roles.R2",
+                         "FactTypes.ValueType1HasValueType3HasValueType2.Roles.R3",
+                         "FactTypes.ValueType1HasValueType3",
+                         "FactTypes.ValueType1HasValueType3.Roles.R1",
+                         "FactTypes.ValueType1HasValueType3.Roles.R2",
+                         "FactTypes.ValueType3HasValueType2",
+                         "FactTypes.ValueType3HasValueType2.Roles.R1",
+                         "FactTypes.ValueType3HasValueType2.Roles.R2",
+                         "Constraints.IUC2",
+                         "Constraints.IUC3",
+                         "Constraints.IUC4"]
+
+        self.assertItemsEqual(actual_vars, expected_vars)
+
+        actual_ignored = [cons.name for cons in ormminus.ignored]
+        expect_ignored = ["IUC1", "EUC1"]
+
+        self.assertItemsEqual(actual_ignored, expect_ignored) 
 
     def test_disjunctive_mandatory(self):
-        """ Test that exception is raised for disjunctive 
-            mandatory constraints. """
+        """ Test that disjunctive mandatory constraint is ignored. """
         fname = os.path.join(self.data_dir, "disjunctive_mandatory.orm")
         model = NormaLoader(fname).model
         ormminus = ORMMinus(model=model)
 
         # NormaLoader actually drops the disjunctive mandatory, so create a
-        # fake one to test that the exception is raised
+        # fake one to test that the constraint is ignored
         cons = Constraint.MandatoryConstraint(name="Cons1")
         cons.cover(model.fact_types.get("EntityType1A").roles[0])
         cons.simple = False
         model.constraints.add(cons)
 
-        with self.assertRaises(Exception) as ex:
-            solution = ormminus.check()
-        self.assertEqual(ex.exception.message, 
-            "Cannot run ORM- algorithm: Cons1 is a non-simple mandatory constraint.")  
+        solution = ormminus.check()
+
+        actual = [cons.name for cons in ormminus.ignored]
+        expected = ["Cons1"]
+
+        self.assertItemsEqual(actual, expected)  
         
     def test_create_variables(self):
         """ Test creation of variables dictionary. """

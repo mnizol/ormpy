@@ -24,6 +24,7 @@ class TestNormaLoader(TestCase):
 
     def setUp(self):
         self.data_dir = TestDataLocator.get_data_dir() + os.sep
+        #self.maxDiff = None
 
     def test_add_from_empty_stack(self):
         """ Check behavior of add_from_stack when empty. """
@@ -93,6 +94,30 @@ class TestNormaLoader(TestCase):
         self.assertTrue(cons1.preferred_id)
 
         self.assertFalse(model.constraints.get("BIsASubtypeOfC").preferred_id)        
+
+    def test_subtypefact_constraints(self):
+        """ Confirm IUC and mandatory constraints on implicit subtype fact types
+            are ignored, because those fact types are ignored. """
+        loader = NormaLoader(self.data_dir + "subtype_with_derivation.orm")
+        model = loader.model
+ 
+        # Note: the mandatory and uniqueness constraints below are on the 
+        # reference fact types (e.g. ZHasZId)
+        expected = ['CIsASubtypeOfZ', 'AIsASubtypeOfZ', 'BIsASubtypeOfC',
+                    'BIsASubtypeOfA', 
+                    'SimpleMandatoryConstraint7',
+                    'InternalUniquenessConstraint13',
+                    'InternalUniquenessConstraint14',
+                    'SimpleMandatoryConstraint1',
+                    'InternalUniquenessConstraint1',
+                    'InternalUniquenessConstraint2',                    
+                    'SimpleMandatoryConstraint3',
+                    'InternalUniquenessConstraint5',
+                    'InternalUniquenessConstraint6']
+        actual = [cons.name for cons in model.constraints]
+
+        self.assertItemsEqual(actual, expected)                   
+
 
     def test_subtype_exception(self):
         """ Confirm subtype exception fires for corrupted data. """

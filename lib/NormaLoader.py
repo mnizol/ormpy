@@ -584,6 +584,8 @@ class NormaLoader(object):
             else:
                 preamble = "Inclusive-or constraint"
             self.omissions.append(preamble + " " + cons.name)
+        elif isinstance(cons.covers[0], FactType.SubtypeRole):
+            return # Simple mandatory on implicit subtype fact type
         else:
             self._add(cons)
 
@@ -602,8 +604,13 @@ class NormaLoader(object):
         seq_node = xml_node.find(self._ns_core + "RoleSequence")
         cons.covers = self._load_role_sequence(seq_node, cons)
 
+        # Confirm constraint is supported and not on an implicit subtype fact
+        supported = (cons.covers is not None)
+        if supported:
+            implicit_subtype = isinstance(cons.covers[0], FactType.SubtypeRole)
+        
         # Add to model
-        if cons.covers is not None: # None indicates constraint is unsupported
+        if supported and not implicit_subtype:
             self._add(cons)
 
     def _load_identifier_for(self, xml_node, constraint):

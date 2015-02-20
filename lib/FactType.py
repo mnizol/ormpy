@@ -46,6 +46,9 @@ class Role(ModelElement):
         self.fact_type = None #: Fact type to which role belongs
         self.player = None #: Object type that plays the role
 
+        #: True if the role is covered by an explicit mandatory constraint
+        self.mandatory = False 
+
     @property
     def fullname(self):
         """ Returns name that is unique within the model. """

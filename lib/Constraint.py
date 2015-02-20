@@ -43,6 +43,12 @@ class Constraint(ModelElement):
             the constraint. """
         self.covers.append(model_element)
 
+    def uncover(self, model_element):
+        """ Remove the model element from the list of elements covered by
+            the constraint. """
+        if model_element in self.covers:
+            self.covers.remove(model_element)
+
 class ValueConstraint(Constraint):
     """ A value constraint.  This implementation supports only a limited
         form of value constraint: specifically, enumerations (i.e. min

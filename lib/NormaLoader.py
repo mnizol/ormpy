@@ -229,6 +229,7 @@ class NormaLoader(object):
         self._load_object_types(root)
         self._load_fact_types(root)
         self._load_constraints(root)
+        self._fix_value_constraints()
 
     def _parse_norma_file(self, filename):
         """ Parse a NORMA File and return the ORMModel node. """
@@ -355,10 +356,10 @@ class NormaLoader(object):
         object_type.data_type_scale = xml_node.get("Scale")
         object_type.data_type_length = xml_node.get("Length")
 
-    def _load_value_restriction(self, xml_node, object_type):
-        """ Load value constraint on value type. """
+    def _load_value_restriction(self, xml_node, element):
+        """ Load value constraint. """
         cons = self._construct(xml_node, Constraint.ValueConstraint)
-        cons.cover(object_type)
+        cons.cover(element)
 
         for value_range in xml_node.find(self._ns_core + "ValueRanges"):
             cons.add_range(
@@ -369,6 +370,31 @@ class NormaLoader(object):
             )
 
         self._push(cons) # Add constraint to stack
+
+    def _fix_value_constraints(self):
+        """ Move value constraints on roles played by an object type that 
+            plays no other roles to instead cover the object type. """
+
+        # Per McGill, ORM- cannot support role value constraints, only value
+        # constraints on types.  However, if the value constraint covers a 
+        # role for an object type that plays no other roles and either
+        # 1) The type is not independent (i.e. the role is implicitly mandatory) 
+        # 2) The role is covered by an explicit mandatory constraint
+        # then the value constraint can be treated as a object type value
+        # constraint.
+
+        for cons in self.model.constraints.of_type(Constraint.ValueConstraint):
+            element = cons.covers[0]
+
+            if isinstance(element, FactType.Role):
+                role = element
+                obj = role.player
+            
+                if len(obj.roles) == 1: # Object type plays exactly 1 role,
+                    # which is implicitly or explicitly mandatory
+                    if not obj.independent or role.mandatory:
+                        cons.uncover(role)
+                        cons.cover(obj)
 
     ##########################################################################
     # Private Functions to Load Fact Types
@@ -416,8 +442,9 @@ class NormaLoader(object):
         # unary.
         self._add_from_stack(condition=role.player is not None, guard=role)
 
-        if role.player is not None: # Need to explicitly add role to fact_type
-            fact_type.add(role)
+        if role.player is not None:
+            role.player.roles.append(role) # Add to roles played by object type 
+            fact_type.add(role) # Need to explicitly add role to fact_type
 
     def _next_role_name(self, fact_type):
         """ Get next available unique name for a role in a fact type. """
@@ -586,7 +613,10 @@ class NormaLoader(object):
             self.omissions.append(preamble + " " + cons.name)
         elif isinstance(cons.covers[0], FactType.SubtypeRole):
             return # Simple mandatory on implicit subtype fact type
-        else:
+        else: # Simple mandatory on regular role
+            role = cons.covers[0]
+            role.mandatory = True
+
             self._add(cons)
 
     def _load_uniqueness_constraint(self, xml_node, constraint_set):

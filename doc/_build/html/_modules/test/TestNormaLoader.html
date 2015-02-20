@@ -73,6 +73,7 @@
 
 <div class="viewcode-block" id="TestNormaLoader.setUp"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">TestDataLocator</span><span class="o">.</span><span class="n">get_data_dir</span><span class="p">()</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span>
+        <span class="c">#self.maxDiff = None</span>
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_add_from_empty_stack"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_add_from_empty_stack">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_from_empty_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Check behavior of add_from_stack when empty. &quot;&quot;&quot;</span>
@@ -143,6 +144,30 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;BIsASubtypeOfC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">preferred_id</span><span class="p">)</span>        
 </div>
+<div class="viewcode-block" id="TestNormaLoader.test_subtypefact_constraints"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_subtypefact_constraints">[docs]</a>    <span class="k">def</span> <span class="nf">test_subtypefact_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm IUC and mandatory constraints on implicit subtype fact types</span>
+<span class="sd">            are ignored, because those fact types are ignored. &quot;&quot;&quot;</span>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;subtype_with_derivation.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">model</span>
+ 
+        <span class="c"># Note: the mandatory and uniqueness constraints below are on the </span>
+        <span class="c"># reference fact types (e.g. ZHasZId)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;CIsASubtypeOfZ&#39;</span><span class="p">,</span> <span class="s">&#39;AIsASubtypeOfZ&#39;</span><span class="p">,</span> <span class="s">&#39;BIsASubtypeOfC&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;BIsASubtypeOfA&#39;</span><span class="p">,</span> 
+                    <span class="s">&#39;SimpleMandatoryConstraint7&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;InternalUniquenessConstraint13&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;InternalUniquenessConstraint14&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;SimpleMandatoryConstraint1&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;InternalUniquenessConstraint1&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;InternalUniquenessConstraint2&#39;</span><span class="p">,</span>                    
+                    <span class="s">&#39;SimpleMandatoryConstraint3&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;InternalUniquenessConstraint5&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;InternalUniquenessConstraint6&#39;</span><span class="p">]</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="p">[</span><span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>                   
+
+</div>
 <div class="viewcode-block" id="TestNormaLoader.test_subtype_exception"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_subtype_exception">[docs]</a>    <span class="k">def</span> <span class="nf">test_subtype_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Confirm subtype exception fires for corrupted data. &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
@@ -202,6 +227,25 @@
         <span class="c"># Implicit Objectified (Created by ternary, should not load)</span>
         <span class="n">this</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V1HasDHasV2&quot;</span><span class="p">)</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_played_roles"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_played_roles">[docs]</a>    <span class="k">def</span> <span class="nf">test_played_roles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm that object types know the list of roles they play. &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;object_type_tests.orm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+
+        <span class="n">obj_type0</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">)</span>
+        <span class="n">obj_type1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V1HasV2&quot;</span><span class="p">)</span>
+        <span class="n">obj_type2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;D&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">obj_type0</span><span class="o">.</span><span class="n">roles</span><span class="p">,</span> <span class="p">[])</span>  
+
+        <span class="n">r1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V1HasV2Exists&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">obj_type1</span><span class="o">.</span><span class="n">roles</span><span class="p">,</span> <span class="p">[</span><span class="n">r1</span><span class="p">])</span>
+
+        <span class="n">r1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V1HasDHasV2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;DHasDId&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">obj_type2</span><span class="o">.</span><span class="n">roles</span><span class="p">,</span> <span class="p">[</span><span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">])</span>      
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_data_type_load"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_data_type_load">[docs]</a>    <span class="k">def</span> <span class="nf">test_data_type_load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Confirm data types are loaded properly for Value Types. &quot;&quot;&quot;</span>
@@ -469,6 +513,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">covers</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">alikesb</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">ahasb</span><span class="p">)</span>
+
+        <span class="c"># Check internal property</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">internal</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cons2</span><span class="o">.</span><span class="n">internal</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">internal</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_bad_role_sequence_node"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_bad_role_sequence_node">[docs]</a>    <span class="k">def</span> <span class="nf">test_bad_role_sequence_node</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

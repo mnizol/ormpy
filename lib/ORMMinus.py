@@ -10,7 +10,8 @@
 #       Specifically, it does not implement the following:
 #       * Cardinality constraint inequalities
 #       * Subtype inequalities
-#       * Inequalities described by McGill's or Nizol's extensions to ORM-
+#       * Inequalities described by McGill's extensions to ORM-
+#       * Inequalityes described by Nizol's extensions to ORM-
 #       * Inequality to express implicit uniqueness over a predicate.
 #         (This is the 2nd to last bullet on pg 86 of Smaragdakis. Because
 #          standard ORM practice is to cover all but (at most) one role with
@@ -22,6 +23,7 @@ from lib.InequalitySystem \
     import InequalitySystem, Inequality, Variable, Constant, Sum, Product
 from lib.Constraint \
     import FrequencyConstraint, MandatoryConstraint, ValueConstraint
+from lib.ObjectType import ObjectType
 
 class ORMMinus(object):
     """ Implements ORMMinus algorithm (Smaragdakis et al.).
@@ -35,7 +37,6 @@ class ORMMinus(object):
         self._ubound = ubound #: Bound on model element size
         self._ineqsys = InequalitySystem() #: System of inequalities
         self._variables = {} #: Dictionary from model element to variable
-        self._obj_roles = {} #: Dictionary from object type to roles
         self.ignored = [] #: List of ignored constraints
 
     def check(self):
@@ -43,7 +44,6 @@ class ORMMinus(object):
             and None otherwise. """
 
         self._create_variables()
-        self._create_obj_roles_dict()
         self._create_inequalities()
         return self._ineqsys.solve()
 
@@ -85,13 +85,6 @@ class ORMMinus(object):
                 self._variables[cons] = Variable(cons.fullname, 
                                                  upper=self._ubound)
 
-    def _create_obj_roles_dict(self):
-        """ Map each object type to the roles it plays. """
-        for fact_type in self._model.fact_types:
-            for role in fact_type.roles:
-                obj = role.player
-                self._obj_roles[obj] = self._obj_roles.get(obj, []) + [role]
-
     def _create_inequalities(self):
         """ Generate system of inequalities based on rules in Smaragdakis and
             McGill. """
@@ -119,16 +112,24 @@ class ORMMinus(object):
 
         # Create inequalities for implicit disjunctive constraint
         for obj in self._model.object_types:
-            role_seq = self._obj_roles.get(obj)
-            if obj.independent == False and role_seq != None:
+            if obj.independent == False and len(obj.roles) > 0:
                 obj_var = self._variables[obj]
-                role_vars = [self._variables[role] for role in role_seq]
+                role_vars = [self._variables[role] for role in obj.roles]
                 self._add(Inequality(lhs=obj_var, rhs=Sum(role_vars)))
 
     def _create_value_inequality(self, cons):
         """ Value constraint inequality. """
-        obj_var = self._variables[cons.covers[0]]
-        self._add(Inequality(lhs=obj_var, rhs=Constant(cons.size)))
+
+        # Per McGill, we cannot support value constraints on roles, only on
+        # types.  See _load_value_restriction in NormaLoader, which moves
+        # certain value constraints on roles to the type so that they can be
+        # included in the ORMMinus solution.
+        
+        if isinstance(cons.covers[0], ObjectType):
+            obj_var = self._variables[cons.covers[0]]
+            self._add(Inequality(lhs=obj_var, rhs=Constant(cons.size)))
+        else:
+            self._ignore(cons)
 
     def _create_mandatory_inequality(self, cons):
         """ Simple mandatory constraint inequality. """

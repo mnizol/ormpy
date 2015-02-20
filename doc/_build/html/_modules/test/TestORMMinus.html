@@ -76,36 +76,77 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solution1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="TestORMMinus.test_overlapping_iuc"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_overlapping_iuc">[docs]</a>    <span class="k">def</span> <span class="nf">test_overlapping_iuc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Test that exception is raised for overlapping IUCs. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestORMMinus.test_overlapping_and_external_iuc"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_overlapping_and_external_iuc">[docs]</a>    <span class="k">def</span> <span class="nf">test_overlapping_and_external_iuc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that overlapping and external IUCs are ignored. &quot;&quot;&quot;</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;overlapping_iuc.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
         <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
 
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> 
-            <span class="s">&quot;Cannot run ORM- algorithm: InternalUniquenessConstraint4 overlaps with another frequency constraint.&quot;</span><span class="p">)</span>                
+        <span class="n">actual_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_variables</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()]</span>
+
+        <span class="n">expected_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;ObjectTypes.ValueType1&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;ObjectTypes.ValueType2&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;ObjectTypes.ValueType3&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;FactTypes.ValueType1HasValueType3HasValueType2&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;FactTypes.ValueType1HasValueType3HasValueType2.Roles.R1&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;FactTypes.ValueType1HasValueType3HasValueType2.Roles.R2&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;FactTypes.ValueType1HasValueType3HasValueType2.Roles.R3&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;FactTypes.ValueType1HasValueType3&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;FactTypes.ValueType1HasValueType3.Roles.R1&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;FactTypes.ValueType1HasValueType3.Roles.R2&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;FactTypes.ValueType3HasValueType2&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;FactTypes.ValueType3HasValueType2.Roles.R1&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;FactTypes.ValueType3HasValueType2.Roles.R2&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;Constraints.IUC2&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;Constraints.IUC3&quot;</span><span class="p">,</span>
+                         <span class="s">&quot;Constraints.IUC4&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual_vars</span><span class="p">,</span> <span class="n">expected_vars</span><span class="p">)</span>
+
+        <span class="n">actual_ignored</span> <span class="o">=</span> <span class="p">[</span><span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">ignored</span><span class="p">]</span>
+        <span class="n">expect_ignored</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;IUC1&quot;</span><span class="p">,</span> <span class="s">&quot;EUC1&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual_ignored</span><span class="p">,</span> <span class="n">expect_ignored</span><span class="p">)</span> 
 </div>
 <div class="viewcode-block" id="TestORMMinus.test_disjunctive_mandatory"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_disjunctive_mandatory">[docs]</a>    <span class="k">def</span> <span class="nf">test_disjunctive_mandatory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Test that exception is raised for disjunctive </span>
-<span class="sd">            mandatory constraints. &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; Test that disjunctive mandatory constraint is ignored. &quot;&quot;&quot;</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;disjunctive_mandatory.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
         <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 
         <span class="c"># NormaLoader actually drops the disjunctive mandatory, so create a</span>
-        <span class="c"># fake one to test that the exception is raised</span>
+        <span class="c"># fake one to test that the constraint is ignored</span>
         <span class="n">cons</span> <span class="o">=</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">MandatoryConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Cons1&quot;</span><span class="p">)</span>
         <span class="n">cons</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;EntityType1A&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">cons</span><span class="o">.</span><span class="n">simple</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> 
-            <span class="s">&quot;Cannot run ORM- algorithm: Cons1 is a non-simple mandatory constraint.&quot;</span><span class="p">)</span>  
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="p">[</span><span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">ignored</span><span class="p">]</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Cons1&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>  
         </div>
+<div class="viewcode-block" id="TestORMMinus.test_ignored_constraint"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_ignored_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">test_ignored_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that appropriate constraints are ignored. &quot;&quot;&quot;</span>
+
+        <span class="c"># IMPORTANT: I expect this test to fail when I update algorithm to</span>
+        <span class="c"># work with subset constraints.  At that point, CHANGE this test to</span>
+        <span class="c"># check that a different kind of constraint (e.g. Exclusion) is </span>
+        <span class="c"># ignored.  That will require updating NormaLoader to load such</span>
+        <span class="c"># constraints rather than omitting them.</span>
+
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;subset_constraint.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="p">[</span><span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">ignored</span><span class="p">]</span>
+        <span class="n">expect</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;SubsetConstraint1&quot;</span><span class="p">,</span> <span class="s">&quot;SubsetConstraint2&quot;</span><span class="p">,</span> <span class="s">&quot;SubsetConstraint4&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="TestORMMinus.test_create_variables"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_create_variables">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test creation of variables dictionary. &quot;&quot;&quot;</span>
         <span class="n">actual_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> 
@@ -192,7 +233,7 @@
                   <span class="s">&quot;Constraints.IUC3 &lt;= FactTypes.AOwnsD&quot;</span><span class="p">,</span>
                   <span class="s">&quot;Constraints.IUC3 &lt;= FactTypes.AOwnsD.Roles.R5&quot;</span><span class="p">,</span>
                   <span class="s">&quot;FactTypes.AOwnsD.Roles.R5 &lt;= Constraints.IUC3&quot;</span><span class="p">,</span>
-                  <span class="s">&quot;ObjectTypes.A &lt;= FactTypes.AOwnsD.Roles.R5 + FactTypes.ASharesB.Roles.R3 + FactTypes.ALikesA.Roles.R1 + FactTypes.ALikesA.Roles.R2&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;ObjectTypes.A &lt;= FactTypes.ASharesB.Roles.R3 + FactTypes.ALikesA.Roles.R1 + FactTypes.ALikesA.Roles.R2 + FactTypes.AOwnsD.Roles.R5&quot;</span><span class="p">,</span>
                   <span class="s">&quot;ObjectTypes.D &lt;= FactTypes.AOwnsD.Roles.R6&quot;</span> 
                  <span class="p">]</span>
         

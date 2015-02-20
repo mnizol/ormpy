@@ -179,6 +179,25 @@ class TestNormaLoader(TestCase):
         this = model.object_types.get("V1HasDHasV2") 
         self.assertIsNone(this)
 
+    def test_played_roles(self):
+        """ Confirm that object types know the list of roles they play. """
+        model = NormaLoader(self.data_dir + "object_type_tests.orm").model
+
+        obj_type0 = model.object_types.get("B")
+        obj_type1 = model.object_types.get("V1HasV2")
+        obj_type2 = model.object_types.get("D")
+
+        self.assertItemsEqual(obj_type0.roles, [])  
+
+        r1 = model.fact_types.get("V1HasV2Exists").roles[0]
+        
+        self.assertItemsEqual(obj_type1.roles, [r1])
+
+        r1 = model.fact_types.get("V1HasDHasV2").roles[1]
+        r2 = model.fact_types.get("DHasDId").roles[0]
+
+        self.assertItemsEqual(obj_type2.roles, [r1, r2])      
+
     def test_data_type_load(self):
         """ Confirm data types are loaded properly for Value Types. """
         model = NormaLoader(self.data_dir + "data_types.orm").model
@@ -501,6 +520,14 @@ class TestNormaLoader(TestCase):
         self.assertItemsEqual(loader.omissions,
             ["Inclusive-or constraint InclusiveOrConstraint1"])
 
+        # Check assignment of mandatory to roles
+        fact_type = model.fact_types.get("EHasEId")
+        r1 = fact_type.roles[0]
+        r2 = fact_type.roles[1]
+
+        self.assertTrue(r1.mandatory)
+        self.assertFalse(r2.mandatory)
+
     def test_role_names(self):
         """ Confirm role names are generated properly. """
         model = NormaLoader(self.data_dir + "role_names.orm").model
@@ -517,11 +544,57 @@ class TestNormaLoader(TestCase):
         self.assertEquals(tern.roles[0].name, "R2")
         self.assertEquals(tern.roles[1].name, "R3")
         self.assertEquals(tern.roles[2].name, "R4")
-        
 
+    def test_value_constraint_move(self):
+        """ Confirm value constraints on (implicitly or explicitly) mandatory
+            roles are moved to the object type. """
+        loader = NormaLoader(self.data_dir + "test_value_type_value_constraint.orm")
+        model = loader.model
 
+        # Constraint directly on value type should cover value type
+        cons1 = model.constraints.get("ValueConstraint1")
+        obj1 = model.object_types.get("A")
+        self.assertItemsEqual(cons1.covers, [obj1]) 
 
+        # Constraint on entity type covers role played by the reference type.
+        # If the ref type plays no other roles, the constraint should cover the
+        # type.
+        cons2 = model.constraints.get("RoleValueConstraint1")
+        obj2 = model.object_types.get("ET1_id")
+        self.assertItemsEqual(cons2.covers, [obj2]) 
 
+        # Value type value constraint --- directly covers value type
+        cons3 = model.constraints.get("ValueTypeValueConstraint1")
+        obj3 = model.object_types.get("ET2_id")
+        self.assertItemsEqual(cons3.covers, [obj3])
+
+        # In the next two tests, the constraints are on entity types with a 
+        # shared reference mode (USDValue).  Those value constraints
+        # cannot be moved to the object type and thus remain on the roles. 
+        cons4 = model.constraints.get("RoleValueConstraint2")
+        role4 = model.fact_types.get("ET3HasUSDValue").roles[1]
+        self.assertItemsEqual(cons4.covers, [role4])
+
+        cons5 = model.constraints.get("RoleValueConstraint3")
+        role5 = model.fact_types.get("ET4HasUSDValue").roles[1]
+        self.assertItemsEqual(cons5.covers, [role5])
+
+        # ET5 plays two roles: the reference role and the unary.  Thus, the 
+        # role value constraint cannot be moved.
+        cons6 = model.constraints.get("RoleValueConstraint4")
+        role6 = model.fact_types.get("ET5Exists").roles[0]
+        self.assertItemsEqual(cons6.covers, [role6]) 
+
+        # VT1 plays only a unary role and is not independent, so the role 
+        # value constraint can cover the object type instead.
+        cons7 = model.constraints.get("RoleValueConstraint5")
+        obj7 = model.object_types.get("VT1")
+        self.assertItemsEqual(cons7.covers, [obj7])  
+
+        # VT2 is independent, so the role value constraint cannot be moved.
+        cons8 = model.constraints.get("RoleValueConstraint6")
+        role8 = model.fact_types.get("VT2Exists").roles[0]
+        self.assertItemsEqual(cons8.covers, [role8])             
 
 
  

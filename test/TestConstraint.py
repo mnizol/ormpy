@@ -24,6 +24,21 @@ class TestConstraint(TestCase):
         cons.cover(ObjectType(uid="2", name="O1"))
         self.assertEquals(cons.covers[0].name, "O1")
 
+    def test_remove_object_type(self):
+        """ Test the removal of an object type from a constraint. """
+        cons = Constraint.Constraint(uid="1", name="C1")
+        obj = ObjectType(uid="2", name="O1")
+        cons.cover(obj)
+        self.assertEquals(cons.covers[0], obj)
+
+        # Unsuccessful uncover
+        cons.uncover("Dummy")
+        self.assertEquals(cons.covers[0], obj)
+
+        # Successful uncover
+        cons.uncover(obj)
+        self.assertItemsEqual(cons.covers, [])
+
     def test_vc_add_enum(self):
         """ Test the addition of enumerated items to a value constraint."""
         cons = Constraint.ValueConstraint(uid="1", name="VC1")

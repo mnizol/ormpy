@@ -24,6 +24,7 @@ class ObjectType(ModelElement):
         super(ObjectType, self).__init__(uid=uid, name=name)
         self.independent = False #: True for independent object types
         self.implicit = False    #: True for implicit object types
+        self.roles = [] #: Roles played by this object type
 
     @property
     def fullname(self):

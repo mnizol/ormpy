@@ -41,7 +41,7 @@ def execute():
         sys.exit(2)
 
     if not args.quiet and len(loader.omissions) > 0:
-        print "The following items were ignored when loading " + args.filename
+        print "Some items were ignored when loading " + args.filename + ":"
         for omission in loader.omissions:
             print " "*3, omission
         print
@@ -50,15 +50,19 @@ def execute():
         loader.model.display()
 
     if args.check_model:
-        #try:
-            solution = ORMMinus(model=loader.model).check()
-            if solution == None:
-                print "Model is unsatisfiable."
-            else:
-                print "Model is satisfiable."
-        #except Exception as exception:
-        #    print exception
-            
+        ormminus = ORMMinus(model=loader.model)
+        solution = ormminus.check()
+
+        if not args.quiet and len(ormminus.ignored) > 0:
+            print "Some constraints were ignored while checking the model:"
+            for cons in ormminus.ignored:
+                print " "*3, cons.name
+            print
+
+        if solution == None:
+            print "Model is unsatisfiable."
+        else:
+            print "Model is satisfiable."      
         
 
 

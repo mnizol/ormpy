@@ -101,6 +101,13 @@ the constraint.</p>
 <dd><p>Returns name that is unique within the model.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="lib.Constraint.Constraint.uncover">
+<tt class="descname">uncover</tt><big>(</big><em>model_element</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.uncover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.uncover" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the model element from the list of elements covered by
+the constraint.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -128,6 +135,12 @@ the constraint.</p>
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">FrequencyConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#FrequencyConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.FrequencyConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
 <p>A frequency constraint.</p>
+<dl class="attribute">
+<dt id="lib.Constraint.FrequencyConstraint.internal">
+<tt class="descname">internal</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.FrequencyConstraint.internal" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if constraint covers roles in one fact type</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.Constraint.FrequencyConstraint.max_freq">
 <tt class="descname">max_freq</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.FrequencyConstraint.max_freq" title="Permalink to this definition">¶</a></dt>
@@ -224,12 +237,6 @@ schemes, and the supertype graph is not a simple path.</p>
 <dt id="lib.Constraint.UniquenessConstraint.identifier_for">
 <tt class="descname">identifier_for</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.UniquenessConstraint.identifier_for" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object type this constraint identifies</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="lib.Constraint.UniquenessConstraint.internal">
-<tt class="descname">internal</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.UniquenessConstraint.internal" title="Permalink to this definition">¶</a></dt>
-<dd><p>True if constraint covers roles in one fact type</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -427,6 +434,12 @@ which defaults to midnight and increment by minutes.</p>
 <dt id="lib.FactType.Role.fullname">
 <tt class="descname">fullname</tt><a class="reference internal" href="_modules/lib/FactType.html#Role.fullname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.Role.fullname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns name that is unique within the model.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.FactType.Role.mandatory">
+<tt class="descname">mandatory</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.mandatory" title="Permalink to this definition">¶</a></dt>
+<dd><p>True iff the role is covered by an explicit mandatory constraint</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -865,6 +878,12 @@ An .orm file can be loaded via the constructor.  For example:</p>
 and None otherwise.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="lib.ORMMinus.ORMMinus.ignored">
+<tt class="descname">ignored</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinus.ORMMinus.ignored" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of ignored constraints</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -907,6 +926,12 @@ identification scheme for this entity type.</p>
 <dt id="lib.ObjectType.ObjectType.independent">
 <tt class="descname">independent</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.independent" title="Permalink to this definition">¶</a></dt>
 <dd><p>True for independent object types</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.roles">
+<tt class="descname">roles</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Roles played by this object type</p>
 </dd></dl>
 
 </dd></dl>
@@ -975,14 +1000,19 @@ by the modeler)</p>
 <p>A population of an ORM model.</p>
 <dl class="method">
 <dt id="lib.Population.Population.populate">
-<tt class="descname">populate</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population.populate" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">populate</tt><big>(</big><em>ubound=9223372036854775807</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population.populate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a population for the model.  If the model is satisfiable, 
 then self.object_types and self.fact_types will be 
 dictionaries whose key is the object_type (fact_type) name and
-whose value is a Relation that satisfies the constraints in the
-model.  If the model is unsatisfiable, then self.object_types and 
-self.fact_types will both be set to None.</p>
+whose value is a <tt class="xref py py-class docutils literal"><span class="pre">lib.Relation.Relation</span></tt> that satisfies the
+constraints in the model.  If the model is unsatisfiable, then 
+self.object_types and self.fact_types will both be set to None.</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="lib.Population.Population.write_csv">
+<tt class="descname">write_csv</tt><big>(</big><em>directory</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population.write_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population.write_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

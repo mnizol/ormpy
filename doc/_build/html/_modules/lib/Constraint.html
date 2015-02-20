@@ -91,6 +91,12 @@
         <span class="sd">&quot;&quot;&quot; Add a model element to the list of elements covered by</span>
 <span class="sd">            the constraint. &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_element</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Constraint.uncover"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.uncover">[docs]</a>    <span class="k">def</span> <span class="nf">uncover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove the model element from the list of elements covered by</span>
+<span class="sd">            the constraint. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">model_element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">model_element</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="ValueConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint">[docs]</a><span class="k">class</span> <span class="nc">ValueConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A value constraint.  This implementation supports only a limited</span>
@@ -211,6 +217,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Minimum frequency</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Maximum frequency</span>
+
+        <span class="c">#: True if constraint covers roles in one fact type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internal</span> <span class="o">=</span> <span class="bp">False</span>
 </div>
 <div class="viewcode-block" id="UniquenessConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.UniquenessConstraint">[docs]</a><span class="k">class</span> <span class="nc">UniquenessConstraint</span><span class="p">(</span><span class="n">FrequencyConstraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A uniqueness constraint (a special case of Frequency Constraint). &quot;&quot;&quot;</span>
@@ -222,9 +231,6 @@
         <span class="c">#: in which the min and max frequencies are both 1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="mi">1</span>
-
-        <span class="c">#: True if constraint covers roles in one fact type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">internal</span> <span class="o">=</span> <span class="bp">False</span>
 
         <span class="c">#: Object type this constraint identifies</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="o">=</span> <span class="bp">None</span>

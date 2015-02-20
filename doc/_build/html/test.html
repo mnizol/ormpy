@@ -97,6 +97,12 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_remove_object_type">
+<tt class="descname">test_remove_object_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_remove_object_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_remove_object_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the removal of an object type from a constraint.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestConstraint.TestConstraint.test_vc_add_enum">
 <tt class="descname">test_vc_add_enum</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_vc_add_enum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_vc_add_enum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test the addition of enumerated items to a value constraint.</p>
@@ -649,6 +655,12 @@ ORMModel element.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_played_roles">
+<tt class="descname">test_played_roles</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_played_roles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_played_roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm that object types know the list of roles they play.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestNormaLoader.TestNormaLoader.test_role_names">
 <tt class="descname">test_role_names</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_role_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_role_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm role names are generated properly.</p>
@@ -664,6 +676,13 @@ ORMModel element.</p>
 <dt id="test.TestNormaLoader.TestNormaLoader.test_subtype_exception">
 <tt class="descname">test_subtype_exception</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_subtype_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_subtype_exception" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm subtype exception fires for corrupted data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_subtypefact_constraints">
+<tt class="descname">test_subtypefact_constraints</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_subtypefact_constraints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_subtypefact_constraints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm IUC and mandatory constraints on implicit subtype fact types
+are ignored, because those fact types are ignored.</p>
 </dd></dl>
 
 <dl class="method">
@@ -725,8 +744,13 @@ is unexpected.</p>
 <dl class="method">
 <dt id="test.TestORMMinus.TestORMMinus.test_disjunctive_mandatory">
 <tt class="descname">test_disjunctive_mandatory</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_disjunctive_mandatory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_disjunctive_mandatory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test that exception is raised for disjunctive 
-mandatory constraints.</p>
+<dd><p>Test that disjunctive mandatory constraint is ignored.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinus.TestORMMinus.test_ignored_constraint">
+<tt class="descname">test_ignored_constraint</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_ignored_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_ignored_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that appropriate constraints are ignored.</p>
 </dd></dl>
 
 <dl class="method">
@@ -736,9 +760,9 @@ mandatory constraints.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="test.TestORMMinus.TestORMMinus.test_overlapping_iuc">
-<tt class="descname">test_overlapping_iuc</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_overlapping_iuc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_overlapping_iuc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test that exception is raised for overlapping IUCs.</p>
+<dt id="test.TestORMMinus.TestORMMinus.test_overlapping_and_external_iuc">
+<tt class="descname">test_overlapping_and_external_iuc</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_overlapping_and_external_iuc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_overlapping_and_external_iuc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that overlapping and external IUCs are ignored.</p>
 </dd></dl>
 
 <dl class="method">
@@ -757,6 +781,28 @@ mandatory constraints.</p>
 <dt id="test.TestORMMinus.TestORMMinus.test_unsat_smarag_3">
 <tt class="descname">test_unsat_smarag_3</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinus.html#TestORMMinus.test_unsat_smarag_3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinus.TestORMMinus.test_unsat_smarag_3" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test 3rd unsatisfiable model provided by Smaragdakis.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-test.TestPopulation">
+<span id="test-testpopulation-module"></span><h2>test.TestPopulation module<a class="headerlink" href="#module-test.TestPopulation" title="Permalink to this headline">¶</a></h2>
+<p>This file contains unit tests for the lib.Population module.</p>
+<dl class="class">
+<dt id="test.TestPopulation.TestPopulation">
+<em class="property">class </em><tt class="descclassname">test.TestPopulation.</tt><tt class="descname">TestPopulation</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestPopulation.html#TestPopulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestPopulation.TestPopulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Unit tests for the Population module.</p>
+<dl class="method">
+<dt id="test.TestPopulation.TestPopulation.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestPopulation.html#TestPopulation.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestPopulation.TestPopulation.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestPopulation.TestPopulation.test_unsat_model">
+<tt class="descname">test_unsat_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestPopulation.html#TestPopulation.test_unsat_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestPopulation.TestPopulation.test_unsat_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test population of an unsatisfiable model.</p>
 </dd></dl>
 
 </dd></dl>
@@ -807,6 +853,7 @@ mandatory constraints.</p>
 <li><a class="reference internal" href="#module-test.TestModelElement">test.TestModelElement module</a></li>
 <li><a class="reference internal" href="#module-test.TestNormaLoader">test.TestNormaLoader module</a></li>
 <li><a class="reference internal" href="#module-test.TestORMMinus">test.TestORMMinus module</a></li>
+<li><a class="reference internal" href="#module-test.TestPopulation">test.TestPopulation module</a></li>
 <li><a class="reference internal" href="#module-test.TestTestDataLocator">test.TestTestDataLocator module</a></li>
 <li><a class="reference internal" href="#module-test">Module contents</a></li>
 </ul>

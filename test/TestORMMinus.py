@@ -80,6 +80,36 @@ class TestORMMinus(TestCase):
 
         self.assertItemsEqual(actual, expected)  
         
+    def test_ignored_constraint(self):
+        """ Test that appropriate constraints are ignored. """
+
+        # IMPORTANT: I expect this test to fail when I update algorithm to
+        # work with subset constraints.  At that point, CHANGE this test to
+        # check that a different kind of constraint (e.g. Exclusion) is 
+        # ignored.  That will require updating NormaLoader to load such
+        # constraints rather than omitting them.
+
+        fname = os.path.join(self.data_dir, "subset_constraint.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinus(model=model)
+        solution = ormminus.check()
+
+        actual = [cons.name for cons in ormminus.ignored]
+        expect = ["SubsetConstraint1", "SubsetConstraint2", "SubsetConstraint4"]
+        self.assertItemsEqual(actual, expect)
+
+    def test_ignored_value_constraint(self):
+        """ Test that role value constraints are ignored. """
+        fname = os.path.join(self.data_dir, "test_value_type_value_constraint.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinus(model=model)
+        solution = ormminus.check() 
+
+        actual = [cons.name for cons in ormminus.ignored]
+        expect = ["RoleValueConstraint2", "RoleValueConstraint3", 
+                  "RoleValueConstraint4", "RoleValueConstraint6"]
+        self.assertItemsEqual(actual, expect)               
+
     def test_create_variables(self):
         """ Test creation of variables dictionary. """
         actual_vars = [var.name for var in 
@@ -166,7 +196,7 @@ class TestORMMinus(TestCase):
                   "Constraints.IUC3 <= FactTypes.AOwnsD",
                   "Constraints.IUC3 <= FactTypes.AOwnsD.Roles.R5",
                   "FactTypes.AOwnsD.Roles.R5 <= Constraints.IUC3",
-                  "ObjectTypes.A <= FactTypes.AOwnsD.Roles.R5 + FactTypes.ASharesB.Roles.R3 + FactTypes.ALikesA.Roles.R1 + FactTypes.ALikesA.Roles.R2",
+                  "ObjectTypes.A <= FactTypes.ASharesB.Roles.R3 + FactTypes.ALikesA.Roles.R1 + FactTypes.ALikesA.Roles.R2 + FactTypes.AOwnsD.Roles.R5",
                   "ObjectTypes.D <= FactTypes.AOwnsD.Roles.R6" 
                  ]
         

@@ -325,7 +325,7 @@ first 10 integers from that domain as a set.</p>
 
 <dl class="class">
 <dt id="lib.Domain.DateDomain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">DateDomain</tt><big>(</big><em>size</em>, <em>start=datetime.date(2000</em>, <em>1</em>, <em>1)</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#DateDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.DateDomain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">DateDomain</tt><big>(</big><em>start=datetime.date(2000</em>, <em>1</em>, <em>1)</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#DateDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.DateDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
 <p>A domain for date values.  Generated dates start on &lt;start&gt;
 which defaults to January 1, 2000.</p>
@@ -333,7 +333,7 @@ which defaults to January 1, 2000.</p>
 
 <dl class="class">
 <dt id="lib.Domain.DateTimeDomain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">DateTimeDomain</tt><big>(</big><em>size</em>, <em>start=datetime.datetime(2000</em>, <em>1</em>, <em>1</em>, <em>0</em>, <em>0)</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#DateTimeDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.DateTimeDomain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">DateTimeDomain</tt><big>(</big><em>start=datetime.datetime(2000</em>, <em>1</em>, <em>1</em>, <em>0</em>, <em>0)</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#DateTimeDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.DateTimeDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
 <p>A domain for datetime values.  Generated datetimes start on &lt;start&gt;
 which defaults to January 1, 2000 at midnight and increment by
@@ -349,9 +349,9 @@ data type.</p>
 <dl class="method">
 <dt id="lib.Domain.Domain.draw">
 <tt class="descname">draw</tt><big>(</big><em>n</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain.draw" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw n elements from the domain and return as a set.  If n is
-larger than the number of elements in the domain, then returns
-the entire domain as a set.</p>
+<dd><p>Draw the first n elements from the domain and return as a set.  
+If n is larger than the number of elements in the domain,
+the entire domain is returned as a set.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -367,8 +367,8 @@ the maximum is sys.maxsize.</p>
 <dt id="lib.Domain.FloatDomain">
 <em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">FloatDomain</tt><a class="reference internal" href="_modules/lib/Domain.html#FloatDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.FloatDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
-<p>A floating point domain.  Only contains floating point numbers
-in increments of 0.1 (e.g. 0.1, 0.2, 0.3, etc.).</p>
+<p>A floating point domain.  Only includes floating point numbers
+in increments of 0.1 (e.g. 0.0, 0.1, 0.2, 0.3, etc.).</p>
 </dd></dl>
 
 <dl class="class">
@@ -379,8 +379,8 @@ in increments of 0.1 (e.g. 0.1, 0.2, 0.3, etc.).</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="lib.Domain.StrDomain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">StrDomain</tt><big>(</big><em>size</em>, <em>prefix=''</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#StrDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.StrDomain" title="Permalink to this definition">¶</a></dt>
+<dt id="lib.Domain.StringDomain">
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">StringDomain</tt><big>(</big><em>prefix=''</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#StringDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.StringDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
 <p>A domain for string values. The constructor includes a prefix
 parameter.  Generated strings are of the form &#8216;prefix&lt;n&gt;&#8217;
@@ -389,10 +389,10 @@ where &lt;n&gt; is a monotonically increasing unsigned integer.</p>
 
 <dl class="class">
 <dt id="lib.Domain.TimeDomain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">TimeDomain</tt><big>(</big><em>size</em>, <em>start=datetime.time(0</em>, <em>0)</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#TimeDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.TimeDomain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">TimeDomain</tt><big>(</big><em>start=datetime.time(0</em>, <em>0)</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#TimeDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.TimeDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
 <p>A domain for time values.  Generated times start at &lt;start&gt;
-which defaults to midnight and increment by minutes.</p>
+which defaults to midnight and increments by minutes.</p>
 </dd></dl>
 
 </div>
@@ -839,10 +839,9 @@ also ignores the following (not necessarily exhaustive) list of items:</p>
 <p>A list of important model elements (such as derivations
 and constraints) that are ignored by NormaLoader is contained in the
 <em>omissions</em> attribute after loading the input file.</p>
-<p><strong>Data Types:</strong> NormaLoader maps all data types specified in the .orm file
-into one of the following Python types: int, str, float, bool, date,
-datetime, or time. NormaLoader ignores the length and scale facets
-specified in the .orm file.</p>
+<p><strong>Data Types:</strong> NormaLoader maps each data type specified in the .orm file
+to a subclass of <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a>. NormaLoader ignores the 
+length and scale facets specified in the .orm file.</p>
 <dl class="class">
 <dt id="lib.NormaLoader.NormaLoader">
 <em class="property">class </em><tt class="descclassname">lib.NormaLoader.</tt><tt class="descname">NormaLoader</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lib/NormaLoader.html#NormaLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.NormaLoader.NormaLoader" title="Permalink to this definition">¶</a></dt>
@@ -929,6 +928,13 @@ identification scheme for this entity type.</p>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>Abstract class inherited by all object types.</p>
 <dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.domain">
+<tt class="descname">domain</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>The domain for the object type, which defaults to a
+<a class="reference internal" href="#lib.Domain.StringDomain" title="lib.Domain.StringDomain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.StringDomain</span></tt></a> prefixed by the type&#8217;s name.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="lib.ObjectType.ObjectType.fullname">
 <tt class="descname">fullname</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.fullname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.fullname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns name that is unique within the model.</p>
@@ -986,25 +992,6 @@ identification scheme for this object type.</p>
 <em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ValueType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ValueType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ValueType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ObjectType.ObjectType" title="lib.ObjectType.ObjectType"><tt class="xref py py-class docutils literal"><span class="pre">lib.ObjectType.ObjectType</span></tt></a></p>
 <p>A value type is a self-identifying object type.</p>
-<dl class="attribute">
-<dt id="lib.ObjectType.ValueType.data_type">
-<tt class="descname">data_type</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ValueType.data_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Python data type (mapped from the conceptual data type selected
-by the modeler)</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="lib.ObjectType.ValueType.data_type_length">
-<tt class="descname">data_type_length</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ValueType.data_type_length" title="Permalink to this definition">¶</a></dt>
-<dd><p>Length facet for data_type</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="lib.ObjectType.ValueType.data_type_scale">
-<tt class="descname">data_type_scale</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ValueType.data_type_scale" title="Permalink to this definition">¶</a></dt>
-<dd><p>Scale facet for data_type</p>
-</dd></dl>
-
 </dd></dl>
 
 </div>

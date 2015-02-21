@@ -35,10 +35,9 @@
     and constraints) that are ignored by NormaLoader is contained in the
     *omissions* attribute after loading the input file.
 
-    **Data Types:** NormaLoader maps all data types specified in the .orm file
-    into one of the following Python types: int, str, float, bool, date,
-    datetime, or time. NormaLoader ignores the length and scale facets
-    specified in the .orm file.
+    **Data Types:** NormaLoader maps each data type specified in the .orm file
+    to a subclass of :class:`lib.Domain.Domain`. NormaLoader ignores the 
+    length and scale facets specified in the .orm file.
 """
 
 import xml.etree.cElementTree as xml
@@ -48,6 +47,7 @@ from lib.Model import Model
 import lib.ObjectType as ObjectType
 import lib.FactType as FactType
 import lib.Constraint as Constraint
+import lib.Domain as Domain
 
 class NormaLoader(object):
     """ Loads an .orm file produced by the NORMA modeling tool into a
@@ -128,53 +128,43 @@ class NormaLoader(object):
             'ValueComparisonConstraint' : self._load_value_comp_constraint
         }
 
-        # Mapping from XML types defined in ORMCode namespace to Python types
+        # Mapping from XML types defined in ORMCode namespace to domains.
+        #
+        # IMPORTANT: Because the default domain for all object
+        # types is already StringDomain with a prefix based on the type's name,
+        # all string types here map to None so that we will use the default.
         self._data_types = {
-            "UnspecifiedDataType"                         : int,
-            "FixedLengthTextDataType"                     : str,
-            "VariableLengthTextDataType"                  : str,
-            "LargeLengthTextDataType"                     : str,
-            "SignedIntegerNumericDataType"                : int,
-            "SignedSmallIntegerNumericDataType"           : int,
-            "SignedLargeIntegerNumericDataType"           : int,
-            "UnsignedIntegerNumericDataType"              : int,
-            "UnsignedTinyIntegerNumericDataType"          : int,
-            "UnsignedSmallIntegerNumericDataType"         : int,
-            "UnsignedLargeIntegerNumericDataType"         : int,
-            "AutoCounterNumericDataType"                  : int,
-            "FloatingPointNumericDataType"                : float,
-            "SinglePrecisionFloatingPointNumericDataType" : float,
-            "DoublePrecisionFloatingPointNumericDataType" : float,
-            "DecimalNumericDataType"                      : float,
-            "MoneyNumericDataType"                        : float,
-            "FixedLengthRawDataDataType"                  : str,
-            "VariableLengthRawDataDataType"               : str,
-            "LargeLengthRawDataDataType"                  : str,
-            "PictureRawDataDataType"                      : str,
-            "OleObjectRawDataDataType"                    : str,
-            "AutoTimestampTemporalDataType"               : self._datetime,
-            "TimeTemporalDataType"                        : time,
-            "DateTemporalDataType"                        : self._date,
-            "DateAndTimeTemporalDataType"                 : self._datetime,
-            "TrueOrFalseLogicalDataType"                  : bool,
-            "YesOrNoLogicalDataType"                      : bool,
-            "RowIdOtherDataType"                          : int,
-            "ObjectIdOtherDataType"                       : int
+            "UnspecifiedDataType"                     : None,
+            "FixedLengthTextDataType"                 : None,
+            "VariableLengthTextDataType"              : None,
+            "LargeLengthTextDataType"                 : None,
+            "SignedIntegerNumericDataType"            : Domain.IntegerDomain,
+            "SignedSmallIntegerNumericDataType"       : Domain.IntegerDomain,
+            "SignedLargeIntegerNumericDataType"       : Domain.IntegerDomain,
+            "UnsignedIntegerNumericDataType"          : Domain.IntegerDomain,
+            "UnsignedTinyIntegerNumericDataType"      : Domain.IntegerDomain,
+            "UnsignedSmallIntegerNumericDataType"     : Domain.IntegerDomain,
+            "UnsignedLargeIntegerNumericDataType"     : Domain.IntegerDomain,
+            "AutoCounterNumericDataType"              : Domain.IntegerDomain,
+            "FloatingPointNumericDataType"            : Domain.FloatDomain,
+            "SinglePrecisionFloatingPointNumericDataType": Domain.FloatDomain,
+            "DoublePrecisionFloatingPointNumericDataType": Domain.FloatDomain,
+            "DecimalNumericDataType"                  : Domain.FloatDomain,
+            "MoneyNumericDataType"                    : Domain.FloatDomain,
+            "FixedLengthRawDataDataType"              : None,
+            "VariableLengthRawDataDataType"           : None,
+            "LargeLengthRawDataDataType"              : None,
+            "PictureRawDataDataType"                  : None,
+            "OleObjectRawDataDataType"                : None,
+            "AutoTimestampTemporalDataType"           : Domain.DateTimeDomain,
+            "TimeTemporalDataType"                    : Domain.TimeDomain,
+            "DateTemporalDataType"                    : Domain.DateDomain, 
+            "DateAndTimeTemporalDataType"             : Domain.DateTimeDomain,
+            "TrueOrFalseLogicalDataType"              : Domain.BoolDomain,
+            "YesOrNoLogicalDataType"                  : Domain.BoolDomain,
+            "RowIdOtherDataType"                      : Domain.IntegerDomain,
+            "ObjectIdOtherDataType"                   : Domain.IntegerDomain
         }
-
-    @staticmethod
-    def _date():
-        """ Return default date.  The constructor for date() requires
-            year, month, and day and so we cannot simply pass the name
-            of the class to self._data_types.  """
-        return date(1900, 1, 1)
-
-    @staticmethod
-    def _datetime():
-        """ Return default datetime. The constructor for datetime()
-            requires year, month, and day and so we cannot simply pass
-            the name of the class to self._data_types.  """
-        return datetime(1900, 1, 1)
 
     def _add(self, model_element):
         """ Add model element to appropriate part of the model. """
@@ -259,14 +249,14 @@ class NormaLoader(object):
                 data_type = self._local_tag(child) # Data type node tag
                 data_id = child.get("id")
 
-                # Look-up Python data type
+                # Look-up Domain subclass corresponding to data type
                 try:
-                    python_type = self._data_types[data_type]()
+                    domain = self._data_types[data_type]
                 except KeyError:
-                    python_type = int() # Default to int
+                    domain = None # Leave default Domain in place
 
                 # Store type by ID for later retrieval
-                self._elements[data_id] = python_type
+                self._elements[data_id] = domain
 
 
     def _load_child_nodes(self, parent, target):
@@ -349,12 +339,12 @@ class NormaLoader(object):
         ref = xml_node.get("ref")  # GUID for data type
 
         try: # Look-up pre-loaded data type
-            object_type.data_type = self._elements[ref]
+            domain = self._elements[ref]
         except KeyError:
-            object_type.data_type = int() # Default to int
+            domain = None  # Leave default domain in place
 
-        object_type.data_type_scale = xml_node.get("Scale")
-        object_type.data_type_length = xml_node.get("Length")
+        if domain: 
+            object_type.domain = domain()
 
     def _load_value_restriction(self, xml_node, element):
         """ Load value constraint. """

@@ -82,13 +82,13 @@ class BoolDomain(Domain):
         values = [False, True]
         return (i for i in values[:n])
 
-class StrDomain(Domain):
+class StringDomain(Domain):
     """ A domain for string values. The constructor includes a prefix
         parameter.  Generated strings are of the form 'prefix<n>'
         where <n> is a monotonically increasing unsigned integer. """
 
     def __init__(self, prefix=""):
-        super(StrDomain, self).__init__()
+        super(StringDomain, self).__init__()
         self.prefix = prefix
 
     def _generate(self, n):

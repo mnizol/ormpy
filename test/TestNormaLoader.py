@@ -18,6 +18,7 @@ from lib.FactType import FactType
 
 import lib.ObjectType as ObjectType
 import lib.Constraint as Constraint
+import lib.Domain as Domain
 
 class TestNormaLoader(TestCase):
     """ Unit tests for the NormaLoader class. """
@@ -203,30 +204,43 @@ class TestNormaLoader(TestCase):
         model = NormaLoader(self.data_dir + "data_types.orm").model
         ot = model.object_types
 
-        self.assertIsInstance(ot.get("A").data_type, int) # data type undefined
-        self.assertIsInstance(ot.get("B").data_type, bool)      # True or false
-        self.assertIsInstance(ot.get("C").data_type, bool)      # Yes or no
-        self.assertIsInstance(ot.get("D").data_type, int)       # auto counter
-        self.assertIsInstance(ot.get("E").data_type, float)     # float
-        self.assertIsInstance(ot.get("F").data_type, float)     # money
-        self.assertIsInstance(ot.get("G").data_type, int)       # big int
-        self.assertIsInstance(ot.get("H").data_type, datetime)  # timestamp
-        self.assertIsInstance(ot.get("I").data_type, date)      # date
-        self.assertIsInstance(ot.get("J").data_type, time)      # time
-        self.assertIsInstance(ot.get("K").data_type, str)       # text
+        self.assertIsInstance(ot.get("A").domain, Domain.StringDomain)   # data type undefined
+        self.assertIsInstance(ot.get("B").domain, Domain.BoolDomain)     # True or false
+        self.assertIsInstance(ot.get("C").domain, Domain.BoolDomain)     # Yes or no
+        self.assertIsInstance(ot.get("D").domain, Domain.IntegerDomain)  # auto counter
+        self.assertIsInstance(ot.get("E").domain, Domain.FloatDomain)    # float
+        self.assertIsInstance(ot.get("Special").domain, Domain.FloatDomain)  # float
+        self.assertIsInstance(ot.get("F").domain, Domain.FloatDomain)    # money
+        self.assertIsInstance(ot.get("G").domain, Domain.IntegerDomain)  # big int
+        self.assertIsInstance(ot.get("H").domain, Domain.DateTimeDomain) # timestamp
+        self.assertIsInstance(ot.get("I").domain, Domain.DateDomain)     # date
+        self.assertIsInstance(ot.get("J").domain, Domain.TimeDomain)     # time
+        self.assertIsInstance(ot.get("K").domain, Domain.StringDomain)   # text
 
-        # Confirm scale and length are read
-        special = ot.get("Special")
-        self.assertIsInstance(special.data_type, float)  # float
-        self.assertEquals(special.data_type_scale, "35")
-        self.assertEquals(special.data_type_length, "29")
+        # Confirm for A and K that prefix is 'A' and 'K'
+        obj = ot.get("A")
+        actual = obj.domain.draw(2)
+        expect = ['A0', 'A1']
+        self.assertItemsEqual(actual, expect)
+
+        obj = ot.get("K")
+        actual = obj.domain.draw(2)
+        expect = ['K0', 'K1']
+        self.assertItemsEqual(actual, expect)        
+
 
     def test_unknown_data_type(self):
-        """ Confirm that data type defaults to int() if the actual type 
+        """ Confirm that domain defaults to StringDomain() if the actual type 
             is unexpected. """
         model = NormaLoader(self.data_dir + "unknown_data_types.orm").model
-        self.assertIsInstance(model.object_types.get("A").data_type, int)
-        self.assertIsInstance(model.object_types.get("B").data_type, int)
+
+        obj = model.object_types.get("A") 
+        self.assertIsInstance(obj.domain, Domain.StringDomain)
+        self.assertItemsEqual(obj.domain.draw(1), ["A0"])
+
+        obj = model.object_types.get("B")
+        self.assertIsInstance(obj.domain, Domain.StringDomain)
+        self.assertItemsEqual(obj.domain.draw(1), ["B0"])
 
     def test_value_constraint_on_types(self):
         """ Confirm that value constraints on value types are loaded. """

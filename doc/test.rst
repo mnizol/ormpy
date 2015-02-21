@@ -68,6 +68,14 @@ test.TestORMMinus module
     :undoc-members:
     :show-inheritance:
 
+test.TestObjectType module
+--------------------------
+
+.. automodule:: test.TestObjectType
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 test.TestPopulation module
 --------------------------
 

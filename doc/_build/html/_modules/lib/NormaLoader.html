@@ -84,10 +84,9 @@
 <span class="sd">    and constraints) that are ignored by NormaLoader is contained in the</span>
 <span class="sd">    *omissions* attribute after loading the input file.</span>
 
-<span class="sd">    **Data Types:** NormaLoader maps all data types specified in the .orm file</span>
-<span class="sd">    into one of the following Python types: int, str, float, bool, date,</span>
-<span class="sd">    datetime, or time. NormaLoader ignores the length and scale facets</span>
-<span class="sd">    specified in the .orm file.</span>
+<span class="sd">    **Data Types:** NormaLoader maps each data type specified in the .orm file</span>
+<span class="sd">    to a subclass of :class:`lib.Domain.Domain`. NormaLoader ignores the </span>
+<span class="sd">    length and scale facets specified in the .orm file.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="kn">as</span> <span class="nn">xml</span>

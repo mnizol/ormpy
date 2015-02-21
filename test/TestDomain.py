@@ -62,16 +62,16 @@ class TestDomain(TestCase):
         self.assertItemsEqual(actual, expected)
 
     def test_string_domain_no_prefix(self):
-        """ Test a StrDomain with no prefix. """
-        domain = Domain.StrDomain()
+        """ Test a StringDomain with no prefix. """
+        domain = Domain.StringDomain()
         actual = domain.draw(5)
         expected = ['0', '1', '2', '3', '4']
         self.assertItemsEqual(actual, expected)
         self.assertEquals(domain.max_size, sys.maxsize)
 
     def test_string_domain_prefix(self):
-        """ Test a StrDomain with a prefix. """
-        actual = Domain.StrDomain(prefix='Test').draw(4)
+        """ Test a StringDomain with a prefix. """
+        actual = Domain.StringDomain(prefix='Test').draw(4)
         expected = ['Test0', 'Test1', 'Test2', 'Test3']
         self.assertItemsEqual(actual, expected)
 

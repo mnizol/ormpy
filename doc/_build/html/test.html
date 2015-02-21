@@ -223,21 +223,41 @@ with explicit inclusion values.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestDomain.TestDomain.test_forced_stop_iteration">
+<tt class="descname">test_forced_stop_iteration</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#TestDomain.test_forced_stop_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.TestDomain.test_forced_stop_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just for 100% coverage, force a StopIteration exception within
+Domain.draw().</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestDomain.TestDomain.test_full_domain">
+<tt class="descname">test_full_domain</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#TestDomain.test_full_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.TestDomain.test_full_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test an exceeded domain.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestDomain.TestDomain.test_int_domain">
 <tt class="descname">test_int_domain</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#TestDomain.test_int_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.TestDomain.test_int_domain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test an IntegerDomain.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestDomain.TestDomain.test_not_implemented_exception">
+<tt class="descname">test_not_implemented_exception</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#TestDomain.test_not_implemented_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.TestDomain.test_not_implemented_exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just for 100% coverage, confirm not implemented exception raised 
+on Domain class&#8217;s _generate function.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestDomain.TestDomain.test_string_domain_no_prefix">
 <tt class="descname">test_string_domain_no_prefix</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#TestDomain.test_string_domain_no_prefix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.TestDomain.test_string_domain_no_prefix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test a StrDomain with no prefix.</p>
+<dd><p>Test a StringDomain with no prefix.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="test.TestDomain.TestDomain.test_string_domain_prefix">
 <tt class="descname">test_string_domain_prefix</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#TestDomain.test_string_domain_prefix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.TestDomain.test_string_domain_prefix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test a StrDomain with a prefix.</p>
+<dd><p>Test a StringDomain with a prefix.</p>
 </dd></dl>
 
 <dl class="method">
@@ -799,6 +819,28 @@ roles are moved to the object type.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-test.TestObjectType">
+<span id="test-testobjecttype-module"></span><h2>test.TestObjectType module<a class="headerlink" href="#module-test.TestObjectType" title="Permalink to this headline">¶</a></h2>
+<p>This file contains unit tests for the ObjectType module</p>
+<dl class="class">
+<dt id="test.TestObjectType.TestObjectType">
+<em class="property">class </em><tt class="descclassname">test.TestObjectType.</tt><tt class="descname">TestObjectType</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestObjectType.html#TestObjectType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestObjectType.TestObjectType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Unit tests for the ObjectType module.</p>
+<dl class="method">
+<dt id="test.TestObjectType.TestObjectType.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestObjectType.html#TestObjectType.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestObjectType.TestObjectType.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestObjectType.TestObjectType.test_domain">
+<tt class="descname">test_domain</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestObjectType.html#TestObjectType.test_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestObjectType.TestObjectType.test_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test object type domain under various name scenarios.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-test.TestPopulation">
 <span id="test-testpopulation-module"></span><h2>test.TestPopulation module<a class="headerlink" href="#module-test.TestPopulation" title="Permalink to this headline">¶</a></h2>
 <p>This file contains unit tests for the lib.Population module.</p>
@@ -866,6 +908,7 @@ roles are moved to the object type.</p>
 <li><a class="reference internal" href="#module-test.TestModelElement">test.TestModelElement module</a></li>
 <li><a class="reference internal" href="#module-test.TestNormaLoader">test.TestNormaLoader module</a></li>
 <li><a class="reference internal" href="#module-test.TestORMMinus">test.TestORMMinus module</a></li>
+<li><a class="reference internal" href="#module-test.TestObjectType">test.TestObjectType module</a></li>
 <li><a class="reference internal" href="#module-test.TestPopulation">test.TestPopulation module</a></li>
 <li><a class="reference internal" href="#module-test.TestTestDataLocator">test.TestTestDataLocator module</a></li>
 <li><a class="reference internal" href="#module-test">Module contents</a></li>

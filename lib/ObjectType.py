@@ -9,6 +9,7 @@ entity type, value type, and objectified type.
 """
 
 from lib.ModelElement import ModelElementSet, ModelElement
+from lib.Domain import StringDomain
 
 class ObjectTypeSet(ModelElementSet):
     """ Container for a set of object types. """
@@ -25,6 +26,15 @@ class ObjectType(ModelElement):
         self.independent = False #: True for independent object types
         self.implicit = False    #: True for implicit object types
         self.roles = [] #: Roles played by this object type
+
+        # Prefix for domain values     
+        prefix = name or '' # Empty string if name is None
+        if prefix and prefix[-1].isdigit(): 
+            prefix += "_"
+        
+        #: The domain for the object type, which defaults to a 
+        #: :class:`lib.Domain.StringDomain` prefixed by the type's name.
+        self.domain = StringDomain(prefix=prefix) 
 
     @property
     def fullname(self):
@@ -46,12 +56,6 @@ class ValueType(ObjectType):
 
     def __init__(self, uid=None, name=None):
         super(ValueType, self).__init__(uid=uid, name=name)
-
-        #: Python data type (mapped from the conceptual data type selected
-        #: by the modeler)
-        self.data_type = None
-        self.data_type_scale = None  #: Scale facet for data_type
-        self.data_type_length = None #: Length facet for data_type
 
 class ObjectifiedType(ObjectType):
     """ An objectified type is an object type that objectifies a fact type. """

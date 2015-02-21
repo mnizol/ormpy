@@ -4,102 +4,134 @@
 # Author:  Matthew Nizol
 ##############################################################################
 
-""" The Domain.py module implements the domains that underly value types.
+""" The Domain.py module implements the domains that underly types.
     More specifically, classes in the module provide a means to generate
-    a set of values conforming to a particular data type.  For example, ::
+    a set of values conforming to a particular data type.  For example: ::
 
-        my_int = IntegerDomain(10)
+        my_int = IntegerDomain()
+        first10 = my_int.draw(10)
 
-    will produce a set containing the first 10 unsigned integers.  """
+    The above code defines a domain of unsigned integers and then returns the 
+    first 10 integers from that domain as a set.  """
 
 import sys
 import datetime # For constants
 from datetime import date, time, timedelta # Do not include datetime class
 
-class Domain(set):
-    """ A domain, which is a set of values conforming to a data type. """
+class Domain(object):
+    """ A domain, which can be used to generate a set of values conforming to a
+        data type. """
 
-    def __init__(self, size, max_size=sys.maxsize):
-        """ Initialize the domain. """
+    def __init__(self, max_size=sys.maxsize):
         super(Domain, self).__init__()
-        self.max_size = min(max_size, sys.maxsize)
-        self.size = min(size, self.max_size)
+
+        #: Maximum number of elements permitted by the domain.  By default,
+        #: the maximum is sys.maxsize.
+        self.max_size = min(max_size, sys.maxsize) 
+
+    def draw(self, n):
+        """ Draw the first n elements from the domain and return as a set.  
+            If n is larger than the number of elements in the domain,
+            the entire domain is returned as a set. """
+        n = min(n, self.max_size)
+        generator = self._generate(n)
+        result = set()
+        i = 0
+
+        while i < n:
+            try:
+                result.add(generator.next())
+                i += 1
+            except StopIteration:
+                break 
+
+        return result                      
+    
+    def _generate(self, n):
+        """ Generator function called by draw().  This is an abstract method
+            that must be customized by each subclass and must return a 
+            generator object.  """
+        raise NotImplementedError()
 
 class IntegerDomain(Domain):
-    """ An integer domain containing the first <size> unsigned integers. """
+    """ A domain containing unsigned integers. """
 
-    def __init__(self, size):
-        """ Initialize the set with the first <size> unsigned integers. """
-        super(IntegerDomain, self).__init__(size)
-        set.__init__(self, range(0, self.size))
-
+    def __init__(self):
+        super(IntegerDomain, self).__init__()
+        
+    def _generate(self, n):
+        return (i for i in xrange(n))
 
 class FloatDomain(Domain):
-    """ A floating point domain.  Only contains floating point numbers
-        in increments of 0.1 (e.g. 0.1, 0.2, 0.3, etc.).  """
+    """ A floating point domain.  Only includes floating point numbers
+        in increments of 0.1 (e.g. 0.0, 0.1, 0.2, 0.3, etc.).  """
 
-    def __init__(self, size):
-        """ Initialize. """
-        super(FloatDomain, self).__init__(size)
-        values = [float(i) / 10.0 for i in xrange(self.size)]
-        set.__init__(self, values)
+    def __init__(self):
+        super(FloatDomain, self).__init__()
+
+    def _generate(self, n):
+        return (float(i) / 10.0 for i in xrange(n))
 
 class BoolDomain(Domain):
     """ A domain for boolean (True/False) values. """
 
-    def __init__(self, size=2):
-        """ Initialize. """
-        super(BoolDomain, self).__init__(size, max_size=2)
+    def __init__(self):
+        super(BoolDomain, self).__init__(max_size=2)
+
+    def _generate(self, n):
         values = [False, True]
-        set.__init__(self, values[:self.size])
+        return (i for i in values[:n])
 
 class StrDomain(Domain):
     """ A domain for string values. The constructor includes a prefix
         parameter.  Generated strings are of the form 'prefix<n>'
         where <n> is a monotonically increasing unsigned integer. """
 
-    def __init__(self, size, prefix=""):
-        """ Initialize. """
-        super(StrDomain, self).__init__(size)
-        values = [prefix + str(i) for i in xrange(self.size)]
-        set.__init__(self, values)
+    def __init__(self, prefix=""):
+        super(StrDomain, self).__init__()
+        self.prefix = prefix
+
+    def _generate(self, n):
+        return (self.prefix + str(i) for i in xrange(n))
 
 class DateDomain(Domain):
     """ A domain for date values.  Generated dates start on <start>
         which defaults to January 1, 2000."""
 
-    def __init__(self, size, start=date(2000, 01, 01)):
-        """ Initialize. """
+    def __init__(self, start=date(2000, 01, 01)):
         max_days = (date(datetime.MAXYEAR, 12, 31) - start).days + 1
-        super(DateDomain, self).__init__(size, max_size=max_days)
-        values = [start + timedelta(i) for i in xrange(self.size)]
-        set.__init__(self, values)
+        super(DateDomain, self).__init__(max_size=max_days)
+        self.start = start
+
+    def _generate(self, n):
+        return (self.start + timedelta(i) for i in xrange(n))
 
 class TimeDomain(Domain):
     """ A domain for time values.  Generated times start at <start>
-        which defaults to midnight and increment by minutes. """
+        which defaults to midnight and increments by minutes. """
 
-    def __init__(self, size, start=time()):
-        """ Initialize. """
+    def __init__(self, start=time()):
         start = datetime.datetime.combine(date.today(), start)
         stop = datetime.datetime.combine(date.today(), time(23, 59))
         max_mins = int((stop - start).total_seconds()/60) + 1
-        super(TimeDomain, self).__init__(size, max_size=max_mins)
-        values = \
-            [(start + timedelta(minutes=i)).time() for i in xrange(self.size)]
-        set.__init__(self, values)
+        super(TimeDomain, self).__init__(max_size=max_mins)
+
+        self.start = start
+
+    def _generate(self, n):
+        return ((self.start + timedelta(minutes=i)).time() for i in xrange(n))
 
 class DateTimeDomain(Domain):
     """ A domain for datetime values.  Generated datetimes start on <start>
         which defaults to January 1, 2000 at midnight and increment by
         minutes."""
 
-    def __init__(self, size, start=datetime.datetime(2000, 01, 01)):
-        """ Initialize. """
+    def __init__(self, start=datetime.datetime(2000, 01, 01)):
         max_dt = datetime.datetime(datetime.MAXYEAR, 12, 31, 23, 59)
         max_mins = int((max_dt - start).total_seconds()/60) + 1
-        super(DateTimeDomain, self).__init__(size, max_size=max_mins)
-        values = [start + timedelta(minutes=i) for i in xrange(self.size)]
-        set.__init__(self, values)
+        super(DateTimeDomain, self).__init__(max_size=max_mins)
 
+        self.start = start
 
+    def _generate(self, n):
+        return (self.start + timedelta(minutes=i) for i in xrange(n))

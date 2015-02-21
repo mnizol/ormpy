@@ -307,16 +307,18 @@ of the two.  For example:</p>
 </div>
 <div class="section" id="module-lib.Domain">
 <span id="lib-domain-module"></span><h2>lib.Domain module<a class="headerlink" href="#module-lib.Domain" title="Permalink to this headline">¶</a></h2>
-<p>The Domain.py module implements the domains that underly value types.
+<p>The Domain.py module implements the domains that underly types.
 More specifically, classes in the module provide a means to generate
-a set of values conforming to a particular data type.  For example,</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">my_int</span> <span class="o">=</span> <span class="n">IntegerDomain</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+a set of values conforming to a particular data type.  For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">my_int</span> <span class="o">=</span> <span class="n">IntegerDomain</span><span class="p">()</span>
+<span class="n">first10</span> <span class="o">=</span> <span class="n">my_int</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>will produce a set containing the first 10 unsigned integers.</p>
+<p>The above code defines a domain of unsigned integers and then returns the 
+first 10 integers from that domain as a set.</p>
 <dl class="class">
 <dt id="lib.Domain.BoolDomain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">BoolDomain</tt><big>(</big><em>size=2</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#BoolDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.BoolDomain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">BoolDomain</tt><a class="reference internal" href="_modules/lib/Domain.html#BoolDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.BoolDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
 <p>A domain for boolean (True/False) values.</p>
 </dd></dl>
@@ -340,14 +342,30 @@ minutes.</p>
 
 <dl class="class">
 <dt id="lib.Domain.Domain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">Domain</tt><big>(</big><em>size</em>, <em>max_size=9223372036854775807</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">set</span></tt></p>
-<p>A domain, which is a set of values conforming to a data type.</p>
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">Domain</tt><big>(</big><em>max_size=9223372036854775807</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A domain, which can be used to generate a set of values conforming to a
+data type.</p>
+<dl class="method">
+<dt id="lib.Domain.Domain.draw">
+<tt class="descname">draw</tt><big>(</big><em>n</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw n elements from the domain and return as a set.  If n is
+larger than the number of elements in the domain, then returns
+the entire domain as a set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Domain.Domain.max_size">
+<tt class="descname">max_size</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Domain.Domain.max_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum number of elements permitted by the domain.  By default,
+the maximum is sys.maxsize.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.Domain.FloatDomain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">FloatDomain</tt><big>(</big><em>size</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#FloatDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.FloatDomain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">FloatDomain</tt><a class="reference internal" href="_modules/lib/Domain.html#FloatDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.FloatDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
 <p>A floating point domain.  Only contains floating point numbers
 in increments of 0.1 (e.g. 0.1, 0.2, 0.3, etc.).</p>
@@ -355,9 +373,9 @@ in increments of 0.1 (e.g. 0.1, 0.2, 0.3, etc.).</p>
 
 <dl class="class">
 <dt id="lib.Domain.IntegerDomain">
-<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">IntegerDomain</tt><big>(</big><em>size</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#IntegerDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.IntegerDomain" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">IntegerDomain</tt><a class="reference internal" href="_modules/lib/Domain.html#IntegerDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.IntegerDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
-<p>An integer domain containing the first &lt;size&gt; unsigned integers.</p>
+<p>A domain containing unsigned integers.</p>
 </dd></dl>
 
 <dl class="class">
@@ -439,7 +457,7 @@ which defaults to midnight and increment by minutes.</p>
 <dl class="attribute">
 <dt id="lib.FactType.Role.mandatory">
 <tt class="descname">mandatory</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.mandatory" title="Permalink to this definition">¶</a></dt>
-<dd><p>True iff the role is covered by an explicit mandatory constraint</p>
+<dd><p>True if the role is covered by an explicit mandatory constraint</p>
 </dd></dl>
 
 <dl class="attribute">

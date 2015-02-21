@@ -278,6 +278,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_object_types</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_fact_types</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_constraints</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_value_constraints</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_parse_norma_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Parse a NORMA File and return the ORMModel node. &quot;&quot;&quot;</span>
@@ -423,22 +424,23 @@
         <span class="sd">&quot;&quot;&quot; Move value constraints on roles played by an object type that </span>
 <span class="sd">            plays no other roles to instead cover the object type. &quot;&quot;&quot;</span>
 
-        <span class="c"># Per McGill, we cannot support role value constraints, only value</span>
+        <span class="c"># Per McGill, ORM- cannot support role value constraints, only value</span>
         <span class="c"># constraints on types.  However, if the value constraint covers a </span>
         <span class="c"># role for an object type that plays no other roles and either</span>
         <span class="c"># 1) The type is not independent (i.e. the role is implicitly mandatory) </span>
         <span class="c"># 2) The role is covered by an explicit mandatory constraint</span>
-        <span class="c"># Then the value constraint can be treated as a object type value</span>
+        <span class="c"># then the value constraint can be treated as a object type value</span>
         <span class="c"># constraint.</span>
 
         <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">Constraint</span><span class="o">.</span><span class="n">ValueConstraint</span><span class="p">):</span>
-            <span class="n">element</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">cover</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">element</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">FactType</span><span class="o">.</span><span class="n">Role</span><span class="p">):</span>
                 <span class="n">role</span> <span class="o">=</span> <span class="n">element</span>
                 <span class="n">obj</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">player</span>
             
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c"># Object type plays exactly 1 role,</span>
+                    <span class="c"># which is implicitly or explicitly mandatory</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">independent</span> <span class="ow">or</span> <span class="n">role</span><span class="o">.</span><span class="n">mandatory</span><span class="p">:</span>
                         <span class="n">cons</span><span class="o">.</span><span class="n">uncover</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
                         <span class="n">cons</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
@@ -660,7 +662,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">preamble</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">FactType</span><span class="o">.</span><span class="n">SubtypeRole</span><span class="p">):</span>
             <span class="k">return</span> <span class="c"># Simple mandatory on implicit subtype fact type</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c"># Simple mandatory on regular role</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">role</span><span class="o">.</span><span class="n">mandatory</span> <span class="o">=</span> <span class="bp">True</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_uniqueness_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_set</span><span class="p">):</span>

@@ -568,6 +568,14 @@
         <span class="c"># Confirm inclusive-or ignored</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">,</span>
             <span class="p">[</span><span class="s">&quot;Inclusive-or constraint InclusiveOrConstraint1&quot;</span><span class="p">])</span>
+
+        <span class="c"># Check assignment of mandatory to roles</span>
+        <span class="n">fact_type</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;EHasEId&quot;</span><span class="p">)</span>
+        <span class="n">r1</span> <span class="o">=</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">r1</span><span class="o">.</span><span class="n">mandatory</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">r2</span><span class="o">.</span><span class="n">mandatory</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_role_names"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_role_names">[docs]</a>    <span class="k">def</span> <span class="nf">test_role_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Confirm role names are generated properly. &quot;&quot;&quot;</span>
@@ -585,11 +593,57 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">tern</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;R2&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">tern</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;R3&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">tern</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;R4&quot;</span><span class="p">)</span>
-        
+</div>
+<div class="viewcode-block" id="TestNormaLoader.test_value_constraint_move"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_value_constraint_move">[docs]</a>    <span class="k">def</span> <span class="nf">test_value_constraint_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm value constraints on (implicitly or explicitly) mandatory</span>
+<span class="sd">            roles are moved to the object type. &quot;&quot;&quot;</span>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;test_value_type_value_constraint.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">model</span>
 
+        <span class="c"># Constraint directly on value type should cover value type</span>
+        <span class="n">cons1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ValueConstraint1&quot;</span><span class="p">)</span>
+        <span class="n">obj1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">covers</span><span class="p">,</span> <span class="p">[</span><span class="n">obj1</span><span class="p">])</span> 
 
+        <span class="c"># Constraint on entity type covers role played by the reference type.</span>
+        <span class="c"># If the ref type plays no other roles, the constraint should cover the</span>
+        <span class="c"># type.</span>
+        <span class="n">cons2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;RoleValueConstraint1&quot;</span><span class="p">)</span>
+        <span class="n">obj2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ET1_id&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">cons2</span><span class="o">.</span><span class="n">covers</span><span class="p">,</span> <span class="p">[</span><span class="n">obj2</span><span class="p">])</span> 
 
+        <span class="c"># Value type value constraint --- directly covers value type</span>
+        <span class="n">cons3</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ValueTypeValueConstraint1&quot;</span><span class="p">)</span>
+        <span class="n">obj3</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ET2_id&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">covers</span><span class="p">,</span> <span class="p">[</span><span class="n">obj3</span><span class="p">])</span>
 
+        <span class="c"># In the next two tests, the constraints are on entity types with a </span>
+        <span class="c"># shared reference mode (USDValue).  Those value constraints</span>
+        <span class="c"># cannot be moved to the object type and thus remain on the roles. </span>
+        <span class="n">cons4</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;RoleValueConstraint2&quot;</span><span class="p">)</span>
+        <span class="n">role4</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ET3HasUSDValue&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">cons4</span><span class="o">.</span><span class="n">covers</span><span class="p">,</span> <span class="p">[</span><span class="n">role4</span><span class="p">])</span>
+
+        <span class="n">cons5</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;RoleValueConstraint3&quot;</span><span class="p">)</span>
+        <span class="n">role5</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ET4HasUSDValue&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">cons5</span><span class="o">.</span><span class="n">covers</span><span class="p">,</span> <span class="p">[</span><span class="n">role5</span><span class="p">])</span>
+
+        <span class="c"># ET5 plays two roles: the reference role and the unary.  Thus, the </span>
+        <span class="c"># role value constraint cannot be moved.</span>
+        <span class="n">cons6</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;RoleValueConstraint4&quot;</span><span class="p">)</span>
+        <span class="n">role6</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ET5Exists&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">cons6</span><span class="o">.</span><span class="n">covers</span><span class="p">,</span> <span class="p">[</span><span class="n">role6</span><span class="p">])</span> 
+
+        <span class="c"># VT1 plays only a unary role and is not independent, so the role </span>
+        <span class="c"># value constraint can cover the object type instead.</span>
+        <span class="n">cons7</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;RoleValueConstraint5&quot;</span><span class="p">)</span>
+        <span class="n">obj7</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;VT1&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">cons7</span><span class="o">.</span><span class="n">covers</span><span class="p">,</span> <span class="p">[</span><span class="n">obj7</span><span class="p">])</span>  
+
+        <span class="c"># VT2 is independent, so the role value constraint cannot be moved.</span>
+        <span class="n">cons8</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;RoleValueConstraint6&quot;</span><span class="p">)</span>
+        <span class="n">role8</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;VT2Exists&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">cons8</span><span class="o">.</span><span class="n">covers</span><span class="p">,</span> <span class="p">[</span><span class="n">role8</span><span class="p">])</span>             
 
 
  

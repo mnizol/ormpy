@@ -80,6 +80,11 @@
         <span class="n">cons</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obj</span><span class="p">)</span>
 
+        <span class="c"># Unsuccessful uncover</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">uncover</span><span class="p">(</span><span class="s">&quot;Dummy&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obj</span><span class="p">)</span>
+
+        <span class="c"># Successful uncover</span>
         <span class="n">cons</span><span class="o">.</span><span class="n">uncover</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">,</span> <span class="p">[])</span>
 </div>

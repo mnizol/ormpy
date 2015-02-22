@@ -135,3 +135,27 @@ class DateTimeDomain(Domain):
 
     def _generate(self, n):
         return (self.start + timedelta(minutes=i) for i in xrange(n))
+
+class EnumeratedDomain(Domain):
+    """ A domain whose values are explicitly provided by the caller. """
+
+    def __init__(self):
+        super(EnumeratedDomain, self).__init__()
+        self._set = set()
+
+    @property
+    def size(self):
+        """ Size of the enumerated domain. """
+        return len(self._set)
+
+    def add(self, elements):
+        """ Add an element or list of elements to the domain."""
+        if isinstance(elements, list):
+            self._set.update(elements)
+        else:
+            self._set.add(elements)
+
+    def _generate(self, n):
+        return (element for element in self._set)
+
+    

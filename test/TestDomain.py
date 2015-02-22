@@ -174,3 +174,17 @@ class TestDomain(TestCase):
         expected = [0, 1, 2, 3, 4]
         self.assertItemsEqual(actual, expected)
 
+    def test_enumerated(self):
+        """ Test EnumeratedDomain. """
+        domain = Domain.EnumeratedDomain()
+
+        self.assertItemsEqual(domain.draw(10), [])
+
+        domain.add(5)
+        domain.add(['a','b','c'])
+
+        self.assertItemsEqual(domain.draw(0), [])
+        self.assertItemsEqual(domain.draw(4), [5,'a','b','c'])
+
+
+

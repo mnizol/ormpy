@@ -215,11 +215,16 @@ class NormaLoader(object):
     def _load(self, filename):
         """ Loads the .orm file named *filename* into *self.model* """
         root = self._parse_norma_file(filename)
+
+        # Load file
         self._load_data_types(root)
         self._load_object_types(root)
         self._load_fact_types(root)
         self._load_constraints(root)
+
+        # Post-processing
         self._fix_value_constraints()
+        self._update_domains()
 
     def _parse_norma_file(self, filename):
         """ Parse a NORMA File and return the ORMModel node. """
@@ -352,12 +357,17 @@ class NormaLoader(object):
         cons.cover(element)
 
         for value_range in xml_node.find(self._ns_core + "ValueRanges"):
-            cons.add_range(
-                min_value=value_range.get("MinValue"),
-                max_value=value_range.get("MaxValue"),
-                min_open=(value_range.get("MinInclusion") == "Open"),
-                max_open=(value_range.get("MaxInclusion") == "Open")
-            )
+            try:
+                cons.add_range(
+                    min_value=value_range.get("MinValue"),
+                    max_value=value_range.get("MaxValue"),
+                    min_open=(value_range.get("MinInclusion") == "Open"),
+                    max_open=(value_range.get("MaxInclusion") == "Open")
+                )
+            except Constraint.ValueConstraintError as ex:
+                self.omissions.append("Value constraint " + cons.name + 
+                    " because " + ex.message.lower())
+                return # Return prematurely so constraint is ignored    
 
         self._push(cons) # Add constraint to stack
 
@@ -385,6 +395,18 @@ class NormaLoader(object):
                     if not obj.independent or role.mandatory:
                         cons.uncover(role)
                         cons.cover(obj)
+
+    def _update_domains(self):
+        """ For each value constraint that covers an object type, set that
+            object type's domain to the value constraint's domain.  This 
+            MUST be called after _fix_value_constraints.  """
+
+        for cons in self.model.constraints.of_type(Constraint.ValueConstraint):
+            element = cons.covers[0]
+
+            if isinstance(element, ObjectType.ObjectType):
+                object_type = element
+                object_type.domain = cons.domain
 
     ##########################################################################
     # Private Functions to Load Fact Types

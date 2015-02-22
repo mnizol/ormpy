@@ -9,6 +9,7 @@
 
 from lib.ModelElement import ModelElementSet, ModelElement
 from lib.FactType import RoleSequence
+from lib.Domain import EnumeratedDomain
 
 class ConstraintSet(ModelElementSet):
     """ Container for a set of constraints. """
@@ -76,13 +77,13 @@ class ValueConstraint(Constraint):
     def __init__(self, uid=None, name=None):
         super(ValueConstraint, self).__init__(uid=uid, name=name)
 
-        #: set of valid values
-        self.domain = set()
+        #: Domain of valid values
+        self.domain = EnumeratedDomain()
 
     @property
     def size(self):
         """ The number of items in the domain defined by the constraint. """
-        return len(self.domain)
+        return self.domain.size
 
     def add_range(self, min_value, max_value=None,
                   min_open=False, max_open=False):
@@ -108,7 +109,7 @@ class ValueConstraint(Constraint):
                 msg = "The range of the value constraint is too large"
                 raise ValueConstraintError(msg)
             else:
-                self.domain.update(range(min_int, max_int+1))
+                self.domain.add(range(min_int, max_int+1))
 
 class ValueConstraintError(Exception):
     """ An exception raised by an invalid value constraint. """

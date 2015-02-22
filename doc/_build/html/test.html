@@ -217,6 +217,12 @@ with explicit inclusion values.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestDomain.TestDomain.test_enumerated">
+<tt class="descname">test_enumerated</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#TestDomain.test_enumerated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.TestDomain.test_enumerated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test EnumeratedDomain.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestDomain.TestDomain.test_float_domain">
 <tt class="descname">test_float_domain</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestDomain.html#TestDomain.test_float_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestDomain.TestDomain.test_float_domain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test a FloatDomain.</p>
@@ -606,6 +612,12 @@ XML is not &lt;ormRoot:ORM2&gt;.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_domain_move">
+<tt class="descname">test_domain_move</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_domain_move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_domain_move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that domain is properly moved for value constraints on types.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestNormaLoader.TestNormaLoader.test_empty_model">
 <tt class="descname">test_empty_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_empty_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_empty_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm a successful parse on a small input file.</p>
@@ -635,6 +647,12 @@ to the implicit role of the implicit binarized fact type.</p>
 <dt id="test.TestNormaLoader.TestNormaLoader.test_implicit_role">
 <tt class="descname">test_implicit_role</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_implicit_role"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_implicit_role" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm constraint that covers implicit role is removed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestNormaLoader.test_invalid_value_constraint">
+<tt class="descname">test_invalid_value_constraint</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_invalid_value_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_invalid_value_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that invalid value constraint is ignored.</p>
 </dd></dl>
 
 <dl class="method">
@@ -723,7 +741,7 @@ are present on a subtype, they are reported in the omissions.</p>
 <dl class="method">
 <dt id="test.TestNormaLoader.TestNormaLoader.test_unknown_data_type">
 <tt class="descname">test_unknown_data_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_unknown_data_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_unknown_data_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Confirm that data type defaults to int() if the actual type 
+<dd><p>Confirm that domain defaults to StringDomain() if the actual type 
 is unexpected.</p>
 </dd></dl>
 

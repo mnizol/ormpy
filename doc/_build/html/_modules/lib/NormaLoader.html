@@ -96,6 +96,7 @@
 <span class="kn">import</span> <span class="nn">lib.ObjectType</span> <span class="kn">as</span> <span class="nn">ObjectType</span>
 <span class="kn">import</span> <span class="nn">lib.FactType</span> <span class="kn">as</span> <span class="nn">FactType</span>
 <span class="kn">import</span> <span class="nn">lib.Constraint</span> <span class="kn">as</span> <span class="nn">Constraint</span>
+<span class="kn">import</span> <span class="nn">lib.Domain</span> <span class="kn">as</span> <span class="nn">Domain</span>
 
 <div class="viewcode-block" id="NormaLoader"><a class="viewcode-back" href="../../lib.html#lib.NormaLoader.NormaLoader">[docs]</a><span class="k">class</span> <span class="nc">NormaLoader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Loads an .orm file produced by the NORMA modeling tool into a</span>
@@ -176,53 +177,43 @@
             <span class="s">&#39;ValueComparisonConstraint&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value_comp_constraint</span>
         <span class="p">}</span>
 
-        <span class="c"># Mapping from XML types defined in ORMCode namespace to Python types</span>
+        <span class="c"># Mapping from XML types defined in ORMCode namespace to domains.</span>
+        <span class="c">#</span>
+        <span class="c"># IMPORTANT: Because the default domain for all object</span>
+        <span class="c"># types is already StringDomain with a prefix based on the type&#39;s name,</span>
+        <span class="c"># all string types here map to None so that we will use the default.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_types</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s">&quot;UnspecifiedDataType&quot;</span>                         <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s">&quot;FixedLengthTextDataType&quot;</span>                     <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="s">&quot;VariableLengthTextDataType&quot;</span>                  <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="s">&quot;LargeLengthTextDataType&quot;</span>                     <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="s">&quot;SignedIntegerNumericDataType&quot;</span>                <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s">&quot;SignedSmallIntegerNumericDataType&quot;</span>           <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s">&quot;SignedLargeIntegerNumericDataType&quot;</span>           <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s">&quot;UnsignedIntegerNumericDataType&quot;</span>              <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s">&quot;UnsignedTinyIntegerNumericDataType&quot;</span>          <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s">&quot;UnsignedSmallIntegerNumericDataType&quot;</span>         <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s">&quot;UnsignedLargeIntegerNumericDataType&quot;</span>         <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s">&quot;AutoCounterNumericDataType&quot;</span>                  <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s">&quot;FloatingPointNumericDataType&quot;</span>                <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-            <span class="s">&quot;SinglePrecisionFloatingPointNumericDataType&quot;</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-            <span class="s">&quot;DoublePrecisionFloatingPointNumericDataType&quot;</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-            <span class="s">&quot;DecimalNumericDataType&quot;</span>                      <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-            <span class="s">&quot;MoneyNumericDataType&quot;</span>                        <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-            <span class="s">&quot;FixedLengthRawDataDataType&quot;</span>                  <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="s">&quot;VariableLengthRawDataDataType&quot;</span>               <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="s">&quot;LargeLengthRawDataDataType&quot;</span>                  <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="s">&quot;PictureRawDataDataType&quot;</span>                      <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="s">&quot;OleObjectRawDataDataType&quot;</span>                    <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="s">&quot;AutoTimestampTemporalDataType&quot;</span>               <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datetime</span><span class="p">,</span>
-            <span class="s">&quot;TimeTemporalDataType&quot;</span>                        <span class="p">:</span> <span class="n">time</span><span class="p">,</span>
-            <span class="s">&quot;DateTemporalDataType&quot;</span>                        <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date</span><span class="p">,</span>
-            <span class="s">&quot;DateAndTimeTemporalDataType&quot;</span>                 <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datetime</span><span class="p">,</span>
-            <span class="s">&quot;TrueOrFalseLogicalDataType&quot;</span>                  <span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-            <span class="s">&quot;YesOrNoLogicalDataType&quot;</span>                      <span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-            <span class="s">&quot;RowIdOtherDataType&quot;</span>                          <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s">&quot;ObjectIdOtherDataType&quot;</span>                       <span class="p">:</span> <span class="nb">int</span>
+            <span class="s">&quot;UnspecifiedDataType&quot;</span>                     <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&quot;FixedLengthTextDataType&quot;</span>                 <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&quot;VariableLengthTextDataType&quot;</span>              <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&quot;LargeLengthTextDataType&quot;</span>                 <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&quot;SignedIntegerNumericDataType&quot;</span>            <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="p">,</span>
+            <span class="s">&quot;SignedSmallIntegerNumericDataType&quot;</span>       <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="p">,</span>
+            <span class="s">&quot;SignedLargeIntegerNumericDataType&quot;</span>       <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="p">,</span>
+            <span class="s">&quot;UnsignedIntegerNumericDataType&quot;</span>          <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="p">,</span>
+            <span class="s">&quot;UnsignedTinyIntegerNumericDataType&quot;</span>      <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="p">,</span>
+            <span class="s">&quot;UnsignedSmallIntegerNumericDataType&quot;</span>     <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="p">,</span>
+            <span class="s">&quot;UnsignedLargeIntegerNumericDataType&quot;</span>     <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="p">,</span>
+            <span class="s">&quot;AutoCounterNumericDataType&quot;</span>              <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="p">,</span>
+            <span class="s">&quot;FloatingPointNumericDataType&quot;</span>            <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">FloatDomain</span><span class="p">,</span>
+            <span class="s">&quot;SinglePrecisionFloatingPointNumericDataType&quot;</span><span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">FloatDomain</span><span class="p">,</span>
+            <span class="s">&quot;DoublePrecisionFloatingPointNumericDataType&quot;</span><span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">FloatDomain</span><span class="p">,</span>
+            <span class="s">&quot;DecimalNumericDataType&quot;</span>                  <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">FloatDomain</span><span class="p">,</span>
+            <span class="s">&quot;MoneyNumericDataType&quot;</span>                    <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">FloatDomain</span><span class="p">,</span>
+            <span class="s">&quot;FixedLengthRawDataDataType&quot;</span>              <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&quot;VariableLengthRawDataDataType&quot;</span>           <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&quot;LargeLengthRawDataDataType&quot;</span>              <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&quot;PictureRawDataDataType&quot;</span>                  <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&quot;OleObjectRawDataDataType&quot;</span>                <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&quot;AutoTimestampTemporalDataType&quot;</span>           <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">DateTimeDomain</span><span class="p">,</span>
+            <span class="s">&quot;TimeTemporalDataType&quot;</span>                    <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">TimeDomain</span><span class="p">,</span>
+            <span class="s">&quot;DateTemporalDataType&quot;</span>                    <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">DateDomain</span><span class="p">,</span> 
+            <span class="s">&quot;DateAndTimeTemporalDataType&quot;</span>             <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">DateTimeDomain</span><span class="p">,</span>
+            <span class="s">&quot;TrueOrFalseLogicalDataType&quot;</span>              <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">BoolDomain</span><span class="p">,</span>
+            <span class="s">&quot;YesOrNoLogicalDataType&quot;</span>                  <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">BoolDomain</span><span class="p">,</span>
+            <span class="s">&quot;RowIdOtherDataType&quot;</span>                      <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="p">,</span>
+            <span class="s">&quot;ObjectIdOtherDataType&quot;</span>                   <span class="p">:</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span>
         <span class="p">}</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_date</span><span class="p">():</span>
-        <span class="sd">&quot;&quot;&quot; Return default date.  The constructor for date() requires</span>
-<span class="sd">            year, month, and day and so we cannot simply pass the name</span>
-<span class="sd">            of the class to self._data_types.  &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">date</span><span class="p">(</span><span class="mi">1900</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_datetime</span><span class="p">():</span>
-        <span class="sd">&quot;&quot;&quot; Return default datetime. The constructor for datetime()</span>
-<span class="sd">            requires year, month, and day and so we cannot simply pass</span>
-<span class="sd">            the name of the class to self._data_types.  &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1900</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_element</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add model element to appropriate part of the model. &quot;&quot;&quot;</span>
@@ -273,11 +264,16 @@
     <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Loads the .orm file named *filename* into *self.model* &quot;&quot;&quot;</span>
         <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_norma_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="c"># Load file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_data_types</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_object_types</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_fact_types</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_constraints</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+        <span class="c"># Post-processing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fix_value_constraints</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_domains</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_parse_norma_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Parse a NORMA File and return the ORMModel node. &quot;&quot;&quot;</span>
@@ -307,14 +303,14 @@
                 <span class="n">data_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local_tag</span><span class="p">(</span><span class="n">child</span><span class="p">)</span> <span class="c"># Data type node tag</span>
                 <span class="n">data_id</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">)</span>
 
-                <span class="c"># Look-up Python data type</span>
+                <span class="c"># Look-up Domain subclass corresponding to data type</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">python_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_types</span><span class="p">[</span><span class="n">data_type</span><span class="p">]()</span>
+                    <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_types</span><span class="p">[</span><span class="n">data_type</span><span class="p">]</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="n">python_type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">()</span> <span class="c"># Default to int</span>
+                    <span class="n">domain</span> <span class="o">=</span> <span class="bp">None</span> <span class="c"># Leave default Domain in place</span>
 
                 <span class="c"># Store type by ID for later retrieval</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">data_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">python_type</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">data_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">domain</span>
 
 
     <span class="k">def</span> <span class="nf">_load_child_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
@@ -397,12 +393,12 @@
         <span class="n">ref</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ref&quot;</span><span class="p">)</span>  <span class="c"># GUID for data type</span>
 
         <span class="k">try</span><span class="p">:</span> <span class="c"># Look-up pre-loaded data type</span>
-            <span class="n">object_type</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="n">object_type</span><span class="o">.</span><span class="n">data_type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">()</span> <span class="c"># Default to int</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># Leave default domain in place</span>
 
-        <span class="n">object_type</span><span class="o">.</span><span class="n">data_type_scale</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Scale&quot;</span><span class="p">)</span>
-        <span class="n">object_type</span><span class="o">.</span><span class="n">data_type_length</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Length&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">domain</span><span class="p">:</span> 
+            <span class="n">object_type</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_load_value_restriction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Load value constraint. &quot;&quot;&quot;</span>
@@ -410,12 +406,17 @@
         <span class="n">cons</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">value_range</span> <span class="ow">in</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;ValueRanges&quot;</span><span class="p">):</span>
-            <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span>
-                <span class="n">min_value</span><span class="o">=</span><span class="n">value_range</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MinValue&quot;</span><span class="p">),</span>
-                <span class="n">max_value</span><span class="o">=</span><span class="n">value_range</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MaxValue&quot;</span><span class="p">),</span>
-                <span class="n">min_open</span><span class="o">=</span><span class="p">(</span><span class="n">value_range</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MinInclusion&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;Open&quot;</span><span class="p">),</span>
-                <span class="n">max_open</span><span class="o">=</span><span class="p">(</span><span class="n">value_range</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MaxInclusion&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;Open&quot;</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">cons</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span>
+                    <span class="n">min_value</span><span class="o">=</span><span class="n">value_range</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MinValue&quot;</span><span class="p">),</span>
+                    <span class="n">max_value</span><span class="o">=</span><span class="n">value_range</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MaxValue&quot;</span><span class="p">),</span>
+                    <span class="n">min_open</span><span class="o">=</span><span class="p">(</span><span class="n">value_range</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MinInclusion&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;Open&quot;</span><span class="p">),</span>
+                    <span class="n">max_open</span><span class="o">=</span><span class="p">(</span><span class="n">value_range</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MaxInclusion&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;Open&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">ValueConstraintError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Value constraint &quot;</span> <span class="o">+</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> 
+                    <span class="s">&quot; because &quot;</span> <span class="o">+</span> <span class="n">ex</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+                <span class="k">return</span> <span class="c"># Return prematurely so constraint is ignored    </span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_push</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span> <span class="c"># Add constraint to stack</span>
 
@@ -443,6 +444,18 @@
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">independent</span> <span class="ow">or</span> <span class="n">role</span><span class="o">.</span><span class="n">mandatory</span><span class="p">:</span>
                         <span class="n">cons</span><span class="o">.</span><span class="n">uncover</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
                         <span class="n">cons</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_domains</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; For each value constraint that covers an object type, set that</span>
+<span class="sd">            object type&#39;s domain to the value constraint&#39;s domain.  This </span>
+<span class="sd">            MUST be called after _fix_value_constraints.  &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">Constraint</span><span class="o">.</span><span class="n">ValueConstraint</span><span class="p">):</span>
+            <span class="n">element</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ObjectType</span><span class="p">):</span>
+                <span class="n">object_type</span> <span class="o">=</span> <span class="n">element</span>
+                <span class="n">object_type</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">domain</span>
 
     <span class="c">##########################################################################</span>
     <span class="c"># Private Functions to Load Fact Types</span>

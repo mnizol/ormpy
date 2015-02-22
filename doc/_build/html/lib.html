@@ -286,7 +286,7 @@ of the two.  For example:</p>
 <dl class="attribute">
 <dt id="lib.Constraint.ValueConstraint.domain">
 <tt class="descname">domain</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.ValueConstraint.domain" title="Permalink to this definition">¶</a></dt>
-<dd><p>set of valid values</p>
+<dd><p>Domain of valid values</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -359,6 +359,25 @@ the entire domain is returned as a set.</p>
 <tt class="descname">max_size</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Domain.Domain.max_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum number of elements permitted by the domain.  By default,
 the maximum is sys.maxsize.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Domain.EnumeratedDomain">
+<em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">EnumeratedDomain</tt><a class="reference internal" href="_modules/lib/Domain.html#EnumeratedDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.EnumeratedDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
+<p>A domain whose values are explicitly provided by the caller.</p>
+<dl class="method">
+<dt id="lib.Domain.EnumeratedDomain.add">
+<tt class="descname">add</tt><big>(</big><em>elements</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#EnumeratedDomain.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.EnumeratedDomain.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an element or list of elements to the domain.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Domain.EnumeratedDomain.size">
+<tt class="descname">size</tt><a class="reference internal" href="_modules/lib/Domain.html#EnumeratedDomain.size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.EnumeratedDomain.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Size of the enumerated domain.</p>
 </dd></dl>
 
 </dd></dl>

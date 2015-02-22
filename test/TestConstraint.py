@@ -46,7 +46,7 @@ class TestConstraint(TestCase):
         cons.add_range("Cat")
         cons.add_range(1.35)
         cons.add_range(9)
-        self.assertItemsEqual(cons.domain, set(["Dog","Cat", 1.35,9]))
+        self.assertItemsEqual(cons.domain.draw(4), ["Dog","Cat", 1.35,9])
         self.assertEquals(cons.size, 4)
 
     def test_vc_bad_enum(self):
@@ -75,10 +75,10 @@ class TestConstraint(TestCase):
             with default inclusion values. """
         cons = Constraint.ValueConstraint(uid="1", name="VC1")
         cons.add_range("1", "4")
-        self.assertItemsEqual(cons.domain, set([1,2,3,4]))
+        self.assertItemsEqual(cons.domain.draw(10), [1,2,3,4])
         self.assertEquals(cons.size, 4)
         cons.add_range("3", "5")
-        self.assertItemsEqual(cons.domain, set([1,2,3,4,5]))
+        self.assertItemsEqual(cons.domain.draw(10), [1,2,3,4,5])
 
     def test_vc_int_ranges_open(self):
         """ Test the addition of value ranges to a value constraint 
@@ -87,7 +87,7 @@ class TestConstraint(TestCase):
         cons.add_range("1", "2", min_open=True)
         cons.add_range("5", "10", max_open=True)
         cons.add_range("11", "13", min_open=True, max_open=True)
-        self.assertItemsEqual(cons.domain, set([2,5,6,7,8,9,12]))
+        self.assertItemsEqual(cons.domain.draw(10), [2,5,6,7,8,9,12])
         self.assertEquals(cons.size, 7)
 
     def test_vc_invalid_range(self):

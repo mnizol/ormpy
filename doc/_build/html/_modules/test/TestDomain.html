@@ -222,6 +222,18 @@
                                 <span class="c"># the for loop</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestDomain.test_enumerated"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_enumerated">[docs]</a>    <span class="k">def</span> <span class="nf">test_enumerated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test EnumeratedDomain. &quot;&quot;&quot;</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="o">.</span><span class="n">EnumeratedDomain</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">domain</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="p">[])</span>
+
+        <span class="n">domain</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">domain</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">,</span><span class="s">&#39;c&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">domain</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">domain</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">,</span><span class="s">&#39;c&#39;</span><span class="p">])</span>
 </pre></div></div></div>
 
           </div>

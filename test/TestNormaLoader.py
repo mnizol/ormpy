@@ -252,7 +252,7 @@ class TestNormaLoader(TestCase):
         self.assertIs(cons1.covers[0], model.object_types.get("A"))
 
         expected = set([1,2,6] + range(10,20) + range(101, 200))
-        self.assertEquals(cons1.domain, expected)
+        self.assertItemsEqual(cons1.domain.draw(112), expected)
         self.assertEquals(cons1.size, 112)
 
     def test_load_fact_types(self):
@@ -289,8 +289,8 @@ class TestNormaLoader(TestCase):
         # Test role value constraint
         cons1 = model.constraints.get("RoleValueConstraint1")
 
-        expected = set(['A', 'Dog', '3.567', '12/23/2014'])
-        self.assertEquals(cons1.domain, expected)
+        expected = ['A', 'Dog', '3.567', '12/23/2014']
+        self.assertItemsEqual(cons1.domain.draw(4), expected)
 
 
     def test_forced_implicit(self):
@@ -611,8 +611,38 @@ class TestNormaLoader(TestCase):
         self.assertItemsEqual(cons8.covers, [role8])             
 
 
- 
+    def test_domain_move(self):
+        """ Test that domain is properly moved for value constraints on types. """
+        loader = NormaLoader(self.data_dir + "test_value_type_value_constraint.orm")
+        model = loader.model
 
+        et1 = model.object_types.get("ET1")
+        self.assertItemsEqual(et1.domain.draw(3), ["ET1_0", "ET1_1", "ET1_2"])
+
+        et1_id = model.object_types.get("ET1_id")
+        self.assertItemsEqual(et1_id.domain.draw(20), [1,2,3,4,5,6,7,8,9,10])
+
+        # USDValue should not have the value constraints transferred to the 
+        # object type since there are two played roles.
+        usd = model.object_types.get("USDValue")
+        self.assertItemsEqual(usd.domain.draw(3), [0.0,0.1,0.2])
+
+        # VT1 has the value constraint moved over
+        vt1 = model.object_types.get("VT1")
+        self.assertItemsEqual(vt1.domain.draw(50), range(45,71))
+
+    def test_invalid_value_constraint(self):
+        """ Test that invalid value constraint is ignored. """
+        loader = NormaLoader(self.data_dir + "invalid_value_constraint.orm")
+        model = loader.model
+
+        actual = loader.omissions
+        expected = ["Value constraint VC1 because value constraints only support integer ranges"]
+        self.assertItemsEqual(actual, expected)
+
+        actual = [cons.name for cons in model.constraints]
+        expected = ["VC2"]
+        self.assertItemsEqual(actual, expected)
         
 
     

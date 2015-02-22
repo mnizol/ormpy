@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ormRoot:ORM2 xmlns:orm="http://schemas.neumont.edu/ORM/2006-04/ORMCore" xmlns:ormDiagram="http://schemas.neumont.edu/ORM/2006-04/ORMDiagram" xmlns:ormRoot="http://schemas.neumont.edu/ORM/2006-04/ORMRoot">
+	<orm:ORMModel id="_5D9538A1-B828-4FD6-BA5E-A0A8D8A5F0B0" Name="ORMModel1">
+		<orm:Objects>
+			<orm:ValueType id="_C99FADC3-651C-492D-9932-58239E546C8E" Name="ValueType1">
+				<orm:ConceptualDataType id="_52AB68BF-BFB8-4A2C-BF3F-6FBE8E01FEA0" ref="_C5915091-6E8B-4F27-8A61-31D84B7FB7E8" Scale="0" Length="0" />
+				<orm:ValueRestriction>
+					<orm:ValueConstraint id="_189EA0FF-6F4B-4F9F-92BD-6284C3C4F542" Name="VC1">
+						<orm:ValueRanges>
+							<orm:ValueRange id="_39F9F9D6-32E4-4670-A540-640825EE22F5" MinValue="Dog" MaxValue="Dotson" MinInclusion="NotSet" MaxInclusion="NotSet" />
+						</orm:ValueRanges>
+					</orm:ValueConstraint>
+				</orm:ValueRestriction>
+			</orm:ValueType>
+			<orm:ValueType id="_A2AF52AD-C6CF-4267-B7BA-C0F1699B6F39" Name="ValueType2">
+				<orm:ConceptualDataType id="_129B4FB5-F46B-423F-9B01-801435672CA3" ref="_67F65BB4-E501-40A6-ADCE-C8094A200133" Scale="0" Length="0" />
+				<orm:ValueRestriction>
+					<orm:ValueConstraint id="_AD4945E4-50F7-4D6D-8D56-667128616624" Name="VC2">
+						<orm:ValueRanges>
+							<orm:ValueRange id="_8CEEAFF3-0B81-45BE-9CC2-E9CA4D705079" MinValue="1" InvariantMinValue="1" MaxValue="5" InvariantMaxValue="5" MinInclusion="NotSet" MaxInclusion="NotSet" />
+						</orm:ValueRanges>
+					</orm:ValueConstraint>
+				</orm:ValueRestriction>
+			</orm:ValueType>
+		</orm:Objects>
+		<orm:DataTypes>
+			<orm:FixedLengthTextDataType id="_C5915091-6E8B-4F27-8A61-31D84B7FB7E8" />
+			<orm:UnsignedIntegerNumericDataType id="_67F65BB4-E501-40A6-ADCE-C8094A200133" />
+		</orm:DataTypes>
+		<orm:ModelNotes>
+			<orm:ModelNote id="_D39D6230-CCB3-43C2-8318-A98A68F2AABC">
+				<orm:Text>The constraint is invalid because it is a range of strings.</orm:Text>
+			</orm:ModelNote>
+			<orm:ModelNote id="_413C65F4-8DD1-4388-AAA1-6A647FF9D913">
+				<orm:Text>This constraint is ok.</orm:Text>
+			</orm:ModelNote>
+		</orm:ModelNotes>
+		<orm:ReferenceModeKinds>
+			<orm:ReferenceModeKind id="_8AA2E99D-3FA5-48E5-9518-FDE9056C31AF" FormatString="{1}" ReferenceModeType="General" />
+			<orm:ReferenceModeKind id="_43ED6B33-6CD3-4654-B7F9-60433E21B8F6" FormatString="{0}_{1}" ReferenceModeType="Popular" />
+			<orm:ReferenceModeKind id="_F8B560D3-E395-4E1A-9270-8025968AF014" FormatString="{1}Value" ReferenceModeType="UnitBased" />
+		</orm:ReferenceModeKinds>
+	</orm:ORMModel>
+	<ormDiagram:ORMDiagram id="_715616AA-8B63-4548-AF9C-A2094F427CED" IsCompleteView="false" Name="ORMModel1" BaseFontName="Tahoma" BaseFontSize="0.0972222238779068">
+		<ormDiagram:Shapes>
+			<ormDiagram:ObjectTypeShape id="_4E965190-0C52-490D-8BCF-08E620889D4F" IsExpanded="true" AbsoluteBounds="1.96875, 1.6666666269302368, 0.73887383460998535, 0.22950302660465241">
+				<ormDiagram:RelativeShapes>
+					<ormDiagram:ValueConstraintShape id="_A607B0CE-912B-4688-8773-F31ABBFD49CD" IsExpanded="true" AbsoluteBounds="2.7676238346099851, 1.5371636003255844, 0.76214373111724854, 0.12950302660465241">
+						<ormDiagram:Subject ref="_189EA0FF-6F4B-4F9F-92BD-6284C3C4F542" />
+					</ormDiagram:ValueConstraintShape>
+				</ormDiagram:RelativeShapes>
+				<ormDiagram:Subject ref="_C99FADC3-651C-492D-9932-58239E546C8E" />
+			</ormDiagram:ObjectTypeShape>
+			<ormDiagram:ObjectTypeShape id="_B5644E42-D535-45DF-8162-3AD639090410" IsExpanded="true" AbsoluteBounds="2.2604167461395264, 2.71875, 0.73887383460998535, 0.22950302660465241">
+				<ormDiagram:RelativeShapes>
+					<ormDiagram:ValueConstraintShape id="_D61D0959-66F1-4277-903D-778A469AA204" IsExpanded="true" AbsoluteBounds="3.0592905807495114, 2.5892469733953476, 0.29872411489486694, 0.12950302660465241">
+						<ormDiagram:Subject ref="_AD4945E4-50F7-4D6D-8D56-667128616624" />
+					</ormDiagram:ValueConstraintShape>
+				</ormDiagram:RelativeShapes>
+				<ormDiagram:Subject ref="_A2AF52AD-C6CF-4267-B7BA-C0F1699B6F39" />
+			</ormDiagram:ObjectTypeShape>
+			<ormDiagram:ModelNoteShape id="_E9A4113A-59C3-4528-B00B-89E8AA02AA1D" IsExpanded="true" AbsoluteBounds="1.84375, 1.1458333730697632, 2.5080505962371826, 0.14150302660465242">
+				<ormDiagram:Subject ref="_D39D6230-CCB3-43C2-8318-A98A68F2AABC" />
+			</ormDiagram:ModelNoteShape>
+			<ormDiagram:ModelNoteShape id="_A7EC40B7-49C4-4F16-9043-F9496DB0CE45" IsExpanded="true" AbsoluteBounds="1.8958333730697632, 2.4375, 0.95766965103149415, 0.14150302660465242">
+				<ormDiagram:Subject ref="_413C65F4-8DD1-4388-AAA1-6A647FF9D913" />
+			</ormDiagram:ModelNoteShape>
+		</ormDiagram:Shapes>
+		<ormDiagram:Subject ref="_5D9538A1-B828-4FD6-BA5E-A0A8D8A5F0B0" />
+	</ormDiagram:ORMDiagram>
+</ormRoot:ORM2>

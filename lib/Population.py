@@ -12,13 +12,15 @@ from lib.ORMMinus import ORMMinus
 class Population(object):
     """ A population of an ORM model. """
 
+    DEFAULT_SIZE = 10 #: Default size of object and fact type populations.
+
     def __init__(self, model):
         self._model = model
-        self.object_types = {}
-        self.fact_types = {}
+        self.object_types = {}  #: A dictionary of object type populations
+        self.fact_types = {}    #: A dictionary of n-ary relations
         self.populate()
 
-    def populate(self, ubound=sys.maxint):
+    def populate(self, ubound=DEFAULT_SIZE):
         """ Generate a population for the model.  If the model is satisfiable, 
             then self.object_types and self.fact_types will be 
             dictionaries whose key is the object_type (fact_type) name and
@@ -36,16 +38,25 @@ class Population(object):
             self._populate_fact_types(solution)
 
     def _populate_object_types(self, solution):
-        # (1) Populate any object type with a ValueConstraint by drawing
-        #     from that ValueConstraint
-        # (2) Populate ValueType by drawing from its domain
-        # (3) Populate EntityType and ObjectifiedType as Name<n>
-        # (4) Populate sub types per Smarag
-        pass
+        """ Populate all object types in the model. """
+
+        for obj_type in self._model.object_types:
+            name = obj_type.fullname
+            domain = obj_type.domain
+            size = solution[name].upper 
+            self.object_types[name] = domain.draw(size)
 
     def _populate_fact_types(self, solution):
         pass
 
     def write_csv(self, directory):
         pass
+
+class Relation(object):
+    """ A relation, which is a list of tuples. """
+    
+    def __init__(self):
+        pass
+
+
 

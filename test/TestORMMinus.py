@@ -7,6 +7,7 @@
 """ This file contains unit tests for the lib.ORMMinus module. """
 
 import os
+import sys
 
 from unittest import TestCase
 
@@ -213,4 +214,23 @@ class TestORMMinus(TestCase):
         fname = os.path.join(self.data_dir, "unsat_smarag_3.orm")
         model = NormaLoader(fname).model
         self.assertIsNone(ORMMinus(model=model).check())
+
+    def test_ubound_on_object_types(self):
+        """ Test upper bound on object type variables.  """
+        fname = os.path.join(self.data_dir, "data_types.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinus(model=model)
+        solution = ormminus.check()
+
+        bool_obj = model.object_types.get("B")
+        bool_var = ormminus._variables[bool_obj]
+        self.assertEquals(bool_var.upper, 2)
+
+        int_obj = model.object_types.get("D")
+        int_var = ormminus._variables[int_obj]
+        self.assertEquals(int_var.upper, sys.maxsize)
+
+        time_obj = model.object_types.get("J")
+        time_var = ormminus._variables[time_obj]
+        self.assertEquals(time_var.upper, 60*24)
 

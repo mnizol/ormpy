@@ -32,7 +32,7 @@ class ORMMinus(object):
         :param ubound: Upper bound on size of model elements
     """
 
-    def __init__(self, model=None, ubound=sys.maxint):
+    def __init__(self, model=None, ubound=sys.maxsize):
         self._model = model #: ORM model
         self._ubound = ubound #: Bound on model element size
         self._ineqsys = InequalitySystem() #: System of inequalities
@@ -60,8 +60,8 @@ class ORMMinus(object):
 
         # Create one variable for each object type
         for obj_type in self._model.object_types:
-            self._variables[obj_type] = Variable(obj_type.fullname,
-                                                 upper=self._ubound)
+            upper = min(self._ubound, obj_type.domain.max_size)
+            self._variables[obj_type] = Variable(obj_type.fullname, upper=upper)
 
         # Create one variable for each fact type and role
         for fact_type in self._model.fact_types:

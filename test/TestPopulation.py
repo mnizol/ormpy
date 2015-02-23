@@ -26,5 +26,16 @@ class TestPopulation(TestCase):
         model = NormaLoader(fname).model
         pop = Population(model)
         self.assertIsNone(pop.object_types)
-        self.assertIsNone(pop.fact_types)        
+        self.assertIsNone(pop.fact_types)  
+
+    # TODO: This is not a good test...
+    def test_populate_object_types(self):
+        """ Test population of object types. """
+        fname = os.path.join(self.data_dir, "fact_type_tests.orm")
+        model = NormaLoader(fname).model
+        pop = Population(model)
+
+        print pop.object_types["ObjectTypes.B"]
+        
+              
 

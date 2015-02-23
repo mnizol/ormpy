@@ -179,12 +179,14 @@ class TestDomain(TestCase):
         domain = Domain.EnumeratedDomain()
 
         self.assertItemsEqual(domain.draw(10), [])
+        self.assertEquals(domain.max_size, 0)
 
         domain.add(5)
         domain.add(['a','b','c'])
 
         self.assertItemsEqual(domain.draw(0), [])
         self.assertItemsEqual(domain.draw(4), [5,'a','b','c'])
+        self.assertEquals(domain.max_size, 4)
 
 
 

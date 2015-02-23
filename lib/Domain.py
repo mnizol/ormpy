@@ -148,6 +148,21 @@ class EnumeratedDomain(Domain):
         """ Size of the enumerated domain. """
         return len(self._set)
 
+    @property
+    def max_size(self):
+        """ Maximum size of the domain, which for an enumerated domain is 
+            just the size of the underlying set (i.e. max_size answers the 
+            question, what is the largest possible number of items to draw
+            from the domain?). """
+        return self.size
+
+    @max_size.setter
+    def max_size(self, value):
+        """ Max_size cannot be set, it is always calculated for this class.  So 
+            we ignore the value provided. This setter is needed because 
+            __init__() on Domain tries to initialize max_size.  """
+        pass         
+
     def add(self, elements):
         """ Add an element or list of elements to the domain."""
         if isinstance(elements, list):

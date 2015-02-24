@@ -43,7 +43,7 @@ class Population(object):
         for obj_type in self._model.object_types:
             name = obj_type.fullname
             domain = obj_type.domain
-            size = solution[name].upper 
+            size = solution[name] 
             self.object_types[name] = domain.draw(size)
 
     def _populate_fact_types(self, solution):

@@ -176,12 +176,9 @@ class TestInequalitySystem(TestCase):
         sys.add(q)
         solution = sys.solve(debug=True) # Debug on to achieve coverage
 
-        self.assertEquals(solution['a'].lower, 1)
-        self.assertEquals(solution['a'].upper, 50)
-        self.assertEquals(solution['b'].lower, 20)
-        self.assertEquals(solution['b'].upper, 50)
-        self.assertEquals(solution['c'].lower, 1)
-        self.assertEquals(solution['c'].upper, 2500)
+        self.assertEquals(solution['a'], 50)
+        self.assertEquals(solution['b'], 50)
+        self.assertEquals(solution['c'], 2500)
 
     def test_simple_sat_system2(self):
         """ Test a simple satisfiable system #2. """
@@ -195,8 +192,8 @@ class TestInequalitySystem(TestCase):
         sys1.add(p)
         solution = sys1.solve()
 
-        self.assertEquals(solution['a'].upper, sys.maxint)
-        self.assertEquals(solution['b'].upper, sys.maxint)
+        self.assertEquals(solution['a'], sys.maxint)
+        self.assertEquals(solution['b'], sys.maxint)
 
     def test_simple_sat_system3(self):
         """ Test a simple satisfiable system #3 (with product). """
@@ -214,10 +211,10 @@ class TestInequalitySystem(TestCase):
         sys1.add(q)
         solution = sys1.solve(debug=True)
 
-        self.assertEquals(solution['a'].upper, 15)
-        self.assertEquals(solution['b'].upper, 3)
-        self.assertEquals(solution['c'].upper, 5)
-        self.assertEquals(solution['d'].upper, 2)
+        self.assertEquals(solution['a'], 15)
+        self.assertEquals(solution['b'], 3)
+        self.assertEquals(solution['c'], 5)
+        self.assertEquals(solution['d'], 2)
 
     def test_simple_unsat_system(self):
         """ Test a simple unsatisfiable system. """

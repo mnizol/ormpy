@@ -195,9 +195,7 @@ class InequalitySystem(list):
     def solve(self, debug=False):
         """ Solve the system.  If there is a solution, returns a dictionary
             whose keys are the names of the variables in the system and
-            whose values are the corresponding objects of type
-            :class:`lib.InequalitySystem.Variable`.  For each variable v,
-            v.upper is the value of the variable in the solution.
+            whose values are the corresponding values in the solution.
             If there is no solution, returns None."""
 
         iteration = 0
@@ -237,7 +235,7 @@ class InequalitySystem(list):
         if self._valid:
             if debug:
                 print "Found solution."
-            return self._variables
+            return {k: v.upper for k, v in self._variables.iteritems()}
         else:
             if debug:
                 print "System has no solution."

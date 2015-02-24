@@ -151,18 +151,14 @@ class TestORMMinus(TestCase):
 
     def test_solve_1(self):
         """ Test solution to Paper Has Author model. """
-        actual = [(name, var.upper) for name, var in self.solution1.iteritems() if not(isinstance(var, Constant))]
-        
-        expect = [("ObjectTypes.Author", 5),
-                  ("ObjectTypes.Paper", 2),
-                  ("FactTypes.PaperHasAuthor", 5),
-                  ("FactTypes.PaperHasAuthor.Roles.R1", 2),
-                  ("FactTypes.PaperHasAuthor.Roles.R2", 5),
-                  ("Constraints.FrequencyConstraint1", 2),
-                  ("Constraints.InternalUniquenessConstraint1", 5)
-                 ]
-
-        self.assertItemsEqual(actual, expect)
+        solution = self.solution1
+        self.assertEquals(solution["ObjectTypes.Author"], 5)
+        self.assertEquals(solution["ObjectTypes.Paper"], 2)
+        self.assertEquals(solution["FactTypes.PaperHasAuthor"], 5)
+        self.assertEquals(solution["FactTypes.PaperHasAuthor.Roles.R1"], 2)
+        self.assertEquals(solution["FactTypes.PaperHasAuthor.Roles.R2"], 5)
+        self.assertEquals(solution["Constraints.FrequencyConstraint1"], 2)
+        self.assertEquals(solution["Constraints.InternalUniquenessConstraint1"], 5)
 
     def test_implicit_disjunctive_ineq(self):
         """ Test implicit disjunctive mandatory inequalities. """

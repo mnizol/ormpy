@@ -60,7 +60,7 @@
 <span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
 
 <span class="kn">import</span> <span class="nn">lib.TestDataLocator</span> <span class="kn">as</span> <span class="nn">TestDataLocator</span>
-<span class="kn">from</span> <span class="nn">lib.Population</span> <span class="kn">import</span> <span class="n">Population</span>
+<span class="kn">from</span> <span class="nn">lib.Population</span> <span class="kn">import</span> <span class="n">Population</span><span class="p">,</span> <span class="n">Relation</span>
 <span class="kn">from</span> <span class="nn">lib.NormaLoader</span> <span class="kn">import</span> <span class="n">NormaLoader</span>
 
 <div class="viewcode-block" id="TestPopulation"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation">[docs]</a><span class="k">class</span> <span class="nc">TestPopulation</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
@@ -75,7 +75,41 @@
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
         <span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">object_types</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">fact_types</span><span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">fact_types</span><span class="p">)</span>  
+</div>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    # TODO: This is not a good test...</span>
+<span class="sd">    def test_populate_object_types(self):</span>
+<span class="sd">        &quot;&quot;&quot; Test population of object types. &quot;&quot;&quot;</span>
+<span class="sd">        fname = os.path.join(self.data_dir, &quot;fact_type_tests.orm&quot;)</span>
+<span class="sd">        model = NormaLoader(fname).model</span>
+<span class="sd">        pop = Population(model)</span>
+
+<span class="sd">        print pop.object_types[&quot;ObjectTypes.B&quot;]</span>
+<span class="sd">    &#39;&#39;&#39;</span> 
+
+<div class="viewcode-block" id="TestPopulation.test_add_to_relation"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.test_add_to_relation">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_to_relation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test adding tuple to relation. &quot;&quot;&quot;</span>
+        <span class="n">rel</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">arity</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">rel</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+        <span class="n">rel</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rel</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">rel</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">rel</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">,</span><span class="s">&quot;b&quot;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="TestPopulation.test_add_wrong_arity_to_relation"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.test_add_wrong_arity_to_relation">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_wrong_arity_to_relation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test adding a tuple of the wrong arity to a relation. &quot;&quot;&quot;</span>
+        <span class="n">rel</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">arity</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">rel</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> 
+            <span class="s">&quot;Cannot add tuple of arity 1 to a Relation of arity 2&quot;</span><span class="p">)</span>
+
+
+  
+              
 </pre></div></div></div>
 
           </div>

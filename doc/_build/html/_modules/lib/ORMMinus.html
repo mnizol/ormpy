@@ -81,7 +81,7 @@
 <span class="sd">        :param ubound: Upper bound on size of model elements</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">maxint</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span> <span class="c">#: ORM model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ubound</span> <span class="o">=</span> <span class="n">ubound</span> <span class="c">#: Bound on model element size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ineqsys</span> <span class="o">=</span> <span class="n">InequalitySystem</span><span class="p">()</span> <span class="c">#: System of inequalities</span>
@@ -109,8 +109,8 @@
 
         <span class="c"># Create one variable for each object type</span>
         <span class="k">for</span> <span class="n">obj_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">obj_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">obj_type</span><span class="o">.</span><span class="n">fullname</span><span class="p">,</span>
-                                                 <span class="n">upper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ubound</span><span class="p">)</span>
+            <span class="n">upper</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ubound</span><span class="p">,</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">max_size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">obj_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">obj_type</span><span class="o">.</span><span class="n">fullname</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">upper</span><span class="p">)</span>
 
         <span class="c"># Create one variable for each fact type and role</span>
         <span class="k">for</span> <span class="n">fact_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">fact_types</span><span class="p">:</span>

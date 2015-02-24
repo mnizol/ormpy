@@ -197,6 +197,21 @@
         <span class="sd">&quot;&quot;&quot; Size of the enumerated domain. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">)</span>
 </div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Maximum size of the domain, which for an enumerated domain is </span>
+<span class="sd">            just the size of the underlying set (i.e. max_size answers the </span>
+<span class="sd">            question, what is the largest possible number of items to draw</span>
+<span class="sd">            from the domain?). &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+
+    <span class="nd">@max_size.setter</span>
+<div class="viewcode-block" id="EnumeratedDomain.max_size"><a class="viewcode-back" href="../../lib.html#lib.Domain.EnumeratedDomain.max_size">[docs]</a>    <span class="k">def</span> <span class="nf">max_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Max_size cannot be set, it is always calculated for this class.  So </span>
+<span class="sd">            we ignore the value provided. This setter is needed because </span>
+<span class="sd">            __init__() on Domain tries to initialize max_size.  &quot;&quot;&quot;</span>
+        <span class="k">pass</span>         
+</div>
 <div class="viewcode-block" id="EnumeratedDomain.add"><a class="viewcode-back" href="../../lib.html#lib.Domain.EnumeratedDomain.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add an element or list of elements to the domain.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>

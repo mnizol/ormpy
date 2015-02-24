@@ -375,6 +375,15 @@ the maximum is sys.maxsize.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="lib.Domain.EnumeratedDomain.max_size">
+<tt class="descname">max_size</tt><a class="reference internal" href="_modules/lib/Domain.html#EnumeratedDomain.max_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.EnumeratedDomain.max_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum size of the domain, which for an enumerated domain is 
+just the size of the underlying set (i.e. max_size answers the 
+question, what is the largest possible number of items to draw
+from the domain?).</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="lib.Domain.EnumeratedDomain.size">
 <tt class="descname">size</tt><a class="reference internal" href="_modules/lib/Domain.html#EnumeratedDomain.size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.EnumeratedDomain.size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Size of the enumerated domain.</p>
@@ -627,9 +636,7 @@ in the inequality.</p>
 <tt class="descname">solve</tt><big>(</big><em>debug=False</em><big>)</big><a class="reference internal" href="_modules/lib/InequalitySystem.html#InequalitySystem.solve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.InequalitySystem.InequalitySystem.solve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the system.  If there is a solution, returns a dictionary
 whose keys are the names of the variables in the system and
-whose values are the corresponding objects of type
-<a class="reference internal" href="#lib.InequalitySystem.Variable" title="lib.InequalitySystem.Variable"><tt class="xref py py-class docutils literal"><span class="pre">lib.InequalitySystem.Variable</span></tt></a>.  For each variable v,
-v.upper is the value of the variable in the solution.
+whose values are the corresponding values in the solution.
 If there is no solution, returns None.</p>
 </dd></dl>
 
@@ -1021,22 +1028,54 @@ identification scheme for this object type.</p>
 <dt id="lib.Population.Population">
 <em class="property">class </em><tt class="descclassname">lib.Population.</tt><tt class="descname">Population</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>A population of an ORM model.</p>
+<p>A population of an ORM model. If the model is satisfiable, 
+then self.object_types and self.fact_types will contain the
+populations of objects and facts, respectively, that satisfy the
+constraints in the model.  For an unsatisfiable model, 
+self.object_types and self.fact_types will both be None.</p>
+<dl class="attribute">
+<dt id="lib.Population.Population.DEFAULT_SIZE">
+<tt class="descname">DEFAULT_SIZE</tt><em class="property"> = 10</em><a class="headerlink" href="#lib.Population.Population.DEFAULT_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default size of object and fact type populations.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Population.Population.fact_types">
+<tt class="descname">fact_types</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Population.Population.fact_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary of fact type populations.  Specifically, the key is the
+fact type name and the value is a <a class="reference internal" href="#lib.Population.Relation" title="lib.Population.Relation"><tt class="xref py py-class docutils literal"><span class="pre">lib.Population.Relation</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Population.Population.object_types">
+<tt class="descname">object_types</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Population.Population.object_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary of object type populations.  Specifically, the key is
+the object type name and the value is a list of objects.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="lib.Population.Population.populate">
-<tt class="descname">populate</tt><big>(</big><em>ubound=9223372036854775807</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population.populate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a population for the model.  If the model is satisfiable, 
-then self.object_types and self.fact_types will be 
-dictionaries whose key is the object_type (fact_type) name and
-whose value is a <tt class="xref py py-class docutils literal"><span class="pre">lib.Relation.Relation</span></tt> that satisfies the
-constraints in the model.  If the model is unsatisfiable, then 
-self.object_types and self.fact_types will both be set to None.</p>
+<tt class="descname">populate</tt><big>(</big><em>ubound=10</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population.populate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a population for the model.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="lib.Population.Population.write_csv">
 <tt class="descname">write_csv</tt><big>(</big><em>directory</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population.write_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population.write_csv" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Population.Relation">
+<em class="property">class </em><tt class="descclassname">lib.Population.</tt><tt class="descname">Relation</tt><big>(</big><em>arity=1</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Relation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Relation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
+<p>A relation, which is a list of lists of identical arity.</p>
+<dl class="method">
+<dt id="lib.Population.Relation.add">
+<tt class="descname">add</tt><big>(</big><em>tupl</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Relation.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Relation.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add tuple to the list.</p>
+</dd></dl>
 
 </dd></dl>
 

@@ -56,6 +56,7 @@
 <span class="sd">&quot;&quot;&quot; This file contains unit tests for the lib.ORMMinus module. &quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
 
@@ -199,18 +200,14 @@
 </div>
 <div class="viewcode-block" id="TestORMMinus.test_solve_1"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_solve_1">[docs]</a>    <span class="k">def</span> <span class="nf">test_solve_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test solution to Paper Has Author model. &quot;&quot;&quot;</span>
-        <span class="n">actual</span> <span class="o">=</span> <span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">upper</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution1</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">Constant</span><span class="p">))]</span>
-        
-        <span class="n">expect</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&quot;ObjectTypes.Author&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
-                  <span class="p">(</span><span class="s">&quot;ObjectTypes.Paper&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-                  <span class="p">(</span><span class="s">&quot;FactTypes.PaperHasAuthor&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
-                  <span class="p">(</span><span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R1&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-                  <span class="p">(</span><span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R2&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
-                  <span class="p">(</span><span class="s">&quot;Constraints.FrequencyConstraint1&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-                  <span class="p">(</span><span class="s">&quot;Constraints.InternalUniquenessConstraint1&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-                 <span class="p">]</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;ObjectTypes.Author&quot;</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;ObjectTypes.Paper&quot;</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;FactTypes.PaperHasAuthor&quot;</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R1&quot;</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R2&quot;</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;Constraints.FrequencyConstraint1&quot;</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;Constraints.InternalUniquenessConstraint1&quot;</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TestORMMinus.test_implicit_disjunctive_ineq"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_implicit_disjunctive_ineq">[docs]</a>    <span class="k">def</span> <span class="nf">test_implicit_disjunctive_ineq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test implicit disjunctive mandatory inequalities. &quot;&quot;&quot;</span>
@@ -262,6 +259,25 @@
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;unsat_smarag_3.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="TestORMMinus.test_ubound_on_object_types"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_ubound_on_object_types">[docs]</a>    <span class="k">def</span> <span class="nf">test_ubound_on_object_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test upper bound on object type variables.  &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;data_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+        <span class="n">bool_obj</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">)</span>
+        <span class="n">bool_var</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">bool_obj</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">bool_var</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">int_obj</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;D&quot;</span><span class="p">)</span>
+        <span class="n">int_var</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">int_obj</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">int_var</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
+
+        <span class="n">time_obj</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;J&quot;</span><span class="p">)</span>
+        <span class="n">time_var</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">time_obj</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">time_var</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">60</span><span class="o">*</span><span class="mi">24</span><span class="p">)</span>
 </pre></div></div></div>
 
           </div>

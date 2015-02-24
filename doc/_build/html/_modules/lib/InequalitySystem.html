@@ -244,9 +244,7 @@
 <div class="viewcode-block" id="InequalitySystem.solve"><a class="viewcode-back" href="../../lib.html#lib.InequalitySystem.InequalitySystem.solve">[docs]</a>    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Solve the system.  If there is a solution, returns a dictionary</span>
 <span class="sd">            whose keys are the names of the variables in the system and</span>
-<span class="sd">            whose values are the corresponding objects of type</span>
-<span class="sd">            :class:`lib.InequalitySystem.Variable`.  For each variable v,</span>
-<span class="sd">            v.upper is the value of the variable in the solution.</span>
+<span class="sd">            whose values are the corresponding values in the solution.</span>
 <span class="sd">            If there is no solution, returns None.&quot;&quot;&quot;</span>
 
         <span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
@@ -286,7 +284,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
                 <span class="k">print</span> <span class="s">&quot;Found solution.&quot;</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">upper</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
                 <span class="k">print</span> <span class="s">&quot;System has no solution.&quot;</span>

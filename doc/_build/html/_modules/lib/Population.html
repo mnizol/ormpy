@@ -59,22 +59,30 @@
 <span class="kn">from</span> <span class="nn">lib.ORMMinus</span> <span class="kn">import</span> <span class="n">ORMMinus</span>
 
 <div class="viewcode-block" id="Population"><a class="viewcode-back" href="../../lib.html#lib.Population.Population">[docs]</a><span class="k">class</span> <span class="nc">Population</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A population of an ORM model. &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot; A population of an ORM model. If the model is satisfiable, </span>
+<span class="sd">        then self.object_types and self.fact_types will contain the</span>
+<span class="sd">        populations of objects and facts, respectively, that satisfy the</span>
+<span class="sd">        constraints in the model.  For an unsatisfiable model, </span>
+<span class="sd">        self.object_types and self.fact_types will both be None.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULT_SIZE</span> <span class="o">=</span> <span class="mi">10</span> <span class="c">#: Default size of object and fact type populations.</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Population</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">object_types</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c">#: A dictionary of object type populations.  Specifically, the key is</span>
+        <span class="c">#: the object type name and the value is a list of objects.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object_types</span> <span class="o">=</span> <span class="p">{}</span>  
+
+        <span class="c">#: A dictionary of fact type populations.  Specifically, the key is the</span>
+        <span class="c">#: fact type name and the value is a :class:`lib.Population.Relation`.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span> <span class="o">=</span> <span class="p">{}</span> 
+   
         <span class="bp">self</span><span class="o">.</span><span class="n">populate</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Population.populate"><a class="viewcode-back" href="../../lib.html#lib.Population.Population.populate">[docs]</a>    <span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">maxint</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Generate a population for the model.  If the model is satisfiable, </span>
-<span class="sd">            then self.object_types and self.fact_types will be </span>
-<span class="sd">            dictionaries whose key is the object_type (fact_type) name and</span>
-<span class="sd">            whose value is a :class:`lib.Relation.Relation` that satisfies the</span>
-<span class="sd">            constraints in the model.  If the model is unsatisfiable, then </span>
-<span class="sd">            self.object_types and self.fact_types will both be set to None. &quot;&quot;&quot;</span>
-
+<div class="viewcode-block" id="Population.populate"><a class="viewcode-back" href="../../lib.html#lib.Population.Population.populate">[docs]</a>    <span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="n">DEFAULT_SIZE</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate a population for the model. &quot;&quot;&quot;</span>
         <span class="n">solution</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="n">ubound</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">solution</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
@@ -85,18 +93,34 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_populate_fact_types</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">_populate_object_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
-        <span class="c"># (1) Populate any object type with a ValueConstraint by drawing</span>
-        <span class="c">#     from that ValueConstraint</span>
-        <span class="c"># (2) Populate ValueType by drawing from its domain</span>
-        <span class="c"># (3) Populate EntityType and ObjectifiedType as Name&lt;n&gt;</span>
-        <span class="c"># (4) Populate sub types per Smarag</span>
-        <span class="k">pass</span>
+        <span class="sd">&quot;&quot;&quot; Populate all object types in the model. &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">obj_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">fullname</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">domain</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">solution</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>             
+            <span class="bp">self</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_populate_fact_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="Population.write_csv"><a class="viewcode-back" href="../../lib.html#lib.Population.Population.write_csv">[docs]</a>    <span class="k">def</span> <span class="nf">write_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
         <span class="k">pass</span>
+</div></div>
+<div class="viewcode-block" id="Relation"><a class="viewcode-back" href="../../lib.html#lib.Population.Relation">[docs]</a><span class="k">class</span> <span class="nc">Relation</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A relation, which is a list of lists of identical arity. &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arity</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Relation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arity</span> <span class="o">=</span> <span class="n">arity</span>
+
+<div class="viewcode-block" id="Relation.add"><a class="viewcode-back" href="../../lib.html#lib.Population.Relation.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tupl</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add tuple to the list. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tupl</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">arity</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tupl</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Cannot add tuple of arity &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tupl</span><span class="p">))</span> <span class="o">+</span>
+                            <span class="s">&quot; to a Relation of arity &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arity</span><span class="p">))</span>
 </pre></div></div></div>
 
           </div>

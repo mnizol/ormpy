@@ -65,7 +65,6 @@ class TestORMMinus(TestCase):
         """ Test that disjunctive mandatory constraint is ignored. """
         fname = os.path.join(self.data_dir, "disjunctive_mandatory.orm")
         model = NormaLoader(fname).model
-        ormminus = ORMMinus(model=model)
 
         # NormaLoader actually drops the disjunctive mandatory, so create a
         # fake one to test that the constraint is ignored
@@ -74,6 +73,7 @@ class TestORMMinus(TestCase):
         cons.simple = False
         model.constraints.add(cons)
 
+        ormminus = ORMMinus(model=model)
         solution = ormminus.check()
 
         actual = [cons.name for cons in ormminus.ignored]
@@ -145,7 +145,8 @@ class TestORMMinus(TestCase):
                   "Constraints.InternalUniquenessConstraint1 <= FactTypes.PaperHasAuthor.Roles.R2",
                   "FactTypes.PaperHasAuthor.Roles.R2 <= Constraints.InternalUniquenessConstraint1",
                   "ObjectTypes.Paper <= FactTypes.PaperHasAuthor.Roles.R1",
-                  "ObjectTypes.Author <= FactTypes.PaperHasAuthor.Roles.R2"]
+                  "ObjectTypes.Author <= FactTypes.PaperHasAuthor.Roles.R2",
+                  "FactTypes.PaperHasAuthor <= Constraints.FrequencyConstraint1 * Constraints.InternalUniquenessConstraint1"]
 
         self.assertItemsEqual(actual, expect)
 
@@ -194,7 +195,10 @@ class TestORMMinus(TestCase):
                   "Constraints.IUC3 <= FactTypes.AOwnsD.Roles.R5",
                   "FactTypes.AOwnsD.Roles.R5 <= Constraints.IUC3",
                   "ObjectTypes.A <= FactTypes.ASharesB.Roles.R3 + FactTypes.ALikesA.Roles.R1 + FactTypes.ALikesA.Roles.R2 + FactTypes.AOwnsD.Roles.R5",
-                  "ObjectTypes.D <= FactTypes.AOwnsD.Roles.R6" 
+                  "ObjectTypes.D <= FactTypes.AOwnsD.Roles.R6",
+                  "FactTypes.ALikesA <= FactTypes.ALikesA.Roles.R2 * Constraints.IUC1",
+                  "FactTypes.ASharesB <= Constraints.IUC2 * FactTypes.ASharesB.Roles.R4",
+                  "FactTypes.AOwnsD <= Constraints.IUC3 * FactTypes.AOwnsD.Roles.R6"
                  ]
         
         self.assertItemsEqual(actual, expect)
@@ -229,4 +233,34 @@ class TestORMMinus(TestCase):
         time_obj = model.object_types.get("J")
         time_var = ormminus._variables[time_obj]
         self.assertEquals(time_var.upper, 60*24)
+
+    def test_fact_type_parts(self):
+        """ Test that fact type parts (e.g. roles vs role sequences) are 
+            correctly identified. """
+        fname = os.path.join(self.data_dir, "fact_type_parts.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinus(model=model, ubound=5)
+
+        fact_type = model.fact_types.get("V1HasV2HasV3")
+        role1, role2, role3 = fact_type.roles
+        self.assertItemsEqual(ormminus.get_parts(fact_type), [role1,role2,role3])
+
+        fact_type = model.fact_types.get("V4HasV5")
+        role1, role2 = fact_type.roles
+        cons = model.constraints.get("IUC4")
+        self.assertItemsEqual(ormminus.get_parts(fact_type), [cons,role2])
+
+        fact_type = model.fact_types.get("V6HasV7")
+        cons = model.constraints.get("IUC5")
+        self.assertItemsEqual(ormminus.get_parts(fact_type), [cons])
+
+        fact_type = model.fact_types.get("V8HasV9")
+        cons = model.constraints.get("IFC1")
+        self.assertItemsEqual(ormminus.get_parts(fact_type), [cons])
+
+        fact_type = model.fact_types.get("Seven_ary")
+        roles = fact_type.roles
+        iuc = model.constraints.get("IUC11")
+        ifc = model.constraints.get("IFC2")
+        self.assertItemsEqual(ormminus.get_parts(fact_type), [iuc, ifc, roles[3], roles[6]])
 

@@ -13,6 +13,7 @@ import argparse
 
 from lib.NormaLoader import NormaLoader
 from lib.ORMMinus import ORMMinus
+from lib.Population import Population
 
 ###############################################################################
 # Main function
@@ -29,6 +30,8 @@ def execute():
         dest='print_model', default=False, help='print model contents')
     parser.add_argument('-c', '--check-model', action='store_true',
         dest='check_model', default=False, help='check if model is satisfiable')
+    parser.add_argument('-p', '--populate', action='store_true',
+        dest='populate', default=False, help='populate the model')
     parser.add_argument('filename', type=str, help='File containing ORM model')
     args = parser.parse_args()
 
@@ -62,7 +65,16 @@ def execute():
         if solution == None:
             print "Model is unsatisfiable."
         else:
-            print "Model is satisfiable."      
+            print "Model is satisfiable."  
+
+    # TODO: Need to print omissions.  Don't want to be redundant with
+    #       check_model code above---should Populate take a solution as a 
+    #       parameter instead of computing solution in one step?
+    # TODO: Accept size parameter.
+    # TODO: Accept destination parameter.
+    if args.populate:
+        pop = Population(model=loader.model)
+        pop.write_csv()    
         
 
 

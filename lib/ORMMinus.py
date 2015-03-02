@@ -12,11 +12,6 @@
 #       * Subtype inequalities
 #       * Inequalities described by McGill's extensions to ORM-
 #       * Inequalityes described by Nizol's extensions to ORM-
-#       * Inequality to express implicit uniqueness over a predicate.
-#         (This is the 2nd to last bullet on pg 86 of Smaragdakis. Because
-#          standard ORM practice is to cover all but (at most) one role with
-#          an IUC, I don't think this inequality matters in practice because
-#          it is implied by any IUC inequality on the predicate).
 
 import sys
 from lib.InequalitySystem \
@@ -33,19 +28,35 @@ class ORMMinus(object):
     """
 
     def __init__(self, model=None, ubound=sys.maxsize):
+        # Initialize attributes
         self._model = model #: ORM model
         self._ubound = ubound #: Bound on model element size
         self._ineqsys = InequalitySystem() #: System of inequalities
         self._variables = {} #: Dictionary from model element to variable
         self.ignored = [] #: List of ignored constraints
 
+        # A dictionary of the roles and role sequences associated with each
+        # fact type.  If a set of roles are covered by an internal frequency
+        # constraint, they are grouped rather than considered separately.
+        self._fact_type_parts = {}
+
+        # Initialize _fact_type_parts here; _create_variables will update.
+        for fact_type in self._model.fact_types:
+            self._fact_type_parts[fact_type] = set(fact_type.roles)
+
+        # Create variables and inequalities
+        self._create_variables()
+        self._create_inequalities()
+
     def check(self):
         """ Checks model for satisifiability.  Returns solution if satisfiable
             and None otherwise. """
-
-        self._create_variables()
-        self._create_inequalities()
         return self._ineqsys.solve()
+
+    def get_parts(self, fact_type):
+        """ Get the non-overlapping roles and internal frequency constraints
+            that comprise a fact type. """
+        return self._fact_type_parts.get(fact_type, None)
 
     def _ignore(self, cons):
         """ Ignore a constraint. """
@@ -82,8 +93,16 @@ class ORMMinus(object):
                 self._ignore(cons)
             else:
                 already_covered.update(cons.covers)
+
                 self._variables[cons] = Variable(cons.fullname, 
                                                  upper=self._ubound)
+
+                # Update the fact type parts dictionary for this constraint                
+                fact_type = cons.covers[0].fact_type # cons is internal
+                parts = self._fact_type_parts[fact_type]
+                parts = parts - set(cons.covers)
+                parts = parts | set([cons]) 
+                self._fact_type_parts[fact_type] = parts
 
     def _create_inequalities(self):
         """ Generate system of inequalities based on rules in Smaragdakis and
@@ -109,6 +128,13 @@ class ORMMinus(object):
                 self._create_frequency_inequality(cons)
             else: # Catch-all so that we can report ignored constraints.
                 self._ignore(cons)
+
+        # Create inequality for implicit predicate uniqueness
+        for fact_type in self._model.fact_types:
+            fact_var = self._variables[fact_type]
+            parts = self.get_parts(fact_type)
+            part_vars = [self._variables[part] for part in parts]
+            self._add(Inequality(lhs=fact_var, rhs=Product(part_vars)))
 
         # Create inequalities for implicit disjunctive constraint
         for obj in self._model.object_types:

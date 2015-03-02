@@ -194,9 +194,9 @@ class TestORMMinus(TestCase):
                   "Constraints.IUC3 <= FactTypes.AOwnsD",
                   "Constraints.IUC3 <= FactTypes.AOwnsD.Roles.R5",
                   "FactTypes.AOwnsD.Roles.R5 <= Constraints.IUC3",
-                  "ObjectTypes.A <= FactTypes.ASharesB.Roles.R3 + FactTypes.ALikesA.Roles.R1 + FactTypes.ALikesA.Roles.R2 + FactTypes.AOwnsD.Roles.R5",
+                  "ObjectTypes.A <= FactTypes.ALikesA.Roles.R1 + FactTypes.ALikesA.Roles.R2 + FactTypes.AOwnsD.Roles.R5 + FactTypes.ASharesB.Roles.R3",
                   "ObjectTypes.D <= FactTypes.AOwnsD.Roles.R6",
-                  "FactTypes.ALikesA <= FactTypes.ALikesA.Roles.R2 * Constraints.IUC1",
+                  "FactTypes.ALikesA <= Constraints.IUC1 * FactTypes.ALikesA.Roles.R2",
                   "FactTypes.ASharesB <= Constraints.IUC2 * FactTypes.ASharesB.Roles.R4",
                   "FactTypes.AOwnsD <= Constraints.IUC3 * FactTypes.AOwnsD.Roles.R6"
                  ]

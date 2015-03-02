@@ -21,7 +21,7 @@ class Population(object):
         constraints in the model.  For an unsatisfiable model, 
         self.object_types and self.fact_types will both be None."""
 
-    DEFAULT_SIZE = 10 #: Default size of object and fact type populations.
+    DEFAULT_SIZE = 15 #: Default size of object and fact type populations.
 
     def __init__(self, model, ubound=DEFAULT_SIZE):
         super(Population, self).__init__()

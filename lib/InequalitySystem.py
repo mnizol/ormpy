@@ -40,7 +40,7 @@ class Expression(list):
 
     def tostring(self):
         """ Returns the expression as a string for display. """
-        expression = [var.name for var in self]
+        expression = sorted([var.name for var in self])
         return self._sym.join(expression)
 
 
@@ -124,7 +124,7 @@ class Product(Expression):
     def tostring(self):
         """ Returns the expression as a string for display. """
         is_unity = lambda x: isinstance(x, Constant) and x.upper == 1
-        expression = [var.name for var in self if not is_unity(var)]
+        expression = sorted([var.name for var in self if not is_unity(var)])
         return self._sym.join(expression)
 
 class Inequality(object):

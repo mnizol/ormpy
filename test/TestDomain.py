@@ -185,8 +185,21 @@ class TestDomain(TestCase):
         domain.add(['a','b','c'])
 
         self.assertItemsEqual(domain.draw(0), [])
-        self.assertItemsEqual(domain.draw(4), [5,'a','b','c'])
+        self.assertEquals(domain.draw(4), [5,'a','b','c'])
         self.assertEquals(domain.max_size, 4)
+
+        # Add element already in the domain
+        domain.add('a')
+        self.assertEquals(domain.draw(5), [5,'a','b','c'])
+
+        # Add list with partial overlap
+        domain.add([7,6,5])
+        self.assertEquals(domain.draw(10), [5,'a','b','c',6,7])
+
+        # Add list with full overlap
+        domain.add(['a','b'])
+        self.assertEquals(domain.draw(10), [5,'a','b','c',6,7])
+        
 
 
 

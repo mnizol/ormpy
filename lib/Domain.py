@@ -30,17 +30,17 @@ class Domain(object):
         self.max_size = min(max_size, sys.maxsize) 
 
     def draw(self, n):
-        """ Draw the first n elements from the domain and return as a set.  
+        """ Draw the first n elements from the domain and return as a list.  
             If n is larger than the number of elements in the domain,
-            the entire domain is returned as a set. """
+            the entire domain is returned as a list. """
         n = min(n, self.max_size)
         generator = self._generate(n)
-        result = set()
+        result = list()
         i = 0
 
         while i < n:
             try:
-                result.add(generator.next())
+                result.append(generator.next())
                 i += 1
             except StopIteration:
                 break 
@@ -141,17 +141,18 @@ class EnumeratedDomain(Domain):
 
     def __init__(self):
         super(EnumeratedDomain, self).__init__()
-        self._set = set()
+        self._domain = list() # _domain is a list to enforce order; in add(),
+                              # we will ensure its contents are unique
 
     @property
     def size(self):
         """ Size of the enumerated domain. """
-        return len(self._set)
+        return len(self._domain)
 
     @property
     def max_size(self):
         """ Maximum size of the domain, which for an enumerated domain is 
-            just the size of the underlying set (i.e. max_size answers the 
+            just the size of the underlying list (i.e. max_size answers the 
             question, what is the largest possible number of items to draw
             from the domain?). """
         return self.size
@@ -166,11 +167,12 @@ class EnumeratedDomain(Domain):
     def add(self, elements):
         """ Add an element or list of elements to the domain."""
         if isinstance(elements, list):
-            self._set.update(elements)
-        else:
-            self._set.add(elements)
+            new_elements = set(elements) - set(self._domain)
+            self._domain += sorted(new_elements)
+        elif elements not in self._domain:
+            self._domain.append(elements)
 
     def _generate(self, n):
-        return (element for element in self._set)
+        return (element for element in self._domain)
 
     

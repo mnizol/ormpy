@@ -11,7 +11,7 @@ import os
 from unittest import TestCase
 
 import lib.TestDataLocator as TestDataLocator
-from lib.Population import Population, Relation
+from lib.Population import Population, Relation, lcm
 from lib.NormaLoader import NormaLoader
 
 class TestPopulation(TestCase):
@@ -19,6 +19,7 @@ class TestPopulation(TestCase):
 
     def setUp(self):
         self.data_dir = TestDataLocator.get_data_dir()
+        self.maxDiff = None
 
     def test_unsat_model(self):
         """ Test population of an unsatisfiable model. """
@@ -82,6 +83,46 @@ class TestPopulation(TestCase):
         pop = Population(model, ubound=10)
         self.assertTrue(True) # Just want to ensure test doesn't crash
 
+    def test_populate_role_sequences_and_fact_types(self):
+        """ Test population of role sequences and fact types. """
+        fname = os.path.join(self.data_dir, "populate_fact_types.orm")
+        model = NormaLoader(fname).model
+        pop = Population(model, ubound=6)
+
+        pop1 = pop._roles["Constraints.IFC1"]
+        self.assertItemsEqual(pop1, [[1, 'B1'],[2,'B2'],[3,'B3']])
+
+        # Note, pop of B role starts with B4 because previous B role was
+        # already instantiated with B1,B2,B3
+        pop2 = pop._roles["Constraints.IUC1"]
+        self.assertItemsEqual(pop2, [['B4','C1','C1'], ['B5','C2','C2'],
+                                     ['B1','C3','C3'], ['B2','C4','C4'],
+                                     ['B3','C1','C1'], ['B4','C2','C2']])
+
+        pop3 = pop._roles["FactTypes.AHasBBCCD.Roles.R6"]
+        self.assertItemsEqual(pop3, [[False],[True]])
+
+        # Population of whole predicate
+        pop4 = pop.fact_types["FactTypes.AHasBBCCD"]
+        self.assertItemsEqual(pop4, [[1, 'B1', 'B4', 'C1', 'C1', False],
+                                     [2, 'B2', 'B5', 'C2', 'C2', True],
+                                     [3, 'B3', 'B1', 'C3', 'C3', False],
+                                     [1, 'B1', 'B2', 'C4', 'C4', True],
+                                     [2, 'B2', 'B3', 'C1', 'C1', False],
+                                     [3, 'B3', 'B4', 'C2', 'C2', True]])
+        self.assertEquals(pop4.names, ['R1','R2','R3','R4','R5','R6'])
+
+        
+    def test_ignored_overlapping_iuc(self):
+        """ Test that overlapping IUC is ignored while populating fact type. """
+        fname = os.path.join(self.data_dir, "populate_fact_types.orm")
+        model = NormaLoader(fname).model
+        pop = Population(model, ubound=6)
+
+        self.assertIsNone(pop._roles.get("Constraints.IUC2", None))
+        self.assertIsNotNone(pop._roles.get("Constraints.IUC3", None))        
+        
+
 #####################################################################
 # Tests for Relation Class
 #####################################################################
@@ -111,7 +152,112 @@ class TestRelation(TestCase):
         self.assertEquals(ex.exception.message, 
             "Cannot add tuple of arity 1 to a Relation of arity 2")
 
+    def test_combine_with_nullary(self):
+        """ Test combining a nullary relation with another relation. """
+        null_rel = Relation([])
+        bin_rel = Relation(['one','two'])
 
+        self.assertIs(null_rel.combine_with(bin_rel, 100), bin_rel)
+        self.assertIs(bin_rel.combine_with(null_rel, 100), bin_rel)
+
+    def test_combine_with_0_tuple(self):
+        """ Test combining a non-empty relation with an empty relation. """
+
+        rel1 = Relation(['col1'])
+        rel2 = Relation(['col2'])
+
+        rel2.add([1])
+        rel2.add([2])
+
+        self.assertEquals(len(rel1), 0)
+        self.assertEquals(len(rel2), 2)
+
+        rel3 = rel1.combine_with(rel2, 100)
+        self.assertEquals(rel3.arity, 2)
+        self.assertEquals(rel3.names, ['col1', 'col2'])
+        self.assertEquals(len(rel3), 0)
+
+        rel4 = rel2.combine_with(rel1, 100)
+        self.assertEquals(rel4.arity, 2)
+        self.assertEquals(rel4.names, ['col2', 'col1'])
+        self.assertEquals(len(rel4), 0)
+
+    def test_combine_with(self):
+        """ Test combine_with under various settings for n. """
+        
+        src = Relation(['col1'])
+        tgt = Relation(['col2'])
+
+        for i in xrange(4): src.add([i])
+        for i in xrange(6): tgt.add([i])
+
+        # n < |src|
+        result = src.combine_with(tgt, 3)
+        self.assertEquals(result, [[0,0], [1,1], [2,2]])
+
+        # n < |tgt|
+        result = src.combine_with(tgt, 5)
+        self.assertEquals(result, [[0,0], [1,1], [2,2], [3,3], [0,4]])
+
+        # n <= lcm(src,tgt)
+        result = src.combine_with(tgt, 12)
+        self.assertEquals(result, [[0,0], [1,1], [2,2], [3,3], [0,4],
+                                   [1,5], [2,0], [3,1], [0,2], [1,3],
+                                   [2,4], [3,5]])
+
+        # lcm(src,tgt) < n < |s| x |t|
+        result = src.combine_with(tgt, 14)
+        self.assertEquals(result, [[0,0], [1,1], [2,2], [3,3], [0,4],
+                                   [1,5], [2,0], [3,1], [0,2], [1,3],
+                                   [2,4], [3,5], [0,1], [1,2]])
+
+        # n == |s| x |t|
+        result = src.combine_with(tgt, 24)
+        self.assertEquals(result, [[0,0], [1,1], [2,2], [3,3], [0,4],
+                                   [1,5], [2,0], [3,1], [0,2], [1,3],
+                                   [2,4], [3,5], [0,1], [1,2], [2,3],
+                                   [3,4], [0,5], [1,0], [2,1], [3,2],
+                                   [0,3], [1,4], [2,5], [3,0]])
+
+        # n > |s| x |t|
+        self.assertEquals(src.combine_with(tgt, 24),
+                          src.combine_with(tgt, 10000))
+
+        # n == 0
+        result = src.combine_with(tgt, 0)
+        self.assertEquals(result.arity, 2)
+        self.assertEquals(len(result), 0)
+
+    def test_combine_with_multiple_shifts(self):
+        """ Test case when cyclic shift has to occur more than once. """
+        
+        src = Relation(['col1'])
+        tgt = Relation(['col2'])
+
+        for i in xrange(3): src.add([i])
+        for i in xrange(3): tgt.add([i])
+
+        result = src.combine_with(tgt, 9)
+        self.assertEquals(result, [[0,0], [1,1], [2,2],
+                                   [0,1], [1,2], [2,0],
+                                   [0,2], [1,0], [2,1]])
+
+#####################################################################
+# Tests for Utility Functions
+#####################################################################
+class TestUtility(TestCase):
+    """ Unit tests for utility functions. """
+
+    def setUp(self):
+        pass
+
+    def test_lcm(self):
+        """ Test least common multiple function. """
+        self.assertEquals(lcm(3,4), 12)
+        self.assertEquals(lcm(0,1), 0)
+        self.assertEquals(lcm(1,0), 0)
+        self.assertEquals(lcm(2,4), 4)
+        self.assertEquals(lcm(4,6), 12)
   
               
 

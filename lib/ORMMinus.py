@@ -42,7 +42,7 @@ class ORMMinus(object):
 
         # Initialize _fact_type_parts here; _create_variables will update.
         for fact_type in self._model.fact_types:
-            self._fact_type_parts[fact_type] = set(fact_type.roles)
+            self._fact_type_parts[fact_type] = list(fact_type.roles)
 
         # Create variables and inequalities
         self._create_variables()
@@ -97,11 +97,19 @@ class ORMMinus(object):
                 self._variables[cons] = Variable(cons.fullname, 
                                                  upper=self._ubound)
 
-                # Update the fact type parts dictionary for this constraint                
-                fact_type = cons.covers[0].fact_type # cons is internal
+                # Update the fact type parts dictionary for this constraint. 
+                # Set difference and union would be cleaner here, BUT I want 
+                # to preserve an ordering of the parts based on the original
+                # role ordering.  
+                first_role = cons.covers[0]             
+                fact_type = first_role.fact_type # constraint is internal                
                 parts = self._fact_type_parts[fact_type]
-                parts = parts - set(cons.covers)
-                parts = parts | set([cons]) 
+
+                # Insert the internal frequency constraint at the correct 
+                # position in the parts list and then remove the covered roles
+                parts.insert(parts.index(first_role), cons)
+                parts = [x for x in parts if x not in cons.covers]
+
                 self._fact_type_parts[fact_type] = parts
 
     def _create_inequalities(self):

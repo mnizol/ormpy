@@ -8,6 +8,7 @@
 
 import sys
 import csv
+import fractions
 
 import lib.FactType as FactType
 from lib.ORMMinus import ORMMinus
@@ -95,23 +96,15 @@ class Population(object):
     
         for cons in self._model.constraints.of_type(FrequencyConstraint):
             name = cons.fullname
-            
+
             # Upstream logic in ORMMinus already ignored overlapping and 
             # external frequency constraints, so we can confirm the constraint
             # represents a valid role sequence by checking whether there is 
             # an associated variable in the solution.
             if name in solution:
-                column_names = [role.name for role in cons.covers]
-                pop = None
-                size = solution[name]
-
-                for role in cons.covers:
-                    next_pop = self._roles[role.fullname]
-                    if pop:
-                        pop = pop.combine_with(next_pop, size)
-                    else:
-                        pop = next_pop
-
+                size = solution[name] 
+                parts = cons.covers                 
+                pop = self._combine_partial_pops(name, size, parts)
                 self._roles[name] = pop
 
     def _populate_fact_types(self, solution, ormminus):
@@ -119,19 +112,21 @@ class Population(object):
             fact type parts. """
 
         for fact_type in self._model.fact_types:
-            parts = ormminus.get_parts(fact_type)
             name = fact_type.fullname
             size = solution[name]
-            pop = None
-
-            for part in parts:
-                next_pop = self._roles[part.fullname]
-                if pop:
-                    pop = pop.combine_with(next_pop, size)
-                else:
-                    pop = next_pop
-
+            parts = ormminus.get_parts(fact_type)            
+            pop = self._combine_partial_pops(name, size, parts)
             self.fact_types[name] = pop
+
+    def _combine_partial_pops(self, name, size, parts):
+        """ Combine populations of elements in parts list to create a combined
+            population of a given size. """
+        
+        pop = Relation([])                
+        for part in parts:
+            next_pop = self._roles[part.fullname]
+            pop = pop.combine_with(next_pop, size)
+        return pop
 
     def write_csv(self, directory=None):
         """ Write population to one or more CSV files. """    
@@ -171,33 +166,40 @@ class Relation(list):
             raise Exception("Cannot add tuple of arity " + str(len(tupl)) +
                             " to a Relation of arity " + str(self.arity))
 
-    def combine_with(self, relation, n):
-        """ Combine self with relation according to the enumeration algorithm 
-            of Smaragdakis, et al. """
+    def combine_with(self, target, n):
+        """ Combine self with a target relation according to the enumeration 
+            algorithm of Smaragdakis, et al. """
 
-        result = Relation(self.names + relation.names)
+        # Special case: if either relation is nullary, treat this as a no-op
+        # and just return the other relation.
+        if self.arity == 0: return target
+        elif target.arity == 0: return self
+
+        # Normal case
+        result = Relation(self.names + target.names)
 
         s = len(self)
-        t = len(relation)
+        t = len(target)
 
-        i, i_s, i_t = 0, 0, 0
+        i_s, i_t = 0, 0
 
-        while i < n and i < (s * t):
-            result.add(self[i_s] + relation[i_t])
+        for i in xrange(min(n, s * t)):
+            result.add(self[i_s] + target[i_t])
 
             i_s = (i_s + 1) % s
             i_t = (i_t + 1) % t
 
             if (i+1) % lcm(s, t) == 0:
                 i_t = (i_t + 1) % t
-            i += 1
 
         return result
 
-# TODO: Is this the best way to do it?
-# Credit: http://rosettacode.org/wiki/Least_common_multiple#Python
-import fractions
-def lcm(a,b): 
+########################################################################
+# Utility functions
+########################################################################
+def lcm(a,b):
+    """ Return the least common multiple of a and b. """
+    # Credit: http://rosettacode.org/wiki/Least_common_multiple#Python. 
     return abs(a * b) / fractions.gcd(a,b) if a and b else 0
             
 

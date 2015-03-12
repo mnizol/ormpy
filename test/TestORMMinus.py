@@ -145,7 +145,6 @@ class TestORMMinus(TestCase):
                   "Constraints.InternalUniquenessConstraint1 <= FactTypes.PaperHasAuthor.Roles.R2",
                   "FactTypes.PaperHasAuthor.Roles.R2 <= Constraints.InternalUniquenessConstraint1",
                   "ObjectTypes.Paper <= FactTypes.PaperHasAuthor.Roles.R1",
-                  "ObjectTypes.Author <= FactTypes.PaperHasAuthor.Roles.R2",
                   "FactTypes.PaperHasAuthor <= Constraints.FrequencyConstraint1 * Constraints.InternalUniquenessConstraint1"]
 
         self.assertItemsEqual(actual, expect)
@@ -170,7 +169,11 @@ class TestORMMinus(TestCase):
 
         actual = [ineq.tostring() for ineq in ormminus._ineqsys]
 
-        expect = ["FactTypes.ALikesA.Roles.R1 <= ObjectTypes.A",
+        expect = ["ObjectTypes.A <= " + str(sys.maxsize),
+                  "ObjectTypes.B <= " + str(sys.maxsize),
+                  "ObjectTypes.C <= " + str(sys.maxsize),
+                  "ObjectTypes.D <= " + str(sys.maxsize),
+                  "FactTypes.ALikesA.Roles.R1 <= ObjectTypes.A",
                   "FactTypes.ALikesA.Roles.R1 <= FactTypes.ALikesA",
                   "FactTypes.ALikesA.Roles.R2 <= ObjectTypes.A",
                   "FactTypes.ALikesA.Roles.R2 <= FactTypes.ALikesA",

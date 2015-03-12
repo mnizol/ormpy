@@ -122,6 +122,13 @@ class TestPopulation(TestCase):
         self.assertIsNone(pop._roles.get("Constraints.IUC2", None))
         self.assertIsNotNone(pop._roles.get("Constraints.IUC3", None))        
         
+    def test_population_with_no_fact_types(self):
+        """ Test population with no fact types. """
+        fname = os.path.join(self.data_dir, "no_fact_types.orm")
+        model = NormaLoader(fname).model
+        pop = Population(model, ubound=5)
+
+        self.assertItemsEqual(pop.object_types["ObjectTypes.A"], [0,1,2,3,4])
 
 #####################################################################
 # Tests for Relation Class
@@ -241,6 +248,8 @@ class TestRelation(TestCase):
         self.assertEquals(result, [[0,0], [1,1], [2,2],
                                    [0,1], [1,2], [2,0],
                                    [0,2], [1,0], [2,1]])
+
+       
 
 #####################################################################
 # Tests for Utility Functions

@@ -6,13 +6,6 @@
 
 """ Module to implement ORMMinus satisfiability and population algorithm. """
 
-# TODO: This module does not yet implement all ORM- inequalities.
-#       Specifically, it does not implement the following:
-#       * Cardinality constraint inequalities
-#       * Subtype inequalities
-#       * Inequalities described by McGill's extensions to ORM-
-#       * Inequalityes described by Nizol's extensions to ORM-
-
 import sys
 from lib.InequalitySystem \
     import InequalitySystem, Inequality, Variable, Constant, Sum, Product
@@ -115,6 +108,12 @@ class ORMMinus(object):
     def _create_inequalities(self):
         """ Generate system of inequalities based on rules in Smaragdakis and
             McGill. """
+
+        # Upper bound on object types (needed to ensure that each object type
+        # appears as the LHS of at least one inequality).
+        for object_type in self._model.object_types:
+            obj_var = self._variables[object_type]
+            self._add(Inequality(lhs=obj_var, rhs=Constant(obj_var.upper)))
 
         # Create inequalities to represent role semantics
         for fact_type in self._model.fact_types:

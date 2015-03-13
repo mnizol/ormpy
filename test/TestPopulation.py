@@ -12,6 +12,7 @@ from StringIO import StringIO
 from unittest import TestCase
 
 import lib.TestDataLocator as TestDataLocator
+from lib.ORMMinusModel import ORMMinusModel
 from lib.Population import Population, Relation, lcm
 from lib.NormaLoader import NormaLoader
 
@@ -25,16 +26,19 @@ class TestPopulation(TestCase):
     def test_unsat_model(self):
         """ Test population of an unsatisfiable model. """
         fname = os.path.join(self.data_dir, "unsat_smarag_2.orm")
-        model = NormaLoader(fname).model
-        pop = Population(model)
-        self.assertIsNone(pop.object_types)
-        self.assertIsNone(pop.fact_types)  
+        model = ORMMinusModel(NormaLoader(fname).model)
+
+        with self.assertRaises(ValueError) as ex:
+            pop = Population(model)
+
+        self.assertEquals(ex.exception.message, 
+                          "Cannot populate an unsatisfiable model.")
 
     def test_populate_object_types(self):
         """ Test population of object types. """
         fname = os.path.join(self.data_dir, "fact_type_tests.orm")
-        model = NormaLoader(fname).model
-        pop = Population(model, ubound=5)
+        model = ORMMinusModel(NormaLoader(fname).model, ubound=5)
+        pop = Population(model)
 
         pop1 = pop.object_types["ObjectTypes.A"]
         self.assertItemsEqual(pop1, ["A0", "A1", "A2", "A3", "A4"])
@@ -48,8 +52,8 @@ class TestPopulation(TestCase):
     def test_populate_roles(self):
         """ Test population of roles. """
         fname = os.path.join(self.data_dir, "populate_roles.orm")
-        model = NormaLoader(fname).model
-        pop = Population(model, ubound=10)
+        model = ORMMinusModel(NormaLoader(fname).model, ubound=10)
+        pop = Population(model)
 
         # Test role played by an object type that plays no other roles.
         pop1 = pop._roles["FactTypes.VT1HasVT2.Roles.R1"]
@@ -80,15 +84,15 @@ class TestPopulation(TestCase):
         """ Calling pop on fact_type_parts.orm was crashing.  Confirm it 
             no longer crashes. """
         fname = os.path.join(self.data_dir, "fact_type_parts.orm")
-        model = NormaLoader(fname).model
-        pop = Population(model, ubound=10)
+        model = ORMMinusModel(NormaLoader(fname).model, ubound=10)
+        pop = Population(model)
         self.assertTrue(True) # Just want to ensure test doesn't crash
 
     def test_populate_role_sequences_and_fact_types(self):
         """ Test population of role sequences and fact types. """
         fname = os.path.join(self.data_dir, "populate_fact_types.orm")
-        model = NormaLoader(fname).model
-        pop = Population(model, ubound=6)
+        model = ORMMinusModel(NormaLoader(fname).model, ubound=6)
+        pop = Population(model)
 
         pop1 = pop._roles["Constraints.IFC1"]
         self.assertItemsEqual(pop1, [[1, 'B1'],[2,'B2'],[3,'B3']])
@@ -117,8 +121,8 @@ class TestPopulation(TestCase):
     def test_ignored_overlapping_iuc(self):
         """ Test that overlapping IUC is ignored while populating fact type. """
         fname = os.path.join(self.data_dir, "populate_fact_types.orm")
-        model = NormaLoader(fname).model
-        pop = Population(model, ubound=6)
+        model = ORMMinusModel(NormaLoader(fname).model, ubound=6)
+        pop = Population(model)
 
         self.assertIsNone(pop._roles.get("Constraints.IUC2", None))
         self.assertIsNotNone(pop._roles.get("Constraints.IUC3", None))        
@@ -126,16 +130,16 @@ class TestPopulation(TestCase):
     def test_population_with_no_fact_types(self):
         """ Test population with no fact types. """
         fname = os.path.join(self.data_dir, "no_fact_types.orm")
-        model = NormaLoader(fname).model
-        pop = Population(model, ubound=5)
+        model = ORMMinusModel(NormaLoader(fname).model, ubound=5)
+        pop = Population(model)
 
         self.assertItemsEqual(pop.object_types["ObjectTypes.A"], [0,1,2,3,4])
 
     def test_write_stdout(self):
         """ Test writing population to stdout. """    
         fname = os.path.join(self.data_dir, "populate_fact_types.orm")
-        model = NormaLoader(fname).model
-        pop = Population(model, ubound=6)
+        model = ORMMinusModel(NormaLoader(fname).model, ubound=6)
+        pop = Population(model)
 
         saved = sys.stdout
         sys.stdout = StringIO()
@@ -184,15 +188,6 @@ class TestPopulation(TestCase):
         self.assertItemsEqual(actual, expected)
         
         sys.stdout = saved
-
-    def test_write_unsat(self):
-        """ Test writing out an unsatisfiable population. """
-
-        # Note: may change Population so that it takes solution as a parameter,
-        # and then a Population object by definition only exists if there is 
-        # a solution.  This would also address awkwardness in commandline -->
-        # we would always need to call ORMMinus before population...
-        self.assertTrue(False)
 
 #####################################################################
 # Tests for Relation Class

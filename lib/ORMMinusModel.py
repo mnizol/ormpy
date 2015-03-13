@@ -1,10 +1,12 @@
 ##############################################################################
 # Package: ormpy
-# File:    ORMMinus.py
+# File:    ORMMinusModel.py
 # Author:  Matthew Nizol
 ##############################################################################
 
-""" Module to implement ORMMinus satisfiability and population algorithm. """
+""" Module to implement an ORM- model, which is a restricted form of an ORM
+    model that can be checked for satisfiability and populated in 
+    polynomial time. """
 
 import sys
 from lib.InequalitySystem \
@@ -13,20 +15,27 @@ from lib.Constraint \
     import FrequencyConstraint, MandatoryConstraint, ValueConstraint
 from lib.ObjectType import ObjectType
 
-class ORMMinus(object):
-    """ Implements ORMMinus algorithm (Smaragdakis et al.).
+class ORMMinusModel(object):
+    """ An ORM- model along with its solution.  The solution is computed using
+        the ORM- satisfiability algorithm (Smaragdakis et al.).
 
-        :param model: A :class:`lib.Model.Model` to instantiate
-        :param ubound: Upper bound on size of model elements
+        :param model: The corresponding :class:`lib.Model.Model`
+        :param ubound: Upper bound on the size of model elements in the solution
     """
 
-    def __init__(self, model=None, ubound=sys.maxsize):
-        # Initialize attributes
-        self._model = model #: ORM model
+    DEFAULT_SIZE = 15 #: Default upper bound on model element cardinalities.
+
+    def __init__(self, model=None, ubound=DEFAULT_SIZE):
+        # Initialize public attributes
+        self.object_types = model.object_types #: Object types
+        self.fact_types = model.fact_types #: Fact types
+        self.constraints = model.constraints #: Constraints
+        self.ignored = [] #: List of ignored constraints
+        
+        # Initialize private attributes
         self._ubound = ubound #: Bound on model element size
         self._ineqsys = InequalitySystem() #: System of inequalities
         self._variables = {} #: Dictionary from model element to variable
-        self.ignored = [] #: List of ignored constraints
 
         # A dictionary of the roles and role sequences associated with each
         # fact type.  If a set of roles are covered by an internal frequency
@@ -34,17 +43,15 @@ class ORMMinus(object):
         self._fact_type_parts = {}
 
         # Initialize _fact_type_parts here; _create_variables will update.
-        for fact_type in self._model.fact_types:
+        for fact_type in self.fact_types:
             self._fact_type_parts[fact_type] = list(fact_type.roles)
 
         # Create variables and inequalities
         self._create_variables()
         self._create_inequalities()
 
-    def check(self):
-        """ Checks model for satisifiability.  Returns solution if satisfiable
-            and None otherwise. """
-        return self._ineqsys.solve()
+        # Compute solution
+        self.solution = self._ineqsys.solve()
 
     def get_parts(self, fact_type):
         """ Get the non-overlapping roles and internal frequency constraints
@@ -63,12 +70,12 @@ class ORMMinus(object):
         """ Create set of variables to be used in system of inequalities. """
 
         # Create one variable for each object type
-        for obj_type in self._model.object_types:
+        for obj_type in self.object_types:
             upper = min(self._ubound, obj_type.domain.max_size)
             self._variables[obj_type] = Variable(obj_type.fullname, upper=upper)
 
         # Create one variable for each fact type and role
-        for fact_type in self._model.fact_types:
+        for fact_type in self.fact_types:
             self._variables[fact_type] = Variable(fact_type.fullname,
                                                   upper=self._ubound)
 
@@ -79,7 +86,7 @@ class ORMMinus(object):
         already_covered = set() # Roles covered by a frequency constraint
 
         # Create one variable for each internal frequency constraint
-        for cons in self._model.constraints.of_type(FrequencyConstraint):
+        for cons in self.constraints.of_type(FrequencyConstraint):
             if len(set(cons.covers) & already_covered) > 0: # Ignore overlapping
                 self._ignore(cons)
             elif cons.internal == False: # Ignore external freq constraints
@@ -111,12 +118,12 @@ class ORMMinus(object):
 
         # Upper bound on object types (needed to ensure that each object type
         # appears as the LHS of at least one inequality).
-        for object_type in self._model.object_types:
+        for object_type in self.object_types:
             obj_var = self._variables[object_type]
             self._add(Inequality(lhs=obj_var, rhs=Constant(obj_var.upper)))
 
         # Create inequalities to represent role semantics
-        for fact_type in self._model.fact_types:
+        for fact_type in self.fact_types:
             for role in fact_type.roles:
                 role_var = self._variables[role]
                 fact_var = self._variables[fact_type]
@@ -126,7 +133,7 @@ class ORMMinus(object):
                 self._add(Inequality(lhs=role_var, rhs=obj_var))
 
         # Create inequalities for each constraint type
-        for cons in self._model.constraints:
+        for cons in self.constraints:
             if isinstance(cons, ValueConstraint):
                 self._create_value_inequality(cons)
             elif isinstance(cons, MandatoryConstraint):
@@ -137,14 +144,14 @@ class ORMMinus(object):
                 self._ignore(cons)
 
         # Create inequality for implicit predicate uniqueness
-        for fact_type in self._model.fact_types:
+        for fact_type in self.fact_types:
             fact_var = self._variables[fact_type]
             parts = self.get_parts(fact_type)
             part_vars = [self._variables[part] for part in parts]
             self._add(Inequality(lhs=fact_var, rhs=Product(part_vars)))
 
         # Create inequalities for implicit disjunctive constraint
-        for obj in self._model.object_types:
+        for obj in self.object_types:
             if obj.independent == False and len(obj.roles) > 0:
                 obj_var = self._variables[obj]
                 role_vars = [self._variables[role] for role in obj.roles]
@@ -156,7 +163,7 @@ class ORMMinus(object):
         # Per McGill, we cannot support value constraints on roles, only on
         # types.  See _load_value_restriction in NormaLoader, which moves
         # certain value constraints on roles to the type so that they can be
-        # included in the ORMMinus solution.
+        # included in the ORMMinusModel solution.
         
         if isinstance(cons.covers[0], ObjectType):
             obj_var = self._variables[cons.covers[0]]

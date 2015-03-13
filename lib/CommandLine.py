@@ -12,7 +12,7 @@ import sys
 import argparse
 
 from lib.NormaLoader import NormaLoader
-from lib.ORMMinus import ORMMinus
+from lib.ORMMinusModel import ORMMinusModel
 from lib.Population import Population
 
 ###############################################################################
@@ -32,6 +32,8 @@ def execute():
         dest='check_model', default=False, help='check if model is satisfiable')
     parser.add_argument('-p', '--populate', action='store_true',
         dest='populate', default=False, help='populate the model')
+    parser.add_argument('-u', '--upper-bound', help='upper bound on model element sizes',
+        dest='ubound', default=10, type=int)
     parser.add_argument('filename', type=str, help='File containing ORM model')
     args = parser.parse_args()
 
@@ -52,30 +54,19 @@ def execute():
     if args.print_model:
         loader.model.display()
 
-    if args.check_model:
-        ormminus = ORMMinus(model=loader.model)
-        solution = ormminus.check()
+    if args.check_model or args.populate:
+        model = ORMMinusModel(loader.model, max(1, args.ubound))
 
-        if not args.quiet and len(ormminus.ignored) > 0:
+        if not args.quiet and len(model.ignored) > 0:
             print "Some constraints were ignored while checking the model:"
-            for cons in ormminus.ignored:
+            for cons in model.ignored:
                 print " "*3, cons.name
             print
 
-        if solution == None:
+        if model.solution == None:
             print "Model is unsatisfiable."
+        elif args.populate:
+            pop = Population(model)
+            pop.write_stdout()
         else:
-            print "Model is satisfiable."  
-
-    # TODO: Need to print omissions.  Don't want to be redundant with
-    #       check_model code above---should Populate take a solution as a 
-    #       parameter instead of computing solution in one step?
-    # TODO: Accept size parameter.
-    # TODO: Accept destination parameter.
-    if args.populate:
-        pop = Population(model=loader.model)
-        pop.write_stdout()    
-        
-
-
-
+            print "Model is satisfiable."

@@ -943,7 +943,7 @@
 				</orm:RoleSequence>
 				<orm:ImpliedByObjectType ref="_80AED8DA-E346-4BE8-9BCD-1203BCE65C2F" />
 			</orm:MandatoryConstraint>
-			<orm:FrequencyConstraint id="_8FA134E5-7B17-45F2-9B1A-5871DF059819" Name="IFC1" MinFrequency="2" MaxFrequency="2">
+			<orm:FrequencyConstraint id="_8FA134E5-7B17-45F2-9B1A-5871DF059819" Name="IFC1" MinFrequency="1" MaxFrequency="2">
 				<orm:RoleSequence>
 					<orm:Role id="_2C62A58D-8450-4DA8-8990-7077D81CD872" ref="_D6ED166F-EB59-4DD0-9D52-71087A27155F" />
 					<orm:Role id="_7C51A48A-22FA-4A74-803C-18DB154F8DB5" ref="_2BE55326-49E7-4F50-AEA7-8E8721A5CEB0" />
@@ -1171,7 +1171,7 @@
 			<ormDiagram:ObjectTypeShape id="_B1112062-DD29-476A-89A5-3B9CE62E15F7" IsExpanded="true" AbsoluteBounds="3.331746481359005, 5.2916666666666661, 0.28371436417102813, 0.22950302660465241">
 				<ormDiagram:Subject ref="_80AED8DA-E346-4BE8-9BCD-1203BCE65C2F" />
 			</ormDiagram:ObjectTypeShape>
-			<ormDiagram:FrequencyConstraintShape id="_B7108304-1F86-4614-8075-F0C77B56D5E6" IsExpanded="true" AbsoluteBounds="2.2604165871938067, 5.0520833333333339, 0.17956089973449707, 0.17956089973449707">
+			<ormDiagram:FrequencyConstraintShape id="_B7108304-1F86-4614-8075-F0C77B56D5E6" IsExpanded="true" AbsoluteBounds="2.2604165871938067, 5.0520833333333339, 0.25795716047286987, 0.25795716047286987">
 				<ormDiagram:Subject ref="_8FA134E5-7B17-45F2-9B1A-5871DF059819" />
 			</ormDiagram:FrequencyConstraintShape>
 			<ormDiagram:FactTypeShape id="_CDDBEE03-D9B7-40AE-B35B-660EFC872460" IsExpanded="true" AbsoluteBounds="1.7112499999999997, 6.940416507720947, 1.1838888889923693, 0.24388888899236916">

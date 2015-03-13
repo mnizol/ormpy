@@ -4,27 +4,25 @@
 # Author:  Matthew Nizol
 ##############################################################################
 
-""" Module to generate a population of an ORM model. """
+""" Module to generate a population of an ORMMinusModel. """
 
 import sys
 import csv
 import fractions
 
 import lib.FactType as FactType
-from lib.ORMMinus import ORMMinus
+from lib.ORMMinusModel import ORMMinusModel
 from lib.Constraint import FrequencyConstraint
 from itertools import cycle
 
 class Population(object):
-    """ A population of an ORM model. If the model is satisfiable, 
+    """ A population of an ORMMinusModel. If the model is satisfiable, 
         then self.object_types and self.fact_types will contain the
         populations of objects and facts, respectively, that satisfy the
         constraints in the model.  For an unsatisfiable model, 
-        self.object_types and self.fact_types will both be None."""
+        Popuation() will raise a ValueError exception."""
 
-    DEFAULT_SIZE = 15 #: Default size of object and fact type populations.
-
-    def __init__(self, model, ubound=DEFAULT_SIZE):
+    def __init__(self, model):
         super(Population, self).__init__()
         self._model = model
 
@@ -40,36 +38,28 @@ class Population(object):
         self._roles = {}                          
 
         # Generate the population
-        self.populate(ubound=ubound)
-
-    def populate(self, ubound=DEFAULT_SIZE):
-        """ Generate a population for the model. """
-        ormminus = ORMMinus(self._model, ubound=ubound)
-        solution = ormminus.check()
-
-        if solution == None:
-            self.object_types = None
-            self.fact_types = None
+        if model.solution == None:
+            raise ValueError("Cannot populate an unsatisfiable model.")
         else:
-            self._populate_object_types_and_roles(solution)
-            self._populate_role_sequences(solution)
-            self._populate_fact_types(solution, ormminus)
+            self._populate_object_types_and_roles()
+            self._populate_role_sequences()
+            self._populate_fact_types()
 
-    def _populate_object_types_and_roles(self, solution):
+    def _populate_object_types_and_roles(self):
         """ Populate all object types and roles in the model. """
 
         for obj_type in self._model.object_types:
             name = obj_type.fullname
             domain = obj_type.domain
-            size = solution[name]            
+            size = self._model.solution[name]            
 
             # Populate the object type from its domain 
             self.object_types[name] = list(domain.draw(size))
 
             # Populate the roles played by this object type
-            self._populate_roles(solution, obj_type)
+            self._populate_roles(obj_type)
 
-    def _populate_roles(self, solution, obj_type):
+    def _populate_roles(self, obj_type):
         """ Populate all roles played by an object type. """
         
         # Create an iterator that will cycle over all objects in the object
@@ -81,7 +71,7 @@ class Population(object):
         # where <size> is the value of the role variable in the solution.
         for role in obj_type.roles:
             name = role.fullname
-            size = solution[name]
+            size = self._model.solution[name]
             pop = Relation([role.name]) # Create an empty population
 
             for i in xrange(size):
@@ -90,31 +80,31 @@ class Population(object):
 
             self._roles[name] = pop
        
-    def _populate_role_sequences(self, solution):
+    def _populate_role_sequences(self):
         """ Populate all role sequences covered by an internal frequency 
             constraint.  """
     
         for cons in self._model.constraints.of_type(FrequencyConstraint):
             name = cons.fullname
 
-            # Upstream logic in ORMMinus already ignored overlapping and 
+            # Upstream logic in ORMMinusModel already ignored overlapping and 
             # external frequency constraints, so we can confirm the constraint
             # represents a valid role sequence by checking whether there is 
             # an associated variable in the solution.
-            if name in solution:
-                size = solution[name] 
+            if name in self._model.solution:
+                size = self._model.solution[name] 
                 parts = cons.covers                 
                 pop = self._combine_partial_pops(name, size, parts)
                 self._roles[name] = pop
 
-    def _populate_fact_types(self, solution, ormminus):
+    def _populate_fact_types(self):
         """ Populate all fact types in the model by combining populations of
             fact type parts. """
 
         for fact_type in self._model.fact_types:
             name = fact_type.fullname
-            size = solution[name]
-            parts = ormminus.get_parts(fact_type)            
+            size = self._model.solution[name]
+            parts = self._model.get_parts(fact_type)            
             pop = self._combine_partial_pops(name, size, parts)
             self.fact_types[name] = pop
 
@@ -143,8 +133,6 @@ class Population(object):
     def write_csv(self, directory=None):
         """ Write the entire population to CSV files stored in a directory 
             (one file per object type or fact type).  """    
-        if self.object_types == None: return
-
         for name in self.object_types:
             filename = os.path.join(directory, name)
             with open(filename, 'w') as out:                        
@@ -157,8 +145,6 @@ class Population(object):
 
     def write_stdout(self):
         """ Writes entire population to stdout. """
-        if self.object_types == None: return
-
         for name in self.object_types:
             sys.stdout.write("Population of " + name + ":\n")
             self._write_objects(name, sys.stdout)

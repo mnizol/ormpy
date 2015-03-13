@@ -1,10 +1,10 @@
 ##############################################################################
 # Package: ormpy
-# File:    TestORMMinus.py
+# File:    TestORMMinusModel.py
 # Author:  Matthew Nizol
 ##############################################################################
 
-""" This file contains unit tests for the lib.ORMMinus module. """
+""" This file contains unit tests for the lib.ORMMinusModel module. """
 
 import os
 import sys
@@ -12,28 +12,28 @@ import sys
 from unittest import TestCase
 
 import lib.TestDataLocator as TestDataLocator
-from lib.ORMMinus import ORMMinus
+from lib.ORMMinusModel import ORMMinusModel
 from lib.InequalitySystem import Constant
 from lib.NormaLoader import NormaLoader
 import lib.Constraint as Constraint
 
-class TestORMMinus(TestCase):
-    """ Unit tests for the ORMMinus module. """
+class TestORMMinusModel(TestCase):
+    """ Unit tests for the ORMMinusModel module. """
 
     def setUp(self):
         self.data_dir = TestDataLocator.get_data_dir()
 
         fname = os.path.join(self.data_dir, "paper_has_author.orm")
         model = NormaLoader(fname).model
-        self.paper_has_author = ORMMinus(model=model)
-        self.solution1 = self.paper_has_author.check()
+        self.paper_has_author = ORMMinusModel(model=model)
+        self.solution1 = self.paper_has_author.solution
 
     def test_overlapping_and_external_iuc(self):
         """ Test that overlapping and external IUCs are ignored. """
         fname = os.path.join(self.data_dir, "overlapping_iuc.orm")
         model = NormaLoader(fname).model
-        ormminus = ORMMinus(model=model)
-        solution = ormminus.check()
+        ormminus = ORMMinusModel(model=model)
+        solution = ormminus.solution
 
         actual_vars = [var.name for var in ormminus._variables.itervalues()]
 
@@ -73,8 +73,8 @@ class TestORMMinus(TestCase):
         cons.simple = False
         model.constraints.add(cons)
 
-        ormminus = ORMMinus(model=model)
-        solution = ormminus.check()
+        ormminus = ORMMinusModel(model=model)
+        solution = ormminus.solution
 
         actual = [cons.name for cons in ormminus.ignored]
         expected = ["Cons1"]
@@ -92,8 +92,8 @@ class TestORMMinus(TestCase):
 
         fname = os.path.join(self.data_dir, "subset_constraint.orm")
         model = NormaLoader(fname).model
-        ormminus = ORMMinus(model=model)
-        solution = ormminus.check()
+        ormminus = ORMMinusModel(model=model)
+        solution = ormminus.solution
 
         actual = [cons.name for cons in ormminus.ignored]
         expect = ["SubsetConstraint1", "SubsetConstraint2", "SubsetConstraint4"]
@@ -103,8 +103,8 @@ class TestORMMinus(TestCase):
         """ Test that role value constraints are ignored. """
         fname = os.path.join(self.data_dir, "test_value_type_value_constraint.orm")
         model = NormaLoader(fname).model
-        ormminus = ORMMinus(model=model)
-        solution = ormminus.check() 
+        ormminus = ORMMinusModel(model=model)
+        solution = ormminus.solution 
 
         actual = [cons.name for cons in ormminus.ignored]
         expect = ["RoleValueConstraint2", "RoleValueConstraint3", 
@@ -164,15 +164,15 @@ class TestORMMinus(TestCase):
         """ Test implicit disjunctive mandatory inequalities. """
         fname = os.path.join(self.data_dir, "implicit_disjunctive_test.orm")
         model = NormaLoader(fname).model
-        ormminus = ORMMinus(model=model)
-        solution = ormminus.check()
+        ormminus = ORMMinusModel(model=model)
+        solution = ormminus.solution
 
         actual = [ineq.tostring() for ineq in ormminus._ineqsys]
 
-        expect = ["ObjectTypes.A <= " + str(sys.maxsize),
-                  "ObjectTypes.B <= " + str(sys.maxsize),
-                  "ObjectTypes.C <= " + str(sys.maxsize),
-                  "ObjectTypes.D <= " + str(sys.maxsize),
+        expect = ["ObjectTypes.A <= " + str(ORMMinusModel.DEFAULT_SIZE),
+                  "ObjectTypes.B <= " + str(ORMMinusModel.DEFAULT_SIZE),
+                  "ObjectTypes.C <= " + str(ORMMinusModel.DEFAULT_SIZE),
+                  "ObjectTypes.D <= " + str(ORMMinusModel.DEFAULT_SIZE),
                   "FactTypes.ALikesA.Roles.R1 <= ObjectTypes.A",
                   "FactTypes.ALikesA.Roles.R1 <= FactTypes.ALikesA",
                   "FactTypes.ALikesA.Roles.R2 <= ObjectTypes.A",
@@ -210,20 +210,20 @@ class TestORMMinus(TestCase):
         """ Test 2nd unsatisfiable model provided by Smaragdakis. """
         fname = os.path.join(self.data_dir, "unsat_smarag_2.orm")
         model = NormaLoader(fname).model
-        self.assertIsNone(ORMMinus(model=model).check())
+        self.assertIsNone(ORMMinusModel(model=model).solution)
 
     def test_unsat_smarag_3(self):
         """ Test 3rd unsatisfiable model provided by Smaragdakis. """
         fname = os.path.join(self.data_dir, "unsat_smarag_3.orm")
         model = NormaLoader(fname).model
-        self.assertIsNone(ORMMinus(model=model).check())
+        self.assertIsNone(ORMMinusModel(model=model).solution)
 
     def test_ubound_on_object_types(self):
         """ Test upper bound on object type variables.  """
         fname = os.path.join(self.data_dir, "data_types.orm")
         model = NormaLoader(fname).model
-        ormminus = ORMMinus(model=model)
-        solution = ormminus.check()
+        ormminus = ORMMinusModel(model=model, ubound=sys.maxsize)
+        solution = ormminus.solution
 
         bool_obj = model.object_types.get("B")
         bool_var = ormminus._variables[bool_obj]
@@ -242,7 +242,7 @@ class TestORMMinus(TestCase):
             correctly identified. """
         fname = os.path.join(self.data_dir, "fact_type_parts.orm")
         model = NormaLoader(fname).model
-        ormminus = ORMMinus(model=model, ubound=5)
+        ormminus = ORMMinusModel(model=model, ubound=5)
 
         fact_type = model.fact_types.get("V1HasV2HasV3")
         role1, role2, role3 = fact_type.roles

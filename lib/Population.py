@@ -128,26 +128,46 @@ class Population(object):
             pop = pop.combine_with(next_pop, size)
         return pop
 
+    def _write_objects(self, name, stream):
+        """ Write the populate of an object type to a file stream. """
+        for obj in self.object_types[name]:
+            stream.write(str(obj) + '\n')
+
+    def _write_facts(self, name, stream):
+        """ Write the population of a fact type to a file stream. """
+        pop = self.fact_types[name]
+        stream.write(','.join(pop.names) + "\n")
+        for fact in pop:
+            stream.write(','.join(map(str, fact)) + "\n")
+
     def write_csv(self, directory=None):
-        """ Write population to one or more CSV files. """    
+        """ Write the entire population to CSV files stored in a directory 
+            (one file per object type or fact type).  """    
+        if self.object_types == None: return
 
-        if directory == None and self.object_types: # Write to stdout
-            for name, pop in self.object_types.iteritems():
-                sys.stdout.write("Population of " + name + ":\n")
+        for name in self.object_types:
+            filename = os.path.join(directory, name)
+            with open(filename, 'w') as out:                        
+                self._write_objects(name, out)
                 
-                for obj in pop:
-                    print obj
-                print
+        for name in self.fact_types:
+            filename = os.path.join(directory, name)
+            with open(filename, 'w') as out:
+                self._write_facts(name, out)
 
-            for name, pop in self.fact_types.iteritems():
-                sys.stdout.write("Population of " + name + ":\n")
-                sys.stdout.write(','.join(pop.names) + "\n")
+    def write_stdout(self):
+        """ Writes entire population to stdout. """
+        if self.object_types == None: return
 
-                for fact in pop:
-                    sys.stdout.write(','.join(map(str, fact)) + "\n")
+        for name in self.object_types:
+            sys.stdout.write("Population of " + name + ":\n")
+            self._write_objects(name, sys.stdout)
+            print
 
-                sys.stdout.write('\n')
-                
+        for name in self.fact_types:
+            sys.stdout.write("Population of " + name + ":\n")
+            self._write_facts(name, sys.stdout)
+            print
 
 class Relation(list):
     """ A relation, which is a list of lists of identical arity. """

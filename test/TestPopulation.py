@@ -6,7 +6,8 @@
 
 """ This file contains unit tests for the lib.Population module. """
 
-import os
+import os, sys
+from StringIO import StringIO
 
 from unittest import TestCase
 
@@ -129,6 +130,69 @@ class TestPopulation(TestCase):
         pop = Population(model, ubound=5)
 
         self.assertItemsEqual(pop.object_types["ObjectTypes.A"], [0,1,2,3,4])
+
+    def test_write_stdout(self):
+        """ Test writing population to stdout. """    
+        fname = os.path.join(self.data_dir, "populate_fact_types.orm")
+        model = NormaLoader(fname).model
+        pop = Population(model, ubound=6)
+
+        saved = sys.stdout
+        sys.stdout = StringIO()
+
+        pop.write_stdout() # Method under test
+
+        actual = sys.stdout.getvalue().split('\n\n') # Double newline separates
+                                                     # different populations
+       
+        expected = ['Population of ObjectTypes.A:\n' + \
+                   '1\n2\n3',
+
+                   'Population of ObjectTypes.B:\n' + \
+                   'B1\nB2\nB3\nB4\nB5', 
+
+                   'Population of ObjectTypes.C:\n' + \
+                   'C1\nC2\nC3\nC4',
+
+                   'Population of ObjectTypes.D:\n' + \
+                   'False\nTrue', 
+
+                   'Population of ObjectTypes.E:\n' + \
+                   '1',
+
+                   'Population of ObjectTypes.F:\n' + \
+                   '2',
+
+                   'Population of ObjectTypes.G:\n' + \
+                   '3',
+
+                   'Population of FactTypes.AHasBBCCD:\n' + \
+                   'R1,R2,R3,R4,R5,R6\n' + \
+                   '1,B1,B4,C1,C1,False\n' + \
+                   '2,B2,B5,C2,C2,True\n' + \
+                   '3,B3,B1,C3,C3,False\n' + \
+                   '1,B1,B2,C4,C4,True\n' + \
+                   '2,B2,B3,C1,C1,False\n' + \
+                   '3,B3,B4,C2,C2,True',
+
+                   'Population of FactTypes.EHasFG:\n' + \
+                   'R1,R3,R2\n' + \
+                   '1,3,2',
+
+                    '']
+                   
+        self.assertItemsEqual(actual, expected)
+        
+        sys.stdout = saved
+
+    def test_write_unsat(self):
+        """ Test writing out an unsatisfiable population. """
+
+        # Note: may change Population so that it takes solution as a parameter,
+        # and then a Population object by definition only exists if there is 
+        # a solution.  This would also address awkwardness in commandline -->
+        # we would always need to call ORMMinus before population...
+        self.assertTrue(False)
 
 #####################################################################
 # Tests for Relation Class

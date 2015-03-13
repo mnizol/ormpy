@@ -74,7 +74,7 @@ def execute():
     # TODO: Accept destination parameter.
     if args.populate:
         pop = Population(model=loader.model)
-        pop.write_csv()    
+        pop.write_stdout()    
         
 
 

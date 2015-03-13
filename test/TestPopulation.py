@@ -6,7 +6,7 @@
 
 """ This file contains unit tests for the lib.Population module. """
 
-import os, sys
+import os, sys, re
 from StringIO import StringIO
 
 from unittest import TestCase
@@ -135,21 +135,20 @@ class TestPopulation(TestCase):
 
         self.assertItemsEqual(pop.object_types["ObjectTypes.A"], [0,1,2,3,4])
 
-    def test_write_stdout(self):
-        """ Test writing population to stdout. """    
+class TestPopulationWrite(TestCase):
+    """ Unit tests for writing the population out to stdout or CSV files. """
+
+    def setUp(self):
+        """ Set-up unit tests. """
+
+        self.data_dir = TestDataLocator.get_data_dir()
+        self.path = os.path.join(self.data_dir, "..", "output")
+
         fname = os.path.join(self.data_dir, "populate_fact_types.orm")
         model = ORMMinusModel(NormaLoader(fname).model, ubound=6)
-        pop = Population(model)
+        self.pop = Population(model)
 
-        saved = sys.stdout
-        sys.stdout = StringIO()
-
-        pop.write_stdout() # Method under test
-
-        actual = sys.stdout.getvalue().split('\n\n') # Double newline separates
-                                                     # different populations
-       
-        expected = ['Population of ObjectTypes.A:\n' + \
+        self.expected = ['Population of ObjectTypes.A:\n' + \
                    '1\n2\n3',
 
                    'Population of ObjectTypes.B:\n' + \
@@ -181,13 +180,112 @@ class TestPopulation(TestCase):
 
                    'Population of FactTypes.EHasFG:\n' + \
                    'R1,R3,R2\n' + \
-                   '1,3,2',
+                   '1,3,2']
 
-                    '']
-                   
-        self.assertItemsEqual(actual, expected)
-        
+
+    def test_write_stdout(self):
+        """ Test writing population to stdout. """    
+        saved = sys.stdout
+        sys.stdout = StringIO()
+
+        self.pop.write_stdout() # Method under test
+
+        actual = sys.stdout.getvalue().split('\n\n') # Double newline separates
+                                                     # different populations
+        actual.remove('')
+
+        self.assertItemsEqual(actual, self.expected)        
         sys.stdout = saved
+
+    def test_write_csv_with_dir_creation(self):
+        """ Test that write_csv creates a directory if one doesn't exist. """
+        path = os.path.join(self.path, "delete_me")
+        
+        self.delete(path)
+        self.assertFalse(os.path.isdir(path))
+
+        self.pop.write_csv(path)
+        self.assertTrue(os.path.isdir(path))
+        self.assertItemsEqual(self.get_actual(path), self.expected)
+
+        self.delete(path)
+        self.assertFalse(os.path.isdir(path))
+
+    def test_write_csv_without_dir_creation(self):
+        """ Test that write_csv works for an existing directory. """
+        path = os.path.join(self.path, "DO_NOT_DELETE")
+        
+        self.assertTrue(os.path.isdir(path))
+
+        prev_mod_time = max(self.get_mtimes(path))
+
+        self.pop.write_csv(path)
+        self.assertItemsEqual(self.get_actual(path), self.expected)
+
+        curr_mod_time = min(self.get_mtimes(path))
+
+        self.assertTrue(curr_mod_time > prev_mod_time)
+
+    def test_write_to_inaccessible_dir(self):
+        """ Test an attempt to write to an inaccessible directory. """
+        path = os.path.join(self.path, "CANNOT_ACCESS")
+        
+        self.assertTrue(os.path.isdir(path))
+        
+        with self.assertRaises(IOError) as ex:
+            self.pop.write_csv(path)
+
+    def test_write_to_readonly_dir(self):
+        """ Test an attempt to write to a readonly directory. """
+        path = os.path.join(self.path, "CANNOT_WRITE")
+        
+        self.assertTrue(os.path.isdir(path))
+        
+        with self.assertRaises(IOError) as ex:
+            self.pop.write_csv(path)
+
+    def test_write_to_file_not_directory(self):
+        """ Test an attempt to write to a file rather than a directory. """
+        path = os.path.join(self.path, "NOT_A_DIRECTORY")
+        
+        self.assertTrue(os.path.isfile(path))
+        
+        with self.assertRaises(OSError) as ex:
+            self.pop.write_csv(path)
+         
+    def get_actual(self, dirname):
+        """ Get actual results by cobbling together CSV files. """
+        actual = []
+
+        for filename in os.listdir(dirname):
+            with open(os.path.join(dirname, filename)) as f:
+                popname = re.sub('\.csv$', '', filename)
+                lines = ["Population of " + popname + ':'] + \
+                        [line.strip() for line in f]
+                actual.append('\n'.join(lines))
+
+        return actual
+
+    def get_mtimes(self, dirname):
+        """ Get modification times for all files in dirname. """
+        mtimes = []
+        try:
+            for filename in os.listdir(dirname):
+                path = os.path.join(dirname, filename)
+                stat = os.stat(path)
+                mtimes.append(stat.st_mtime)
+            return mtimes
+        except:
+            return None
+
+    def delete(self, dirname):
+        """ Delete a directory and all of its contents. """
+        try:
+            for filename in os.listdir(dirname):
+                os.remove(os.path.join(dirname, filename))
+            os.rmdir(dirname)
+        except:
+            pass
 
 #####################################################################
 # Tests for Relation Class

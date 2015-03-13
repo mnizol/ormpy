@@ -32,8 +32,10 @@ def execute():
         dest='check_model', default=False, help='check if model is satisfiable')
     parser.add_argument('-p', '--populate', action='store_true',
         dest='populate', default=False, help='populate the model')
-    parser.add_argument('-u', '--upper-bound', help='upper bound on model element sizes',
+    parser.add_argument('-u', help='upper bound on model element sizes',
         dest='ubound', default=10, type=int)
+    parser.add_argument('-d', help='output directory',
+        dest='directory', default='')
     parser.add_argument('filename', type=str, help='File containing ORM model')
     args = parser.parse_args()
 
@@ -67,6 +69,14 @@ def execute():
             print "Model is unsatisfiable."
         elif args.populate:
             pop = Population(model)
-            pop.write_stdout()
+
+            if args.directory.strip() == '':
+                pop.write_stdout()
+            else:
+                try:
+                    pop.write_csv(args.directory)
+                except:
+                    print "Model is satisfiable."
+                    print "Cannot write population to " + args.directory
         else:
             print "Model is satisfiable."

@@ -7,7 +7,7 @@
 """ Module to generate a population of an ORMMinusModel. """
 
 import sys
-import csv
+import os
 import fractions
 
 import lib.FactType as FactType
@@ -130,16 +130,25 @@ class Population(object):
         for fact in pop:
             stream.write(','.join(map(str, fact)) + "\n")
 
-    def write_csv(self, directory=None):
+    def write_csv(self, dirname):
         """ Write the entire population to CSV files stored in a directory 
-            (one file per object type or fact type).  """    
+            (one file per object type or fact type).  """   
+
+        # Create directory if it doesn't exist 
+        # See http://stackoverflow.com/a/14364249
+        try: 
+            os.makedirs(dirname)
+        except OSError:
+            if not os.path.isdir(dirname): raise
+
+        # Write object type and fact type populations, one per file.
         for name in self.object_types:
-            filename = os.path.join(directory, name)
+            filename = os.path.join(dirname, name + ".csv")
             with open(filename, 'w') as out:                        
                 self._write_objects(name, out)
                 
         for name in self.fact_types:
-            filename = os.path.join(directory, name)
+            filename = os.path.join(dirname, name + ".csv")
             with open(filename, 'w') as out:
                 self._write_facts(name, out)
 

@@ -643,7 +643,53 @@ class TestNormaLoader(TestCase):
         actual = [cons.name for cons in model.constraints]
         expected = ["VC2"]
         self.assertItemsEqual(actual, expected)
-        
+
+    def test_cardinality_constraints(self):
+        """ Test loading of cardinality constraints. """
+        loader = NormaLoader(self.data_dir + "test_cardinality_constraint.orm")
+        model = loader.model
+
+        cons1 = model.constraints.get("CC1")
+        self.assertTrue(cons1.alethic)
+        self.assertEquals(cons1.ranges[0].lower, 0)
+        self.assertEquals(cons1.ranges[0].upper, 4)
+        self.assertItemsEqual(cons1.covers, [model.object_types.get("A")])
+
+        cons2 = model.constraints.get("CC2")
+        self.assertTrue(cons2.alethic)
+        self.assertEquals(cons2.ranges[0].lower, 2)
+        self.assertEquals(cons2.ranges[0].upper, None)
+        self.assertItemsEqual(cons2.covers, [model.object_types.get("B")])
+
+        cons3 = model.constraints.get("CC3")
+        role = model.fact_types.get("AExists").roles[0]
+        self.assertTrue(cons3.alethic)
+        self.assertEquals(cons3.ranges[0].lower, 4)
+        self.assertEquals(cons3.ranges[0].upper, 7)
+        self.assertItemsEqual(cons3.covers, [role])
+
+        cons4 = model.constraints.get("CC4")
+        role = model.fact_types.get("BHopes").roles[0]
+        self.assertFalse(cons4.alethic)
+        self.assertEquals(cons4.ranges[0].lower, 4)
+        self.assertEquals(cons4.ranges[0].upper, 4)
+        self.assertItemsEqual(cons4.covers, [role]) 
+
+        cons5 = model.constraints.get("CC5")
+        role = model.fact_types.get("BDances").roles[0]
+        self.assertTrue(cons5.alethic)
+        self.assertEquals(len(cons5.ranges), 4)
+
+        self.assertEquals(cons5.ranges[0].lower, 0)
+        self.assertEquals(cons5.ranges[0].upper, 2)
+        self.assertEquals(cons5.ranges[1].lower, 5)
+        self.assertEquals(cons5.ranges[1].upper, 5)
+        self.assertEquals(cons5.ranges[2].lower, 8)
+        self.assertEquals(cons5.ranges[2].upper, 10) 
+        self.assertEquals(cons5.ranges[3].lower, 12)
+        self.assertEquals(cons5.ranges[3].upper, None) 
+      
+        self.assertItemsEqual(cons5.covers, [role])       
 
     
         

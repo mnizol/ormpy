@@ -22,6 +22,7 @@ class TestORMMinusModel(TestCase):
 
     def setUp(self):
         self.data_dir = TestDataLocator.get_data_dir()
+        self.maxDiff = None
 
         fname = os.path.join(self.data_dir, "paper_has_author.orm")
         model = NormaLoader(fname).model
@@ -206,6 +207,12 @@ class TestORMMinusModel(TestCase):
         
         self.assertItemsEqual(actual, expect)
 
+    def test_unsat_smarag_1(self):
+        """ Test 1st unsatisfiable model provided by Smaragdakis. """
+        fname = os.path.join(self.data_dir, "unsat_smarag_1.orm")
+        model = NormaLoader(fname).model
+        self.assertIsNone(ORMMinusModel(model=model).solution)
+
     def test_unsat_smarag_2(self):
         """ Test 2nd unsatisfiable model provided by Smaragdakis. """
         fname = os.path.join(self.data_dir, "unsat_smarag_2.orm")
@@ -266,4 +273,48 @@ class TestORMMinusModel(TestCase):
         iuc = model.constraints.get("IUC11")
         ifc = model.constraints.get("IFC2")
         self.assertItemsEqual(ormminus.get_parts(fact_type), [iuc, ifc, roles[3], roles[6]])
+
+    def test_cardinality_inequalities(self):
+        """ Test that correct cardinality constraint inequalities are generated. """
+        fname = os.path.join(self.data_dir, "test_cardinality_constraint.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model)
+
+        actual = [ineq.tostring() for ineq in ormminus._ineqsys]  
+
+        expected = ["ObjectTypes.A <= " + str(ORMMinusModel.DEFAULT_SIZE),
+                    "ObjectTypes.B <= " + str(ORMMinusModel.DEFAULT_SIZE), 
+                    "FactTypes.AExists.Roles.R1 <= ObjectTypes.A",
+                    "FactTypes.AExists.Roles.R1 <= FactTypes.AExists",
+                    "FactTypes.AExists <= Constraints.IUC1",
+                    "Constraints.IUC1 <= FactTypes.AExists",
+                    "Constraints.IUC1 <= FactTypes.AExists.Roles.R1",
+                    "FactTypes.AExists.Roles.R1 <= Constraints.IUC1",
+                    "ObjectTypes.A <= FactTypes.AExists.Roles.R1",
+                    "FactTypes.BDances.Roles.R1 <= ObjectTypes.B",
+                    "FactTypes.BDances.Roles.R1 <= FactTypes.BDances", 
+                    "FactTypes.BDances <= Constraints.IUC2",
+                    "Constraints.IUC2 <= FactTypes.BDances",
+                    "Constraints.IUC2 <= FactTypes.BDances.Roles.R1",
+                    "FactTypes.BDances.Roles.R1 <= Constraints.IUC2",   
+                    "FactTypes.BHopes.Roles.R1 <= ObjectTypes.B",
+                    "FactTypes.BHopes.Roles.R1 <= FactTypes.BHopes",
+                    "FactTypes.BHopes <= Constraints.IUC3",
+                    "Constraints.IUC3 <= FactTypes.BHopes",
+                    "Constraints.IUC3 <= FactTypes.BHopes.Roles.R1",
+                    "FactTypes.BHopes.Roles.R1 <= Constraints.IUC3",
+                    "ObjectTypes.B <= FactTypes.BDances.Roles.R1 + FactTypes.BHopes.Roles.R1",
+
+                    "0 <= ObjectTypes.A",
+                    "ObjectTypes.A <= 4",
+                    "4 <= FactTypes.AExists.Roles.R1",
+                    "FactTypes.AExists.Roles.R1 <= 7",
+                    "2 <= ObjectTypes.B",
+                    "4 <= FactTypes.BHopes.Roles.R1",
+                    "FactTypes.BHopes.Roles.R1 <= 4"
+                   ]
+        self.assertItemsEqual(actual, expected)
+
+        self.assertItemsEqual(ormminus.ignored, [model.constraints.get("CC5")])
+
 

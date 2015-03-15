@@ -50,6 +50,20 @@ class Constraint(ModelElement):
         if model_element in self.covers:
             self.covers.remove(model_element)
 
+class CardinalityConstraint(Constraint):
+    """ A cardinality constraint on an object type or role. """
+
+    def __init__(self, uid=None, name=None):
+        super(CardinalityConstraint, self).__init__(uid=uid, name=name)
+        self.ranges = [] #: A list of CardinalityRange objects
+
+class CardinalityRange(object):
+    """ A range for a cardinality constraint. """
+
+    def __init__(self, lower=0, upper=None):
+        self.lower = lower
+        self.upper = upper
+
 class ValueConstraint(Constraint):
     """ A value constraint.  This implementation supports only a limited
         form of value constraint: specifically, enumerations (i.e. min

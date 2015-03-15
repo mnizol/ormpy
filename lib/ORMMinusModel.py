@@ -12,7 +12,8 @@ import sys
 from lib.InequalitySystem \
     import InequalitySystem, Inequality, Variable, Constant, Sum, Product
 from lib.Constraint \
-    import FrequencyConstraint, MandatoryConstraint, ValueConstraint
+    import FrequencyConstraint, MandatoryConstraint, ValueConstraint, \
+           CardinalityConstraint
 from lib.ObjectType import ObjectType
 
 class ORMMinusModel(object):
@@ -140,6 +141,8 @@ class ORMMinusModel(object):
                 self._create_mandatory_inequality(cons)
             elif isinstance(cons, FrequencyConstraint):
                 self._create_frequency_inequality(cons)
+            elif isinstance(cons, CardinalityConstraint):
+                self._create_cardinality_inequality(cons)
             else: # Catch-all so that we can report ignored constraints.
                 self._ignore(cons)
 
@@ -207,4 +210,26 @@ class ORMMinusModel(object):
         for role in role_seq:
             role_var = self._variables[role]
             self._add(Inequality(lhs=role_var, rhs=freq_var))
+
+    def _create_cardinality_inequality(self, cons):
+        """ Cardinality constraint inequality. """
+
+        # Only support cardinality constraints with a single range covering a 
+        # single model element.
+        if len(cons.ranges) != 1 or len(cons.covers) != 1:
+            self._ignore(cons)
+        else:
+            var = self._variables[cons.covers[0]]
+            lower = cons.ranges[0].lower
+            upper = cons.ranges[0].upper
+
+            self._add(Inequality(lhs=Constant(lower), rhs=var))
+
+            if upper != None:
+                self._add(Inequality(lhs=var, rhs=Constant(upper)))
+
+            
+            
+            
+
 

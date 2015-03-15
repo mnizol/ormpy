@@ -125,7 +125,8 @@ class NormaLoader(object):
             'MandatoryConstraint'   : self._load_mandatory_constraint,
             'UniquenessConstraint'  : self._load_uniqueness_constraint,
             'RingConstraint'        : self._load_ring_constraint,
-            'ValueComparisonConstraint' : self._load_value_comp_constraint
+            'ValueComparisonConstraint' : self._load_value_comp_constraint,
+            'CardinalityRestriction': self._load_cardinality_constraint
         }
 
         # Mapping from XML types defined in ORMCode namespace to domains.
@@ -674,6 +675,32 @@ class NormaLoader(object):
         """ Load value comparison constraint. """
         self.omissions.append("Value comparison constraint " +
             xml_node.get("Name"))
+
+    def _load_cardinality_constraint(self, xml_node, parent):
+        """ Load cardinality constraint. """
+        types = ["CardinalityConstraint", "UnaryRoleCardinalityConstraint"]
+
+        for node in xml_node: # Should be exactly 1 child node          
+            if self._local_tag(node) in types:
+                cons = self._init_constraint(node, 
+                            Constraint.CardinalityConstraint)   
+                cons.cover(parent)
+
+                range_node = node.find(self._ns_core + "Ranges")
+                cons.ranges = self._load_cardinality_ranges(range_node)
+
+        self._add(cons)
+
+    def _load_cardinality_ranges(self, xml_node):
+        """ Load a list of cardinality ranges. """
+        ranges = []
+        for node in xml_node:
+            if self._local_tag(node) == 'CardinalityRange':
+                lower = int(node.get("From")) # "From" attribute is mandatory
+                upper = node.get("To")   # "To" attribute is optional
+                upper = int(upper) if upper else None
+                ranges.append(Constraint.CardinalityRange(lower, upper))
+        return ranges
 
     def _init_constraint(self, xml_node, constraint_type):
         """ Initialize a constraint from an xml_node. """

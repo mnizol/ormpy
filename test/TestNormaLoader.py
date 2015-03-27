@@ -9,6 +9,7 @@
 import os
 from unittest import TestCase
 from datetime import datetime, date, time
+from nose.plugins.logcapture import LogCapture
 
 import lib.TestDataLocator as TestDataLocator
 
@@ -25,7 +26,12 @@ class TestNormaLoader(TestCase):
 
     def setUp(self):
         self.data_dir = TestDataLocator.get_data_dir() + os.sep
-        #self.maxDiff = None
+        self.maxDiff = None
+
+        # Log capturing
+        self.log = LogCapture()
+        self.log.logformat = '%(levelname)s: %(message)s'
+        self.log.begin()
 
     def test_add_from_empty_stack(self):
         """ Check behavior of add_from_stack when empty. """
@@ -129,12 +135,14 @@ class TestNormaLoader(TestCase):
         
     def test_load_object_types(self):
         """ Test of object type load. """
+        self.log.beforeTest(None)
         loader = NormaLoader(self.data_dir + "object_type_tests.orm")
         model = loader.model
 
         # No derivation rules
         self.assertItemsEqual(loader.omissions, [])
-        
+        self.assertItemsEqual(self.log.formatLogRecords(), [])
+
         # Overall count
         self.assertEqual(model.object_types.count(), 10)
 
@@ -179,6 +187,8 @@ class TestNormaLoader(TestCase):
         # Implicit Objectified (Created by ternary, should not load)
         this = model.object_types.get("V1HasDHasV2") 
         self.assertIsNone(this)
+
+        self.log.afterTest(None)
 
     def test_played_roles(self):
         """ Confirm that object types know the list of roles they play. """
@@ -305,21 +315,45 @@ class TestNormaLoader(TestCase):
       
     def test_derivation_source(self):
         """ Confirm depricated DerivationSource element is ignored. """
+        self.log.beforeTest(None)
         loader = NormaLoader(self.data_dir + "derivation_source.orm")
-        self.assertItemsEqual(loader.omissions,
-            ["Role derivation rule within AHasB"])
+
+        expected = ["Role derivation rule within AHasB"]
+
+        # Check omissions array
+        self.assertItemsEqual(loader.omissions, expected)
+
+        # Check log contents
+        expected = ["WARNING: 1 model element was ignored while loading derivation_source.orm."] + \
+                   ["INFO: Ignoring " + expected[0]]
+
+        self.assertItemsEqual(self.log.formatLogRecords(), expected)
+
+        self.log.afterTest(None)
 
     def test_constraints_omitted(self):
         """ Confirm omitted constraints get saved to omissions list."""
+        self.log.beforeTest(None)
         loader = NormaLoader(self.data_dir + "omitted_constraints.orm")
-        self.assertItemsEqual(loader.omissions,
-            ["Equality constraint EqualityConstraint1",
+
+        expected = ["Equality constraint EqualityConstraint1",
              "Exclusion constraint ExclusionConstraint1",
              "Exclusion constraint ExclusiveOrConstraint1",
              "Inclusive-or constraint InclusiveOrConstraint1",
              "Inclusive-or constraint InclusiveOrConstraint2",
              "Ring constraint RingConstraint1",
-             "Value comparison constraint ValueComparisonConstraint1"])
+             "Value comparison constraint ValueComparisonConstraint1"]
+
+        # Check omissions array
+        self.assertItemsEqual(loader.omissions, expected)
+
+        # Check log contents
+        expected = ["WARNING: 7 model elements were ignored while loading omitted_constraints.orm."] + \
+                   ["INFO: Ignoring " + msg for msg in expected]
+
+        self.assertItemsEqual(self.log.formatLogRecords(), expected)
+
+        self.log.afterTest(None)
 
     def test_subset_constraint(self):
         """ Confirm subset constraints load correctly. """
@@ -689,7 +723,34 @@ class TestNormaLoader(TestCase):
         self.assertEquals(cons5.ranges[3].lower, 12)
         self.assertEquals(cons5.ranges[3].upper, None) 
       
-        self.assertItemsEqual(cons5.covers, [role])       
+        self.assertItemsEqual(cons5.covers, [role]) 
+
+    def test_bad_cardinality_constraint_1(self):
+        """ Test loading of file with two cardinality constraints in one node. """
+
+        with self.assertRaises(ValueError) as ex:
+            NormaLoader(self.data_dir + "bad_cardinality_constraint_1.orm")
+
+        self.assertEquals(ex.exception.message,
+            "CardinalityRestriction should have only 1 child node")
+
+    def test_bad_cardinality_constraint_2(self):
+        """ Test loading of file with badly named cardinality constraint node. """
+
+        loader = NormaLoader(self.data_dir + "bad_cardinality_constraint_2.orm")
+        model = loader.model
+        self.assertEquals(model.constraints.count(), 0)
+
+    def test_bad_cardinality_constraint_3(self):
+        """ Test loading of file with badly named ranges node. """
+
+        loader = NormaLoader(self.data_dir + "bad_cardinality_constraint_3.orm")
+        model = loader.model
+        cons = model.constraints.get("C1")
+        self.assertEquals(cons.ranges, [])
+
+
+            
 
     
         

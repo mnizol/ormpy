@@ -99,6 +99,20 @@
         <span class="k">if</span> <span class="n">model_element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">model_element</span><span class="p">)</span>
 </div></div>
+<div class="viewcode-block" id="CardinalityConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.CardinalityConstraint">[docs]</a><span class="k">class</span> <span class="nc">CardinalityConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A cardinality constraint on an object type or role. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CardinalityConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranges</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: A list of CardinalityRange objects</span>
+</div>
+<div class="viewcode-block" id="CardinalityRange"><a class="viewcode-back" href="../../lib.html#lib.Constraint.CardinalityRange">[docs]</a><span class="k">class</span> <span class="nc">CardinalityRange</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A range for a cardinality constraint. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower</span> <span class="o">=</span> <span class="n">lower</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">=</span> <span class="n">upper</span>
+</div>
 <div class="viewcode-block" id="ValueConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint">[docs]</a><span class="k">class</span> <span class="nc">ValueConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A value constraint.  This implementation supports only a limited</span>
 <span class="sd">        form of value constraint: specifically, enumerations (i.e. min</span>

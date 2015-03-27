@@ -7,5 +7,5 @@ elif [ "$1" == "--cover-html" ]; then
     rm test/coverage/*
     nosetests --cover-inclusive --with-coverage --cover-erase --cover-package=lib --cover-html --cover-html-dir=test/coverage
 else
-    nosetests --verbose
+    nosetests
 fi

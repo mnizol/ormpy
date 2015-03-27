@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ormRoot:ORM2 xmlns:orm="http://schemas.neumont.edu/ORM/2006-04/ORMCore" xmlns:ormDiagram="http://schemas.neumont.edu/ORM/2006-04/ORMDiagram" xmlns:ormRoot="http://schemas.neumont.edu/ORM/2006-04/ORMRoot">
+	<orm:ORMModel id="_0A1D4901-0E5F-470C-B44D-3AD89047D3F4" Name="ORMModel1">
+		<orm:Objects>
+			<orm:ValueType id="_AC3B35CC-81A6-4726-9E78-6816FDED474E" Name="ValueType1">
+				<orm:ConceptualDataType id="_797FA879-C71D-404A-A62F-AD34FEE91F83" ref="_514CE71D-D0F3-4DBC-9543-FD02663EDF89" Scale="0" Length="0" />
+				<orm:ValueRestriction>
+					<orm:ValueConstraint id="_A3CEFBCA-655E-4002-ABD4-42077CEA4723" Name="ValueTypeValueConstraint1">
+						<orm:ValueRanges>
+							<orm:ValueRange id="_CCE0C46F-8258-4F81-A117-6A4146BDB645" MinValue="ABC" MaxValue="XYZ" MinInclusion="NotSet" MaxInclusion="NotSet" />
+						</orm:ValueRanges>
+					</orm:ValueConstraint>
+				</orm:ValueRestriction>
+			</orm:ValueType>
+		</orm:Objects>
+		<orm:DataTypes>
+			<orm:FixedLengthTextDataType id="_514CE71D-D0F3-4DBC-9543-FD02663EDF89" />
+		</orm:DataTypes>
+		<orm:ReferenceModeKinds>
+			<orm:ReferenceModeKind id="_6BF33604-3D26-4F63-87C7-4C419178FED2" FormatString="{1}" ReferenceModeType="General" />
+			<orm:ReferenceModeKind id="_1A92BD2E-52B8-468C-809B-55062BB7DDF5" FormatString="{0}_{1}" ReferenceModeType="Popular" />
+			<orm:ReferenceModeKind id="_7C0ECB19-3D8F-45AA-A58F-34EA7E50A62F" FormatString="{1}Value" ReferenceModeType="UnitBased" />
+		</orm:ReferenceModeKinds>
+	</orm:ORMModel>
+	<ormDiagram:ORMDiagram id="_958E60C4-62A4-44C4-B942-0978C6CE1931" IsCompleteView="false" Name="ORMModel1" BaseFontName="Tahoma" BaseFontSize="0.0972222238779068">
+		<ormDiagram:Shapes>
+			<ormDiagram:ObjectTypeShape id="_4E2B4730-DD3F-44A4-84F2-4695249787EF" IsExpanded="true" AbsoluteBounds="2.34375, 1.6458333730697632, 0.73887383460998535, 0.22950302660465241">
+				<ormDiagram:RelativeShapes>
+					<ormDiagram:ValueConstraintShape id="_B7D1B53C-5F48-49B0-B7A2-AA6E8853F2A1" IsExpanded="true" AbsoluteBounds="2.2676238346099851, 1.4642470131317773, 0.62485527992248535, 0.12950302660465241">
+						<ormDiagram:Subject ref="_A3CEFBCA-655E-4002-ABD4-42077CEA4723" />
+					</ormDiagram:ValueConstraintShape>
+				</ormDiagram:RelativeShapes>
+				<ormDiagram:Subject ref="_AC3B35CC-81A6-4726-9E78-6816FDED474E" />
+			</ormDiagram:ObjectTypeShape>
+		</ormDiagram:Shapes>
+		<ormDiagram:Subject ref="_0A1D4901-0E5F-470C-B44D-3AD89047D3F4" />
+	</ormDiagram:ORMDiagram>
+</ormRoot:ORM2>

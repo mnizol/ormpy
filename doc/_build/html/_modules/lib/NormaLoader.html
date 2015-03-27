@@ -91,6 +91,8 @@
 
 <span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="kn">as</span> <span class="nn">xml</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">from</span> <span class="nn">lib.Model</span> <span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">import</span> <span class="nn">lib.ObjectType</span> <span class="kn">as</span> <span class="nn">ObjectType</span>
@@ -142,6 +144,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_build_mappings</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
+        <span class="c"># Log any model element omissions</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;elements were&quot;</span> <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s">&quot;element was&quot;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%d</span><span class="s"> model </span><span class="si">%s</span><span class="s"> ignored while loading </span><span class="si">%s</span><span class="s">.&quot;</span><span class="p">,</span> 
+                           <span class="n">size</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">omission</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Ignoring </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">omission</span><span class="p">)</span>
+        
+
     <span class="c">###########################################################################</span>
     <span class="c"># Private Utility Functions</span>
     <span class="c">###########################################################################</span>
@@ -174,7 +187,8 @@
             <span class="s">&#39;MandatoryConstraint&#39;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_mandatory_constraint</span><span class="p">,</span>
             <span class="s">&#39;UniquenessConstraint&#39;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_uniqueness_constraint</span><span class="p">,</span>
             <span class="s">&#39;RingConstraint&#39;</span>        <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_ring_constraint</span><span class="p">,</span>
-            <span class="s">&#39;ValueComparisonConstraint&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value_comp_constraint</span>
+            <span class="s">&#39;ValueComparisonConstraint&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_value_comp_constraint</span><span class="p">,</span>
+            <span class="s">&#39;CardinalityRestriction&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_cardinality_constraint</span>
         <span class="p">}</span>
 
         <span class="c"># Mapping from XML types defined in ORMCode namespace to domains.</span>
@@ -723,6 +737,35 @@
         <span class="sd">&quot;&quot;&quot; Load value comparison constraint. &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Value comparison constraint &quot;</span> <span class="o">+</span>
             <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Name&quot;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_load_cardinality_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load cardinality constraint. &quot;&quot;&quot;</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;CardinalityConstraint&quot;</span><span class="p">,</span> <span class="s">&quot;UnaryRoleCardinalityConstraint&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">xml_node</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;CardinalityRestriction should have only 1 child node&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">xml_node</span><span class="p">:</span>          
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local_tag</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
+                <span class="n">cons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_constraint</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> 
+                            <span class="n">Constraint</span><span class="o">.</span><span class="n">CardinalityConstraint</span><span class="p">)</span>   
+                <span class="n">cons</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+                <span class="n">range_node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ns_core</span> <span class="o">+</span> <span class="s">&quot;Ranges&quot;</span><span class="p">)</span>
+                <span class="n">cons</span><span class="o">.</span><span class="n">ranges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_cardinality_ranges</span><span class="p">(</span><span class="n">range_node</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_cardinality_ranges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load a list of cardinality ranges. &quot;&quot;&quot;</span>
+        <span class="n">ranges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">xml_node</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local_tag</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;CardinalityRange&#39;</span><span class="p">:</span>
+                <span class="n">lower</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;From&quot;</span><span class="p">))</span> <span class="c"># &quot;From&quot; attribute is mandatory</span>
+                <span class="n">upper</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;To&quot;</span><span class="p">)</span>   <span class="c"># &quot;To&quot; attribute is optional</span>
+                <span class="n">upper</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span> <span class="k">if</span> <span class="n">upper</span> <span class="k">else</span> <span class="bp">None</span>
+                <span class="n">ranges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Constraint</span><span class="o">.</span><span class="n">CardinalityRange</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ranges</span>
 
     <span class="k">def</span> <span class="nf">_init_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">constraint_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialize a constraint from an xml_node. &quot;&quot;&quot;</span>

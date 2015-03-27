@@ -4,7 +4,7 @@ Object Role Modeling (ORM) models developed with the [NORMA modeling tool](http:
 The primary algorithm is based upon research by [Smaragdakis, et al.](http://dl.acm.org/citation.cfm?id=1507652)
 
 **ormpy** is a work-in-progress.  Currently, the Smaragdakis algorithm
-is only partially implemented, and we are working to add extensions by 
+is implemented, and we are working to add extensions by 
 [McGill, et al.](http://dl.acm.org/citation.cfm?id=2001428) and [Nizol, et al.](http://dl.acm.org/citation.cfm?id=2593771)
 
 ## Dependencies
@@ -25,6 +25,7 @@ script.  This script requires [sphinx](http://sphinx-doc.org/man/sphinx-apidoc.h
 
 ## Unit Tests
 The [./test](./test) subdirectory contains a suite of unit tests and test data.
+Some tests rely on [nosetests](https://nose.readthedocs.org/en/latest/) plugins.
 You can run all tests in the test suite via the [run_tests](./run_tests) script.
 This script requires [nosetests](https://nose.readthedocs.org/en/latest/) and [coverage.py](http://nedbatchelder.com/code/coverage/).
 Executing `run_tests --cover` provides test coverage information via coverage.py.

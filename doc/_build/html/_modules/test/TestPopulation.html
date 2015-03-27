@@ -55,12 +55,14 @@
 
 <span class="sd">&quot;&quot;&quot; This file contains unit tests for the lib.Population module. &quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
 
 <span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
 
 <span class="kn">import</span> <span class="nn">lib.TestDataLocator</span> <span class="kn">as</span> <span class="nn">TestDataLocator</span>
-<span class="kn">from</span> <span class="nn">lib.Population</span> <span class="kn">import</span> <span class="n">Population</span><span class="p">,</span> <span class="n">Relation</span>
+<span class="kn">from</span> <span class="nn">lib.ORMMinusModel</span> <span class="kn">import</span> <span class="n">ORMMinusModel</span>
+<span class="kn">from</span> <span class="nn">lib.Population</span> <span class="kn">import</span> <span class="n">Population</span><span class="p">,</span> <span class="n">Relation</span><span class="p">,</span> <span class="n">lcm</span>
 <span class="kn">from</span> <span class="nn">lib.NormaLoader</span> <span class="kn">import</span> <span class="n">NormaLoader</span>
 
 <div class="viewcode-block" id="TestPopulation"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation">[docs]</a><span class="k">class</span> <span class="nc">TestPopulation</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
@@ -68,46 +70,414 @@
 
 <div class="viewcode-block" id="TestPopulation.setUp"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">TestDataLocator</span><span class="o">.</span><span class="n">get_data_dir</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxDiff</span> <span class="o">=</span> <span class="bp">None</span>
 </div>
 <div class="viewcode-block" id="TestPopulation.test_unsat_model"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.test_unsat_model">[docs]</a>    <span class="k">def</span> <span class="nf">test_unsat_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test population of an unsatisfiable model. &quot;&quot;&quot;</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;unsat_smarag_2.orm&quot;</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        <span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">object_types</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">fact_types</span><span class="p">)</span>  
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> 
+                          <span class="s">&quot;Cannot populate an unsatisfiable model.&quot;</span><span class="p">)</span>
 </div>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    # TODO: This is not a good test...</span>
-<span class="sd">    def test_populate_object_types(self):</span>
-<span class="sd">        &quot;&quot;&quot; Test population of object types. &quot;&quot;&quot;</span>
-<span class="sd">        fname = os.path.join(self.data_dir, &quot;fact_type_tests.orm&quot;)</span>
-<span class="sd">        model = NormaLoader(fname).model</span>
-<span class="sd">        pop = Population(model)</span>
+<div class="viewcode-block" id="TestPopulation.test_populate_object_types"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.test_populate_object_types">[docs]</a>    <span class="k">def</span> <span class="nf">test_populate_object_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test population of object types. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;fact_type_tests.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
-<span class="sd">        print pop.object_types[&quot;ObjectTypes.B&quot;]</span>
-<span class="sd">    &#39;&#39;&#39;</span> 
+        <span class="n">pop1</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="s">&quot;ObjectTypes.A&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop1</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;A0&quot;</span><span class="p">,</span> <span class="s">&quot;A1&quot;</span><span class="p">,</span> <span class="s">&quot;A2&quot;</span><span class="p">,</span> <span class="s">&quot;A3&quot;</span><span class="p">,</span> <span class="s">&quot;A4&quot;</span><span class="p">])</span>
 
-<div class="viewcode-block" id="TestPopulation.test_add_to_relation"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.test_add_to_relation">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_to_relation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pop2</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="s">&quot;ObjectTypes.A_id&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop2</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+
+        <span class="n">pop3</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="s">&quot;ObjectTypes.B&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop3</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;A&quot;</span><span class="p">,</span> <span class="s">&quot;Dog&quot;</span><span class="p">,</span> <span class="s">&quot;3.567&quot;</span><span class="p">,</span> <span class="s">&quot;12/23/2014&quot;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="TestPopulation.test_populate_roles"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.test_populate_roles">[docs]</a>    <span class="k">def</span> <span class="nf">test_populate_roles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test population of roles. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;populate_roles.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="c"># Test role played by an object type that plays no other roles.</span>
+        <span class="n">pop1</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="s">&quot;FactTypes.VT1HasVT2.Roles.R1&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop1</span><span class="p">,</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">],[</span><span class="mi">5</span><span class="p">]])</span>
+
+        <span class="c"># Test population of two roles played by same object type such that</span>
+        <span class="c"># the role populations are complete and disjoint.</span>
+        <span class="n">pop2a</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="s">&quot;FactTypes.VT1HasVT2.Roles.R2&quot;</span><span class="p">]</span>
+        <span class="n">pop2b</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="s">&quot;FactTypes.VT2HasVT7.Roles.R1&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop2a</span><span class="p">,</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">],[</span><span class="mi">5</span><span class="p">]])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop2b</span><span class="p">,</span> <span class="p">[[</span><span class="mi">6</span><span class="p">],[</span><span class="mi">7</span><span class="p">]])</span>
+
+        <span class="c"># Test population of object type that plays enough roles that its</span>
+        <span class="c"># objects appear in more than one role population.</span>
+        <span class="n">pop3a</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="s">&quot;FactTypes.VT3HasVT4.Roles.R2&quot;</span><span class="p">]</span>
+        <span class="n">pop3b</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="s">&quot;FactTypes.VT4HasVT5.Roles.R1&quot;</span><span class="p">]</span>
+        <span class="n">pop3c</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="s">&quot;FactTypes.VT4HasVT6.Roles.R1&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop3a</span><span class="p">,</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">]])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop3b</span><span class="p">,</span> <span class="p">[[</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">],[</span><span class="mi">5</span><span class="p">],[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">]])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop3c</span><span class="p">,</span> <span class="p">[[</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">],[</span><span class="mi">5</span><span class="p">]])</span>
+
+        <span class="c"># Test population of independent object type whose population is not</span>
+        <span class="c"># fully exhausted.</span>
+        <span class="n">pop4</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="s">&quot;FactTypes.VT4HasVT5.Roles.R2&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop4</span><span class="p">,</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">],[</span><span class="mi">5</span><span class="p">]])</span>
+</div>
+<div class="viewcode-block" id="TestPopulation.test_fact_type_parts"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.test_fact_type_parts">[docs]</a>    <span class="k">def</span> <span class="nf">test_fact_type_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Calling pop on fact_type_parts.orm was crashing.  Confirm it </span>
+<span class="sd">            no longer crashes. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;fact_type_parts.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span> <span class="c"># Just want to ensure test doesn&#39;t crash</span>
+</div>
+<div class="viewcode-block" id="TestPopulation.test_populate_role_sequences_and_fact_types"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.test_populate_role_sequences_and_fact_types">[docs]</a>    <span class="k">def</span> <span class="nf">test_populate_role_sequences_and_fact_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test population of role sequences and fact types. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;populate_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="n">pop1</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="s">&quot;Constraints.IFC1&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop1</span><span class="p">,</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;B1&#39;</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="s">&#39;B2&#39;</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="s">&#39;B3&#39;</span><span class="p">]])</span>
+
+        <span class="c"># Note, pop of B role starts with B4 because previous B role was</span>
+        <span class="c"># already instantiated with B1,B2,B3</span>
+        <span class="n">pop2</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="s">&quot;Constraints.IUC1&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop2</span><span class="p">,</span> <span class="p">[[</span><span class="s">&#39;B4&#39;</span><span class="p">,</span><span class="s">&#39;C1&#39;</span><span class="p">,</span><span class="s">&#39;C1&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;B5&#39;</span><span class="p">,</span><span class="s">&#39;C2&#39;</span><span class="p">,</span><span class="s">&#39;C2&#39;</span><span class="p">],</span>
+                                     <span class="p">[</span><span class="s">&#39;B1&#39;</span><span class="p">,</span><span class="s">&#39;C3&#39;</span><span class="p">,</span><span class="s">&#39;C3&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;B2&#39;</span><span class="p">,</span><span class="s">&#39;C4&#39;</span><span class="p">,</span><span class="s">&#39;C4&#39;</span><span class="p">],</span>
+                                     <span class="p">[</span><span class="s">&#39;B3&#39;</span><span class="p">,</span><span class="s">&#39;C1&#39;</span><span class="p">,</span><span class="s">&#39;C1&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;B4&#39;</span><span class="p">,</span><span class="s">&#39;C2&#39;</span><span class="p">,</span><span class="s">&#39;C2&#39;</span><span class="p">]])</span>
+
+        <span class="n">pop3</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="s">&quot;FactTypes.AHasBBCCD.Roles.R6&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop3</span><span class="p">,</span> <span class="p">[[</span><span class="bp">False</span><span class="p">],[</span><span class="bp">True</span><span class="p">]])</span>
+
+        <span class="c"># Population of whole predicate</span>
+        <span class="n">pop4</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">fact_types</span><span class="p">[</span><span class="s">&quot;FactTypes.AHasBBCCD&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop4</span><span class="p">,</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;B1&#39;</span><span class="p">,</span> <span class="s">&#39;B4&#39;</span><span class="p">,</span> <span class="s">&#39;C1&#39;</span><span class="p">,</span> <span class="s">&#39;C1&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">],</span>
+                                     <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;B2&#39;</span><span class="p">,</span> <span class="s">&#39;B5&#39;</span><span class="p">,</span> <span class="s">&#39;C2&#39;</span><span class="p">,</span> <span class="s">&#39;C2&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">],</span>
+                                     <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;B3&#39;</span><span class="p">,</span> <span class="s">&#39;B1&#39;</span><span class="p">,</span> <span class="s">&#39;C3&#39;</span><span class="p">,</span> <span class="s">&#39;C3&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">],</span>
+                                     <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;B1&#39;</span><span class="p">,</span> <span class="s">&#39;B2&#39;</span><span class="p">,</span> <span class="s">&#39;C4&#39;</span><span class="p">,</span> <span class="s">&#39;C4&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">],</span>
+                                     <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;B2&#39;</span><span class="p">,</span> <span class="s">&#39;B3&#39;</span><span class="p">,</span> <span class="s">&#39;C1&#39;</span><span class="p">,</span> <span class="s">&#39;C1&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">],</span>
+                                     <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;B3&#39;</span><span class="p">,</span> <span class="s">&#39;B4&#39;</span><span class="p">,</span> <span class="s">&#39;C2&#39;</span><span class="p">,</span> <span class="s">&#39;C2&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">]])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">pop4</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;R1&#39;</span><span class="p">,</span><span class="s">&#39;R2&#39;</span><span class="p">,</span><span class="s">&#39;R3&#39;</span><span class="p">,</span><span class="s">&#39;R4&#39;</span><span class="p">,</span><span class="s">&#39;R5&#39;</span><span class="p">,</span><span class="s">&#39;R6&#39;</span><span class="p">])</span>
+
+        </div>
+<div class="viewcode-block" id="TestPopulation.test_ignored_overlapping_iuc"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.test_ignored_overlapping_iuc">[docs]</a>    <span class="k">def</span> <span class="nf">test_ignored_overlapping_iuc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that overlapping IUC is ignored while populating fact type. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;populate_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Constraints.IUC2&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">_roles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Constraints.IUC3&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>        
+        </div>
+<div class="viewcode-block" id="TestPopulation.test_population_with_no_fact_types"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.test_population_with_no_fact_types">[docs]</a>    <span class="k">def</span> <span class="nf">test_population_with_no_fact_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test population with no fact types. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="s">&quot;ObjectTypes.A&quot;</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+</div></div>
+<div class="viewcode-block" id="TestPopulationWrite"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulationWrite">[docs]</a><span class="k">class</span> <span class="nc">TestPopulationWrite</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Unit tests for writing the population out to stdout or CSV files. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestPopulationWrite.setUp"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulationWrite.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set-up unit tests. &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">TestDataLocator</span><span class="o">.</span><span class="n">get_data_dir</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;..&quot;</span><span class="p">,</span> <span class="s">&quot;output&quot;</span><span class="p">)</span>
+
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;populate_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Population of ObjectTypes.A:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;1</span><span class="se">\n</span><span class="s">2</span><span class="se">\n</span><span class="s">3&#39;</span><span class="p">,</span>
+
+                   <span class="s">&#39;Population of ObjectTypes.B:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;B1</span><span class="se">\n</span><span class="s">B2</span><span class="se">\n</span><span class="s">B3</span><span class="se">\n</span><span class="s">B4</span><span class="se">\n</span><span class="s">B5&#39;</span><span class="p">,</span> 
+
+                   <span class="s">&#39;Population of ObjectTypes.C:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;C1</span><span class="se">\n</span><span class="s">C2</span><span class="se">\n</span><span class="s">C3</span><span class="se">\n</span><span class="s">C4&#39;</span><span class="p">,</span>
+
+                   <span class="s">&#39;Population of ObjectTypes.D:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;False</span><span class="se">\n</span><span class="s">True&#39;</span><span class="p">,</span> 
+
+                   <span class="s">&#39;Population of ObjectTypes.E:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;1&#39;</span><span class="p">,</span>
+
+                   <span class="s">&#39;Population of ObjectTypes.F:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;2&#39;</span><span class="p">,</span>
+
+                   <span class="s">&#39;Population of ObjectTypes.G:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;3&#39;</span><span class="p">,</span>
+
+                   <span class="s">&#39;Population of FactTypes.AHasBBCCD:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;R1,R2,R3,R4,R5,R6</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;1,B1,B4,C1,C1,False</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;2,B2,B5,C2,C2,True</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;3,B3,B1,C3,C3,False</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;1,B1,B2,C4,C4,True</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;2,B2,B3,C1,C1,False</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;3,B3,B4,C2,C2,True&#39;</span><span class="p">,</span>
+
+                   <span class="s">&#39;Population of FactTypes.EHasFG:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;R1,R3,R2</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> \
+                   <span class="s">&#39;1,3,2&#39;</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="TestPopulationWrite.test_write_stdout"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulationWrite.test_write_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">test_write_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test writing population to stdout. &quot;&quot;&quot;</span>    
+        <span class="n">saved</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pop</span><span class="o">.</span><span class="n">write_stdout</span><span class="p">()</span> <span class="c"># Method under test</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="p">)</span> <span class="c"># Double newline separates</span>
+                                                     <span class="c"># different populations</span>
+        <span class="n">actual</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">)</span>        
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">saved</span>
+</div>
+<div class="viewcode-block" id="TestPopulationWrite.test_write_csv_with_dir_creation"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulationWrite.test_write_csv_with_dir_creation">[docs]</a>    <span class="k">def</span> <span class="nf">test_write_csv_with_dir_creation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that write_csv creates a directory if one doesn&#39;t exist. &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;delete_me&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pop</span><span class="o">.</span><span class="n">write_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_actual</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="TestPopulationWrite.test_write_csv_without_dir_creation"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulationWrite.test_write_csv_without_dir_creation">[docs]</a>    <span class="k">def</span> <span class="nf">test_write_csv_without_dir_creation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that write_csv works for an existing directory. &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;DO_NOT_DELETE&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+        <span class="n">prev_mod_time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mtimes</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pop</span><span class="o">.</span><span class="n">write_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_actual</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected</span><span class="p">)</span>
+
+        <span class="n">curr_mod_time</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mtimes</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">curr_mod_time</span> <span class="o">&gt;</span> <span class="n">prev_mod_time</span><span class="p">)</span>
+</div>
+    <span class="sd">&quot;&quot;&quot; The next two test cases are commented out, because they rely on </span>
+<span class="sd">        permissions settings that git will not store.  However, they only </span>
+<span class="sd">        test that write_csv raises an exception, and the call to write_csv</span>
+<span class="sd">        is wrapped in a try-except in CommandLine.py, so these tests do not</span>
+<span class="sd">        really matter. &quot;&quot;&quot;</span>
+    <span class="c">#def test_write_to_inaccessible_dir(self):</span>
+    <span class="c">#    &quot;&quot;&quot; Test an attempt to write to an inaccessible directory. &quot;&quot;&quot;</span>
+    <span class="c">#    path = os.path.join(self.path, &quot;CANNOT_ACCESS&quot;)</span>
+        
+    <span class="c">#    self.assertTrue(os.path.isdir(path))</span>
+        
+    <span class="c">#    with self.assertRaises(IOError) as ex:</span>
+    <span class="c">#        self.pop.write_csv(path)</span>
+
+    <span class="c">#def test_write_to_readonly_dir(self):</span>
+    <span class="c">#    &quot;&quot;&quot; Test an attempt to write to a readonly directory. &quot;&quot;&quot;</span>
+    <span class="c">#    path = os.path.join(self.path, &quot;CANNOT_WRITE&quot;)</span>
+        
+    <span class="c">#    self.assertTrue(os.path.isdir(path))</span>
+        
+    <span class="c">#    with self.assertRaises(IOError) as ex:</span>
+    <span class="c">#        self.pop.write_csv(path)</span>
+
+<div class="viewcode-block" id="TestPopulationWrite.test_write_to_file_not_directory"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulationWrite.test_write_to_file_not_directory">[docs]</a>    <span class="k">def</span> <span class="nf">test_write_to_file_not_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test an attempt to write to a file rather than a directory. &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;NOT_A_DIRECTORY&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pop</span><span class="o">.</span><span class="n">write_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+         </div>
+<div class="viewcode-block" id="TestPopulationWrite.get_actual"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulationWrite.get_actual">[docs]</a>    <span class="k">def</span> <span class="nf">get_actual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dirname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get actual results by cobbling together CSV files. &quot;&quot;&quot;</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">popname</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;\.csv$&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Population of &quot;</span> <span class="o">+</span> <span class="n">popname</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span><span class="p">]</span> <span class="o">+</span> \
+                        <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span>
+                <span class="n">actual</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">actual</span>
+</div>
+<div class="viewcode-block" id="TestPopulationWrite.get_mtimes"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulationWrite.get_mtimes">[docs]</a>    <span class="k">def</span> <span class="nf">get_mtimes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dirname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get modification times for all files in dirname. &quot;&quot;&quot;</span>
+        <span class="n">mtimes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="n">stat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">mtimes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">mtimes</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="TestPopulationWrite.delete"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulationWrite.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dirname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Delete a directory and all of its contents. &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rmdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+<span class="c">#####################################################################</span>
+<span class="c"># Tests for Relation Class</span>
+<span class="c">#####################################################################</span></div></div>
+<div class="viewcode-block" id="TestRelation"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestRelation">[docs]</a><span class="k">class</span> <span class="nc">TestRelation</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Unit tests for the Relation class. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestRelation.setUp"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestRelation.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">TestDataLocator</span><span class="o">.</span><span class="n">get_data_dir</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TestRelation.test_add_to_relation"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestRelation.test_add_to_relation">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_to_relation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test adding tuple to relation. &quot;&quot;&quot;</span>
-        <span class="n">rel</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">arity</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">rel</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="s">&quot;col1&quot;</span><span class="p">,</span> <span class="s">&quot;col2&quot;</span><span class="p">])</span>
         <span class="n">rel</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
         <span class="n">rel</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">])</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">rel</span><span class="o">.</span><span class="n">arity</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rel</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">rel</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">rel</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">,</span><span class="s">&quot;b&quot;</span><span class="p">])</span>
 </div>
-<div class="viewcode-block" id="TestPopulation.test_add_wrong_arity_to_relation"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestPopulation.test_add_wrong_arity_to_relation">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_wrong_arity_to_relation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestRelation.test_add_wrong_arity_to_relation"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestRelation.test_add_wrong_arity_to_relation">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_wrong_arity_to_relation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test adding a tuple of the wrong arity to a relation. &quot;&quot;&quot;</span>
-        <span class="n">rel</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">arity</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">rel</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="s">&quot;col1&quot;</span><span class="p">,</span> <span class="s">&quot;col2&quot;</span><span class="p">])</span>
         
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="n">rel</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> 
             <span class="s">&quot;Cannot add tuple of arity 1 to a Relation of arity 2&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestRelation.test_combine_with_nullary"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestRelation.test_combine_with_nullary">[docs]</a>    <span class="k">def</span> <span class="nf">test_combine_with_nullary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test combining a nullary relation with another relation. &quot;&quot;&quot;</span>
+        <span class="n">null_rel</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([])</span>
+        <span class="n">bin_rel</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="s">&#39;one&#39;</span><span class="p">,</span><span class="s">&#39;two&#39;</span><span class="p">])</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">null_rel</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">bin_rel</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">bin_rel</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">bin_rel</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">null_rel</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">bin_rel</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestRelation.test_combine_with_0_tuple"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestRelation.test_combine_with_0_tuple">[docs]</a>    <span class="k">def</span> <span class="nf">test_combine_with_0_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test combining a non-empty relation with an empty relation. &quot;&quot;&quot;</span>
 
+        <span class="n">rel1</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="s">&#39;col1&#39;</span><span class="p">])</span>
+        <span class="n">rel2</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="s">&#39;col2&#39;</span><span class="p">])</span>
+
+        <span class="n">rel2</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">rel2</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rel1</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rel2</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">rel3</span> <span class="o">=</span> <span class="n">rel1</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">rel2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">rel3</span><span class="o">.</span><span class="n">arity</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">rel3</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;col1&#39;</span><span class="p">,</span> <span class="s">&#39;col2&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rel3</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">rel4</span> <span class="o">=</span> <span class="n">rel2</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">rel1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">rel4</span><span class="o">.</span><span class="n">arity</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">rel4</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;col2&#39;</span><span class="p">,</span> <span class="s">&#39;col1&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rel4</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestRelation.test_combine_with"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestRelation.test_combine_with">[docs]</a>    <span class="k">def</span> <span class="nf">test_combine_with</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test combine_with under various settings for n. &quot;&quot;&quot;</span>
+        
+        <span class="n">src</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="s">&#39;col1&#39;</span><span class="p">])</span>
+        <span class="n">tgt</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="s">&#39;col2&#39;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span> <span class="n">src</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span> <span class="n">tgt</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="c"># n &lt; |src|</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">tgt</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span>
+
+        <span class="c"># n &lt; |tgt|</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">tgt</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">]])</span>
+
+        <span class="c"># n &lt;= lcm(src,tgt)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">tgt</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span>
+
+        <span class="c"># lcm(src,tgt) &lt; n &lt; |s| x |t|</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">tgt</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span>
+
+        <span class="c"># n == |s| x |t|</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">tgt</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+
+        <span class="c"># n &gt; |s| x |t|</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">tgt</span><span class="p">,</span> <span class="mi">24</span><span class="p">),</span>
+                          <span class="n">src</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">tgt</span><span class="p">,</span> <span class="mi">10000</span><span class="p">))</span>
+
+        <span class="c"># n == 0</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">tgt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">arity</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestRelation.test_combine_with_multiple_shifts"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestRelation.test_combine_with_multiple_shifts">[docs]</a>    <span class="k">def</span> <span class="nf">test_combine_with_multiple_shifts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test case when cyclic shift has to occur more than once. &quot;&quot;&quot;</span>
+        
+        <span class="n">src</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="s">&#39;col1&#39;</span><span class="p">])</span>
+        <span class="n">tgt</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="s">&#39;col2&#39;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span> <span class="n">src</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span> <span class="n">tgt</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">tgt</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+                                   <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]])</span>
+
+       
+
+<span class="c">#####################################################################</span>
+<span class="c"># Tests for Utility Functions</span>
+<span class="c">#####################################################################</span></div></div>
+<div class="viewcode-block" id="TestUtility"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestUtility">[docs]</a><span class="k">class</span> <span class="nc">TestUtility</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Unit tests for utility functions. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestUtility.setUp"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestUtility.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="TestUtility.test_lcm"><a class="viewcode-back" href="../../test.html#test.TestPopulation.TestUtility.test_lcm">[docs]</a>    <span class="k">def</span> <span class="nf">test_lcm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test least common multiple function. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">lcm</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">lcm</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">lcm</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">lcm</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">lcm</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="mi">12</span><span class="p">)</span>
   
               
 </pre></div></div></div>

@@ -44,6 +44,14 @@ lib.InequalitySystem module
     :undoc-members:
     :show-inheritance:
 
+lib.JoinPath module
+-------------------
+
+.. automodule:: lib.JoinPath
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lib.Model module
 ----------------
 
@@ -68,10 +76,10 @@ lib.NormaLoader module
     :undoc-members:
     :show-inheritance:
 
-lib.ORMMinus module
--------------------
+lib.ORMMinusModel module
+------------------------
 
-.. automodule:: lib.ORMMinus
+.. automodule:: lib.ORMMinusModel
     :members:
     :undoc-members:
     :show-inheritance:

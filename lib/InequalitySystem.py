@@ -172,9 +172,9 @@ class Inequality(object):
 
         return lhs + " <= " + self._rhs.tostring()
 
-    def __eq__(self, other):
-        """ Return True iff inequalities have the same string representation. """
-        return self.tostring() == other.tostring()
+    #def __eq__(self, other):
+    #    """ Return True iff inequalities have the same string representation. """
+    #    return self.tostring() == other.tostring()
 
 class InequalitySystem(list):
     """ A system of :class:`lib.InequalitySystem.Inequality` inequalities. """
@@ -190,8 +190,10 @@ class InequalitySystem(list):
         """ Add an inequality to the system.
 
             :param inequality: A :class:`lib.InequalitySystem.Inequality` """
-        if inequality not in self:
-            self.append(inequality)
+        # Note: I originally checked to confirm that the new inequality was not 
+        # already in the system, but that was a performance bottleneck.
+        # Duplicate inequalities should not affect the correctness of the result
+        self.append(inequality)
 
         # Add variables in the expression to the variables dictionary
         for var in inequality.variables():

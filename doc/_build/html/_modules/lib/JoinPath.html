@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.JoinPath &mdash; ORMPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ORMPY 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.JoinPath</h1><div class="highlight"><pre>
+<span class="c">##############################################################################</span>
+<span class="c"># Package: ormpy</span>
+<span class="c"># File:    JoinPath.py</span>
+<span class="c"># Author:  Matthew Nizol</span>
+<span class="c">##############################################################################</span>
+
+<span class="sd">&quot;&quot;&quot; The JoinPath module implements the JoinPath class and supporting classes.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="JoinPath"><a class="viewcode-back" href="../../lib.html#lib.JoinPath.JoinPath">[docs]</a><span class="k">class</span> <span class="nc">JoinPath</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A join path specifies the inner join of two or more fact types. &quot;&quot;&quot;</span>  
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_role</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        
+        <span class="c"># TODO: initialize with init_role.</span>
+
+<div class="viewcode-block" id="JoinPath.extend"><a class="viewcode-back" href="../../lib.html#lib.JoinPath.JoinPath.extend">[docs]</a>    <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role1</span><span class="p">,</span> <span class="n">role2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Extend the join path by joining role1 (which should be part of a </span>
+<span class="sd">            fact type already on the path) with role2. &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="JoinPath.materialize"><a class="viewcode-back" href="../../lib.html#lib.JoinPath.JoinPath.materialize">[docs]</a>    <span class="k">def</span> <span class="nf">materialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Executes the joins along the join path and returns the resulting</span>
+<span class="sd">            join fact type.  The join fact type will be covered by </span>
+<span class="sd">            copies of the same kinds of constraints that cover the fact types</span>
+<span class="sd">            along the path.  &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div></div>
+<div class="viewcode-block" id="Join"><a class="viewcode-back" href="../../lib.html#lib.JoinPath.Join">[docs]</a><span class="k">class</span> <span class="nc">Join</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A join is a tuple of roles on which two fact types will be joined.</span>
+<span class="sd">        The roles must be played by compatible object types. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role1</span><span class="p">,</span> <span class="n">role2</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">roles</span> <span class="o">=</span> <span class="p">(</span><span class="n">role1</span><span class="p">,</span> <span class="n">role2</span><span class="p">)</span>
+
+        <span class="c"># TODO: Do I confirm that roles are compatible here?  Would actually</span>
+        <span class="c">#       need to have a way to check that role.player and role2.player</span>
+        <span class="c">#       share common supertype.</span>
+        <span class="c"># TODO: Would also then want to confirm that roles are from diff</span>
+        <span class="c">#       fact types.</span>
+        
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Nizol.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

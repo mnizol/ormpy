@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ormRoot:ORM2 xmlns:orm="http://schemas.neumont.edu/ORM/2006-04/ORMCore" xmlns:ormDiagram="http://schemas.neumont.edu/ORM/2006-04/ORMDiagram" xmlns:ormRoot="http://schemas.neumont.edu/ORM/2006-04/ORMRoot">
+	<orm:ORMModel id="_E724C25E-E2D1-4698-82E6-FF816D6B8C1A" Name="ORMModel1">
+		<orm:Objects>
+			<orm:ValueType id="_EFC723E7-95EE-47E8-98CA-37A249ADE9B7" Name="ValueType1">
+				<orm:CardinalityRestriction>
+					<orm:CardinalityConstraint id="_AF25A381-E2D3-4E04-91D3-B5B9178DBA58" Name="C1">
+						<orm:Ranges>
+							<orm:BadCardinalityRange id="_B6BAE05D-AA7B-4D50-9676-9DA8569F3C7D" From="0" To="2" />
+						</orm:Ranges>
+					</orm:CardinalityConstraint>
+				</orm:CardinalityRestriction>
+				<orm:ConceptualDataType id="_2AA35D34-480F-493D-8B83-6E4948318ADD" ref="_2785B895-1F98-4FB9-95E9-6F531E7463A7" Scale="0" Length="0" />
+			</orm:ValueType>
+		</orm:Objects>
+		<orm:DataTypes>
+			<orm:UnsignedIntegerNumericDataType id="_2785B895-1F98-4FB9-95E9-6F531E7463A7" />
+		</orm:DataTypes>
+		<orm:ReferenceModeKinds>
+			<orm:ReferenceModeKind id="_E28C6308-2480-4DD5-89C2-4D05A1614B8B" FormatString="{1}" ReferenceModeType="General" />
+			<orm:ReferenceModeKind id="_367CB7FA-B2A7-4053-BC50-E019E22A9AB8" FormatString="{0}_{1}" ReferenceModeType="Popular" />
+			<orm:ReferenceModeKind id="_D274805A-01C1-4913-9AC8-34D50F454FC9" FormatString="{1}Value" ReferenceModeType="UnitBased" />
+		</orm:ReferenceModeKinds>
+	</orm:ORMModel>
+	<ormDiagram:ORMDiagram id="_B49B863D-FDDA-4161-86B0-53B706630331" IsCompleteView="false" Name="ORMModel1" BaseFontName="Tahoma" BaseFontSize="0.0972222238779068">
+		<ormDiagram:Shapes>
+			<ormDiagram:ObjectTypeShape id="_F9C9542F-88A4-414E-A659-29B548799DC3" IsExpanded="true" AbsoluteBounds="2.375, 1.4791666269302368, 0.73887383460998535, 0.22950302660465241">
+				<ormDiagram:RelativeShapes>
+					<ormDiagram:CardinalityConstraintShape id="_17E610D6-EDFD-40D6-A758-E33EF4B5507D" IsExpanded="true" AbsoluteBounds="3.1738738346099851, 1.4791666269302368, 0.23283329606056213, 0.12950302660465241">
+						<ormDiagram:Subject ref="_AF25A381-E2D3-4E04-91D3-B5B9178DBA58" />
+					</ormDiagram:CardinalityConstraintShape>
+				</ormDiagram:RelativeShapes>
+				<ormDiagram:Subject ref="_EFC723E7-95EE-47E8-98CA-37A249ADE9B7" />
+			</ormDiagram:ObjectTypeShape>
+		</ormDiagram:Shapes>
+		<ormDiagram:Subject ref="_E724C25E-E2D1-4698-82E6-FF816D6B8C1A" />
+	</ormDiagram:ORMDiagram>
+</ormRoot:ORM2>

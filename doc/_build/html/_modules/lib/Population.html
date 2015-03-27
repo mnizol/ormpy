@@ -53,19 +53,23 @@
 <span class="c"># Author:  Matthew Nizol</span>
 <span class="c">##############################################################################</span>
 
-<span class="sd">&quot;&quot;&quot; Module to generate a population of an ORM model. &quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot; Module to generate a population of an ORMMinusModel. &quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">lib.ORMMinus</span> <span class="kn">import</span> <span class="n">ORMMinus</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">fractions</span>
+
+<span class="kn">import</span> <span class="nn">lib.FactType</span> <span class="kn">as</span> <span class="nn">FactType</span>
+<span class="kn">from</span> <span class="nn">lib.ORMMinusModel</span> <span class="kn">import</span> <span class="n">ORMMinusModel</span>
+<span class="kn">from</span> <span class="nn">lib.Constraint</span> <span class="kn">import</span> <span class="n">FrequencyConstraint</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">cycle</span>
 
 <div class="viewcode-block" id="Population"><a class="viewcode-back" href="../../lib.html#lib.Population.Population">[docs]</a><span class="k">class</span> <span class="nc">Population</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A population of an ORM model. If the model is satisfiable, </span>
+    <span class="sd">&quot;&quot;&quot; A population of an ORMMinusModel. If the model is satisfiable, </span>
 <span class="sd">        then self.object_types and self.fact_types will contain the</span>
 <span class="sd">        populations of objects and facts, respectively, that satisfy the</span>
 <span class="sd">        constraints in the model.  For an unsatisfiable model, </span>
-<span class="sd">        self.object_types and self.fact_types will both be None.&quot;&quot;&quot;</span>
-
-    <span class="n">DEFAULT_SIZE</span> <span class="o">=</span> <span class="mi">10</span> <span class="c">#: Default size of object and fact type populations.</span>
+<span class="sd">        Popuation() will raise a ValueError exception.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Population</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
@@ -78,50 +82,191 @@
         <span class="c">#: A dictionary of fact type populations.  Specifically, the key is the</span>
         <span class="c">#: fact type name and the value is a :class:`lib.Population.Relation`.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span> <span class="o">=</span> <span class="p">{}</span> 
-   
-        <span class="bp">self</span><span class="o">.</span><span class="n">populate</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Population.populate"><a class="viewcode-back" href="../../lib.html#lib.Population.Population.populate">[docs]</a>    <span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="n">DEFAULT_SIZE</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Generate a population for the model. &quot;&quot;&quot;</span>
-        <span class="n">solution</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="n">ubound</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="c"># A dictionary of role populations (i.e. unary relations)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_roles</span> <span class="o">=</span> <span class="p">{}</span>                          
 
-        <span class="k">if</span> <span class="n">solution</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">object_types</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c"># Generate the population</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">solution</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot populate an unsatisfiable model.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_populate_object_types</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_populate_fact_types</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
-</div>
-    <span class="k">def</span> <span class="nf">_populate_object_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Populate all object types in the model. &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_populate_object_types_and_roles</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_populate_role_sequences</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_populate_fact_types</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_populate_object_types_and_roles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Populate all object types and roles in the model. &quot;&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">obj_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">fullname</span>
             <span class="n">domain</span> <span class="o">=</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">domain</span>
-            <span class="n">size</span> <span class="o">=</span> <span class="n">solution</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>             
-            <span class="bp">self</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>            
 
-    <span class="k">def</span> <span class="nf">_populate_fact_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
-        <span class="k">pass</span>
+            <span class="c"># Populate the object type from its domain </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">domain</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
 
-<div class="viewcode-block" id="Population.write_csv"><a class="viewcode-back" href="../../lib.html#lib.Population.Population.write_csv">[docs]</a>    <span class="k">def</span> <span class="nf">write_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
-        <span class="k">pass</span>
+            <span class="c"># Populate the roles played by this object type</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_populate_roles</span><span class="p">(</span><span class="n">obj_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_populate_roles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Populate all roles played by an object type. &quot;&quot;&quot;</span>
+        
+        <span class="c"># Create an iterator that will cycle over all objects in the object</span>
+        <span class="c"># type&#39;s domain in an endless loop.</span>
+        <span class="n">obj_name</span> <span class="o">=</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">fullname</span>
+        <span class="n">obj_cycle</span> <span class="o">=</span> <span class="n">cycle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="n">obj_name</span><span class="p">])</span>
+
+        <span class="c"># Populate each role by drawing the next &lt;size&gt; elements from obj_cycle, </span>
+        <span class="c"># where &lt;size&gt; is the value of the role variable in the solution.</span>
+        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">fullname</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">pop</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">])</span> <span class="c"># Create an empty population</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+                <span class="nb">next</span> <span class="o">=</span> <span class="n">obj_cycle</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+                <span class="n">pop</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="nb">next</span><span class="p">])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span>
+       
+    <span class="k">def</span> <span class="nf">_populate_role_sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Populate all role sequences covered by an internal frequency </span>
+<span class="sd">            constraint.  &quot;&quot;&quot;</span>
+    
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">FrequencyConstraint</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">fullname</span>
+
+            <span class="c"># Upstream logic in ORMMinusModel already ignored overlapping and </span>
+            <span class="c"># external frequency constraints, so we can confirm the constraint</span>
+            <span class="c"># represents a valid role sequence by checking whether there is </span>
+            <span class="c"># an associated variable in the solution.</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">solution</span><span class="p">:</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> 
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span>                 
+                <span class="n">pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_partial_pops</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span>
+
+    <span class="k">def</span> <span class="nf">_populate_fact_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Populate all fact types in the model by combining populations of</span>
+<span class="sd">            fact type parts. &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">fact_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">fact_types</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">fullname</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">get_parts</span><span class="p">(</span><span class="n">fact_type</span><span class="p">)</span>            
+            <span class="n">pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_partial_pops</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span>
+
+    <span class="k">def</span> <span class="nf">_combine_partial_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">parts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Combine populations of elements in parts list to create a combined</span>
+<span class="sd">            population of a given size. &quot;&quot;&quot;</span>
+        
+        <span class="n">pop</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([])</span>                
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+            <span class="n">next_pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">fullname</span><span class="p">]</span>
+            <span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">next_pop</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pop</span>
+
+    <span class="k">def</span> <span class="nf">_write_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Write the populate of an object type to a file stream. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="n">name</span><span class="p">]:</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_facts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Write the population of a fact type to a file stream. &quot;&quot;&quot;</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fact</span> <span class="ow">in</span> <span class="n">pop</span><span class="p">:</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">fact</span><span class="p">))</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Population.write_csv"><a class="viewcode-back" href="../../lib.html#lib.Population.Population.write_csv">[docs]</a>    <span class="k">def</span> <span class="nf">write_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dirname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Write the entire population to CSV files stored in a directory </span>
+<span class="sd">            (one file per object type or fact type).  &quot;&quot;&quot;</span>   
+
+        <span class="c"># Create directory if it doesn&#39;t exist </span>
+        <span class="c"># See http://stackoverflow.com/a/14364249</span>
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span> <span class="k">raise</span>
+
+        <span class="c"># Write object type and fact type populations, one per file.</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;.csv&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>                        
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_objects</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+                
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;.csv&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_facts</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Population.write_stdout"><a class="viewcode-back" href="../../lib.html#lib.Population.Population.write_stdout">[docs]</a>    <span class="k">def</span> <span class="nf">write_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Writes entire population to stdout. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Population of &quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_objects</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="k">print</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Population of &quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_facts</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="k">print</span>
 </div></div>
 <div class="viewcode-block" id="Relation"><a class="viewcode-back" href="../../lib.html#lib.Population.Relation">[docs]</a><span class="k">class</span> <span class="nc">Relation</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A relation, which is a list of lists of identical arity. &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arity</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[]):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Relation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arity</span> <span class="o">=</span> <span class="n">arity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">names</span> <span class="c">#: List of names of each column in the relation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arity</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="c">#: Number of columns in the relation</span>
 
 <div class="viewcode-block" id="Relation.add"><a class="viewcode-back" href="../../lib.html#lib.Population.Relation.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tupl</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add tuple to the list. &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; Add tuple to the list. The ordering of elements in the tuple</span>
+<span class="sd">            is assumed to match the order of self.names. &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tupl</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">arity</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tupl</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Cannot add tuple of arity &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tupl</span><span class="p">))</span> <span class="o">+</span>
                             <span class="s">&quot; to a Relation of arity &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arity</span><span class="p">))</span>
-</pre></div></div></div>
+</div>
+<div class="viewcode-block" id="Relation.combine_with"><a class="viewcode-back" href="../../lib.html#lib.Population.Relation.combine_with">[docs]</a>    <span class="k">def</span> <span class="nf">combine_with</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Combine self with a target relation according to the enumeration </span>
+<span class="sd">            algorithm of Smaragdakis, et al. &quot;&quot;&quot;</span>
+
+        <span class="c"># Special case: if either relation is nullary, treat this as a no-op</span>
+        <span class="c"># and just return the other relation.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">arity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="n">target</span>
+        <span class="k">elif</span> <span class="n">target</span><span class="o">.</span><span class="n">arity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="c"># Normal case</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">+</span> <span class="n">target</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="n">i_s</span><span class="p">,</span> <span class="n">i_t</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span> <span class="o">*</span> <span class="n">t</span><span class="p">)):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">i_s</span><span class="p">]</span> <span class="o">+</span> <span class="n">target</span><span class="p">[</span><span class="n">i_t</span><span class="p">])</span>
+
+            <span class="n">i_s</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">s</span>
+            <span class="n">i_t</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">t</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">lcm</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">i_t</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">t</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+<span class="c">########################################################################</span>
+<span class="c"># Utility functions</span>
+<span class="c">########################################################################</span></div></div>
+<div class="viewcode-block" id="lcm"><a class="viewcode-back" href="../../lib.html#lib.Population.lcm">[docs]</a><span class="k">def</span> <span class="nf">lcm</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return the least common multiple of a and b. &quot;&quot;&quot;</span>
+    <span class="c"># Credit: http://rosettacode.org/wiki/Least_common_multiple#Python. </span>
+    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="n">fractions</span><span class="o">.</span><span class="n">gcd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">and</span> <span class="n">b</span> <span class="k">else</span> <span class="mi">0</span>
+            
+</pre></div></div>
 
           </div>
         </div>

@@ -10,6 +10,7 @@ import os
 import sys
 
 from unittest import TestCase
+from nose.plugins.logcapture import LogCapture
 
 import lib.TestDataLocator as TestDataLocator
 from lib.ORMMinusModel import ORMMinusModel
@@ -24,15 +25,22 @@ class TestORMMinusModel(TestCase):
         self.data_dir = TestDataLocator.get_data_dir()
         self.maxDiff = None
 
+        # Log capturing
+        self.log = LogCapture()
+        self.log.logformat = '%(levelname)s: %(message)s'
+        self.log.begin()
+
         fname = os.path.join(self.data_dir, "paper_has_author.orm")
         model = NormaLoader(fname).model
         self.paper_has_author = ORMMinusModel(model=model)
         self.solution1 = self.paper_has_author.solution
 
     def test_overlapping_and_external_iuc(self):
-        """ Test that overlapping and external IUCs are ignored. """
+        """ Test that overlapping and external IUCs are ignored. """        
         fname = os.path.join(self.data_dir, "overlapping_iuc.orm")
         model = NormaLoader(fname).model
+
+        self.log.beforeTest(None)
         ormminus = ORMMinusModel(model=model)
         solution = ormminus.solution
 
@@ -61,6 +69,15 @@ class TestORMMinusModel(TestCase):
         expect_ignored = ["IUC1", "EUC1"]
 
         self.assertItemsEqual(actual_ignored, expect_ignored) 
+
+        self.assertItemsEqual(self.log.formatLogRecords(),
+            ["WARNING: 1 model element was ignored while loading overlapping_iuc.orm.",
+             "INFO: Ignoring Join path for EUC1.",
+             "WARNING: 2 constraints were ignored while checking the model.",
+             "INFO: Ignoring UniquenessConstraint named IUC1.",
+             "INFO: Ignoring UniquenessConstraint named EUC1."])
+
+        self.log.afterTest(None)
 
     def test_disjunctive_mandatory(self):
         """ Test that disjunctive mandatory constraint is ignored. """
@@ -128,7 +145,7 @@ class TestORMMinusModel(TestCase):
 
     def test_create_inequalities_1(self):
         """ Test creation of inequalities for Paper Has Author model. """
-        actual = [ineq.tostring() for ineq in self.paper_has_author._ineqsys]
+        actual = set([ineq.tostring() for ineq in self.paper_has_author._ineqsys])
 
         expect = ["FactTypes.PaperHasAuthor.Roles.R1 <= ObjectTypes.Paper",
                   "FactTypes.PaperHasAuthor.Roles.R1 <= FactTypes.PaperHasAuthor",
@@ -163,12 +180,13 @@ class TestORMMinusModel(TestCase):
 
     def test_implicit_disjunctive_ineq(self):
         """ Test implicit disjunctive mandatory inequalities. """
+        self.log.beforeTest(None)
         fname = os.path.join(self.data_dir, "implicit_disjunctive_test.orm")
         model = NormaLoader(fname).model
         ormminus = ORMMinusModel(model=model)
         solution = ormminus.solution
 
-        actual = [ineq.tostring() for ineq in ormminus._ineqsys]
+        actual = set([ineq.tostring() for ineq in ormminus._ineqsys])
 
         expect = ["ObjectTypes.A <= " + str(ORMMinusModel.DEFAULT_SIZE),
                   "ObjectTypes.B <= " + str(ORMMinusModel.DEFAULT_SIZE),
@@ -206,6 +224,9 @@ class TestORMMinusModel(TestCase):
                  ]
         
         self.assertItemsEqual(actual, expect)
+
+        self.assertItemsEqual(self.log.formatLogRecords(), [])
+        self.log.afterTest(None)
 
     def test_unsat_smarag_1(self):
         """ Test 1st unsatisfiable model provided by Smaragdakis. """
@@ -276,11 +297,12 @@ class TestORMMinusModel(TestCase):
 
     def test_cardinality_inequalities(self):
         """ Test that correct cardinality constraint inequalities are generated. """
+        self.log.beforeTest(None)
         fname = os.path.join(self.data_dir, "test_cardinality_constraint.orm")
         model = NormaLoader(fname).model
         ormminus = ORMMinusModel(model)
 
-        actual = [ineq.tostring() for ineq in ormminus._ineqsys]  
+        actual = set([ineq.tostring() for ineq in ormminus._ineqsys])
 
         expected = ["ObjectTypes.A <= " + str(ORMMinusModel.DEFAULT_SIZE),
                     "ObjectTypes.B <= " + str(ORMMinusModel.DEFAULT_SIZE), 
@@ -316,5 +338,11 @@ class TestORMMinusModel(TestCase):
         self.assertItemsEqual(actual, expected)
 
         self.assertItemsEqual(ormminus.ignored, [model.constraints.get("CC5")])
+
+        self.assertItemsEqual(self.log.formatLogRecords(),
+            ["WARNING: 1 constraint was ignored while checking the model.",
+             "INFO: Ignoring CardinalityConstraint named CC5."])
+
+        self.log.afterTest(None)
 
 

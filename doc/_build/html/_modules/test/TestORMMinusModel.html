@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>test.TestORMMinus &mdash; ORMPY 0.1 documentation</title>
+    <title>test.TestORMMinusModel &mdash; ORMPY 0.1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -46,43 +46,52 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <h1>Source code for test.TestORMMinus</h1><div class="highlight"><pre>
+  <h1>Source code for test.TestORMMinusModel</h1><div class="highlight"><pre>
 <span class="c">##############################################################################</span>
 <span class="c"># Package: ormpy</span>
-<span class="c"># File:    TestORMMinus.py</span>
+<span class="c"># File:    TestORMMinusModel.py</span>
 <span class="c"># Author:  Matthew Nizol</span>
 <span class="c">##############################################################################</span>
 
-<span class="sd">&quot;&quot;&quot; This file contains unit tests for the lib.ORMMinus module. &quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot; This file contains unit tests for the lib.ORMMinusModel module. &quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span> <span class="nn">nose.plugins.logcapture</span> <span class="kn">import</span> <span class="n">LogCapture</span>
 
 <span class="kn">import</span> <span class="nn">lib.TestDataLocator</span> <span class="kn">as</span> <span class="nn">TestDataLocator</span>
-<span class="kn">from</span> <span class="nn">lib.ORMMinus</span> <span class="kn">import</span> <span class="n">ORMMinus</span>
+<span class="kn">from</span> <span class="nn">lib.ORMMinusModel</span> <span class="kn">import</span> <span class="n">ORMMinusModel</span>
 <span class="kn">from</span> <span class="nn">lib.InequalitySystem</span> <span class="kn">import</span> <span class="n">Constant</span>
 <span class="kn">from</span> <span class="nn">lib.NormaLoader</span> <span class="kn">import</span> <span class="n">NormaLoader</span>
 <span class="kn">import</span> <span class="nn">lib.Constraint</span> <span class="kn">as</span> <span class="nn">Constraint</span>
 
-<div class="viewcode-block" id="TestORMMinus"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus">[docs]</a><span class="k">class</span> <span class="nc">TestORMMinus</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Unit tests for the ORMMinus module. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestORMMinusModel"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel">[docs]</a><span class="k">class</span> <span class="nc">TestORMMinusModel</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Unit tests for the ORMMinusModel module. &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="TestORMMinus.setUp"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestORMMinusModel.setUp"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">TestDataLocator</span><span class="o">.</span><span class="n">get_data_dir</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxDiff</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c"># Log capturing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">LogCapture</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">logformat</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%(levelname)s</span><span class="s">: </span><span class="si">%(message)s</span><span class="s">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span>
 
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;paper_has_author.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">solution1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solution1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span><span class="o">.</span><span class="n">solution</span>
 </div>
-<div class="viewcode-block" id="TestORMMinus.test_overlapping_and_external_iuc"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_overlapping_and_external_iuc">[docs]</a>    <span class="k">def</span> <span class="nf">test_overlapping_and_external_iuc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Test that overlapping and external IUCs are ignored. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestORMMinusModel.test_overlapping_and_external_iuc"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_overlapping_and_external_iuc">[docs]</a>    <span class="k">def</span> <span class="nf">test_overlapping_and_external_iuc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that overlapping and external IUCs are ignored. &quot;&quot;&quot;</span>        
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;overlapping_iuc.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">beforeTest</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span>
 
         <span class="n">actual_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_variables</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()]</span>
 
@@ -109,12 +118,20 @@
         <span class="n">expect_ignored</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;IUC1&quot;</span><span class="p">,</span> <span class="s">&quot;EUC1&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual_ignored</span><span class="p">,</span> <span class="n">expect_ignored</span><span class="p">)</span> 
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">formatLogRecords</span><span class="p">(),</span>
+            <span class="p">[</span><span class="s">&quot;WARNING: 1 model element was ignored while loading overlapping_iuc.orm.&quot;</span><span class="p">,</span>
+             <span class="s">&quot;INFO: Ignoring Join path for EUC1.&quot;</span><span class="p">,</span>
+             <span class="s">&quot;WARNING: 2 constraints were ignored while checking the model.&quot;</span><span class="p">,</span>
+             <span class="s">&quot;INFO: Ignoring UniquenessConstraint named IUC1.&quot;</span><span class="p">,</span>
+             <span class="s">&quot;INFO: Ignoring UniquenessConstraint named EUC1.&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">afterTest</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TestORMMinus.test_disjunctive_mandatory"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_disjunctive_mandatory">[docs]</a>    <span class="k">def</span> <span class="nf">test_disjunctive_mandatory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestORMMinusModel.test_disjunctive_mandatory"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_disjunctive_mandatory">[docs]</a>    <span class="k">def</span> <span class="nf">test_disjunctive_mandatory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test that disjunctive mandatory constraint is ignored. &quot;&quot;&quot;</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;disjunctive_mandatory.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 
         <span class="c"># NormaLoader actually drops the disjunctive mandatory, so create a</span>
         <span class="c"># fake one to test that the constraint is ignored</span>
@@ -123,14 +140,15 @@
         <span class="n">cons</span><span class="o">.</span><span class="n">simple</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
 
-        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span>
 
         <span class="n">actual</span> <span class="o">=</span> <span class="p">[</span><span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">ignored</span><span class="p">]</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Cons1&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>  
         </div>
-<div class="viewcode-block" id="TestORMMinus.test_ignored_constraint"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_ignored_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">test_ignored_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestORMMinusModel.test_ignored_constraint"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_ignored_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">test_ignored_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test that appropriate constraints are ignored. &quot;&quot;&quot;</span>
 
         <span class="c"># IMPORTANT: I expect this test to fail when I update algorithm to</span>
@@ -141,26 +159,26 @@
 
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;subset_constraint.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span>
 
         <span class="n">actual</span> <span class="o">=</span> <span class="p">[</span><span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">ignored</span><span class="p">]</span>
         <span class="n">expect</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;SubsetConstraint1&quot;</span><span class="p">,</span> <span class="s">&quot;SubsetConstraint2&quot;</span><span class="p">,</span> <span class="s">&quot;SubsetConstraint4&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TestORMMinus.test_ignored_value_constraint"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_ignored_value_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">test_ignored_value_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestORMMinusModel.test_ignored_value_constraint"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_ignored_value_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">test_ignored_value_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test that role value constraints are ignored. &quot;&quot;&quot;</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;test_value_type_value_constraint.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span> 
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span> 
 
         <span class="n">actual</span> <span class="o">=</span> <span class="p">[</span><span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">ignored</span><span class="p">]</span>
         <span class="n">expect</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;RoleValueConstraint2&quot;</span><span class="p">,</span> <span class="s">&quot;RoleValueConstraint3&quot;</span><span class="p">,</span> 
                   <span class="s">&quot;RoleValueConstraint4&quot;</span><span class="p">,</span> <span class="s">&quot;RoleValueConstraint6&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span>               
 </div>
-<div class="viewcode-block" id="TestORMMinus.test_create_variables"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_create_variables">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestORMMinusModel.test_create_variables"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_create_variables">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test creation of variables dictionary. &quot;&quot;&quot;</span>
         <span class="n">actual_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> 
                        <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span><span class="o">.</span><span class="n">_variables</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()]</span>
@@ -174,9 +192,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual_vars</span><span class="p">,</span> <span class="n">expect_vars</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TestORMMinus.test_create_inequalities_1"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_create_inequalities_1">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_inequalities_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestORMMinusModel.test_create_inequalities_1"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_create_inequalities_1">[docs]</a>    <span class="k">def</span> <span class="nf">test_create_inequalities_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test creation of inequalities for Paper Has Author model. &quot;&quot;&quot;</span>
-        <span class="n">actual</span> <span class="o">=</span> <span class="p">[</span><span class="n">ineq</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span> <span class="k">for</span> <span class="n">ineq</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span><span class="o">.</span><span class="n">_ineqsys</span><span class="p">]</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">ineq</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span> <span class="k">for</span> <span class="n">ineq</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paper_has_author</span><span class="o">.</span><span class="n">_ineqsys</span><span class="p">])</span>
 
         <span class="n">expect</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R1 &lt;= ObjectTypes.Paper&quot;</span><span class="p">,</span>
                   <span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R1 &lt;= FactTypes.PaperHasAuthor&quot;</span><span class="p">,</span>
@@ -194,11 +212,11 @@
                   <span class="s">&quot;Constraints.InternalUniquenessConstraint1 &lt;= FactTypes.PaperHasAuthor.Roles.R2&quot;</span><span class="p">,</span>
                   <span class="s">&quot;FactTypes.PaperHasAuthor.Roles.R2 &lt;= Constraints.InternalUniquenessConstraint1&quot;</span><span class="p">,</span>
                   <span class="s">&quot;ObjectTypes.Paper &lt;= FactTypes.PaperHasAuthor.Roles.R1&quot;</span><span class="p">,</span>
-                  <span class="s">&quot;ObjectTypes.Author &lt;= FactTypes.PaperHasAuthor.Roles.R2&quot;</span><span class="p">]</span>
+                  <span class="s">&quot;FactTypes.PaperHasAuthor &lt;= Constraints.FrequencyConstraint1 * Constraints.InternalUniquenessConstraint1&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TestORMMinus.test_solve_1"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_solve_1">[docs]</a>    <span class="k">def</span> <span class="nf">test_solve_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestORMMinusModel.test_solve_1"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_solve_1">[docs]</a>    <span class="k">def</span> <span class="nf">test_solve_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test solution to Paper Has Author model. &quot;&quot;&quot;</span>
         <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;ObjectTypes.Author&quot;</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
@@ -209,16 +227,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;Constraints.FrequencyConstraint1&quot;</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;Constraints.InternalUniquenessConstraint1&quot;</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TestORMMinus.test_implicit_disjunctive_ineq"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_implicit_disjunctive_ineq">[docs]</a>    <span class="k">def</span> <span class="nf">test_implicit_disjunctive_ineq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestORMMinusModel.test_implicit_disjunctive_ineq"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_implicit_disjunctive_ineq">[docs]</a>    <span class="k">def</span> <span class="nf">test_implicit_disjunctive_ineq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test implicit disjunctive mandatory inequalities. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">beforeTest</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;implicit_disjunctive_test.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span>
 
-        <span class="n">actual</span> <span class="o">=</span> <span class="p">[</span><span class="n">ineq</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span> <span class="k">for</span> <span class="n">ineq</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_ineqsys</span><span class="p">]</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">ineq</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span> <span class="k">for</span> <span class="n">ineq</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_ineqsys</span><span class="p">])</span>
 
-        <span class="n">expect</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;FactTypes.ALikesA.Roles.R1 &lt;= ObjectTypes.A&quot;</span><span class="p">,</span>
+        <span class="n">expect</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;ObjectTypes.A &lt;= &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ORMMinusModel</span><span class="o">.</span><span class="n">DEFAULT_SIZE</span><span class="p">),</span>
+                  <span class="s">&quot;ObjectTypes.B &lt;= &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ORMMinusModel</span><span class="o">.</span><span class="n">DEFAULT_SIZE</span><span class="p">),</span>
+                  <span class="s">&quot;ObjectTypes.C &lt;= &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ORMMinusModel</span><span class="o">.</span><span class="n">DEFAULT_SIZE</span><span class="p">),</span>
+                  <span class="s">&quot;ObjectTypes.D &lt;= &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ORMMinusModel</span><span class="o">.</span><span class="n">DEFAULT_SIZE</span><span class="p">),</span>
+                  <span class="s">&quot;FactTypes.ALikesA.Roles.R1 &lt;= ObjectTypes.A&quot;</span><span class="p">,</span>
                   <span class="s">&quot;FactTypes.ALikesA.Roles.R1 &lt;= FactTypes.ALikesA&quot;</span><span class="p">,</span>
                   <span class="s">&quot;FactTypes.ALikesA.Roles.R2 &lt;= ObjectTypes.A&quot;</span><span class="p">,</span>
                   <span class="s">&quot;FactTypes.ALikesA.Roles.R2 &lt;= FactTypes.ALikesA&quot;</span><span class="p">,</span>
@@ -242,30 +265,42 @@
                   <span class="s">&quot;Constraints.IUC3 &lt;= FactTypes.AOwnsD&quot;</span><span class="p">,</span>
                   <span class="s">&quot;Constraints.IUC3 &lt;= FactTypes.AOwnsD.Roles.R5&quot;</span><span class="p">,</span>
                   <span class="s">&quot;FactTypes.AOwnsD.Roles.R5 &lt;= Constraints.IUC3&quot;</span><span class="p">,</span>
-                  <span class="s">&quot;ObjectTypes.A &lt;= FactTypes.ASharesB.Roles.R3 + FactTypes.ALikesA.Roles.R1 + FactTypes.ALikesA.Roles.R2 + FactTypes.AOwnsD.Roles.R5&quot;</span><span class="p">,</span>
-                  <span class="s">&quot;ObjectTypes.D &lt;= FactTypes.AOwnsD.Roles.R6&quot;</span> 
+                  <span class="s">&quot;ObjectTypes.A &lt;= FactTypes.ALikesA.Roles.R1 + FactTypes.ALikesA.Roles.R2 + FactTypes.AOwnsD.Roles.R5 + FactTypes.ASharesB.Roles.R3&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;ObjectTypes.D &lt;= FactTypes.AOwnsD.Roles.R6&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ALikesA &lt;= Constraints.IUC1 * FactTypes.ALikesA.Roles.R2&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.ASharesB &lt;= Constraints.IUC2 * FactTypes.ASharesB.Roles.R4&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;FactTypes.AOwnsD &lt;= Constraints.IUC3 * FactTypes.AOwnsD.Roles.R6&quot;</span>
                  <span class="p">]</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">formatLogRecords</span><span class="p">(),</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">afterTest</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TestORMMinus.test_unsat_smarag_2"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_unsat_smarag_2">[docs]</a>    <span class="k">def</span> <span class="nf">test_unsat_smarag_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestORMMinusModel.test_unsat_smarag_1"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_unsat_smarag_1">[docs]</a>    <span class="k">def</span> <span class="nf">test_unsat_smarag_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test 1st unsatisfiable model provided by Smaragdakis. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;unsat_smarag_1.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestORMMinusModel.test_unsat_smarag_2"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_unsat_smarag_2">[docs]</a>    <span class="k">def</span> <span class="nf">test_unsat_smarag_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test 2nd unsatisfiable model provided by Smaragdakis. &quot;&quot;&quot;</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;unsat_smarag_2.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TestORMMinus.test_unsat_smarag_3"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_unsat_smarag_3">[docs]</a>    <span class="k">def</span> <span class="nf">test_unsat_smarag_3</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestORMMinusModel.test_unsat_smarag_3"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_unsat_smarag_3">[docs]</a>    <span class="k">def</span> <span class="nf">test_unsat_smarag_3</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test 3rd unsatisfiable model provided by Smaragdakis. &quot;&quot;&quot;</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;unsat_smarag_3.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">check</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="TestORMMinus.test_ubound_on_object_types"><a class="viewcode-back" href="../../test.html#test.TestORMMinus.TestORMMinus.test_ubound_on_object_types">[docs]</a>    <span class="k">def</span> <span class="nf">test_ubound_on_object_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TestORMMinusModel.test_ubound_on_object_types"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_ubound_on_object_types">[docs]</a>    <span class="k">def</span> <span class="nf">test_ubound_on_object_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test upper bound on object type variables.  &quot;&quot;&quot;</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;data_types.orm&quot;</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span>
 
         <span class="n">bool_obj</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">)</span>
         <span class="n">bool_var</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">bool_obj</span><span class="p">]</span>
@@ -278,6 +313,86 @@
         <span class="n">time_obj</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;J&quot;</span><span class="p">)</span>
         <span class="n">time_var</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">time_obj</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">time_var</span><span class="o">.</span><span class="n">upper</span><span class="p">,</span> <span class="mi">60</span><span class="o">*</span><span class="mi">24</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestORMMinusModel.test_fact_type_parts"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_fact_type_parts">[docs]</a>    <span class="k">def</span> <span class="nf">test_fact_type_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that fact type parts (e.g. roles vs role sequences) are </span>
+<span class="sd">            correctly identified. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;fact_type_parts.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="n">fact_type</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V1HasV2HasV3&quot;</span><span class="p">)</span>
+        <span class="n">role1</span><span class="p">,</span> <span class="n">role2</span><span class="p">,</span> <span class="n">role3</span> <span class="o">=</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">get_parts</span><span class="p">(</span><span class="n">fact_type</span><span class="p">),</span> <span class="p">[</span><span class="n">role1</span><span class="p">,</span><span class="n">role2</span><span class="p">,</span><span class="n">role3</span><span class="p">])</span>
+
+        <span class="n">fact_type</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V4HasV5&quot;</span><span class="p">)</span>
+        <span class="n">role1</span><span class="p">,</span> <span class="n">role2</span> <span class="o">=</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IUC4&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">get_parts</span><span class="p">(</span><span class="n">fact_type</span><span class="p">),</span> <span class="p">[</span><span class="n">cons</span><span class="p">,</span><span class="n">role2</span><span class="p">])</span>
+
+        <span class="n">fact_type</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V6HasV7&quot;</span><span class="p">)</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IUC5&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">get_parts</span><span class="p">(</span><span class="n">fact_type</span><span class="p">),</span> <span class="p">[</span><span class="n">cons</span><span class="p">])</span>
+
+        <span class="n">fact_type</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;V8HasV9&quot;</span><span class="p">)</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IFC1&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">get_parts</span><span class="p">(</span><span class="n">fact_type</span><span class="p">),</span> <span class="p">[</span><span class="n">cons</span><span class="p">])</span>
+
+        <span class="n">fact_type</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Seven_ary&quot;</span><span class="p">)</span>
+        <span class="n">roles</span> <span class="o">=</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span>
+        <span class="n">iuc</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IUC11&quot;</span><span class="p">)</span>
+        <span class="n">ifc</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IFC2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">get_parts</span><span class="p">(</span><span class="n">fact_type</span><span class="p">),</span> <span class="p">[</span><span class="n">iuc</span><span class="p">,</span> <span class="n">ifc</span><span class="p">,</span> <span class="n">roles</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">roles</span><span class="p">[</span><span class="mi">6</span><span class="p">]])</span>
+</div>
+<div class="viewcode-block" id="TestORMMinusModel.test_cardinality_inequalities"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_cardinality_inequalities">[docs]</a>    <span class="k">def</span> <span class="nf">test_cardinality_inequalities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that correct cardinality constraint inequalities are generated. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">beforeTest</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;test_cardinality_constraint.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">ineq</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span> <span class="k">for</span> <span class="n">ineq</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_ineqsys</span><span class="p">])</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;ObjectTypes.A &lt;= &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ORMMinusModel</span><span class="o">.</span><span class="n">DEFAULT_SIZE</span><span class="p">),</span>
+                    <span class="s">&quot;ObjectTypes.B &lt;= &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ORMMinusModel</span><span class="o">.</span><span class="n">DEFAULT_SIZE</span><span class="p">),</span> 
+                    <span class="s">&quot;FactTypes.AExists.Roles.R1 &lt;= ObjectTypes.A&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;FactTypes.AExists.Roles.R1 &lt;= FactTypes.AExists&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;FactTypes.AExists &lt;= Constraints.IUC1&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;Constraints.IUC1 &lt;= FactTypes.AExists&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;Constraints.IUC1 &lt;= FactTypes.AExists.Roles.R1&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;FactTypes.AExists.Roles.R1 &lt;= Constraints.IUC1&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;ObjectTypes.A &lt;= FactTypes.AExists.Roles.R1&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;FactTypes.BDances.Roles.R1 &lt;= ObjectTypes.B&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;FactTypes.BDances.Roles.R1 &lt;= FactTypes.BDances&quot;</span><span class="p">,</span> 
+                    <span class="s">&quot;FactTypes.BDances &lt;= Constraints.IUC2&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;Constraints.IUC2 &lt;= FactTypes.BDances&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;Constraints.IUC2 &lt;= FactTypes.BDances.Roles.R1&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;FactTypes.BDances.Roles.R1 &lt;= Constraints.IUC2&quot;</span><span class="p">,</span>   
+                    <span class="s">&quot;FactTypes.BHopes.Roles.R1 &lt;= ObjectTypes.B&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;FactTypes.BHopes.Roles.R1 &lt;= FactTypes.BHopes&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;FactTypes.BHopes &lt;= Constraints.IUC3&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;Constraints.IUC3 &lt;= FactTypes.BHopes&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;Constraints.IUC3 &lt;= FactTypes.BHopes.Roles.R1&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;FactTypes.BHopes.Roles.R1 &lt;= Constraints.IUC3&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;ObjectTypes.B &lt;= FactTypes.BDances.Roles.R1 + FactTypes.BHopes.Roles.R1&quot;</span><span class="p">,</span>
+
+                    <span class="s">&quot;0 &lt;= ObjectTypes.A&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;ObjectTypes.A &lt;= 4&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;4 &lt;= FactTypes.AExists.Roles.R1&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;FactTypes.AExists.Roles.R1 &lt;= 7&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;2 &lt;= ObjectTypes.B&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;4 &lt;= FactTypes.BHopes.Roles.R1&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;FactTypes.BHopes.Roles.R1 &lt;= 4&quot;</span>
+                   <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">ignored</span><span class="p">,</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;CC5&quot;</span><span class="p">)])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">formatLogRecords</span><span class="p">(),</span>
+            <span class="p">[</span><span class="s">&quot;WARNING: 1 constraint was ignored while checking the model.&quot;</span><span class="p">,</span>
+             <span class="s">&quot;INFO: Ignoring CardinalityConstraint named CC5.&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">afterTest</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
 </pre></div></div></div>
 
           </div>

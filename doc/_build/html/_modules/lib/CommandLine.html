@@ -59,61 +59,128 @@
 <span class="c">###############################################################################</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">from</span> <span class="nn">lib.NormaLoader</span> <span class="kn">import</span> <span class="n">NormaLoader</span>
-<span class="kn">from</span> <span class="nn">lib.ORMMinus</span> <span class="kn">import</span> <span class="n">ORMMinus</span>
+<span class="kn">from</span> <span class="nn">lib.ORMMinusModel</span> <span class="kn">import</span> <span class="n">ORMMinusModel</span>
+<span class="kn">from</span> <span class="nn">lib.Population</span> <span class="kn">import</span> <span class="n">Population</span>
 
 <span class="c">###############################################################################</span>
-<span class="c"># Main function</span>
+<span class="c"># Command line user interface</span>
 <span class="c">###############################################################################</span>
-<div class="viewcode-block" id="execute"><a class="viewcode-back" href="../../lib.html#lib.CommandLine.execute">[docs]</a><span class="k">def</span> <span class="nf">execute</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot; Command line entry point for ORMPY program. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="execute"><a class="viewcode-back" href="../../lib.html#lib.CommandLine.execute">[docs]</a><span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">arglist</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Command line entry point for ORMPY program.  Use the arglist parameter</span>
+<span class="sd">        to provide an argument list manually (i.e. not via sys.argv). &quot;&quot;&quot;</span>
 
     <span class="c"># Parse Command Line</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">arglist</span><span class="p">)</span>
+    
+    <span class="c"># Configure the logger</span>
+    <span class="n">configure_logger</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="c"># Import model from .ORM file</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">import_model</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="c"># Print the model, if requested</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">print_model</span><span class="p">:</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+
+    <span class="c"># Check and/or populate the model, if requested</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">check_model</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">populate</span><span class="p">:</span>
+        <span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+<span class="c">###############################################################################</span>
+<span class="c"># Subroutines</span>
+<span class="c">###############################################################################</span></div>
+<div class="viewcode-block" id="parse_args"><a class="viewcode-back" href="../../lib.html#lib.CommandLine.parse_args">[docs]</a><span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="n">arglist</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Parse command line arguments and return an args object.  To provide</span>
+<span class="sd">        an argument list manually (i.e. not from sys.argv), use the arglist</span>
+<span class="sd">        parameter. &quot;&quot;&quot;</span>
+
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s">&#39;Object Role Modeling (ORM) Analysis Tool for Python&#39;</span><span class="p">)</span>
+
+    <span class="c"># Message-level options</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-q&#39;</span><span class="p">,</span> <span class="s">&#39;--quiet&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;quiet&#39;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;suppress warning messages&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-v&#39;</span><span class="p">,</span> <span class="s">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;verbose&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;display all messages except debugging info&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-d&#39;</span><span class="p">,</span> <span class="s">&#39;--debug&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;debug&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;display debugging messages (implies -v)&#39;</span><span class="p">)</span>
+
+    <span class="c"># Action options</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-m&#39;</span><span class="p">,</span> <span class="s">&#39;--print-model&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
         <span class="n">dest</span><span class="o">=</span><span class="s">&#39;print_model&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;print model contents&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-c&#39;</span><span class="p">,</span> <span class="s">&#39;--check-model&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
         <span class="n">dest</span><span class="o">=</span><span class="s">&#39;check_model&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;check if model is satisfiable&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="s">&#39;--populate&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s">&#39;populate&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;populate the model&#39;</span><span class="p">)</span>
+
+    <span class="c"># Other parameters</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-u&#39;</span><span class="p">,</span> <span class="s">&#39;--upper-bound&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> 
+        <span class="n">dest</span><span class="o">=</span><span class="s">&#39;ubound&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;upper bound on model element sizes&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;--output-dir&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;output directory&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s">&#39;directory&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="c"># Filename to parse</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;filename&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;File containing ORM model&#39;</span><span class="p">)</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
-    <span class="c"># Import model from .ORM file</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">arglist</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="configure_logger"><a class="viewcode-back" href="../../lib.html#lib.CommandLine.configure_logger">[docs]</a><span class="k">def</span> <span class="nf">configure_logger</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Configure the logger. &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(levelname)s</span><span class="s">: </span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+    
+</div>
+<div class="viewcode-block" id="import_model"><a class="viewcode-back" href="../../lib.html#lib.CommandLine.import_model">[docs]</a><span class="k">def</span> <span class="nf">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Import the request ORM model and return it. &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loader</span><span class="o">.</span><span class="n">model</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;Could not load &quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">filename</span>
-        <span class="k">print</span> <span class="n">exception</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Could not load </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> 
+                      <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">exception</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Stack trace:&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">())</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="check_or_populate"><a class="viewcode-back" href="../../lib.html#lib.CommandLine.check_or_populate">[docs]</a><span class="k">def</span> <span class="nf">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Check or populate the model, as requested. &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ubound</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;Some items were ignored when loading &quot;</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">filename</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span>
-        <span class="k">for</span> <span class="n">omission</span> <span class="ow">in</span> <span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="n">omission</span>
-        <span class="k">print</span>
-
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">print_model</span><span class="p">:</span>
-        <span class="n">loader</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">check_model</span><span class="p">:</span>
-        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinus</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">loader</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">ignored</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&quot;Some constraints were ignored while checking the model:&quot;</span>
-            <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">ignored</span><span class="p">:</span>
-                <span class="k">print</span> <span class="s">&quot; &quot;</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span>
-            <span class="k">print</span>
-
-        <span class="k">if</span> <span class="n">solution</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">solution</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">print</span> <span class="s">&quot;Model is unsatisfiable.&quot;</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">populate</span><span class="p">:</span>
+            <span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">pop</span><span class="o">.</span><span class="n">write_stdout</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">pop</span><span class="o">.</span><span class="n">write_csv</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&quot;Model is satisfiable.&quot;</span>
+                    <span class="k">print</span> <span class="s">&quot;Cannot write population to &quot;</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">directory</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&quot;Model is satisfiable.&quot;</span>      
-        
-</pre></div></div>
+            <span class="k">print</span> <span class="s">&quot;Model is satisfiable.&quot;</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;populate&quot;</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">populate</span> <span class="k">else</span> <span class="s">&quot;check&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Failed to </span><span class="si">%s</span><span class="s"> the model: </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">exception</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Stack trace:&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">())</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>        </div>
+</pre></div>
 
           </div>
         </div>

@@ -4,6 +4,14 @@ test package
 Submodules
 ----------
 
+test.TestCommandLine module
+---------------------------
+
+.. automodule:: test.TestCommandLine
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 test.TestConstraint module
 --------------------------
 
@@ -60,10 +68,10 @@ test.TestNormaLoader module
     :undoc-members:
     :show-inheritance:
 
-test.TestORMMinus module
-------------------------
+test.TestORMMinusModel module
+-----------------------------
 
-.. automodule:: test.TestORMMinus
+.. automodule:: test.TestORMMinusModel
     :members:
     :undoc-members:
     :show-inheritance:

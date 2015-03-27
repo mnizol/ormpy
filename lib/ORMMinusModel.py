@@ -9,6 +9,8 @@
     polynomial time. """
 
 import sys
+import logging
+
 from lib.InequalitySystem \
     import InequalitySystem, Inequality, Variable, Constant, Sum, Product
 from lib.Constraint \
@@ -53,6 +55,17 @@ class ORMMinusModel(object):
 
         # Compute solution
         self.solution = self._ineqsys.solve()
+
+        # Log any ignored constraints
+        logger = logging.getLogger(__name__)
+        size = len(self.ignored)
+        if size > 0:
+            text = "constraints were" if size > 1 else "constraint was"
+            logger.warning("%d %s ignored while checking the model.",
+                           size, text)
+            for cons in self.ignored:
+                logger.info("Ignoring %s named %s.", 
+                            type(cons).__name__, cons.name)
 
     def get_parts(self, fact_type):
         """ Get the non-overlapping roles and internal frequency constraints

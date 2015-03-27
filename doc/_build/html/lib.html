@@ -61,15 +61,62 @@
 <span id="lib-commandline-module"></span><h2>lib.CommandLine module<a class="headerlink" href="#module-lib.CommandLine" title="Permalink to this headline">¶</a></h2>
 <p>This program contains the command line UI for the ORMPY program.</p>
 <dl class="function">
+<dt id="lib.CommandLine.check_or_populate">
+<tt class="descclassname">lib.CommandLine.</tt><tt class="descname">check_or_populate</tt><big>(</big><em>model</em>, <em>args</em><big>)</big><a class="reference internal" href="_modules/lib/CommandLine.html#check_or_populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.CommandLine.check_or_populate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check or populate the model, as requested.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.CommandLine.configure_logger">
+<tt class="descclassname">lib.CommandLine.</tt><tt class="descname">configure_logger</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="_modules/lib/CommandLine.html#configure_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.CommandLine.configure_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the logger.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="lib.CommandLine.execute">
-<tt class="descclassname">lib.CommandLine.</tt><tt class="descname">execute</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/CommandLine.html#execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.CommandLine.execute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Command line entry point for ORMPY program.</p>
+<tt class="descclassname">lib.CommandLine.</tt><tt class="descname">execute</tt><big>(</big><em>arglist=None</em><big>)</big><a class="reference internal" href="_modules/lib/CommandLine.html#execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.CommandLine.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command line entry point for ORMPY program.  Use the arglist parameter
+to provide an argument list manually (i.e. not via sys.argv).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.CommandLine.import_model">
+<tt class="descclassname">lib.CommandLine.</tt><tt class="descname">import_model</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/lib/CommandLine.html#import_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.CommandLine.import_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import the request ORM model and return it.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.CommandLine.parse_args">
+<tt class="descclassname">lib.CommandLine.</tt><tt class="descname">parse_args</tt><big>(</big><em>arglist=None</em><big>)</big><a class="reference internal" href="_modules/lib/CommandLine.html#parse_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.CommandLine.parse_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse command line arguments and return an args object.  To provide
+an argument list manually (i.e. not from sys.argv), use the arglist
+parameter.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-lib.Constraint">
 <span id="lib-constraint-module"></span><h2>lib.Constraint module<a class="headerlink" href="#module-lib.Constraint" title="Permalink to this headline">¶</a></h2>
 <p>This module provides a class for ORM constraints.</p>
+<dl class="class">
+<dt id="lib.Constraint.CardinalityConstraint">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">CardinalityConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#CardinalityConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.CardinalityConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
+<p>A cardinality constraint on an object type or role.</p>
+<dl class="attribute">
+<dt id="lib.Constraint.CardinalityConstraint.ranges">
+<tt class="descname">ranges</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.CardinalityConstraint.ranges" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of CardinalityRange objects</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Constraint.CardinalityRange">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">CardinalityRange</tt><big>(</big><em>lower=0</em>, <em>upper=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#CardinalityRange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.CardinalityRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A range for a cardinality constraint.</p>
+</dd></dl>
+
 <dl class="class">
 <dt id="lib.Constraint.Constraint">
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">Constraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint" title="Permalink to this definition">¶</a></dt>
@@ -349,9 +396,9 @@ data type.</p>
 <dl class="method">
 <dt id="lib.Domain.Domain.draw">
 <tt class="descname">draw</tt><big>(</big><em>n</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain.draw" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw the first n elements from the domain and return as a set.  
+<dd><p>Draw the first n elements from the domain and return as a list.  
 If n is larger than the number of elements in the domain,
-the entire domain is returned as a set.</p>
+the entire domain is returned as a list.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -378,7 +425,7 @@ the maximum is sys.maxsize.</p>
 <dt id="lib.Domain.EnumeratedDomain.max_size">
 <tt class="descname">max_size</tt><a class="reference internal" href="_modules/lib/Domain.html#EnumeratedDomain.max_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.EnumeratedDomain.max_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum size of the domain, which for an enumerated domain is 
-just the size of the underlying set (i.e. max_size answers the 
+just the size of the underlying list (i.e. max_size answers the 
 question, what is the largest possible number of items to draw
 from the domain?).</p>
 </dd></dl>
@@ -728,6 +775,41 @@ of evaluating the inequalities in the system.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-lib.JoinPath">
+<span id="lib-joinpath-module"></span><h2>lib.JoinPath module<a class="headerlink" href="#module-lib.JoinPath" title="Permalink to this headline">¶</a></h2>
+<p>The JoinPath module implements the JoinPath class and supporting classes.</p>
+<dl class="class">
+<dt id="lib.JoinPath.Join">
+<em class="property">class </em><tt class="descclassname">lib.JoinPath.</tt><tt class="descname">Join</tt><big>(</big><em>role1</em>, <em>role2</em><big>)</big><a class="reference internal" href="_modules/lib/JoinPath.html#Join"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.Join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A join is a tuple of roles on which two fact types will be joined.
+The roles must be played by compatible object types.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.JoinPath.JoinPath">
+<em class="property">class </em><tt class="descclassname">lib.JoinPath.</tt><tt class="descname">JoinPath</tt><big>(</big><em>init_role</em><big>)</big><a class="reference internal" href="_modules/lib/JoinPath.html#JoinPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.JoinPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A join path specifies the inner join of two or more fact types.</p>
+<dl class="method">
+<dt id="lib.JoinPath.JoinPath.extend">
+<tt class="descname">extend</tt><big>(</big><em>role1</em>, <em>role2</em><big>)</big><a class="reference internal" href="_modules/lib/JoinPath.html#JoinPath.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.JoinPath.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend the join path by joining role1 (which should be part of a 
+fact type already on the path) with role2.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.JoinPath.JoinPath.materialize">
+<tt class="descname">materialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/JoinPath.html#JoinPath.materialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.JoinPath.materialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes the joins along the join path and returns the resulting
+join fact type.  The join fact type will be covered by 
+copies of the same kinds of constraints that cover the fact types
+along the path.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-lib.Model">
 <span id="lib-model-module"></span><h2>lib.Model module<a class="headerlink" href="#module-lib.Model" title="Permalink to this headline">¶</a></h2>
 <p>Model.py provides a class to store a simplified ORM model
@@ -894,37 +976,64 @@ An .orm file can be loaded via the constructor.  For example:</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-lib.ORMMinus">
-<span id="lib-ormminus-module"></span><h2>lib.ORMMinus module<a class="headerlink" href="#module-lib.ORMMinus" title="Permalink to this headline">¶</a></h2>
-<p>Module to implement ORMMinus satisfiability and population algorithm.</p>
+<div class="section" id="module-lib.ORMMinusModel">
+<span id="lib-ormminusmodel-module"></span><h2>lib.ORMMinusModel module<a class="headerlink" href="#module-lib.ORMMinusModel" title="Permalink to this headline">¶</a></h2>
+<p>Module to implement an ORM- model, which is a restricted form of an ORM
+model that can be checked for satisfiability and populated in 
+polynomial time.</p>
 <dl class="class">
-<dt id="lib.ORMMinus.ORMMinus">
-<em class="property">class </em><tt class="descclassname">lib.ORMMinus.</tt><tt class="descname">ORMMinus</tt><big>(</big><em>model=None</em>, <em>ubound=9223372036854775807</em><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#ORMMinus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.ORMMinus" title="Permalink to this definition">¶</a></dt>
+<dt id="lib.ORMMinusModel.ORMMinusModel">
+<em class="property">class </em><tt class="descclassname">lib.ORMMinusModel.</tt><tt class="descname">ORMMinusModel</tt><big>(</big><em>model=None</em>, <em>ubound=15</em><big>)</big><a class="reference internal" href="_modules/lib/ORMMinusModel.html#ORMMinusModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Implements ORMMinus algorithm (Smaragdakis et al.).</p>
+<p>An ORM- model along with its solution.  The solution is computed using
+the ORM- satisfiability algorithm (Smaragdakis et al.).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>model</strong> &#8211; A <a class="reference internal" href="#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">lib.Model.Model</span></tt></a> to instantiate</li>
-<li><strong>ubound</strong> &#8211; Upper bound on size of model elements</li>
+<li><strong>model</strong> &#8211; The corresponding <a class="reference internal" href="#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">lib.Model.Model</span></tt></a></li>
+<li><strong>ubound</strong> &#8211; Upper bound on the size of model elements in the solution</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="lib.ORMMinus.ORMMinus.check">
-<tt class="descname">check</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ORMMinus.html#ORMMinus.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinus.ORMMinus.check" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks model for satisifiability.  Returns solution if satisfiable
-and None otherwise.</p>
+<dl class="attribute">
+<dt id="lib.ORMMinusModel.ORMMinusModel.DEFAULT_SIZE">
+<tt class="descname">DEFAULT_SIZE</tt><em class="property"> = 15</em><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel.DEFAULT_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default upper bound on model element cardinalities.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="lib.ORMMinus.ORMMinus.ignored">
-<tt class="descname">ignored</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinus.ORMMinus.ignored" title="Permalink to this definition">¶</a></dt>
+<dt id="lib.ORMMinusModel.ORMMinusModel.constraints">
+<tt class="descname">constraints</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel.constraints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constraints</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ORMMinusModel.ORMMinusModel.fact_types">
+<tt class="descname">fact_types</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel.fact_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fact types</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.ORMMinusModel.ORMMinusModel.get_parts">
+<tt class="descname">get_parts</tt><big>(</big><em>fact_type</em><big>)</big><a class="reference internal" href="_modules/lib/ORMMinusModel.html#ORMMinusModel.get_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel.get_parts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the non-overlapping roles and internal frequency constraints
+that comprise a fact type.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ORMMinusModel.ORMMinusModel.ignored">
+<tt class="descname">ignored</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel.ignored" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of ignored constraints</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ORMMinusModel.ORMMinusModel.object_types">
+<tt class="descname">object_types</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel.object_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object types</p>
 </dd></dl>
 
 </dd></dl>
@@ -1023,22 +1132,16 @@ identification scheme for this object type.</p>
 </div>
 <div class="section" id="module-lib.Population">
 <span id="lib-population-module"></span><h2>lib.Population module<a class="headerlink" href="#module-lib.Population" title="Permalink to this headline">¶</a></h2>
-<p>Module to generate a population of an ORM model.</p>
+<p>Module to generate a population of an ORMMinusModel.</p>
 <dl class="class">
 <dt id="lib.Population.Population">
 <em class="property">class </em><tt class="descclassname">lib.Population.</tt><tt class="descname">Population</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>A population of an ORM model. If the model is satisfiable, 
+<p>A population of an ORMMinusModel. If the model is satisfiable, 
 then self.object_types and self.fact_types will contain the
 populations of objects and facts, respectively, that satisfy the
 constraints in the model.  For an unsatisfiable model, 
-self.object_types and self.fact_types will both be None.</p>
-<dl class="attribute">
-<dt id="lib.Population.Population.DEFAULT_SIZE">
-<tt class="descname">DEFAULT_SIZE</tt><em class="property"> = 10</em><a class="headerlink" href="#lib.Population.Population.DEFAULT_SIZE" title="Permalink to this definition">¶</a></dt>
-<dd><p>Default size of object and fact type populations.</p>
-</dd></dl>
-
+Popuation() will raise a ValueError exception.</p>
 <dl class="attribute">
 <dt id="lib.Population.Population.fact_types">
 <tt class="descname">fact_types</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Population.Population.fact_types" title="Permalink to this definition">¶</a></dt>
@@ -1054,29 +1157,57 @@ the object type name and the value is a list of objects.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="lib.Population.Population.populate">
-<tt class="descname">populate</tt><big>(</big><em>ubound=10</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population.populate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a population for the model.</p>
+<dt id="lib.Population.Population.write_csv">
+<tt class="descname">write_csv</tt><big>(</big><em>dirname</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population.write_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population.write_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the entire population to CSV files stored in a directory 
+(one file per object type or fact type).</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="lib.Population.Population.write_csv">
-<tt class="descname">write_csv</tt><big>(</big><em>directory</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population.write_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population.write_csv" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="lib.Population.Population.write_stdout">
+<tt class="descname">write_stdout</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Population.write_stdout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Population.write_stdout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes entire population to stdout.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.Population.Relation">
-<em class="property">class </em><tt class="descclassname">lib.Population.</tt><tt class="descname">Relation</tt><big>(</big><em>arity=1</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Relation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Relation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Population.</tt><tt class="descname">Relation</tt><big>(</big><em>names=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Relation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Relation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
 <p>A relation, which is a list of lists of identical arity.</p>
 <dl class="method">
 <dt id="lib.Population.Relation.add">
 <tt class="descname">add</tt><big>(</big><em>tupl</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Relation.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Relation.add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add tuple to the list.</p>
+<dd><p>Add tuple to the list. The ordering of elements in the tuple
+is assumed to match the order of self.names.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="lib.Population.Relation.arity">
+<tt class="descname">arity</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Population.Relation.arity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of columns in the relation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.Population.Relation.combine_with">
+<tt class="descname">combine_with</tt><big>(</big><em>target</em>, <em>n</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Relation.combine_with"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Relation.combine_with" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine self with a target relation according to the enumeration 
+algorithm of Smaragdakis, et al.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Population.Relation.names">
+<tt class="descname">names</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Population.Relation.names" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of names of each column in the relation</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.Population.lcm">
+<tt class="descclassname">lib.Population.</tt><tt class="descname">lcm</tt><big>(</big><em>a</em>, <em>b</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#lcm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.lcm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the least common multiple of a and b.</p>
 </dd></dl>
 
 </div>
@@ -1114,10 +1245,11 @@ See <a class="reference external" href="http://stackoverflow.com/questions/26321
 <li><a class="reference internal" href="#module-lib.Domain">lib.Domain module</a></li>
 <li><a class="reference internal" href="#module-lib.FactType">lib.FactType module</a></li>
 <li><a class="reference internal" href="#module-lib.InequalitySystem">lib.InequalitySystem module</a></li>
+<li><a class="reference internal" href="#module-lib.JoinPath">lib.JoinPath module</a></li>
 <li><a class="reference internal" href="#module-lib.Model">lib.Model module</a></li>
 <li><a class="reference internal" href="#module-lib.ModelElement">lib.ModelElement module</a></li>
 <li><a class="reference internal" href="#module-lib.NormaLoader">lib.NormaLoader module</a></li>
-<li><a class="reference internal" href="#module-lib.ORMMinus">lib.ORMMinus module</a></li>
+<li><a class="reference internal" href="#module-lib.ORMMinusModel">lib.ORMMinusModel module</a></li>
 <li><a class="reference internal" href="#module-lib.ObjectType">lib.ObjectType module</a></li>
 <li><a class="reference internal" href="#module-lib.Population">lib.Population module</a></li>
 <li><a class="reference internal" href="#module-lib.TestDataLocator">lib.TestDataLocator module</a></li>

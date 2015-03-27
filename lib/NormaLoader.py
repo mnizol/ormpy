@@ -42,6 +42,8 @@
 
 import xml.etree.cElementTree as xml
 from datetime import datetime, date, time
+import logging
+import os
 
 from lib.Model import Model
 import lib.ObjectType as ObjectType
@@ -92,6 +94,17 @@ class NormaLoader(object):
         # Executable part of constructor: build mappings and load file
         self._build_mappings()
         self._load(filename)
+
+        # Log any model element omissions
+        logger = logging.getLogger(__name__)
+        size = len(self.omissions)
+        if size > 0:
+            text = "elements were" if size > 1 else "element was"
+            logger.warning("%d model %s ignored while loading %s.", 
+                           size, text, os.path.basename(filename))
+            for omission in self.omissions:
+                logger.info("Ignoring %s", omission)
+        
 
     ###########################################################################
     # Private Utility Functions
@@ -680,7 +693,10 @@ class NormaLoader(object):
         """ Load cardinality constraint. """
         types = ["CardinalityConstraint", "UnaryRoleCardinalityConstraint"]
 
-        for node in xml_node: # Should be exactly 1 child node          
+        if len(xml_node) != 1:
+            raise ValueError("CardinalityRestriction should have only 1 child node")
+
+        for node in xml_node:          
             if self._local_tag(node) in types:
                 cons = self._init_constraint(node, 
                             Constraint.CardinalityConstraint)   
@@ -689,7 +705,7 @@ class NormaLoader(object):
                 range_node = node.find(self._ns_core + "Ranges")
                 cons.ranges = self._load_cardinality_ranges(range_node)
 
-        self._add(cons)
+                self._add(cons)
 
     def _load_cardinality_ranges(self, xml_node):
         """ Load a list of cardinality ranges. """

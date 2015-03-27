@@ -1,0 +1,299 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>test.TestCommandLine &mdash; ORMPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ORMPY 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for test.TestCommandLine</h1><div class="highlight"><pre>
+<span class="c">##############################################################################</span>
+<span class="c"># Package: ormpy</span>
+<span class="c"># File:    TestCommandLine.py</span>
+<span class="c"># Author:  Matthew Nizol</span>
+<span class="c">##############################################################################</span>
+
+<span class="sd">&quot;&quot;&quot; This file contains unit tests for the lib.CommandLine module. &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+
+<span class="kn">import</span> <span class="nn">lib.CommandLine</span> <span class="kn">as</span> <span class="nn">CommandLine</span>
+<span class="kn">import</span> <span class="nn">lib.TestDataLocator</span> <span class="kn">as</span> <span class="nn">TestDataLocator</span>
+<span class="kn">from</span> <span class="nn">nose.plugins.logcapture</span> <span class="kn">import</span> <span class="n">LogCapture</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+
+<span class="n">STDOUT</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+
+<div class="viewcode-block" id="TestCommandLine"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine">[docs]</a><span class="k">class</span> <span class="nc">TestCommandLine</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Unit tests for the CommandLine module. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestCommandLine.setUp"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">TestDataLocator</span><span class="o">.</span><span class="n">get_data_dir</span><span class="p">()</span>
+
+        <span class="c"># Log capturing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">LogCapture</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">logformat</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%(levelname)s</span><span class="s">: </span><span class="si">%(message)s</span><span class="s">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_arg_parse"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_arg_parse">[docs]</a>    <span class="k">def</span> <span class="nf">test_arg_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test argument parsing. &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-qc&quot;</span><span class="p">,</span> <span class="s">&quot;-u 200&quot;</span><span class="p">,</span> <span class="s">&quot;test.orm&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">check_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">populate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ubound</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;test.orm&quot;</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-dp&quot;</span><span class="p">,</span> <span class="s">&quot;-o /home&quot;</span><span class="p">,</span> <span class="s">&quot;test.orm&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">check_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">populate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ubound</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">directory</span><span class="p">,</span> <span class="s">&quot; /home&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_log_config"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_log_config">[docs]</a>    <span class="k">def</span> <span class="nf">test_log_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test configuration of the logger. &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-q&quot;</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">])</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">configure_logger</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">(),</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;test&quot;</span><span class="p">])</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">configure_logger</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">(),</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-v&quot;</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">])</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">configure_logger</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">(),</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-d&quot;</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">])</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">configure_logger</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">(),</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_import_model"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_import_model">[docs]</a>    <span class="k">def</span> <span class="nf">test_import_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test successful import of a small model. &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_import_fail"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_import_fail">[docs]</a>    <span class="k">def</span> <span class="nf">test_import_fail</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test failed import of a model. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">beforeTest</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span> <span class="c"># Don&#39;t want stack trace</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;does_not_exist.orm&quot;</span><span class="p">)</span>
+        
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">formatLogRecords</span><span class="p">(),</span> 
+            <span class="p">[</span><span class="s">&quot;ERROR: Could not load does_not_exist.orm: [Errno 2] No such file or directory: &#39;&quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s">&quot;&#39;&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">afterTest</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_check_unsat"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_check_unsat">[docs]</a>    <span class="k">def</span> <span class="nf">test_check_unsat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test checking unsatisfiable model.&quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;unsat_smarag_1.orm&quot;</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-cu 10&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">capture_stdout</span><span class="p">()</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">read_stdout</span><span class="p">(),</span> <span class="s">&quot;Model is unsatisfiable.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="n">restore_stdout</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_check_sat"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_check_sat">[docs]</a>    <span class="k">def</span> <span class="nf">test_check_sat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test checking a satisfiable model. &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-cu 1&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">capture_stdout</span><span class="p">()</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">read_stdout</span><span class="p">(),</span> <span class="s">&quot;Model is satisfiable.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="n">restore_stdout</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_populate_sat"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_populate_sat">[docs]</a>    <span class="k">def</span> <span class="nf">test_populate_sat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test populating a satisfiable model. &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-pu 1&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">capture_stdout</span><span class="p">()</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">read_stdout</span><span class="p">(),</span> <span class="s">&quot;Population of ObjectTypes.A:</span><span class="se">\n</span><span class="s">0</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="n">restore_stdout</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_populate_sat_write_to_bad_dir"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_populate_sat_write_to_bad_dir">[docs]</a>    <span class="k">def</span> <span class="nf">test_populate_sat_write_to_bad_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test populating a satisfiable model. &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">bad</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;..&quot;</span><span class="p">,</span> <span class="s">&quot;output&quot;</span><span class="p">,</span> <span class="s">&quot;NOT_A_DIRECTORY&quot;</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-pu 1&quot;</span><span class="p">,</span> <span class="s">&quot;-o&quot;</span><span class="p">,</span> <span class="n">bad</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">capture_stdout</span><span class="p">()</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">read_stdout</span><span class="p">(),</span> <span class="s">&quot;Model is satisfiable.</span><span class="se">\n</span><span class="s">Cannot write population to &quot;</span> <span class="o">+</span> <span class="n">bad</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="n">restore_stdout</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_populate_exception"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_populate_exception">[docs]</a>    <span class="k">def</span> <span class="nf">test_populate_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test exception catching during population. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">beforeTest</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span> <span class="c"># Don&#39;t want stack trace</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-pu 1&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span> <span class="c"># No -o option so we&#39;ll try to write to stdout</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="bp">None</span> <span class="c"># Force an exception when trying to write to stdout</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>        
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">CommandLine</span><span class="o">.</span><span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>                
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">formatLogRecords</span><span class="p">(),</span> 
+            <span class="p">[</span><span class="s">&quot;ERROR: Failed to populate the model: &#39;NoneType&#39; object has no attribute &#39;write&#39;&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">afterTest</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">restore_stdout</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_execute_noop"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_execute_noop">[docs]</a>    <span class="k">def</span> <span class="nf">test_execute_noop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test execution without any action parameter. &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">capture_stdout</span><span class="p">()</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">execute</span><span class="p">([</span><span class="n">path</span><span class="p">])</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">read_stdout</span><span class="p">(),</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">restore_stdout</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_execute_print"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_execute_print">[docs]</a>    <span class="k">def</span> <span class="nf">test_execute_print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test execution with --print-model parameter. &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">capture_stdout</span><span class="p">()</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">execute</span><span class="p">([</span><span class="s">&quot;-m&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">read_stdout</span><span class="p">(),</span> <span class="s">&quot;Object Types:</span><span class="se">\n</span><span class="s">    A</span><span class="se">\n</span><span class="s">Fact Types:</span><span class="se">\n</span><span class="s">Constraints:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="n">restore_stdout</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_execute_check"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_execute_check">[docs]</a>    <span class="k">def</span> <span class="nf">test_execute_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test execution with --check-model parameter. &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">capture_stdout</span><span class="p">()</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">execute</span><span class="p">([</span><span class="s">&quot;-c&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">read_stdout</span><span class="p">(),</span> <span class="s">&quot;Model is satisfiable.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="n">restore_stdout</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TestCommandLine.test_execute_print_and_check"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_execute_print_and_check">[docs]</a>    <span class="k">def</span> <span class="nf">test_execute_print_and_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test execution with --print-model and --check-model parameter. &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
+        <span class="n">capture_stdout</span><span class="p">()</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">execute</span><span class="p">([</span><span class="s">&quot;--check-model&quot;</span><span class="p">,</span> <span class="s">&quot;--print-model&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">read_stdout</span><span class="p">(),</span> <span class="s">&quot;Object Types:</span><span class="se">\n</span><span class="s">    A</span><span class="se">\n</span><span class="s">Fact Types:</span><span class="se">\n</span><span class="s">Constraints:</span><span class="se">\n</span><span class="s">Model is satisfiable.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="n">restore_stdout</span><span class="p">()</span>
+
+
+<span class="c">##############################################################################</span>
+<span class="c"># Utility functions</span>
+<span class="c">##############################################################################</span></div></div>
+<div class="viewcode-block" id="capture_stdout"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.capture_stdout">[docs]</a><span class="k">def</span> <span class="nf">capture_stdout</span><span class="p">():</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="restore_stdout"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.restore_stdout">[docs]</a><span class="k">def</span> <span class="nf">restore_stdout</span><span class="p">():</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">STDOUT</span> <span class="c"># STDOUT is a global defined at the top of the module</span>
+</div>
+<div class="viewcode-block" id="read_stdout"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.read_stdout">[docs]</a><span class="k">def</span> <span class="nf">read_stdout</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Nizol.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

@@ -210,7 +210,12 @@ class ORMMinusModel(object):
         role_vars = [self._variables[role] for role in role_seq]
 
         min_var = Constant(1.0 / cons.min_freq)
-        max_var = Constant(cons.max_freq)
+
+        # If max_freq > _ubound, set to _ubound.  This fixes an overflow bug
+        # for unbounded constraints (i.e. max_freq == float('inf')).  Setting it
+        # to _ubound is safe because no object can be repeated more times than
+        # the number of tuples in the predicate, whose upper bound is _ubound.
+        max_var = Constant(min(self._ubound, cons.max_freq))
 
         fact_var = self._variables[role_seq[0].fact_type]
         freq_var = self._variables[cons]

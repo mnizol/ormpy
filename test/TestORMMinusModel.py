@@ -345,4 +345,20 @@ class TestORMMinusModel(TestCase):
 
         self.log.afterTest(None)
 
+    def test_unbounded_freq_constraint(self):
+        """ Test a model with an unbounded frequency constraint. """
+        fname = os.path.join(self.data_dir, "unbounded_frequency_constraint.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model)
+
+        cons = model.constraints.get("IFC1")
+        self.assertEquals(cons.max_freq, float('inf'))
+        self.assertEquals(cons.min_freq, 5)
+
+        solution = ormminus.solution
+        size = ORMMinusModel.DEFAULT_SIZE
+        self.assertEquals(solution["Constraints.IFC1"], size / 5)
+        self.assertEquals(solution["FactTypes.AHasB"], size)
+
+
 

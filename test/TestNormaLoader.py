@@ -178,11 +178,11 @@ class TestNormaLoader(TestCase):
 
         # Objectified Non-independent
         this = model.object_types.get("V1HasV2")
+        nested = model.fact_types.get("V1HasV2")
         self.assertFalse(this.independent)
-        self.assertEquals(this.identifying_constraint, 
+        self.assertIs(this.identifying_constraint, 
             model.constraints.get("InternalUniquenessConstraint14"))
-        self.assertEquals(this.nested_fact_type, 
-            "_B6D10F36-FFE2-4B86-BEA4-02F7FCA655F9")
+        self.assertIs(this.nested_fact_type, nested)
 
         # Implicit Objectified (Created by ternary, should not load)
         this = model.object_types.get("V1HasDHasV2") 

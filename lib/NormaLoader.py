@@ -237,6 +237,7 @@ class NormaLoader(object):
         self._load_constraints(root)
 
         # Post-processing
+        self._fix_nested_fact_type_refs()
         self._fix_value_constraints()
         self._update_domains()
 
@@ -342,6 +343,15 @@ class NormaLoader(object):
         if xml_node.get("IsImplied") == "true":
             object_type.implicit = True
         object_type.nested_fact_type = xml_node.get("ref") # GUID of fact type
+
+    def _fix_nested_fact_type_refs(self):
+        """ Updates objectified type's nested_fact_type attribute to point to
+            the actual fact type and not just the GUID.  MUST be called after
+            both object types and fact types are loaded. """
+        for object_type in self.model.object_types:
+            if isinstance(object_type, ObjectType.ObjectifiedType):
+                guid = object_type.nested_fact_type 
+                object_type.nested_fact_type = self._elements[guid]
 
     def _load_subtype_derivation(self, xml_node, object_type):
         """ Loads SubtypeDerivationRule into object_type. """

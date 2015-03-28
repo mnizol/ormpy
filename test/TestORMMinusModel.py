@@ -360,5 +360,34 @@ class TestORMMinusModel(TestCase):
         self.assertEquals(solution["Constraints.IFC1"], size / 5)
         self.assertEquals(solution["FactTypes.AHasB"], size)
 
+    def test_objectification_inequalities(self):
+        """ Test a model with objectifications. """
+        fname = os.path.join(self.data_dir, "objectification.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=10)
 
+        # Confirm NORMA doesn't copy the cardinality constraint to the fact type
+        self.assertEquals(len(model.constraints.of_type(Constraint.CardinalityConstraint)), 1)
+
+        # Check for existence of expected inequalities
+        actual = set([ineq.tostring() for ineq in ormminus._ineqsys])
+        self.assertIn("ObjectTypes.AHasB <= FactTypes.AHasB", actual)
+        self.assertIn("FactTypes.AHasB <= ObjectTypes.AHasB", actual)
+        self.assertIn("ObjectTypes.ALikesB <= FactTypes.ALikesB", actual)
+        self.assertIn("FactTypes.ALikesB <= ObjectTypes.ALikesB", actual)
+        self.assertIn("ObjectTypes.AEnjoysB <= FactTypes.AEnjoysB", actual)
+        self.assertIn("FactTypes.AEnjoysB <= ObjectTypes.AEnjoysB", actual)
+
+        # Check that solution has expected relations
+        self.assertEquals(ormminus.solution["ObjectTypes.AHasB"], 
+                          ormminus.solution["FactTypes.AHasB"])
+        self.assertEquals(ormminus.solution["ObjectTypes.AHasB"], 10)
+
+        self.assertEquals(ormminus.solution["ObjectTypes.ALikesB"], 
+                          ormminus.solution["FactTypes.ALikesB"])
+        self.assertEquals(ormminus.solution["ObjectTypes.ALikesB"], 5)
+
+        self.assertEquals(ormminus.solution["ObjectTypes.AEnjoysB"], 
+                          ormminus.solution["FactTypes.AEnjoysB"])
+        self.assertEquals(ormminus.solution["ObjectTypes.AEnjoysB"], 3)
 

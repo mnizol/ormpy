@@ -16,7 +16,7 @@ from lib.InequalitySystem \
 from lib.Constraint \
     import FrequencyConstraint, MandatoryConstraint, ValueConstraint, \
            CardinalityConstraint
-from lib.ObjectType import ObjectType
+from lib.ObjectType import ObjectType, ObjectifiedType
 
 class ORMMinusModel(object):
     """ An ORM- model along with its solution.  The solution is computed using
@@ -135,6 +135,12 @@ class ORMMinusModel(object):
         for object_type in self.object_types:
             obj_var = self._variables[object_type]
             self._add(Inequality(lhs=obj_var, rhs=Constant(obj_var.upper)))
+
+            # Add inequalities to enforce objectifications
+            if isinstance(object_type, ObjectifiedType):
+                fact_var = self._variables[object_type.nested_fact_type]
+                self._add(Inequality(lhs=obj_var, rhs=fact_var))
+                self._add(Inequality(lhs=fact_var, rhs=obj_var))
 
         # Create inequalities to represent role semantics
         for fact_type in self.fact_types:

@@ -15,7 +15,7 @@ which is a Visual Studio plug-in.  However, several test models are available at
 without installing NORMA.
 
 ## Command-line use
-**ormpy** includes a command-line interface which can be exectued via the
+**ormpy** includes a command-line interface which can be executed via the
 [ormpy](./ormpy) script.  Run `ormpy -h` for usage instructions.
 
 ## API Documentation

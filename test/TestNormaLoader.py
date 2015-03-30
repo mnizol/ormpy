@@ -749,7 +749,113 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("C1")
         self.assertEquals(cons.ranges, [])
 
+class TestSubtypes(TestCase):
+    """ Unit tests for the NormaLoader class regarding subtypes. """
 
+    def setUp(self):
+        self.data_dir = TestDataLocator.get_data_dir() + os.sep
+        self.maxDiff = None
+        self.basic_model = NormaLoader(self.data_dir + "subtypes.orm").model
+
+    def test_load_basic_subtypes(self):
+        """ Test that basic subtype graphs are properly loaded. """
+        model = self.basic_model
+    
+        # Primitive value and entity types that belong to no subtype graph
+        v1 = model.object_types.get("V1")
+        self.assertTrue(v1.primitive)
+        self.assertEquals(v1.root_type, v1)
+        self.assertItemsEqual(v1.direct_supertypes, [])
+        self.assertItemsEqual(v1.indirect_supertypes, [])
+        self.assertItemsEqual(v1.direct_subtypes, [])
+
+        e1 = model.object_types.get("E1")
+        self.assertTrue(e1.primitive)
+        self.assertEquals(e1.root_type, e1)
+        self.assertItemsEqual(e1.direct_supertypes, [])
+        self.assertItemsEqual(e1.indirect_supertypes, [])
+        self.assertItemsEqual(e1.direct_subtypes, [])
+
+        # Simple linear subtype graph
+        a = model.object_types.get("A")
+        b = model.object_types.get("B")
+        c = model.object_types.get("C")
+        self.assertTrue(a.primitive)
+        self.assertEquals(a.root_type, a)
+        self.assertItemsEqual(a.direct_supertypes, [])
+        self.assertItemsEqual(a.indirect_supertypes, [])
+        self.assertItemsEqual(a.direct_subtypes, [b])
+
+        self.assertFalse(b.primitive)
+        self.assertEquals(b.root_type, a)
+        self.assertItemsEqual(b.direct_supertypes, [a])
+        self.assertItemsEqual(b.indirect_supertypes, [])
+        self.assertItemsEqual(b.direct_subtypes, [c])
+
+        self.assertFalse(c.primitive)
+        self.assertEquals(c.root_type, a)
+        self.assertItemsEqual(c.direct_supertypes, [b])
+        self.assertItemsEqual(c.indirect_supertypes, [a])
+        self.assertItemsEqual(c.direct_subtypes, []) 
+
+    def test_diamond_subtype_graphs(self):
+        """ Test that diamond-shaped graph is properly loaded. """
+        model = self.basic_model
+
+        # Diamond-shaped subtype graph
+        w = model.object_types.get("W")
+        x = model.object_types.get("X")
+        y = model.object_types.get("Y")
+        z = model.object_types.get("Z")
+        x1 = model.object_types.get("X1")
+        y1 = model.object_types.get("Y1")
+        z1 = model.object_types.get("Z1")
+
+        self.assertTrue(w.primitive)
+        self.assertEquals(w.root_type, w)
+        self.assertItemsEqual(w.direct_supertypes, [])
+        self.assertItemsEqual(w.indirect_supertypes, [])
+        self.assertItemsEqual(w.direct_subtypes, [x, y])
+
+        self.assertFalse(x.primitive)
+        self.assertEquals(x.root_type, w)
+        self.assertItemsEqual(x.direct_supertypes, [w])
+        self.assertItemsEqual(x.indirect_supertypes, [])
+        self.assertItemsEqual(x.direct_subtypes, [x1, z])
+
+        self.assertFalse(x1.primitive)
+        self.assertEquals(x1.root_type, w)
+        self.assertItemsEqual(x1.direct_supertypes, [x])
+        self.assertItemsEqual(x1.indirect_supertypes, [w])
+        self.assertItemsEqual(x1.direct_subtypes, [])
+
+        self.assertFalse(z.primitive)
+        self.assertEquals(z.root_type, w)
+        self.assertItemsEqual(z.direct_supertypes, [x, y])
+        self.assertItemsEqual(z.indirect_supertypes, [w])
+        self.assertItemsEqual(z.direct_subtypes, [z1])
+
+        self.assertFalse(y1.primitive)
+        self.assertEquals(y1.root_type, w)
+        self.assertItemsEqual(y1.direct_supertypes, [y])
+        self.assertItemsEqual(y1.indirect_supertypes, [w])
+        self.assertItemsEqual(y1.direct_subtypes, [z1])
+
+        self.assertFalse(z1.primitive)
+        self.assertEquals(z1.root_type, w)
+        self.assertItemsEqual(z1.direct_supertypes, [z, y1])
+        self.assertItemsEqual(z1.indirect_supertypes, [x, y, w])
+        self.assertItemsEqual(z1.direct_subtypes, [])
+
+    def test_subtype_graph_mult_root(self):
+        """ Test subtype graph with multiple root types. """
+        with self.assertRaises(ValueError) as ex:
+            model = NormaLoader(self.data_dir + \
+                                "subtype_graph_with_multiple_roots.orm").model
+        self.assertEquals(ex.exception.message, \
+           "Subtype graph containing ObjectTypes.F has more than one root type")
+
+        
             
 
     

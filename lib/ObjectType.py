@@ -27,6 +27,11 @@ class ObjectType(ModelElement):
         self.implicit = False    #: True for implicit object types
         self.roles = [] #: Roles played by this object type
 
+        self.root_type = None #: Root object type in subtype graph (if any)
+        self.direct_supertypes = [] #: Direct supertypes of this object type
+        self.indirect_supertypes = set([]) #: Indirect supertypes
+        self.direct_subtypes = [] #: Direct subtypes of this object type
+
         # Prefix for domain values     
         prefix = name or '' # Empty string if name is None
         if prefix and prefix[-1].isdigit(): 
@@ -37,9 +42,23 @@ class ObjectType(ModelElement):
         self.domain = StringDomain(prefix=prefix) 
 
     @property
+    def primitive(self):
+        """ True iff object type has no supertype. """
+        return len(self.direct_supertypes) == 0
+
+    @property
     def fullname(self):
         """ Returns name that is unique within the model. """
         return "ObjectTypes." + self.name
+
+    def compatible(self, other):
+        """ Returns true iff self == other, self is a supertype of other,
+            or other is a supertype of self."""
+        return (self == other) or \
+               (self in other.direct_supertypes) or \
+               (self in other.indirect_supertypes) or \
+               (other in self.direct_supertypes) or \
+               (other in self.indirect_supertypes)             
 
 class EntityType(ObjectType):
     """ An entity type is an object type that requires identification. """

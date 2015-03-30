@@ -240,6 +240,7 @@ class NormaLoader(object):
         self._fix_nested_fact_type_refs()
         self._fix_value_constraints()
         self._update_domains()
+        self._update_indirect_subtypes()
 
     def _parse_norma_file(self, filename):
         """ Parse a NORMA File and return the ORMModel node. """
@@ -432,6 +433,38 @@ class NormaLoader(object):
                 object_type = element
                 object_type.domain = cons.domain
 
+    def _update_indirect_subtypes(self):
+        """ Starting at each root type, build a list of indirect 
+            supertypes for each subtype of the root. """
+
+        # NOTE: I do not check for cycles in the subtype graph.  I could, but
+        # (a) They are illegal in ORM, and (b) NORMA doesn't permit adding them
+        # so I don't think its worth the computational effort.
+
+        for object_type in self.model.object_types:
+            if object_type.primitive: # Is a root type
+                for child in object_type.direct_subtypes:
+                    self._update_subtype(child, object_type, object_type)
+
+                # A primitive type is its own root type
+                object_type.root_type = object_type
+                                                 
+    def _update_subtype(self, this, parent, root):
+        """ Update the list of indirect supertypes of this subtype. """
+
+        # Check for multiple root types, which are illegal
+        if this.root_type != None and this.root_type != root:
+            raise ValueError("Subtype graph containing " + this.fullname + \
+                             " has more than one root type")
+
+        this.root_type = root
+        this.indirect_supertypes.update(parent.direct_supertypes)
+        this.indirect_supertypes.update(parent.indirect_supertypes)
+
+        for child in this.direct_subtypes:
+            self._update_subtype(child, this, root)
+                   
+
     ##########################################################################
     # Private Functions to Load Fact Types
     ##########################################################################
@@ -535,6 +568,10 @@ class NormaLoader(object):
         # Does this subtype constraint provide a path to the preferred ID?
         pref = (xml_node.get("PreferredIdentificationPath") == "true")
         cons.preferred_id = pref
+
+        # Update corresponding object types
+        cons.supertype.direct_subtypes.append(cons.subtype)
+        cons.subtype.direct_supertypes.append(cons.supertype)
 
         self._add(cons) # Add subtype constraint to model
 

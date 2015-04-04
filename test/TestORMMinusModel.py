@@ -87,9 +87,10 @@ class TestORMMinusModel(TestCase):
         # NormaLoader actually drops the disjunctive mandatory, so create a
         # fake one to test that the constraint is ignored
         cons = Constraint.MandatoryConstraint(name="Cons1")
-        cons.cover(model.fact_types.get("EntityType1A").roles[0])
-        cons.simple = False
-        model.constraints.add(cons)
+        role1 = model.fact_types.get("EntityType1A").roles[0]
+        role2 = model.fact_types.get("EntityType1B").roles[0]
+        cons.covers = [role1, role2]        
+        model.add(cons)
 
         ormminus = ORMMinusModel(model=model)
         solution = ormminus.solution

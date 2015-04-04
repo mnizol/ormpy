@@ -642,6 +642,12 @@ classes.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestModelElement.TestModelElementSet.test_remove_element">
+<tt class="descname">test_remove_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_remove_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_remove_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm we can remove elements from the set.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestModelElement.TestModelElementSet.test_rename">
 <tt class="descname">test_rename</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_rename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_rename" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm items with same name added to set get renamed.</p>
@@ -893,6 +899,36 @@ roles are moved to the object type.</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="test.TestNormaLoader.TestSubtypes">
+<em class="property">class </em><tt class="descclassname">test.TestNormaLoader.</tt><tt class="descname">TestSubtypes</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestSubtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestSubtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Unit tests for the NormaLoader class regarding subtypes.</p>
+<dl class="method">
+<dt id="test.TestNormaLoader.TestSubtypes.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestSubtypes.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestSubtypes.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestSubtypes.test_diamond_subtype_graphs">
+<tt class="descname">test_diamond_subtype_graphs</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestSubtypes.test_diamond_subtype_graphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestSubtypes.test_diamond_subtype_graphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that diamond-shaped graph is properly loaded.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestSubtypes.test_load_basic_subtypes">
+<tt class="descname">test_load_basic_subtypes</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestSubtypes.test_load_basic_subtypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestSubtypes.test_load_basic_subtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that basic subtype graphs are properly loaded.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestNormaLoader.TestSubtypes.test_subtype_graph_mult_root">
+<tt class="descname">test_subtype_graph_mult_root</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestSubtypes.test_subtype_graph_mult_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestSubtypes.test_subtype_graph_mult_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test subtype graph with multiple root types.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-test.TestORMMinusModel">
 <span id="test-testormminusmodel-module"></span><h2>test.TestORMMinusModel module<a class="headerlink" href="#module-test.TestORMMinusModel" title="Permalink to this headline">¶</a></h2>
@@ -957,6 +993,12 @@ correctly identified.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="test.TestORMMinusModel.TestORMMinusModel.test_objectification_inequalities">
+<tt class="descname">test_objectification_inequalities</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinusModel.html#TestORMMinusModel.test_objectification_inequalities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinusModel.TestORMMinusModel.test_objectification_inequalities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a model with objectifications.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestORMMinusModel.TestORMMinusModel.test_overlapping_and_external_iuc">
 <tt class="descname">test_overlapping_and_external_iuc</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinusModel.html#TestORMMinusModel.test_overlapping_and_external_iuc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinusModel.TestORMMinusModel.test_overlapping_and_external_iuc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test that overlapping and external IUCs are ignored.</p>
@@ -972,6 +1014,12 @@ correctly identified.</p>
 <dt id="test.TestORMMinusModel.TestORMMinusModel.test_ubound_on_object_types">
 <tt class="descname">test_ubound_on_object_types</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinusModel.html#TestORMMinusModel.test_ubound_on_object_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinusModel.TestORMMinusModel.test_ubound_on_object_types" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test upper bound on object type variables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinusModel.TestORMMinusModel.test_unbounded_freq_constraint">
+<tt class="descname">test_unbounded_freq_constraint</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinusModel.html#TestORMMinusModel.test_unbounded_freq_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinusModel.TestORMMinusModel.test_unbounded_freq_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a model with an unbounded frequency constraint.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1007,6 +1055,12 @@ correctly identified.</p>
 <dt id="test.TestObjectType.TestObjectType.setUp">
 <tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestObjectType.html#TestObjectType.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestObjectType.TestObjectType.setUp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="test.TestObjectType.TestObjectType.test_compatible_object_types">
+<tt class="descname">test_compatible_object_types</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestObjectType.html#TestObjectType.test_compatible_object_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestObjectType.TestObjectType.test_compatible_object_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test compatible() function.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="test.TestObjectType.TestObjectType.test_domain">

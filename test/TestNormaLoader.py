@@ -97,10 +97,10 @@ class TestNormaLoader(TestCase):
         cons1 = model.constraints.get("BIsASubtypeOfA")
         self.assertIs(cons1.subtype, model.object_types.get("B"))
         self.assertIs(cons1.supertype, model.object_types.get("A"))
-        self.assertIs(cons1.covers[0], cons1.subtype)
-        self.assertTrue(cons1.preferred_id)
+        self.assertEquals(cons1.covers, [cons1.subtype, cons1.supertype])
+        self.assertTrue(cons1.idpath)
 
-        self.assertFalse(model.constraints.get("BIsASubtypeOfC").preferred_id)        
+        self.assertFalse(model.constraints.get("BIsASubtypeOfC").idpath)        
 
     def test_subtypefact_constraints(self):
         """ Confirm IUC and mandatory constraints on implicit subtype fact types

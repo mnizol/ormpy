@@ -89,6 +89,24 @@
         <span class="n">_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraint1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_set</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">3</span><span class="p">)</span>
 </div>
+<div class="viewcode-block" id="TestModelElementSet.test_remove_element"><a class="viewcode-back" href="../../test.html#test.TestModelElement.TestModelElementSet.test_remove_element">[docs]</a>    <span class="k">def</span> <span class="nf">test_remove_element</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Confirm we can remove elements from the set. &quot;&quot;&quot;</span>
+        <span class="n">_set</span> <span class="o">=</span> <span class="n">ModelElementSet</span><span class="p">()</span>
+        
+        <span class="n">_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraint1</span><span class="p">)</span>
+        <span class="n">_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_type1</span><span class="p">)</span>
+        <span class="n">_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact_type1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_set</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Object Type 1&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_type1</span><span class="p">)</span>
+
+        <span class="n">_set</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_type1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_set</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Object Type 1&quot;</span><span class="p">),</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="c"># Try to remove an item that is already removed</span>
+        <span class="n">_set</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_type1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">_set</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="TestModelElementSet.test_get_element"><a class="viewcode-back" href="../../test.html#test.TestModelElement.TestModelElementSet.test_get_element">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_element</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Confirm we can successfully retrieve added elements. &quot;&quot;&quot;</span>
         <span class="n">_set</span> <span class="o">=</span> <span class="n">ModelElementSet</span><span class="p">()</span>

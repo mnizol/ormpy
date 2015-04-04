@@ -9,9 +9,9 @@
     constraints.
 """
 
-from lib.ObjectType import ObjectTypeSet
-from lib.FactType import FactTypeSet
-from lib.Constraint import ConstraintSet
+from lib.ObjectType import ObjectTypeSet, ObjectType
+from lib.FactType import FactTypeSet, FactType
+from lib.Constraint import ConstraintSet, Constraint
 
 class Model(object):
     """ Simplified representation of an ORM model. """
@@ -30,10 +30,31 @@ class Model(object):
         self.constraints = ConstraintSet()
 
 
+    def add(self, model_element):
+        """ Add a model element to the model. """        
+        self._container_for(model_element).add(model_element)
+        model_element.commit() # Commit side effects (if any)
+
+    def remove(self, model_element):
+        """ Remove the model element from the model. """
+        self._container_for(model_element).remove(model_element)        
+        model_element.rollback() # Rollback side effects (if any)
+
     def display(self):
         """ Prints the model to stdout. """
         self.object_types.display()
         self.fact_types.display()
         self.constraints.display()
+
+    def _container_for(self, model_element):
+        """ Return the appropriate container for the model element. """
+        if isinstance(model_element, ObjectType):
+            return self.object_types
+        elif isinstance(model_element, FactType):
+            return self.fact_types
+        elif isinstance(model_element, Constraint):
+            return self.constraints
+        else:
+            raise ValueError("Unexpected model element type")
 
 

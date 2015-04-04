@@ -393,6 +393,52 @@
              <span class="s">&quot;INFO: Ignoring CardinalityConstraint named CC5.&quot;</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">afterTest</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestORMMinusModel.test_unbounded_freq_constraint"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_unbounded_freq_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">test_unbounded_freq_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a model with an unbounded frequency constraint. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;unbounded_frequency_constraint.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="n">cons</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;IFC1&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">max_freq</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;inf&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">min_freq</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="o">.</span><span class="n">DEFAULT_SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;Constraints.IFC1&quot;</span><span class="p">],</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;FactTypes.AHasB&quot;</span><span class="p">],</span> <span class="n">size</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestORMMinusModel.test_objectification_inequalities"><a class="viewcode-back" href="../../test.html#test.TestORMMinusModel.TestORMMinusModel.test_objectification_inequalities">[docs]</a>    <span class="k">def</span> <span class="nf">test_objectification_inequalities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a model with objectifications. &quot;&quot;&quot;</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;objectification.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">ormminus</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ubound</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="c"># Confirm NORMA doesn&#39;t copy the cardinality constraint to the fact type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">Constraint</span><span class="o">.</span><span class="n">CardinalityConstraint</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c"># Check for existence of expected inequalities</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">ineq</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span> <span class="k">for</span> <span class="n">ineq</span> <span class="ow">in</span> <span class="n">ormminus</span><span class="o">.</span><span class="n">_ineqsys</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s">&quot;ObjectTypes.AHasB &lt;= FactTypes.AHasB&quot;</span><span class="p">,</span> <span class="n">actual</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s">&quot;FactTypes.AHasB &lt;= ObjectTypes.AHasB&quot;</span><span class="p">,</span> <span class="n">actual</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s">&quot;ObjectTypes.ALikesB &lt;= FactTypes.ALikesB&quot;</span><span class="p">,</span> <span class="n">actual</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s">&quot;FactTypes.ALikesB &lt;= ObjectTypes.ALikesB&quot;</span><span class="p">,</span> <span class="n">actual</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s">&quot;ObjectTypes.AEnjoysB &lt;= FactTypes.AEnjoysB&quot;</span><span class="p">,</span> <span class="n">actual</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="s">&quot;FactTypes.AEnjoysB &lt;= ObjectTypes.AEnjoysB&quot;</span><span class="p">,</span> <span class="n">actual</span><span class="p">)</span>
+
+        <span class="c"># Check that solution has expected relations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;ObjectTypes.AHasB&quot;</span><span class="p">],</span> 
+                          <span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;FactTypes.AHasB&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;ObjectTypes.AHasB&quot;</span><span class="p">],</span> <span class="mi">10</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;ObjectTypes.ALikesB&quot;</span><span class="p">],</span> 
+                          <span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;FactTypes.ALikesB&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;ObjectTypes.ALikesB&quot;</span><span class="p">],</span> <span class="mi">5</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;ObjectTypes.AEnjoysB&quot;</span><span class="p">],</span> 
+                          <span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;FactTypes.AEnjoysB&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ormminus</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="s">&quot;ObjectTypes.AEnjoysB&quot;</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
 </pre></div></div></div>
 
           </div>

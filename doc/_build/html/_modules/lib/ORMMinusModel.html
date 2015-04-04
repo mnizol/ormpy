@@ -65,7 +65,7 @@
 <span class="kn">from</span> <span class="nn">lib.Constraint</span> \
     <span class="kn">import</span> <span class="n">FrequencyConstraint</span><span class="p">,</span> <span class="n">MandatoryConstraint</span><span class="p">,</span> <span class="n">ValueConstraint</span><span class="p">,</span> \
            <span class="n">CardinalityConstraint</span>
-<span class="kn">from</span> <span class="nn">lib.ObjectType</span> <span class="kn">import</span> <span class="n">ObjectType</span>
+<span class="kn">from</span> <span class="nn">lib.ObjectType</span> <span class="kn">import</span> <span class="n">ObjectType</span><span class="p">,</span> <span class="n">ObjectifiedType</span>
 
 <div class="viewcode-block" id="ORMMinusModel"><a class="viewcode-back" href="../../lib.html#lib.ORMMinusModel.ORMMinusModel">[docs]</a><span class="k">class</span> <span class="nc">ORMMinusModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An ORM- model along with its solution.  The solution is computed using</span>
@@ -185,6 +185,12 @@
             <span class="n">obj_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">object_type</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">obj_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">Constant</span><span class="p">(</span><span class="n">obj_var</span><span class="o">.</span><span class="n">upper</span><span class="p">)))</span>
 
+            <span class="c"># Add inequalities to enforce objectifications</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="n">ObjectifiedType</span><span class="p">):</span>
+                <span class="n">fact_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">object_type</span><span class="o">.</span><span class="n">nested_fact_type</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">obj_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">fact_var</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">Inequality</span><span class="p">(</span><span class="n">lhs</span><span class="o">=</span><span class="n">fact_var</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="n">obj_var</span><span class="p">))</span>
+
         <span class="c"># Create inequalities to represent role semantics</span>
         <span class="k">for</span> <span class="n">fact_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
@@ -259,7 +265,12 @@
         <span class="n">role_vars</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">role_seq</span><span class="p">]</span>
 
         <span class="n">min_var</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">cons</span><span class="o">.</span><span class="n">min_freq</span><span class="p">)</span>
-        <span class="n">max_var</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">max_freq</span><span class="p">)</span>
+
+        <span class="c"># If max_freq &gt; _ubound, set to _ubound.  This fixes an overflow bug</span>
+        <span class="c"># for unbounded constraints (i.e. max_freq == float(&#39;inf&#39;)).  Setting it</span>
+        <span class="c"># to _ubound is safe because no object can be repeated more times than</span>
+        <span class="c"># the number of tuples in the predicate, whose upper bound is _ubound.</span>
+        <span class="n">max_var</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ubound</span><span class="p">,</span> <span class="n">cons</span><span class="o">.</span><span class="n">max_freq</span><span class="p">))</span>
 
         <span class="n">fact_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">role_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">]</span>
         <span class="n">freq_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">cons</span><span class="p">]</span>

@@ -75,6 +75,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">independent</span> <span class="o">=</span> <span class="bp">False</span> <span class="c">#: True for independent object types</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implicit</span> <span class="o">=</span> <span class="bp">False</span>    <span class="c">#: True for implicit object types</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">roles</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Roles played by this object type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">covered_by</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Constraints that cover this object type</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_type</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Root object type in subtype graph (if any)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">direct_supertypes</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Direct supertypes of this object type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indirect_supertypes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span> <span class="c">#: Indirect supertypes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">direct_subtypes</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Direct subtypes of this object type</span>
 
         <span class="c"># Prefix for domain values     </span>
         <span class="n">prefix</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span> <span class="c"># Empty string if name is None</span>
@@ -86,9 +92,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">StringDomain</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span> 
 
     <span class="nd">@property</span>
+<div class="viewcode-block" id="ObjectType.primitive"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.primitive">[docs]</a>    <span class="k">def</span> <span class="nf">primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; True iff object type has no supertype. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+</div>
+    <span class="nd">@property</span>
 <div class="viewcode-block" id="ObjectType.fullname"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.fullname">[docs]</a>    <span class="k">def</span> <span class="nf">fullname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Returns name that is unique within the model. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s">&quot;ObjectTypes.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+</div>
+<div class="viewcode-block" id="ObjectType.compatible"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.compatible">[docs]</a>    <span class="k">def</span> <span class="nf">compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns true iff self == other, self is a supertype of other,</span>
+<span class="sd">            or other is a supertype of self.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span> <span class="ow">or</span> \
+               <span class="p">(</span><span class="bp">self</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">)</span> <span class="ow">or</span> \
+               <span class="p">(</span><span class="bp">self</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">indirect_supertypes</span><span class="p">)</span> <span class="ow">or</span> \
+               <span class="p">(</span><span class="n">other</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">)</span> <span class="ow">or</span> \
+               <span class="p">(</span><span class="n">other</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indirect_supertypes</span><span class="p">)</span>             
 </div></div>
 <div class="viewcode-block" id="EntityType"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.EntityType">[docs]</a><span class="k">class</span> <span class="nc">EntityType</span><span class="p">(</span><span class="n">ObjectType</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An entity type is an object type that requires identification. &quot;&quot;&quot;</span>

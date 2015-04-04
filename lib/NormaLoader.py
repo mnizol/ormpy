@@ -119,7 +119,7 @@ class NormaLoader(object):
             'ObjectifiedType'       : self._load_objectified_type,
             'NestedPredicate'       : self._load_nested_fact_type,
             'SubtypeDerivationRule' : self._load_subtype_derivation,
-            'PreferredIdentifier'   : self._load_preffered_identifier,
+            'PreferredIdentifier'   : self._load_preferred_identifier,
             'ConceptualDataType'    : self._load_conceptual_data_type,
             'ValueRestriction'      : self._load_child_nodes,
             'ValueConstraint'       : self._load_value_restriction,
@@ -181,21 +181,13 @@ class NormaLoader(object):
         }
 
     def _add(self, model_element):
-        """ Add model element to appropriate part of the model. """
-        # Add to the elements dictionary by uid
-        self._elements[model_element.uid] = model_element
+        """ Add model element to the model. """
+        self._elements[model_element.uid] = model_element 
 
-        # Add to the appropriate set in the model
-        if isinstance(model_element, ObjectType.ObjectType):
-            self.model.object_types.add(model_element)
-        elif isinstance(model_element, FactType.FactType):
-            self.model.fact_types.add(model_element)
-        elif isinstance(model_element, Constraint.Constraint):
-            self.model.constraints.add(model_element)
-        elif isinstance(model_element, FactType.Role):
-            pass # Must add to specific fact type
-        else:
-            raise Exception("Unexpected model element type")
+        # Add to model, unless it is a role (which is added as part of its
+        # containing fact type).
+        if not isinstance(model_element, FactType.Role):       
+            self.model.add(model_element)
 
     def _push(self, element):
         """ Push an item to the element stack. """
@@ -359,7 +351,7 @@ class NormaLoader(object):
         self.omissions.append("Subtype derivation rule for " + object_type.name)
 
     @staticmethod
-    def _load_preffered_identifier(xml_node, object_type):
+    def _load_preferred_identifier(xml_node, object_type):
         """ Loads PreferredIdentifier into object_type. """
         # GUID for uniq constraint corresponding to preferred reference scheme
         object_type.identifying_constraint = xml_node.get("ref")
@@ -379,7 +371,7 @@ class NormaLoader(object):
     def _load_value_restriction(self, xml_node, element):
         """ Load value constraint. """
         cons = self._construct(xml_node, Constraint.ValueConstraint)
-        cons.cover(element)
+        cons.covers = [element]
 
         for value_range in xml_node.find(self._ns_core + "ValueRanges"):
             try:
@@ -418,8 +410,9 @@ class NormaLoader(object):
                 if len(obj.roles) == 1: # Object type plays exactly 1 role,
                     # which is implicitly or explicitly mandatory
                     if not obj.independent or role.mandatory:
-                        cons.uncover(role)
-                        cons.cover(obj)
+                        self.model.remove(cons) # Rollback side effects
+                        cons.covers = [obj]     # Cover object type instead
+                        self.model.add(cons)    # Add back to model                   
 
     def _update_domains(self):
         """ For each value constraint that covers an object type, set that
@@ -563,11 +556,11 @@ class NormaLoader(object):
         except KeyError:
             raise Exception("Cannot load subtype constraint.")
 
-        cons.cover(cons.subtype) # Constraint only constrains subtype
+        cons.covers = [cons.subtype, cons.supertype]
 
         # Does this subtype constraint provide a path to the preferred ID?
         pref = (xml_node.get("PreferredIdentificationPath") == "true")
-        cons.preferred_id = pref
+        cons.idpath = pref
 
         # Update corresponding object types
         cons.supertype.direct_subtypes.append(cons.subtype)
@@ -667,7 +660,7 @@ class NormaLoader(object):
         """ Load mandatory constraint. """
         cons = self._construct(xml_node, Constraint.MandatoryConstraint)
 
-        cons.simple = (xml_node.get("IsSimple") == "true")
+        #cons.simple = (xml_node.get("IsSimple") == "true") # Determined algorithmically now
 
         # Ignore implied mandatory (do not even add to omissions)
         if xml_node.get("IsImplied") == "true":
@@ -739,20 +732,19 @@ class NormaLoader(object):
     def _load_cardinality_constraint(self, xml_node, parent):
         """ Load cardinality constraint. """
         types = ["CardinalityConstraint", "UnaryRoleCardinalityConstraint"]
+        valid_type = lambda x: self._local_tag(x) in types
 
         if len(xml_node) != 1:
             raise ValueError("CardinalityRestriction should have only 1 child node")
+        
+        for node in filter(valid_type, xml_node):          
+            cons = self._init_constraint(node, Constraint.CardinalityConstraint)   
+            cons.covers = [parent]
 
-        for node in xml_node:          
-            if self._local_tag(node) in types:
-                cons = self._init_constraint(node, 
-                            Constraint.CardinalityConstraint)   
-                cons.cover(parent)
+            range_node = node.find(self._ns_core + "Ranges")
+            cons.ranges = self._load_cardinality_ranges(range_node)
 
-                range_node = node.find(self._ns_core + "Ranges")
-                cons.ranges = self._load_cardinality_ranges(range_node)
-
-                self._add(cons)
+            self._add(cons)
 
     def _load_cardinality_ranges(self, xml_node):
         """ Load a list of cardinality ranges. """

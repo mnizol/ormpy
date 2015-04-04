@@ -119,9 +119,18 @@ parameter.</p>
 
 <dl class="class">
 <dt id="lib.Constraint.Constraint">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">Constraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">Constraint</tt><big>(</big><em>covers=None</em>, <em>alethic=True</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>An ORM Constraint.</p>
+<dl class="method">
+<dt id="lib.Constraint.Constraint.add_to">
+<tt class="descname">add_to</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.add_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.add_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add this constraint to a model.  Only this method and delete_from()
+will modify elements in the model.  Therefore, until add_to(model)
+is called, a constraint can still be deleted without affecting the
+model.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.Constraint.Constraint.alethic">
 <tt class="descname">alethic</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.Constraint.alethic" title="Permalink to this definition">¶</a></dt>
@@ -138,8 +147,14 @@ the constraint.</p>
 <dl class="attribute">
 <dt id="lib.Constraint.Constraint.covers">
 <tt class="descname">covers</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.Constraint.covers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Roles or object types the constraint covers
-(<a class="reference internal" href="#lib.FactType.RoleSequence" title="lib.FactType.RoleSequence"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.RoleSequence</span></tt></a>)</p>
+<dd><p>List of (<a class="reference internal" href="#lib.FactType.RoleSequence" title="lib.FactType.RoleSequence"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.RoleSequence</span></tt></a>) the constraint covers</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.Constraint.Constraint.delete_from">
+<tt class="descname">delete_from</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.delete_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.delete_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete this constraint from a model, updating any model elements
+that are affected by this constraint.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -159,7 +174,7 @@ the constraint.</p>
 
 <dl class="class">
 <dt id="lib.Constraint.ConstraintSet">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ConstraintSet</tt><a class="reference internal" href="_modules/lib/Constraint.html#ConstraintSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ConstraintSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ConstraintSet</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ConstraintSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ConstraintSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElementSet" title="lib.ModelElement.ModelElementSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElementSet</span></tt></a></p>
 <p>Container for a set of constraints.</p>
 <dl class="method">
@@ -518,6 +533,12 @@ which defaults to midnight and increments by minutes.</p>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>A role in a fact type.</p>
 <dl class="attribute">
+<dt id="lib.FactType.Role.covered_by">
+<tt class="descname">covered_by</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.covered_by" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constraints that cover this role</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="lib.FactType.Role.fact_type">
 <tt class="descname">fact_type</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.fact_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fact type to which role belongs</p>
@@ -857,7 +878,7 @@ element in a model from which an object type, fact type, and constraint
 can be derived) as well as an abstract class for a set of model elements.</p>
 <dl class="class">
 <dt id="lib.ModelElement.ModelElement">
-<em class="property">class </em><tt class="descclassname">lib.ModelElement.</tt><tt class="descname">ModelElement</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElement" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.ModelElement.</tt><tt class="descname">ModelElement</tt><big>(</big><em>uid=None</em>, <em>name=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>An abstract element in an ORM model.</p>
 <dl class="attribute">
@@ -878,7 +899,7 @@ after the model element is created.</p>
 
 <dl class="class">
 <dt id="lib.ModelElement.ModelElementSet">
-<em class="property">class </em><tt class="descclassname">lib.ModelElement.</tt><tt class="descname">ModelElementSet</tt><big>(</big><em>name='Model Elements'</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElementSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElementSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.ModelElement.</tt><tt class="descname">ModelElementSet</tt><big>(</big><em>name='Model Elements'</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElementSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElementSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>A set of model elements.</p>
 <dl class="method">
@@ -913,6 +934,12 @@ not in the set.</p>
 <dt id="lib.ModelElement.ModelElementSet.name">
 <tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ModelElement.ModelElementSet.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the set. May be used for display, etc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.ModelElement.ModelElementSet.remove">
+<tt class="descname">remove</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElementSet.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElementSet.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove element from the set, if it is present.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1062,6 +1089,31 @@ identification scheme for this entity type.</p>
 <em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>Abstract class inherited by all object types.</p>
+<dl class="method">
+<dt id="lib.ObjectType.ObjectType.compatible">
+<tt class="descname">compatible</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.compatible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.compatible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true iff self == other, self is a supertype of other,
+or other is a supertype of self.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.covered_by">
+<tt class="descname">covered_by</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.covered_by" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constraints that cover this object type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.direct_subtypes">
+<tt class="descname">direct_subtypes</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.direct_subtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Direct subtypes of this object type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.direct_supertypes">
+<tt class="descname">direct_supertypes</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.direct_supertypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Direct supertypes of this object type</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.ObjectType.ObjectType.domain">
 <tt class="descname">domain</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.domain" title="Permalink to this definition">¶</a></dt>
@@ -1088,9 +1140,27 @@ identification scheme for this entity type.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.indirect_supertypes">
+<tt class="descname">indirect_supertypes</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.indirect_supertypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indirect supertypes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.primitive">
+<tt class="descname">primitive</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.primitive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.primitive" title="Permalink to this definition">¶</a></dt>
+<dd><p>True iff object type has no supertype.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="lib.ObjectType.ObjectType.roles">
 <tt class="descname">roles</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.roles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Roles played by this object type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.root_type">
+<tt class="descname">root_type</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.root_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Root object type in subtype graph (if any)</p>
 </dd></dl>
 
 </dd></dl>

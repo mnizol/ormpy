@@ -286,8 +286,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_constraints</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
 
         <span class="c"># Post-processing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_nested_fact_type_refs</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fix_value_constraints</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_domains</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_indirect_subtypes</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_parse_norma_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Parse a NORMA File and return the ORMModel node. &quot;&quot;&quot;</span>
@@ -392,6 +394,15 @@
             <span class="n">object_type</span><span class="o">.</span><span class="n">implicit</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="n">object_type</span><span class="o">.</span><span class="n">nested_fact_type</span> <span class="o">=</span> <span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ref&quot;</span><span class="p">)</span> <span class="c"># GUID of fact type</span>
 
+    <span class="k">def</span> <span class="nf">_fix_nested_fact_type_refs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Updates objectified type&#39;s nested_fact_type attribute to point to</span>
+<span class="sd">            the actual fact type and not just the GUID.  MUST be called after</span>
+<span class="sd">            both object types and fact types are loaded. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">object_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ObjectifiedType</span><span class="p">):</span>
+                <span class="n">guid</span> <span class="o">=</span> <span class="n">object_type</span><span class="o">.</span><span class="n">nested_fact_type</span> 
+                <span class="n">object_type</span><span class="o">.</span><span class="n">nested_fact_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="nf">_load_subtype_derivation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_node</span><span class="p">,</span> <span class="n">object_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Loads SubtypeDerivationRule into object_type. &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omissions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Subtype derivation rule for &quot;</span> <span class="o">+</span> <span class="n">object_type</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -470,6 +481,38 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">ObjectType</span><span class="o">.</span><span class="n">ObjectType</span><span class="p">):</span>
                 <span class="n">object_type</span> <span class="o">=</span> <span class="n">element</span>
                 <span class="n">object_type</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">domain</span>
+
+    <span class="k">def</span> <span class="nf">_update_indirect_subtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Starting at each root type, build a list of indirect </span>
+<span class="sd">            supertypes for each subtype of the root. &quot;&quot;&quot;</span>
+
+        <span class="c"># NOTE: I do not check for cycles in the subtype graph.  I could, but</span>
+        <span class="c"># (a) They are illegal in ORM, and (b) NORMA doesn&#39;t permit adding them</span>
+        <span class="c"># so I don&#39;t think its worth the computational effort.</span>
+
+        <span class="k">for</span> <span class="n">object_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">object_type</span><span class="o">.</span><span class="n">primitive</span><span class="p">:</span> <span class="c"># Is a root type</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">object_type</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_subtype</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">object_type</span><span class="p">,</span> <span class="n">object_type</span><span class="p">)</span>
+
+                <span class="c"># A primitive type is its own root type</span>
+                <span class="n">object_type</span><span class="o">.</span><span class="n">root_type</span> <span class="o">=</span> <span class="n">object_type</span>
+                                                 
+    <span class="k">def</span> <span class="nf">_update_subtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Update the list of indirect supertypes of this subtype. &quot;&quot;&quot;</span>
+
+        <span class="c"># Check for multiple root types, which are illegal</span>
+        <span class="k">if</span> <span class="n">this</span><span class="o">.</span><span class="n">root_type</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">this</span><span class="o">.</span><span class="n">root_type</span> <span class="o">!=</span> <span class="n">root</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Subtype graph containing &quot;</span> <span class="o">+</span> <span class="n">this</span><span class="o">.</span><span class="n">fullname</span> <span class="o">+</span> \
+                             <span class="s">&quot; has more than one root type&quot;</span><span class="p">)</span>
+
+        <span class="n">this</span><span class="o">.</span><span class="n">root_type</span> <span class="o">=</span> <span class="n">root</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">indirect_supertypes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">)</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">indirect_supertypes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">indirect_supertypes</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">this</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_subtype</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+                   
 
     <span class="c">##########################################################################</span>
     <span class="c"># Private Functions to Load Fact Types</span>
@@ -574,6 +617,10 @@
         <span class="c"># Does this subtype constraint provide a path to the preferred ID?</span>
         <span class="n">pref</span> <span class="o">=</span> <span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;PreferredIdentificationPath&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">)</span>
         <span class="n">cons</span><span class="o">.</span><span class="n">preferred_id</span> <span class="o">=</span> <span class="n">pref</span>
+
+        <span class="c"># Update corresponding object types</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">supertype</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">subtype</span><span class="p">)</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">subtype</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">supertype</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span> <span class="c"># Add subtype constraint to model</span>
 

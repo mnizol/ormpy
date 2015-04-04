@@ -9,13 +9,17 @@
     can be derived) as well as an abstract class for a set of model elements.
 """
 
+import uuid
+
 class ModelElement(object):
     """ An abstract element in an ORM model. """
 
-    def __init__(self, uid=None, name=None):
+    def __init__(self, uid=None, name=None, *args, **kwargs):
+        super(ModelElement, self).__init__(*args, **kwargs)
+
         # The UID (Unique ID) and Name cannot change once the model element
         # is created.  Therefore, it is defined as a ready-only property.
-        self._uid = uid
+        self._uid = uid or uuid.uuid4().hex
         self._name = name
 
     @property
@@ -30,11 +34,23 @@ class ModelElement(object):
             the model element is created. """
         return self._name
 
+    def commit(self):
+        """ Commit any side effects of adding this model element to a model.
+            This is an abstract method that must be implemented for each 
+            subclass of ModelElement. """
+        raise NotImplementedError()
+
+    def rollback(self):
+        """ Rollback any side effects of adding this model element to a model.
+            This is an abstract method that must be implemented for each 
+            subclass of ModelElement. """
+        raise NotImplementedError()
 
 class ModelElementSet(object):
     """ A set of model elements. """
 
-    def __init__(self, name="Model Elements"):
+    def __init__(self, name="Model Elements", *args, **kwargs):
+        super(ModelElementSet, self).__init__(*args, **kwargs)
         self._set = {}
         self.name = name #: The name of the set. May be used for display, etc.
 
@@ -55,6 +71,13 @@ class ModelElementSet(object):
             i = i + 1
 
         self._set[element.name] = element
+
+    def remove(self, element):
+        """ Remove element from the set, if it is present. """
+        try:
+            del self._set[element.name]
+        except KeyError:
+            pass
 
     def get(self, name):
         """ Retrieve an element by name.  Returns **None** if the element is

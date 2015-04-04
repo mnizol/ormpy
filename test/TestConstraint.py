@@ -9,8 +9,9 @@
 from unittest import TestCase
 
 import lib.Constraint as Constraint
+from lib.Model import Model
 from lib.ObjectType import ObjectType
-from lib.FactType import Role
+from lib.FactType import FactType, Role
 
 class TestConstraint(TestCase):
     """ Unit tests for the Constraint module. """
@@ -20,15 +21,16 @@ class TestConstraint(TestCase):
 
     def test_add_object_type(self):
         """ Test the addition of an object type to a constraint. """
-        cons = Constraint.Constraint(uid="1", name="C1")
-        cons.cover(ObjectType(uid="2", name="O1"))
+        covers = [ObjectType(uid="2", name="O1")]
+        cons = Constraint.Constraint(uid="1", name="C1", covers=covers)        
         self.assertEquals(cons.covers[0].name, "O1")
 
+    """ Removed uncover() method so this test is no longer valid.
     def test_remove_object_type(self):
-        """ Test the removal of an object type from a constraint. """
-        cons = Constraint.Constraint(uid="1", name="C1")
+        # Test the removal of an object type from a constraint.
         obj = ObjectType(uid="2", name="O1")
-        cons.cover(obj)
+        cons = Constraint.Constraint(uid="1", name="C1", covers=[obj])
+        
         self.assertEquals(cons.covers[0], obj)
 
         # Unsuccessful uncover
@@ -38,6 +40,7 @@ class TestConstraint(TestCase):
         # Successful uncover
         cons.uncover(obj)
         self.assertItemsEqual(cons.covers, [])
+    """
 
     def test_vc_add_enum(self):
         """ Test the addition of enumerated items to a value constraint."""
@@ -119,17 +122,17 @@ class TestConstraint(TestCase):
 
     def test_add_subset_roles(self):
         """ Test adding subset roles to subset constraint. """
-        cons = Constraint.SubsetConstraint(uid="1", name="S1")
         role = Role(uid="R1", name="R1")
-        cons.cover_subset(role)
+        cons = Constraint.SubsetConstraint(uid="1", name="S1", subset=[role])
+        
         self.assertIs(cons.covers[0], role)
         self.assertIs(cons.subset[0], role)
 
     def test_add_superset_roles(self):
         """ Test adding superset roles to subset constraint. """
-        cons = Constraint.SubsetConstraint(uid="1", name="S1")
         role = Role(uid="R1", name="R1")
-        cons.cover_superset(role)
+        cons = Constraint.SubsetConstraint(uid="1", name="S1", superset=[role])
+        
         self.assertIs(cons.covers[0], role)
         self.assertIs(cons.superset[0], role)
 
@@ -162,4 +165,62 @@ class TestConstraint(TestCase):
         actual = cons_set.of_type(Constraint.MandatoryConstraint)
         expect = []
         self.assertItemsEqual(actual, expect)
+
+    def test_mandatory_is_simple(self):
+        """ Test simple property on MandatoryConstraint. """
+        role1 = Role(uid="R1", name="R1")
+        role2 = Role(uid="R2", name="R2")
+
+        cons1 = Constraint.MandatoryConstraint(uid="C1",name="C1",covers=[role1])
+        cons2 = Constraint.MandatoryConstraint(uid="C2",name="C2",covers=[role1,role2])
+
+        self.assertTrue(cons1.simple)
+        self.assertFalse(cons2.simple)
+
+    def test_commit_and_rollback(self):
+        """ Test committing and rolling back constraints on a model. """
+        model = Model()
+
+        obj1 = ObjectType(name="O1")
+        obj2 = ObjectType(name="O2")
+
+        role1 = Role(name="R1")
+        role2 = Role(name="R2")
+        fact = FactType(name="F1")
+        fact.add(role1)
+        fact.add(role2)
+
+        cons1 = Constraint.MandatoryConstraint(name="M1",covers=[role1])
+        cons2 = Constraint.UniquenessConstraint(name="U1",covers=[role1,role2])
+        cons3 = Constraint.ValueConstraint(name="V1",covers=[obj1])
+        
+        for element in [obj1, obj2, fact, cons1, cons2, cons3]:
+            model.add(element)
+
+        self.assertEquals(model.constraints.get("M1").covers, [role1])
+        self.assertEquals(model.constraints.get("U1").covers, [role1, role2])
+        self.assertEquals(model.constraints.get("V1").covers, [obj1])
+ 
+        self.assertEquals(role1.covered_by, [cons1, cons2])
+        self.assertEquals(role2.covered_by, [cons2])
+        self.assertEquals(obj1.covered_by, [cons3])
+
+        model.remove(cons2)
+        model.remove(cons3)
+
+        self.assertEquals(model.constraints.get("M1"), cons1)
+        self.assertEquals(model.constraints.get("U1"), None)
+        self.assertEquals(model.constraints.get("V1"), None)
+
+        self.assertEquals(role1.covered_by, [cons1])
+        self.assertEquals(role2.covered_by, [])
+        self.assertEquals(obj1.covered_by, [])
+
+        # Test that additional rollback has no effect
+        model.remove(cons3)
+        self.assertEquals(model.constraints.get("M1"), cons1)
+        self.assertEquals(model.constraints.get("V1"), None)
+        self.assertEquals(obj1.covered_by, [])
+
+       
 

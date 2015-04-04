@@ -63,8 +63,8 @@
 <div class="viewcode-block" id="ConstraintSet"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ConstraintSet">[docs]</a><span class="k">class</span> <span class="nc">ConstraintSet</span><span class="p">(</span><span class="n">ModelElementSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Container for a set of constraints. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ConstraintSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Constraints&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConstraintSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Constraints&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ConstraintSet.of_type"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ConstraintSet.of_type">[docs]</a>    <span class="k">def</span> <span class="nf">of_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cons_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Return a list of constraints limited to a given type. &quot;&quot;&quot;</span>
@@ -73,15 +73,14 @@
 <div class="viewcode-block" id="Constraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint">[docs]</a><span class="k">class</span> <span class="nc">Constraint</span><span class="p">(</span><span class="n">ModelElement</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An ORM Constraint. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Constraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">alethic</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Constraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="c">#: Roles or object types the constraint covers</span>
-        <span class="c">#: (:class:`lib.FactType.RoleSequence`)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="n">RoleSequence</span><span class="p">()</span>
+        <span class="c">#: List of (:class:`lib.FactType.RoleSequence`) the constraint covers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="n">covers</span>
 
         <span class="c">#: True if constraint has alethic modality (False implies deontic)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">alethic</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alethic</span> <span class="o">=</span> <span class="n">alethic</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Constraint.fullname"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.fullname">[docs]</a>    <span class="k">def</span> <span class="nf">fullname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -98,6 +97,23 @@
 <span class="sd">            the constraint. &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">model_element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">model_element</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Constraint.add_to"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.add_to">[docs]</a>    <span class="k">def</span> <span class="nf">add_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add this constraint to a model.  Only this method and delete_from()</span>
+<span class="sd">            will modify elements in the model.  Therefore, until add_to(model)</span>
+<span class="sd">            is called, a constraint can still be deleted without affecting the</span>
+<span class="sd">            model.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">:</span>
+            <span class="n">element</span><span class="o">.</span><span class="n">covered_by</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>        
+</div>
+<div class="viewcode-block" id="Constraint.delete_from"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.delete_from">[docs]</a>    <span class="k">def</span> <span class="nf">delete_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Delete this constraint from a model, updating any model elements</span>
+<span class="sd">            that are affected by this constraint.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span> <span class="n">element</span><span class="o">.</span><span class="n">covered_by</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span> <span class="k">pass</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>        
 </div></div>
 <div class="viewcode-block" id="CardinalityConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.CardinalityConstraint">[docs]</a><span class="k">class</span> <span class="nc">CardinalityConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A cardinality constraint on an object type or role. &quot;&quot;&quot;</span>

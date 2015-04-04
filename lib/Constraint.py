@@ -14,8 +14,8 @@ from lib.Domain import EnumeratedDomain
 class ConstraintSet(ModelElementSet):
     """ Container for a set of constraints. """
 
-    def __init__(self):
-        super(ConstraintSet, self).__init__(name="Constraints")
+    def __init__(self, *args, **kwargs):
+        super(ConstraintSet, self).__init__(name="Constraints", *args, **kwargs)
 
     def of_type(self, cons_type):
         """ Return a list of constraints limited to a given type. """
@@ -24,38 +24,38 @@ class ConstraintSet(ModelElementSet):
 class Constraint(ModelElement):
     """ An ORM Constraint. """
 
-    def __init__(self, uid=None, name=None):
-        super(Constraint, self).__init__(uid=uid, name=name)
+    def __init__(self, covers=None, alethic=True, *args, **kwargs):
+        super(Constraint, self).__init__(*args, **kwargs)
 
-        #: Roles or object types the constraint covers
-        #: (:class:`lib.FactType.RoleSequence`)
-        self.covers = RoleSequence()
+        #: List of model element(s) that the constraint covers.  If the 
+        #: constraint covers a sequence of roles, use a FactType.RoleSequence.  
+        self.covers = covers or RoleSequence()
 
         #: True if constraint has alethic modality (False implies deontic)
-        self.alethic = True
+        self.alethic = alethic
 
     @property
     def fullname(self):
         """ Returns name that is unique within the model. """
         return "Constraints." + self.name
 
-    def cover(self, model_element):
-        """ Add a model element to the list of elements covered by
-            the constraint. """
-        self.covers.append(model_element)
+    def commit(self):
+        """ Commit side effects of this constraint in the model. """
+        for element in self.covers:
+            element.covered_by.append(self)
 
-    def uncover(self, model_element):
-        """ Remove the model element from the list of elements covered by
-            the constraint. """
-        if model_element in self.covers:
-            self.covers.remove(model_element)
+    def rollback(self):
+        """ Rollback side effects of this constraint in the model. """
+        for element in self.covers:
+            try: element.covered_by.remove(self)
+            except ValueError: pass
 
 class CardinalityConstraint(Constraint):
     """ A cardinality constraint on an object type or role. """
 
-    def __init__(self, uid=None, name=None):
-        super(CardinalityConstraint, self).__init__(uid=uid, name=name)
-        self.ranges = [] #: A list of CardinalityRange objects
+    def __init__(self, ranges=None, *args, **kwargs):
+        super(CardinalityConstraint, self).__init__(*args, **kwargs)
+        self.ranges = ranges #: A list of CardinalityRange objects
 
 class CardinalityRange(object):
     """ A range for a cardinality constraint. """
@@ -66,9 +66,8 @@ class CardinalityRange(object):
 
 class ValueConstraint(Constraint):
     """ A value constraint.  This implementation supports only a limited
-        form of value constraint: specifically, enumerations (i.e. min
-        value == max value), bounded integer ranges, or a combination
-        of the two.  For example:
+        form of value constraint: specifically, enumerations, bounded integer 
+        ranges, or a combination of the two.  For example:
 
         *Supported:*
 
@@ -88,10 +87,10 @@ class ValueConstraint(Constraint):
 
     MAX_SIZE = 1000 #: Arbitrary, for performance.
 
-    def __init__(self, uid=None, name=None):
-        super(ValueConstraint, self).__init__(uid=uid, name=name)
+    def __init__(self, *args, **kwargs):
+        super(ValueConstraint, self).__init__(*args, **kwargs)
 
-        #: Domain of valid values
+        #: An EnumeratedDomain containing the set of valid values
         self.domain = EnumeratedDomain()
 
     @property
@@ -132,66 +131,63 @@ class ValueConstraintError(Exception):
 class SubtypeConstraint(Constraint):
     """ A subtype constraint. """
 
-    def __init__(self, uid=None, name=None):
-        super(SubtypeConstraint, self).__init__(uid=uid, name=name)
+    def __init__(self, subtype=None, supertype=None, idpath=True,
+                 *args, **kwargs):
+        super(SubtypeConstraint, self).__init__(*args, **kwargs)
 
-        self.subtype = None #: Subtype object type
-        self.supertype = None #: Supertype object type
+        self.subtype = subtype #: Subtype object type
+        self.supertype = supertype #: Supertype object type
 
         #: True if subtype constraint is on path to preferred id.  This is
         #: relevant if the subtype inherits one of its supertypes' reference
         #: schemes, and the supertype graph is not a simple path.
-        self.preferred_id = None
+        self.idpath = idpath
 
 class MandatoryConstraint(Constraint):
     """ A mandatory constraint. """
 
-    def __init__(self, uid=None, name=None):
-        super(MandatoryConstraint, self).__init__(uid=uid, name=name)
+    def __init__(self, *args, **kwargs):
+        super(MandatoryConstraint, self).__init__(*args, **kwargs)
 
-        self.simple = False #: True for simple mandatory constraints
+    @property
+    def simple(self):
+        """ True if mandatory constraint is simple. """
+        return len(self.covers) == 1
 
 class SubsetConstraint(Constraint):
     """ A subset constraint. """
 
-    def __init__(self, uid=None, name=None):
-        super(SubsetConstraint, self).__init__(uid=uid, name=name)
+    def __init__(self, subset=None, superset=None, *args, **kwargs):
+        super(SubsetConstraint, self).__init__(*args, **kwargs)
 
         #: Sequence of subset roles (:class:`lib.FactType.RoleSequence`)
-        self.subset = RoleSequence()
+        self.subset = subset or RoleSequence()
 
         #: Sequence of superset roles (:class:`lib.FactType.RoleSequence`)
-        self.superset = RoleSequence()
+        self.superset = superset or RoleSequence()
 
-    def cover_subset(self, role):
-        """ Add a role to the list of subset roles covered by this
-            constraint."""
-        self.subset.append(role)
-        self.cover(role) # Add to full list of covered roles
-
-    def cover_superset(self, role):
-        """ Add a role to the list of superset roles covered by
-            this constraint. """
-        self.superset.append(role)
-        self.cover(role) # Add to full list of covered roles
+        # Override whatever is passed in as the list of covered roles; instead,
+        # we treat the subset and superset sequences as the truth.
+        self.covers = self.subset + self.superset
 
 class FrequencyConstraint(Constraint):
     """ A frequency constraint. """
 
-    def __init__(self, uid=None, name=None):
-        super(FrequencyConstraint, self).__init__(uid=uid, name=name)
+    def __init__(self, min_freq=0, max_freq=float('inf'), internal=False,
+                 *args, **kwargs):
+        super(FrequencyConstraint, self).__init__(*args, **kwargs)
 
-        self.min_freq = None #: Minimum frequency
-        self.max_freq = None #: Maximum frequency
+        self.min_freq = min_freq #: Minimum frequency
+        self.max_freq = max_freq #: Maximum frequency
 
         #: True if constraint covers roles in one fact type
-        self.internal = False
+        self.internal = internal
 
 class UniquenessConstraint(FrequencyConstraint):
     """ A uniqueness constraint (a special case of Frequency Constraint). """
 
-    def __init__(self, uid=None, name=None):
-        super(UniquenessConstraint, self).__init__(uid=uid, name=name)
+    def __init__(self, identifier_for=None, *args, **kwargs):
+        super(UniquenessConstraint, self).__init__(*args, **kwargs)
 
         #: A uniqueness constraint is a special case of a frequency constraint
         #: in which the min and max frequencies are both 1
@@ -199,13 +195,13 @@ class UniquenessConstraint(FrequencyConstraint):
         self.max_freq = 1
 
         #: Object type this constraint identifies
-        self.identifier_for = None
+        self.identifier_for = identifier_for
 
 class ExclusionConstraint(Constraint):
     """ An exclusion constraint. """
 
-    def __init__(self, uid=None, name=None):
-        super(ExclusionConstraint, self).__init__(uid=uid, name=name)
+    def __init__(self, *args, **kwargs):
+        super(ExclusionConstraint, self).__init__(*args, **kwargs)
 
 
 

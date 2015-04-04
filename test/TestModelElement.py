@@ -10,7 +10,7 @@
 import sys
 from unittest import TestCase
 
-from lib.ModelElement import ModelElementSet
+from lib.ModelElement import ModelElementSet, ModelElement
 
 from lib.ObjectType import ObjectType
 from lib.FactType import FactType
@@ -39,6 +39,24 @@ class TestModelElementSet(TestCase):
         _set.add(self.fact_type1)
         _set.add(self.constraint1)
         self.assertEqual(_set.count(), 3)
+
+    def test_remove_element(self):
+        """ Confirm we can remove elements from the set. """
+        _set = ModelElementSet()
+        
+        _set.add(self.constraint1)
+        _set.add(self.object_type1)
+        _set.add(self.fact_type1)
+        self.assertEqual(_set.count(), 3)
+        self.assertIs(_set.get("Object Type 1"), self.object_type1)
+
+        _set.remove(self.object_type1)
+        self.assertEqual(_set.count(), 2)
+        self.assertEqual(_set.get("Object Type 1"), None)
+
+        # Try to remove an item that is already removed
+        _set.remove(self.object_type1)
+        self.assertEqual(_set.count(), 2)
 
     def test_get_element(self):
         """ Confirm we can successfully retrieve added elements. """
@@ -84,6 +102,18 @@ class TestModelElementSet(TestCase):
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, "Model Elements:\n    ABC\n    GHI\n    XYZ")
+
+    def test_commit(self):
+        """ Confirm commit raises NotImplementedError."""
+        el = ModelElement()
+        with self.assertRaises(NotImplementedError) as ex:
+            el.commit()
+
+    def test_rollback(self):
+        """ Confirm rollback raises NotImplementedError."""
+        el = ModelElement()
+        with self.assertRaises(NotImplementedError) as ex:
+            el.rollback()
         
         
 

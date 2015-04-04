@@ -26,6 +26,7 @@ class ObjectType(ModelElement):
         self.independent = False #: True for independent object types
         self.implicit = False    #: True for implicit object types
         self.roles = [] #: Roles played by this object type
+        self.covered_by = [] #: Constraints that cover this object type
 
         self.root_type = None #: Root object type in subtype graph (if any)
         self.direct_supertypes = [] #: Direct supertypes of this object type
@@ -50,6 +51,14 @@ class ObjectType(ModelElement):
     def fullname(self):
         """ Returns name that is unique within the model. """
         return "ObjectTypes." + self.name
+
+    def commit(self):
+        """ Commit any side effects of adding this object type to a model."""
+        pass # TODO: Implement later
+
+    def rollback(self):
+        """ Rollback any side effects of adding this object type to a model."""
+        pass # TODO: Implement later
 
     def compatible(self, other):
         """ Returns true iff self == other, self is a supertype of other,

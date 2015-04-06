@@ -732,14 +732,15 @@ class TestNormaLoader(TestCase):
             NormaLoader(self.data_dir + "bad_cardinality_constraint_1.orm")
 
         self.assertEquals(ex.exception.message,
-            "CardinalityRestriction should have only 1 child node")
+            "Unexpected cardinality constraint format")
 
     def test_bad_cardinality_constraint_2(self):
         """ Test loading of file with badly named cardinality constraint node. """
 
-        loader = NormaLoader(self.data_dir + "bad_cardinality_constraint_2.orm")
-        model = loader.model
-        self.assertEquals(model.constraints.count(), 0)
+        with self.assertRaises(ValueError) as ex:
+            loader = NormaLoader(self.data_dir + "bad_cardinality_constraint_2.orm")
+        self.assertEquals(ex.exception.message, 
+            "Unexpected cardinality constraint format")
 
     def test_bad_cardinality_constraint_3(self):
         """ Test loading of file with badly named ranges node. """

@@ -41,15 +41,55 @@
 """
 
 import xml.etree.cElementTree as xml
-from datetime import datetime, date, time
 import logging
 import os
+from datetime import datetime, date, time
 
 from lib.Model import Model
 import lib.ObjectType as ObjectType
 import lib.FactType as FactType
 import lib.Constraint as Constraint
 import lib.Domain as Domain
+
+# Constants
+NS_ROOT = "{http://schemas.neumont.edu/ORM/2006-04/ORMRoot}"
+NS_CORE = "{http://schemas.neumont.edu/ORM/2006-04/ORMCore}"
+
+# Mapping from XML types defined in ORMCore namespace to Domains.  The default
+# domain, used when the value is None, is a StringDomain whose prefix is the
+# object type's name (e.g. values for Person default to Person1, Person2, etc.)
+DATA_TYPES = {
+    "UnspecifiedDataType"                        : None,
+    "FixedLengthTextDataType"                    : None,
+    "VariableLengthTextDataType"                 : None,
+    "LargeLengthTextDataType"                    : None,
+    "SignedIntegerNumericDataType"               : Domain.IntegerDomain,
+    "SignedSmallIntegerNumericDataType"          : Domain.IntegerDomain,
+    "SignedLargeIntegerNumericDataType"          : Domain.IntegerDomain,
+    "UnsignedIntegerNumericDataType"             : Domain.IntegerDomain,
+    "UnsignedTinyIntegerNumericDataType"         : Domain.IntegerDomain,
+    "UnsignedSmallIntegerNumericDataType"        : Domain.IntegerDomain,
+    "UnsignedLargeIntegerNumericDataType"        : Domain.IntegerDomain,
+    "AutoCounterNumericDataType"                 : Domain.IntegerDomain,
+    "FloatingPointNumericDataType"               : Domain.FloatDomain,
+    "SinglePrecisionFloatingPointNumericDataType": Domain.FloatDomain,
+    "DoublePrecisionFloatingPointNumericDataType": Domain.FloatDomain,
+    "DecimalNumericDataType"                     : Domain.FloatDomain,
+    "MoneyNumericDataType"                       : Domain.FloatDomain,
+    "FixedLengthRawDataDataType"                 : None,
+    "VariableLengthRawDataDataType"              : None,
+    "LargeLengthRawDataDataType"                 : None,
+    "PictureRawDataDataType"                     : None,
+    "OleObjectRawDataDataType"                   : None,
+    "AutoTimestampTemporalDataType"              : Domain.DateTimeDomain,
+    "TimeTemporalDataType"                       : Domain.TimeDomain,
+    "DateTemporalDataType"                       : Domain.DateDomain, 
+    "DateAndTimeTemporalDataType"                : Domain.DateTimeDomain,
+    "TrueOrFalseLogicalDataType"                 : Domain.BoolDomain,
+    "YesOrNoLogicalDataType"                     : Domain.BoolDomain,
+    "RowIdOtherDataType"                         : Domain.IntegerDomain,
+    "ObjectIdOtherDataType"                      : Domain.IntegerDomain
+}
 
 class NormaLoader(object):
     """ Loads an .orm file produced by the NORMA modeling tool into a
@@ -66,21 +106,14 @@ class NormaLoader(object):
     def __init__(self, filename):
         """ Initialize object and load *filename*. """
 
-        # Public attributes
-
         #: The ORM model (:class:`lib.Model.Model`) loaded from the .orm file.
         self.model = Model()
 
-        #: List of items in the .orm file omitted by the NormaLoader
-        self.omissions = []
+        # Items in the .orm file omitted by NormaLoader
+        self.omissions = [] #: Intentionally omitted model elements
+        self.unexpected = set() #: Unexpected nodes in the XML file
 
         # Private attributes
-
-        # NORMA namespace constants.  If the .ORM file is based on updated
-        # namespaces, we will not load it.
-        self._ns_root = "{http://schemas.neumont.edu/ORM/2006-04/ORMRoot}"
-        self._ns_core = "{http://schemas.neumont.edu/ORM/2006-04/ORMCore}"
-
         self._elements = {}   # Dictionary of {id, element} pairs
 
         # Stack of elements to add to model.  Some items are generated (e.g.
@@ -89,21 +122,11 @@ class NormaLoader(object):
         self._element_stack = []
 
         self._loader = {}
-        self._data_types = {}
 
         # Executable part of constructor: build mappings and load file
         self._build_mappings()
         self._load(filename)
-
-        # Log any model element omissions
-        logger = logging.getLogger(__name__)
-        size = len(self.omissions)
-        if size > 0:
-            text = "elements were" if size > 1 else "element was"
-            logger.warning("%d model %s ignored while loading %s.", 
-                           size, text, os.path.basename(filename))
-            for omission in self.omissions:
-                logger.info("Ignoring %s", omission)
+        self._log_issues_with(filename)      
         
 
     ###########################################################################
@@ -131,53 +154,7 @@ class NormaLoader(object):
             'DerivationRule'        : self._load_facttype_derivation,
             'DerivationSource'      : self._load_role_derivation,
             'SubtypeFact'           : self._load_subtype_fact,
-            'EqualityConstraint'    : self._load_equality_constraint,
-            'ExclusionConstraint'   : self._load_exclusion_constraint,
-            'SubsetConstraint'      : self._load_subset_constraint,
-            'FrequencyConstraint'   : self._load_frequency_constraint,
-            'MandatoryConstraint'   : self._load_mandatory_constraint,
-            'UniquenessConstraint'  : self._load_uniqueness_constraint,
-            'RingConstraint'        : self._load_ring_constraint,
-            'ValueComparisonConstraint' : self._load_value_comp_constraint,
             'CardinalityRestriction': self._load_cardinality_constraint
-        }
-
-        # Mapping from XML types defined in ORMCode namespace to domains.
-        #
-        # IMPORTANT: Because the default domain for all object
-        # types is already StringDomain with a prefix based on the type's name,
-        # all string types here map to None so that we will use the default.
-        self._data_types = {
-            "UnspecifiedDataType"                     : None,
-            "FixedLengthTextDataType"                 : None,
-            "VariableLengthTextDataType"              : None,
-            "LargeLengthTextDataType"                 : None,
-            "SignedIntegerNumericDataType"            : Domain.IntegerDomain,
-            "SignedSmallIntegerNumericDataType"       : Domain.IntegerDomain,
-            "SignedLargeIntegerNumericDataType"       : Domain.IntegerDomain,
-            "UnsignedIntegerNumericDataType"          : Domain.IntegerDomain,
-            "UnsignedTinyIntegerNumericDataType"      : Domain.IntegerDomain,
-            "UnsignedSmallIntegerNumericDataType"     : Domain.IntegerDomain,
-            "UnsignedLargeIntegerNumericDataType"     : Domain.IntegerDomain,
-            "AutoCounterNumericDataType"              : Domain.IntegerDomain,
-            "FloatingPointNumericDataType"            : Domain.FloatDomain,
-            "SinglePrecisionFloatingPointNumericDataType": Domain.FloatDomain,
-            "DoublePrecisionFloatingPointNumericDataType": Domain.FloatDomain,
-            "DecimalNumericDataType"                  : Domain.FloatDomain,
-            "MoneyNumericDataType"                    : Domain.FloatDomain,
-            "FixedLengthRawDataDataType"              : None,
-            "VariableLengthRawDataDataType"           : None,
-            "LargeLengthRawDataDataType"              : None,
-            "PictureRawDataDataType"                  : None,
-            "OleObjectRawDataDataType"                : None,
-            "AutoTimestampTemporalDataType"           : Domain.DateTimeDomain,
-            "TimeTemporalDataType"                    : Domain.TimeDomain,
-            "DateTemporalDataType"                    : Domain.DateDomain, 
-            "DateAndTimeTemporalDataType"             : Domain.DateTimeDomain,
-            "TrueOrFalseLogicalDataType"              : Domain.BoolDomain,
-            "YesOrNoLogicalDataType"                  : Domain.BoolDomain,
-            "RowIdOtherDataType"                      : Domain.IntegerDomain,
-            "ObjectIdOtherDataType"                   : Domain.IntegerDomain
         }
 
     def _add(self, model_element):
@@ -234,6 +211,17 @@ class NormaLoader(object):
         self._update_domains()
         self._update_indirect_subtypes()
 
+    def _log_issues_with(self, filename):
+        """ Log any model element omissions. """
+        logger = logging.getLogger(__name__)
+        size = len(self.omissions)
+        if size > 0:
+            text = "elements were" if size > 1 else "element was"
+            logger.warning("%d model %s ignored while loading %s.", 
+                           size, text, os.path.basename(filename))
+            for omission in self.omissions:
+                logger.info("Ignoring %s", omission)
+
     def _parse_norma_file(self, filename):
         """ Parse a NORMA File and return the ORMModel node. """
         if filename.split(".")[-1].upper() != "ORM":
@@ -242,10 +230,10 @@ class NormaLoader(object):
         tree = xml.parse(filename)
         root = tree.getroot()
 
-        if root.tag != self._ns_root + "ORM2":
+        if root.tag != NS_ROOT + "ORM2":
             raise Exception("Root of input file must be <ormRoot:ORM2>.")
 
-        model_node = root.find(self._ns_core + "ORMModel")
+        model_node = root.find(NS_CORE + "ORMModel")
 
         if model_node is None:
             raise Exception("Cannot find <orm:ORMModel> in input file.")
@@ -255,21 +243,20 @@ class NormaLoader(object):
     def _load_data_types(self, parent):
         """ Load the data types in the model so that we can assign the
             conceptual data type to each value type. """
+        data_type_node = parent.find(NS_CORE + "DataTypes") or []
 
-        data_type_node = parent.find(self._ns_core + "DataTypes")
-        if data_type_node:
-            for child in data_type_node:
-                data_type = self._local_tag(child) # Data type node tag
-                data_id = child.get("id")
+        for child in data_type_node:
+            data_type = local_tag(child) # Data type node tag
+            data_id = child.get("id")
 
-                # Look-up Domain subclass corresponding to data type
-                try:
-                    domain = self._data_types[data_type]
-                except KeyError:
-                    domain = None # Leave default Domain in place
+            # Look-up Domain subclass corresponding to data type
+            try:
+                domain = DATA_TYPES[data_type]
+            except KeyError:
+                domain = None # Leave default Domain in place
 
-                # Store type by ID for later retrieval
-                self._elements[data_id] = domain
+            # Store type by ID for later retrieval
+            self._elements[data_id] = domain
 
 
     def _load_child_nodes(self, parent, target):
@@ -281,24 +268,27 @@ class NormaLoader(object):
             return
 
         for child in parent:
-            tag = self._local_tag(child) # Get current node's tag
+            tag = local_tag(child) # Get current node's tag
 
             try:
                 self._loader[tag](child, target) # Call loader function
             except KeyError:
                 pass # No loading function defined.
 
-
-    def _local_tag(self, xml_node):
-        """ Strips namespace from a node's tag. """
-        return xml_node.tag.replace(self._ns_core, "")
+    def _call_loader(self, loader, node, *args):
+        """ Call the loader method listed in the loader map for a given node."""
+        tag = local_tag(node)
+        try:            
+            loader[tag](node, *args)
+        except KeyError: # No loading function defined.
+            self.unexpected.add(tag) 
 
     ##########################################################################
     # Private Functions to Load Object Types
     ##########################################################################
     def _load_object_types(self, xml_node):
         """ Load the collection of object types. """
-        object_types_node = xml_node.find(self._ns_core + "Objects")
+        object_types_node = xml_node.find(NS_CORE + "Objects")
         self._load_child_nodes(object_types_node, self.model)
 
     def _load_entity_type(self, xml_node, target):
@@ -373,7 +363,7 @@ class NormaLoader(object):
         cons = self._construct(xml_node, Constraint.ValueConstraint)
         cons.covers = [element]
 
-        for value_range in xml_node.find(self._ns_core + "ValueRanges"):
+        for value_range in xml_node.find(NS_CORE + "ValueRanges"):
             try:
                 cons.add_range(
                     min_value=value_range.get("MinValue"),
@@ -463,7 +453,7 @@ class NormaLoader(object):
     ##########################################################################
     def _load_fact_types(self, xml_node):
         """ Load the collection of fact types. """
-        fact_types_node = xml_node.find(self._ns_core + "Facts")
+        fact_types_node = xml_node.find(NS_CORE + "Facts")
         self._load_child_nodes(fact_types_node, self.model)
 
     def _load_fact(self, xml_node, fact_type_set):
@@ -538,16 +528,16 @@ class NormaLoader(object):
         cons = self._construct(xml_node, Constraint.SubtypeConstraint)
 
         # Get super and sub type XML nodes
-        super_node = xml_node.find(self._ns_core + "FactRoles/" +
-            self._ns_core + "SupertypeMetaRole")
-        sub_node = xml_node.find(self._ns_core + "FactRoles/" +
-            self._ns_core + "SubtypeMetaRole")
+        super_node = xml_node.find(NS_CORE + "FactRoles/" +
+            NS_CORE + "SupertypeMetaRole")
+        sub_node = xml_node.find(NS_CORE + "FactRoles/" +
+            NS_CORE + "SubtypeMetaRole")
 
         superrole = self._construct(super_node, FactType.SubtypeRole)
         subrole = self._construct(sub_node, FactType.SubtypeRole)
 
-        supertype_node = super_node.find(self._ns_core + "RolePlayer")
-        subtype_node = sub_node.find(self._ns_core + "RolePlayer")
+        supertype_node = super_node.find(NS_CORE + "RolePlayer")
+        subtype_node = sub_node.find(NS_CORE + "RolePlayer")
 
         # Look-up the corresponding object types
         try:
@@ -579,24 +569,35 @@ class NormaLoader(object):
     ##########################################################################
     # Private Functions to Load Constraints
     ##########################################################################
-    def _load_constraints(self, xml_node):
+    def _load_constraints(self, parent_node):
         """ Load the collection of contraints. """
-        constraints_node = xml_node.find(self._ns_core + "Constraints")
-        self._load_child_nodes(constraints_node, self.model)
+        loader = {
+            'EqualityConstraint'        : self._load_equality_constraint,
+            'ExclusionConstraint'       : self._load_exclusion_constraint,
+            'SubsetConstraint'          : self._load_subset_constraint,
+            'FrequencyConstraint'       : self._load_frequency_constraint,
+            'MandatoryConstraint'       : self._load_mandatory_constraint,
+            'UniquenessConstraint'      : self._load_uniqueness_constraint,
+            'RingConstraint'            : self._load_ring_constraint,
+            'ValueComparisonConstraint' : self._load_value_comp_constraint
+        }
+        constraints_node = parent_node.find(NS_CORE + "Constraints") or []
+        for constraint_node in constraints_node:
+            self._call_loader(loader, constraint_node)
 
-    def _load_equality_constraint(self, xml_node, constraint_set):
+    def _load_equality_constraint(self, xml_node):
         """ Load equality constraint. """
         self.omissions.append("Equality constraint " + xml_node.get("Name"))
 
-    def _load_exclusion_constraint(self, xml_node, constraint_set):
+    def _load_exclusion_constraint(self, xml_node):
         """ Load exclusion constraint. """
         # NOTE: THIS CONSTRAINT IS NOT IMPLEMENTED.  CODE BELOW SIMPLY CHECKS
         # WHETHER CONSTRAINT IS USED IN A SUBTYPE.
 
         cons = self._init_constraint(xml_node, Constraint.ExclusionConstraint)
 
-        seq_node = xml_node.find(self._ns_core + "RoleSequences/" +
-            self._ns_core + "RoleSequence")
+        seq_node = xml_node.find(NS_CORE + "RoleSequences/" +
+            NS_CORE + "RoleSequence")
         first_seq = self._load_role_sequence(seq_node, cons)
 
         if isinstance(first_seq[0], FactType.SubtypeRole):
@@ -606,12 +607,12 @@ class NormaLoader(object):
 
         self.omissions.append(preamble + " " + xml_node.get("Name"))
 
-    def _load_subset_constraint(self, xml_node, constraint_set):
+    def _load_subset_constraint(self, xml_node):
         """ Load subset constraint. """
         cons = self._init_constraint(xml_node, Constraint.SubsetConstraint)
 
         # Find RoleSequences node (should have exactly 2 RoleSequence children)
-        sequences_node = xml_node.find(self._ns_core + "RoleSequences")
+        sequences_node = xml_node.find(NS_CORE + "RoleSequences")
 
         if len(sequences_node) != 2:
             raise Exception("Constraint " + cons.name +
@@ -631,7 +632,7 @@ class NormaLoader(object):
                 msg = "Subset constraint " + cons.name + " (due to arity > 2)"
                 self.omissions.append(msg)
 
-    def _load_frequency_constraint(self, xml_node, constraint_set):
+    def _load_frequency_constraint(self, xml_node):
         """ Load frequency constraint. """
         cons = self._construct(xml_node, Constraint.FrequencyConstraint)
 
@@ -643,7 +644,7 @@ class NormaLoader(object):
             cons.max_freq = float('inf')
 
         # Get sequence of covered roles
-        seq_node = xml_node.find(self._ns_core + "RoleSequence")
+        seq_node = xml_node.find(NS_CORE + "RoleSequence")
         cons.covers = self._load_role_sequence(seq_node, cons)
      
         if cons.covers is not None: # None indicates constraint is unsupported
@@ -656,17 +657,15 @@ class NormaLoader(object):
             # Add to model
             self._add(cons)
 
-    def _load_mandatory_constraint(self, xml_node, constraint_set):
+    def _load_mandatory_constraint(self, xml_node):
         """ Load mandatory constraint. """
         cons = self._construct(xml_node, Constraint.MandatoryConstraint)
-
-        #cons.simple = (xml_node.get("IsSimple") == "true") # Determined algorithmically now
 
         # Ignore implied mandatory (do not even add to omissions)
         if xml_node.get("IsImplied") == "true":
             return
 
-        seq_node = xml_node.find(self._ns_core + "RoleSequence")
+        seq_node = xml_node.find(NS_CORE + "RoleSequence")
         cons.covers = self._load_role_sequence(seq_node, cons)
 
         if cons.covers is None:
@@ -685,19 +684,19 @@ class NormaLoader(object):
 
             self._add(cons)
 
-    def _load_uniqueness_constraint(self, xml_node, constraint_set):
+    def _load_uniqueness_constraint(self, xml_node):
         """ Load uniqueness constraint. """
         cons = self._init_constraint(xml_node, Constraint.UniquenessConstraint)
 
         cons.internal = (xml_node.get("IsInternal") == "true")
 
         # Get object type that this constraint is a preferred id for
-        pref_node = xml_node.find(self._ns_core + "PreferredIdentifierFor")
+        pref_node = xml_node.find(NS_CORE + "PreferredIdentifierFor")
         if pref_node is not None:
             self._load_identifier_for(pref_node, cons)
 
         # Get sequence of covered roles
-        seq_node = xml_node.find(self._ns_core + "RoleSequence")
+        seq_node = xml_node.find(NS_CORE + "RoleSequence")
         cons.covers = self._load_role_sequence(seq_node, cons)
 
         # Confirm constraint is supported and not on an implicit subtype fact
@@ -720,11 +719,11 @@ class NormaLoader(object):
         except KeyError:
             pass # An implicit object?
 
-    def _load_ring_constraint(self, xml_node, constraint_set):
+    def _load_ring_constraint(self, xml_node):
         """ Load ring constraint. """
         self.omissions.append("Ring constraint " + xml_node.get("Name"))
 
-    def _load_value_comp_constraint(self, xml_node, constraint_set):
+    def _load_value_comp_constraint(self, xml_node):
         """ Load value comparison constraint. """
         self.omissions.append("Value comparison constraint " +
             xml_node.get("Name"))
@@ -732,7 +731,7 @@ class NormaLoader(object):
     def _load_cardinality_constraint(self, xml_node, parent):
         """ Load cardinality constraint. """
         types = ["CardinalityConstraint", "UnaryRoleCardinalityConstraint"]
-        valid_type = lambda x: self._local_tag(x) in types
+        valid_type = lambda x: local_tag(x) in types
 
         if len(xml_node) != 1:
             raise ValueError("CardinalityRestriction should have only 1 child node")
@@ -741,7 +740,7 @@ class NormaLoader(object):
             cons = self._init_constraint(node, Constraint.CardinalityConstraint)   
             cons.covers = [parent]
 
-            range_node = node.find(self._ns_core + "Ranges")
+            range_node = node.find(NS_CORE + "Ranges")
             cons.ranges = self._load_cardinality_ranges(range_node)
 
             self._add(cons)
@@ -750,7 +749,7 @@ class NormaLoader(object):
         """ Load a list of cardinality ranges. """
         ranges = []
         for node in xml_node:
-            if self._local_tag(node) == 'CardinalityRange':
+            if local_tag(node) == 'CardinalityRange':
                 lower = int(node.get("From")) # "From" attribute is mandatory
                 upper = node.get("To")   # "To" attribute is optional
                 upper = int(upper) if upper else None
@@ -771,11 +770,11 @@ class NormaLoader(object):
         ignore = False # Whether to ignore this role sequence
 
         for node in xml_node:
-            if self._local_tag(node) == "Role":
+            if local_tag(node) == "Role":
                 role = self._load_constraint_role(node, constraint)
                 ignore = (role is None) # Constraint covers implied role
                 role_sequence.append(role)
-            elif self._local_tag(node) == "JoinRule":
+            elif local_tag(node) == "JoinRule":
                 self._load_join_rule(node, constraint, role_sequence)
             else:
                 raise Exception("Constraint " + constraint.name +
@@ -787,7 +786,7 @@ class NormaLoader(object):
         """ Returns a Role element within the RoleSequence of a constraint. """
 
         # Confirm deprecated path data is not present
-        if xml_node.find(self._ns_core + "ProjectedFrom") is not None:
+        if xml_node.find(NS_CORE + "ProjectedFrom") is not None:
             msg = "Constraint " + constraint.name +" has deprecated join rule."
             raise Exception(msg)
 
@@ -803,7 +802,12 @@ class NormaLoader(object):
         self.omissions.append("Join path for " + constraint.name + ".")
         role_sequence.join_path = "" # Just so that it is not None, for now.
 
-
+###############################################################################
+# Utility Functions
+###############################################################################
+def local_tag(xml_node):
+    """ Strips namespace from a node's tag. """
+    return xml_node.tag.replace(NS_CORE, "")
 
 
 

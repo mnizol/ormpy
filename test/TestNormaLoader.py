@@ -852,6 +852,22 @@ class TestSubtypes(TestCase):
         self.assertEquals(ex.exception.message, \
            "Subtype graph containing ObjectTypes.F has more than one root type")
 
+    def test_constraint_covers_both_implied_and_explicit_role(self):
+        """ Test a constraint that covers both an implied and an explicit  
+            role, which is a VERY UNLIKELY scenario. """
+        loader = NormaLoader(self.data_dir + \
+            "constraint_covers_both_implied_and_regular_roles.orm.orm")
+        model = loader.model
+
+        expected = [
+            "Constraint FC1 because it covers implied and explicit roles",
+            "Join path for FC1."
+        ]
+
+        self.assertIsNone(model.constraints.get("FC1"))
+        self.assertEquals(model.constraints.count(), 1)
+        self.assertItemsEqual(loader.omissions, expected)
+
         
             
 

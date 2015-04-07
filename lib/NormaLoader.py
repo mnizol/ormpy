@@ -750,21 +750,29 @@ class NormaLoader(object):
         """ Returns a sequence of roles covered by the constraint.
             xml_node points to the RoleSequence node. """
 
+        name = constraint.name
         role_sequence = FactType.RoleSequence()
-        ignore = False # Whether to ignore this role sequence
+        implied_roles = 0 # Number of implied roles in the sequence
 
         for node in xml_node:
             if local_tag(node) == "Role":
                 role = self._load_constraint_role(node, constraint)
-                ignore = (role is None) # Constraint covers implied role
+                implied_roles += (role is None)
                 role_sequence.append(role)
             elif local_tag(node) == "JoinRule":
                 self._load_join_rule(node, constraint, role_sequence)
             else:
-                raise Exception("Constraint " + constraint.name +
-                    " has unexpected role sequence.")
+                msg = "Constraint {0} has unexpected role sequence."
+                raise Exception(msg.format(name))
 
-        return None if ignore else role_sequence
+        if 0 < implied_roles < len(xml_node):
+            msg = "Constraint {0} because it covers implied and explicit roles"               
+            self.omissions.append(msg.format(name))
+            return None
+        elif implied_roles == len(xml_node): # Implied constraint 
+            return None
+        else:
+            return role_sequence
 
     def _load_constraint_role(self, xml_node, constraint):
         """ Returns a Role element within the RoleSequence of a constraint. """

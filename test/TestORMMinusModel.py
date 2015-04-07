@@ -115,7 +115,7 @@ class TestORMMinusModel(TestCase):
         solution = ormminus.solution
 
         actual = [cons.name for cons in ormminus.ignored]
-        expect = ["SubsetConstraint1", "SubsetConstraint2", "SubsetConstraint4"]
+        expect = ["SubsetConstraint1", "SubsetConstraint2", "SubsetConstraint3", "SubsetConstraint4"]
         self.assertItemsEqual(actual, expect)
 
     def test_ignored_value_constraint(self):

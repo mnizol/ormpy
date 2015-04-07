@@ -388,10 +388,13 @@ class TestNormaLoader(TestCase):
         self.assertIs(cons4.subset[1].player, obj_b)
 
         # Check ternary subset
-        self.assertIsNone(cons3) # Not loaded
-        self.assertItemsEqual(loader.omissions, 
-            ["Subset constraint SubsetConstraint3 (due to arity > 2)"])
+        self.assertEquals(len(cons3.superset), 3)
+        self.assertEquals(len(cons3.subset), 3)
+        self.assertIs(cons3.subset[0].fact_type, aplus)
+        self.assertIs(cons3.superset[2].fact_type, aand)
+        self.assertIs(cons3.subset[2].player, cons3.subset[2].player)
 
+        self.assertItemsEqual(loader.omissions, [])
 
     def test_partial_subset(self):
         """ Confirm exception fires for invalid subset constraints. """

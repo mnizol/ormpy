@@ -124,7 +124,7 @@ class NormaLoader(object):
         self._load_constraints()
 
         # Post-processing
-        self._fix_nested_fact_type_refs() # Could be removed by loading objectified types *after* fact types but before subtypes
+        self._fix_nested_fact_type_refs() 
         self._fix_value_constraints() 
         self._update_domains()
         self._update_indirect_subtypes()
@@ -189,9 +189,10 @@ class NormaLoader(object):
         """ Call the loader method listed in the loader map for a given node."""
         tag = local_tag(node)
         try:            
-            loader[tag](node, *args)
+            return loader[tag](node, *args)
         except KeyError: # No loading function defined.
             self.unexpected.add(tag) 
+            return None
 
     def _move_node_to_constraints(self, node, parent):
         """ Make an xml node a subelement of the Constraints sequence node. """
@@ -533,11 +534,14 @@ class NormaLoader(object):
             'CardinalityRestriction'    : self._load_cardinality_constraint
         }
         for node in node_collection(self._model_root, "Constraints"):
-            self._call_loader(loader, node)
+            cons = self._call_loader(loader, node)
+            if cons != None and cons.covers != None:
+                self._add(cons)
 
     def _load_equality_constraint(self, xml_node):
         """ Load equality constraint. """
         self.omissions.append("Equality constraint " + xml_node.get("Name"))
+        return None
 
     def _load_exclusion_constraint(self, xml_node):
         """ Load exclusion constraint. """
@@ -548,7 +552,6 @@ class NormaLoader(object):
 
         seq_node = find(find(xml_node, "RoleSequences"), "RoleSequence")
         first_seq = self._load_role_sequence(seq_node, cons)
-        # WHEN I IMPLEMENT: Check result from _load_role_sequence for None
 
         if isinstance(first_seq[0], Constraint.SubtypeConstraint):
             preamble = "Subtype exclusion constraint"
@@ -556,6 +559,7 @@ class NormaLoader(object):
             preamble = "Exclusion constraint"
 
         self.omissions.append(preamble + " " + xml_node.get("Name"))
+        return None
 
     def _load_subset_constraint(self, xml_node):
         """ Load subset constraint. """
@@ -575,12 +579,11 @@ class NormaLoader(object):
         # Role sequence will be None if sequence has unsupported feature
         if cons.subset is not None and cons.superset is not None:
             cons.covers = cons.subset + cons.superset # All covered roles
+        else:
+            cons.covers = None
 
-            if len(cons.subset) <= 2 and len(cons.superset) <= 2:
-                self._add(cons)
-            else:
-                msg = "Subset constraint " + cons.name + " (due to arity > 2)"
-                self.omissions.append(msg)
+        return cons
+
 
     def _load_frequency_constraint(self, xml_node):
         """ Load frequency constraint. """
@@ -597,42 +600,37 @@ class NormaLoader(object):
         seq_node = find(xml_node, "RoleSequence")
         cons.covers = self._load_role_sequence(seq_node, cons)
      
-        if cons.covers is not None: # None indicates constraint is unsupported
-            # Detect whether frequency constraint is internal
-            fact_types = set()
-            for role in cons.covers:
-                fact_types.add(role.fact_type)
-            cons.internal = (len(fact_types) == 1)
+        # Detect whether frequency constraint is internal
+        fact_types = set()
+        for role in cons.covers or []:
+            fact_types.add(role.fact_type)
+        cons.internal = (len(fact_types) == 1)
 
-            # Add to model
-            self._add(cons)
+        return cons
 
     def _load_mandatory_constraint(self, xml_node):
         """ Load mandatory constraint. """
         cons = self._construct(xml_node, Constraint.MandatoryConstraint)
 
-        # Ignore implied mandatory (do not even add to omissions)
-        if xml_node.get("IsImplied") == "true":
-            return
-
+        implied = (xml_node.get("IsImplied") == "true")
         seq_node = find(xml_node, "RoleSequence")
         cons.covers = self._load_role_sequence(seq_node, cons)
 
-        if cons.covers is None:
-            return # Unsupported or implicit
+        if cons.covers is None or implied == True:
+            return None # Unsupported or implicit
         elif len(cons.covers) > 1: # Part of XOR or inclusive-or constraint
             if isinstance(cons.covers[0], Constraint.SubtypeConstraint): 
                 preamble = "Subtype inclusive-or constraint"
             else:
                 preamble = "Inclusive-or constraint"
             self.omissions.append(preamble + " " + cons.name)
+            return None
         elif isinstance(cons.covers[0], Constraint.SubtypeConstraint):
-            return # Simple mandatory on implicit subtype fact type
+            return None # Simple mandatory on implicit subtype fact type
         else: # Simple mandatory on regular role
             role = cons.covers[0]
             role.mandatory = True
-
-            self._add(cons)
+            return cons
 
     def _load_uniqueness_constraint(self, xml_node):
         """ Load uniqueness constraint. """
@@ -649,15 +647,12 @@ class NormaLoader(object):
         seq_node = find(xml_node, "RoleSequence")
         cons.covers = self._load_role_sequence(seq_node, cons)
 
-        # Confirm constraint is supported and not on an implicit subtype fact
-        supported = (cons.covers is not None)
-        if supported:
-            implicit_subtype = \
-                isinstance(cons.covers[0], Constraint.SubtypeConstraint) 
-        
-        # Add to model
-        if supported and not implicit_subtype:
-            self._add(cons)
+        if cons.covers is None:
+            return None
+        elif isinstance(cons.covers[0], Constraint.SubtypeConstraint):
+            return None # Covers a role in an implicit subtype fact
+        else:
+            return cons
 
     def _load_identifier_for(self, xml_node, constraint):
         """ Loads the object type that a uniqueness constraint is a preferred
@@ -673,11 +668,13 @@ class NormaLoader(object):
     def _load_ring_constraint(self, xml_node):
         """ Load ring constraint. """
         self.omissions.append("Ring constraint " + xml_node.get("Name"))
+        return None
 
     def _load_value_comp_constraint(self, xml_node):
         """ Load value comparison constraint. """
-        self.omissions.append("Value comparison constraint " +
-            xml_node.get("Name"))
+        name = xml_node.get("Name")
+        self.omissions.append("Value comparison constraint " + name)
+        return None
 
     def _load_value_constraint(self, parent_node):
         """ Load value constraint. """
@@ -690,21 +687,21 @@ class NormaLoader(object):
         cons = self._init_constraint(node, Constraint.ValueConstraint)
         cons.covers = self._get_covered_object_type(parent_node)
 
-        if cons.covers is not None:
+        try:
             for value_range in node_collection(node, "ValueRanges"):
-                try:
-                    cons.add_range(
-                        min_value=value_range.get("MinValue"),
-                        max_value=value_range.get("MaxValue"),
-                        min_open=(value_range.get("MinInclusion") == "Open"),
-                        max_open=(value_range.get("MaxInclusion") == "Open")
-                    )
-                except Constraint.ValueConstraintError as ex:
-                    self.omissions.append("Value constraint " + cons.name + 
-                        " because " + ex.message.lower())
-                    return # Return prematurely so constraint is ignored    
+                cons.add_range(
+                    min_value=value_range.get("MinValue"),
+                    max_value=value_range.get("MaxValue"),
+                    min_open=(value_range.get("MinInclusion") == "Open"),
+                    max_open=(value_range.get("MaxInclusion") == "Open")
+                )
+        except Constraint.ValueConstraintError as ex:
+            reason = ex.message.lower()
+            mesg = "Value constraint {0} because {1}".format(cons.name, reason)
+            self.omissions.append(mesg)
+            cons = None
 
-            self._add(cons)
+        return cons
 
     def _load_cardinality_constraint(self, parent_node):
         """ Load cardinality constraint. """
@@ -718,8 +715,7 @@ class NormaLoader(object):
         cons.covers = self._get_covered_object_type(parent_node)
         cons.ranges = self._load_cardinality_ranges(node)
 
-        if cons.covers is not None:
-            self._add(cons)
+        return cons
 
     def _load_cardinality_ranges(self, parent_node):
         """ Load a list of cardinality ranges. """

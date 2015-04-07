@@ -125,7 +125,7 @@ class NormaLoader(object):
         # Load file
         self._load_data_types()
         self._load_object_types()
-        self._load_fact_types()
+        self._load_fact_types() # Also loads subtypes
         self._load_constraints()
 
         # Post-processing
@@ -507,17 +507,15 @@ class NormaLoader(object):
 
 
     def _load_subtype_fact(self, xml_node):
-        """ Load a subtype fact, which indicates a subtype constraint. """
+        """ Load a subtype fact, which indicates a subtype constraint.  Note,
+            we chose not to move this node under <Constraints>, because it must
+            be loaded prior to any associated XOR/IOR constraints. """
         cons = self._construct(xml_node, Constraint.SubtypeConstraint)
 
         # Get super and sub type XML nodes
         factroles = find(xml_node, "FactRoles")
         super_node = find(factroles, "SupertypeMetaRole")
         sub_node = find(factroles, "SubtypeMetaRole")
-
-        superrole = self._construct(super_node, FactType.SubtypeRole)
-        subrole = self._construct(sub_node, FactType.SubtypeRole)
-
         supertype_node = find(super_node, "RolePlayer")
         subtype_node = find(sub_node, "RolePlayer")
 
@@ -537,15 +535,14 @@ class NormaLoader(object):
         cons.supertype.direct_subtypes.append(cons.subtype)
         cons.subtype.direct_supertypes.append(cons.supertype)
 
-        self._add(cons) # Add subtype constraint to model
+        # If there are additional constraints on the subtype (e.g. XOR or IOR),
+        # their role sequence will consist of the subtype fact's roles. We will
+        # redirect the id for those roles to this constraint, so that the covers 
+        # attribute is a list of SubtypeConstraints for constraints on subtypes.
+        self._elements[super_node.get("id")] = cons
+        self._elements[sub_node.get("id")] = cons
 
-        # Add supertype and subtype roles to _elements dictionary, so that
-        # constraints can test whether they constrain a subtype.
-        #
-        # IMPORTANT: These roles will be in self._elements but will NOT
-        # be part of any fact type in the model.
-        self._add(superrole)
-        self._add(subrole)
+        self._add(cons) # Add subtype constraint to model
 
     ##########################################################################
     # Private Functions to Load Constraints
@@ -582,7 +579,7 @@ class NormaLoader(object):
         first_seq = self._load_role_sequence(seq_node, cons)
         # WHEN I IMPLEMENT: Check result from _load_role_sequence for None
 
-        if isinstance(first_seq[0], FactType.SubtypeRole):
+        if isinstance(first_seq[0], Constraint.SubtypeConstraint):
             preamble = "Subtype exclusion constraint"
         else:
             preamble = "Exclusion constraint"
@@ -653,12 +650,12 @@ class NormaLoader(object):
         if cons.covers is None:
             return # Unsupported or implicit
         elif len(cons.covers) > 1: # Part of XOR or inclusive-or constraint
-            if isinstance(cons.covers[0], FactType.SubtypeRole):
+            if isinstance(cons.covers[0], Constraint.SubtypeConstraint): 
                 preamble = "Subtype inclusive-or constraint"
             else:
                 preamble = "Inclusive-or constraint"
             self.omissions.append(preamble + " " + cons.name)
-        elif isinstance(cons.covers[0], FactType.SubtypeRole):
+        elif isinstance(cons.covers[0], Constraint.SubtypeConstraint):
             return # Simple mandatory on implicit subtype fact type
         else: # Simple mandatory on regular role
             role = cons.covers[0]
@@ -684,7 +681,8 @@ class NormaLoader(object):
         # Confirm constraint is supported and not on an implicit subtype fact
         supported = (cons.covers is not None)
         if supported:
-            implicit_subtype = isinstance(cons.covers[0], FactType.SubtypeRole)
+            implicit_subtype = \
+                isinstance(cons.covers[0], Constraint.SubtypeConstraint) 
         
         # Add to model
         if supported and not implicit_subtype:

@@ -77,12 +77,6 @@ class Role(ModelElement):
         """ Rollback any side effects of adding this role to a model."""
         pass # TODO: Implement later
 
-class SubtypeRole(Role):
-    """ A subtype role. """
-
-    def __init__(self, uid=None, name=None):
-        super(SubtypeRole, self).__init__(uid=uid, name=name)
-
 class RoleSequence(list):
     """ A sequence of roles. """
 

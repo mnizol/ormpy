@@ -119,12 +119,14 @@ class NormaLoader(object):
         # be added to the model.  Thus, we add tentative elements to the stack.
         self._element_stack = []
 
+        # Find root of XML tree       
+        self._model_root = self._parse_norma_file(filename)
+
         # Load file
-        root = self._parse_norma_file(filename)
-        self._load_data_types(root)
-        self._load_object_types(root)
-        self._load_fact_types(root)
-        self._load_constraints(root)
+        self._load_data_types()
+        self._load_object_types()
+        self._load_fact_types()
+        self._load_constraints()
 
         # Post-processing
         self._fix_nested_fact_type_refs()
@@ -177,17 +179,6 @@ class NormaLoader(object):
 
         return model_element_type(uid=uid, name=name)
 
-    def _log_issues_with(self, filename):
-        """ Log any model element omissions. """
-        logger = logging.getLogger(__name__)
-        size = len(self.omissions)
-        if size > 0:
-            text = "elements were" if size > 1 else "element was"
-            logger.warning("%d model %s ignored while loading %s.", 
-                           size, text, os.path.basename(filename))
-            for omission in self.omissions:
-                logger.info("Ignoring %s", omission)
-
     def _parse_norma_file(self, filename):
         """ Parse a NORMA File and return the ORMModel node. """
         if filename.split(".")[-1].upper() != "ORM":
@@ -206,10 +197,43 @@ class NormaLoader(object):
         else:
             return model_node
 
-    def _load_data_types(self, parent):
+    def _log_issues_with(self, filename):
+        """ Log any model element omissions. """
+        logger = logging.getLogger(__name__)
+        size = len(self.omissions)
+        if size > 0:
+            text = "elements were" if size > 1 else "element was"
+            logger.warning("%d model %s ignored while loading %s.", 
+                           size, text, os.path.basename(filename))
+            for omission in self.omissions:
+                logger.info("Ignoring %s", omission)
+
+    def _call_loader(self, loader, node, *args):
+        """ Call the loader method listed in the loader map for a given node."""
+        tag = local_tag(node)
+        try:            
+            loader[tag](node, *args)
+        except KeyError: # No loading function defined.
+            self.unexpected.add(tag) 
+
+    def _move_node_to_constraints(self, node, parent):
+        """ Make an xml node a subelement of the Constraints sequence node. """
+        root = self._model_root
+        constraints_node = find(root, "Constraints") 
+
+        if constraints_node == None: # Create a Constraints node if needed
+            constraints_node = xml.SubElement(root, NS_CORE + "Constraints")
+
+        node.set('_covered_object_type', parent.uid)
+        constraints_node.append(node)
+
+    ##########################################################################
+    # Private Functions to Load Conceptual Data Types
+    ##########################################################################
+    def _load_data_types(self):
         """ Load the data types in the model so that we can assign the
             conceptual data type to each value type. """
-        for child in node_collection(parent, "DataTypes"):
+        for child in node_collection(self._model_root, "DataTypes"):
             data_type = local_tag(child) # Data type node tag
             data_id = child.get("id")
 
@@ -222,25 +246,17 @@ class NormaLoader(object):
             # Store type by ID for later retrieval
             self._elements[data_id] = domain
 
-    def _call_loader(self, loader, node, *args):
-        """ Call the loader method listed in the loader map for a given node."""
-        tag = local_tag(node)
-        try:            
-            loader[tag](node, *args)
-        except KeyError: # No loading function defined.
-            self.unexpected.add(tag) 
-
     ##########################################################################
     # Private Functions to Load Object Types
     ##########################################################################
-    def _load_object_types(self, parent_node):
+    def _load_object_types(self):
         """ Load the collection of object types. """
         type_of = {
             'EntityType'      : ObjectType.EntityType,
             'ValueType'       : ObjectType.ValueType,
             'ObjectifiedType' : ObjectType.ObjectifiedType,
         }
-        for node in node_collection(parent_node, "Objects"):
+        for node in node_collection(self._model_root, "Objects"):
             tag = local_tag(node)
             self._load_object_type(node, type_of[tag])
 
@@ -251,8 +267,8 @@ class NormaLoader(object):
             'SubtypeDerivationRule' : self._load_subtype_derivation,
             'PreferredIdentifier'   : self._load_preferred_identifier,
             'ConceptualDataType'    : self._load_conceptual_data_type,
-            'ValueRestriction'      : self._load_value_restriction,
-            'CardinalityRestriction': self._load_cardinality_constraint,
+            'ValueRestriction'      : self._move_node_to_constraints,
+            'CardinalityRestriction': self._move_node_to_constraints,
             'Definitions'           : noop,
             'Notes'                 : noop,
             'Abbreviations'         : noop,
@@ -313,32 +329,6 @@ class NormaLoader(object):
 
         if domain: 
             object_type.domain = domain()
-
-    def _load_value_restriction(self, parent_node, parent_type):
-        """ Load value constraint. """
-        node = parent_node[0]
-
-        types = ['ValueConstraint', 'RoleValueConstraint']
-        if len(parent_node) != 1 or local_tag(node) not in types:
-            raise ValueError("Unexpected value constraint format")
-
-        cons = self._construct(node, Constraint.ValueConstraint)
-        cons.covers = [parent_type]
-
-        for value_range in node_collection(node, "ValueRanges"):
-            try:
-                cons.add_range(
-                    min_value=value_range.get("MinValue"),
-                    max_value=value_range.get("MaxValue"),
-                    min_open=(value_range.get("MinInclusion") == "Open"),
-                    max_open=(value_range.get("MaxInclusion") == "Open")
-                )
-            except Constraint.ValueConstraintError as ex:
-                self.omissions.append("Value constraint " + cons.name + 
-                    " because " + ex.message.lower())
-                return # Return prematurely so constraint is ignored    
-
-        self._push(cons) # Add constraint to stack
 
     def _fix_value_constraints(self):
         """ Move value constraints on roles played by an object type that 
@@ -413,14 +403,14 @@ class NormaLoader(object):
     ##########################################################################
     # Private Functions to Load Fact Types
     ##########################################################################
-    def _load_fact_types(self, parent_node):
+    def _load_fact_types(self):
         """ Load the collection of fact types. """
         loader = {             
             'Fact'        : self._load_fact_type,
             'SubtypeFact' : self._load_subtype_fact,
             'ImpliedFact' : noop
         }
-        for node in node_collection(parent_node, "Facts"):
+        for node in node_collection(self._model_root, "Facts"):
             self._call_loader(loader, node)   
 
     def _load_fact_type(self, xml_node):
@@ -460,8 +450,8 @@ class NormaLoader(object):
         loader = {
             'RolePlayer'            : self._load_role_player,            
             'DerivationSource'      : self._load_role_derivation,            
-            'ValueRestriction'      : self._load_value_restriction,
-            'CardinalityRestriction': self._load_cardinality_constraint,
+            'ValueRestriction'      : self._move_node_to_constraints, 
+            'CardinalityRestriction': self._move_node_to_constraints,
             'RoleInstances'         : noop,
             'Extensions'            : noop
         }
@@ -560,7 +550,7 @@ class NormaLoader(object):
     ##########################################################################
     # Private Functions to Load Constraints
     ##########################################################################
-    def _load_constraints(self, parent_node):
+    def _load_constraints(self):
         """ Load the collection of contraints. """
         loader = {
             'EqualityConstraint'        : self._load_equality_constraint,
@@ -570,9 +560,11 @@ class NormaLoader(object):
             'MandatoryConstraint'       : self._load_mandatory_constraint,
             'UniquenessConstraint'      : self._load_uniqueness_constraint,
             'RingConstraint'            : self._load_ring_constraint,
-            'ValueComparisonConstraint' : self._load_value_comp_constraint
+            'ValueComparisonConstraint' : self._load_value_comp_constraint,
+            'ValueRestriction'          : self._load_value_constraint,
+            'CardinalityRestriction'    : self._load_cardinality_constraint
         }
-        for node in node_collection(parent_node, "Constraints"):
+        for node in node_collection(self._model_root, "Constraints"):
             self._call_loader(loader, node)
 
     def _load_equality_constraint(self, xml_node):
@@ -588,6 +580,7 @@ class NormaLoader(object):
 
         seq_node = find(find(xml_node, "RoleSequences"), "RoleSequence")
         first_seq = self._load_role_sequence(seq_node, cons)
+        # WHEN I IMPLEMENT: Check result from _load_role_sequence for None
 
         if isinstance(first_seq[0], FactType.SubtypeRole):
             preamble = "Subtype exclusion constraint"
@@ -717,7 +710,34 @@ class NormaLoader(object):
         self.omissions.append("Value comparison constraint " +
             xml_node.get("Name"))
 
-    def _load_cardinality_constraint(self, parent_node, parent_type):
+    def _load_value_constraint(self, parent_node):
+        """ Load value constraint. """
+        node = parent_node[0]        
+
+        types = ['ValueConstraint', 'RoleValueConstraint']
+        if len(parent_node) != 1 or local_tag(node) not in types:
+            raise ValueError("Unexpected value constraint format")
+
+        cons = self._init_constraint(node, Constraint.ValueConstraint)
+        cons.covers = self._get_covered_object_type(parent_node)
+
+        if cons.covers is not None:
+            for value_range in node_collection(node, "ValueRanges"):
+                try:
+                    cons.add_range(
+                        min_value=value_range.get("MinValue"),
+                        max_value=value_range.get("MaxValue"),
+                        min_open=(value_range.get("MinInclusion") == "Open"),
+                        max_open=(value_range.get("MaxInclusion") == "Open")
+                    )
+                except Constraint.ValueConstraintError as ex:
+                    self.omissions.append("Value constraint " + cons.name + 
+                        " because " + ex.message.lower())
+                    return # Return prematurely so constraint is ignored    
+
+            self._add(cons)
+
+    def _load_cardinality_constraint(self, parent_node):
         """ Load cardinality constraint. """
         node = parent_node[0]
 
@@ -726,10 +746,11 @@ class NormaLoader(object):
             raise ValueError("Unexpected cardinality constraint format")
         
         cons = self._init_constraint(node, Constraint.CardinalityConstraint)   
-        cons.covers = [parent_type]
+        cons.covers = self._get_covered_object_type(parent_node)
         cons.ranges = self._load_cardinality_ranges(node)
 
-        self._add(cons)
+        if cons.covers is not None:
+            self._add(cons)
 
     def _load_cardinality_ranges(self, parent_node):
         """ Load a list of cardinality ranges. """
@@ -742,6 +763,17 @@ class NormaLoader(object):
             upper = int(upper) if upper else None
             ranges.append(Constraint.CardinalityRange(lower, upper))
         return ranges
+
+    def _get_covered_object_type(self, node):
+        """ Returns object type covered by a constraint. Used by ValueConstraint
+            and CardinalityConstraint, which have been moved from their parent
+            nodes to the Constraints node. """
+        try:
+            # _covered_object_type is added via _move_node_to_constraints()
+            uid = node.get("_covered_object_type")
+            return [self._elements[uid]]
+        except KeyError:
+            return None
 
     def _init_constraint(self, xml_node, constraint_type):
         """ Initialize a constraint from an xml_node. """

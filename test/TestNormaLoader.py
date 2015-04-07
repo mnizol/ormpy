@@ -33,13 +33,6 @@ class TestNormaLoader(TestCase):
         self.log.logformat = '%(levelname)s: %(message)s'
         self.log.begin()
 
-    def test_add_from_empty_stack(self):
-        """ Check behavior of add_from_stack when empty. """
-        loader = NormaLoader(self.data_dir + "empty_model.orm")
-        self.assertEquals(loader.model.object_types.count(), 0)
-        loader._add_from_stack()
-        self.assertEquals(loader.model.object_types.count(), 0)                
-
     def test_bad_filename_extension(self):
         """ Confirm that exception is raised when input file has .txt extension 
             rather than .orm extension. """

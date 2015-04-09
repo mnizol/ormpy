@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ormRoot:ORM2 xmlns:orm="http://schemas.neumont.edu/ORM/2006-04/ORMCore" xmlns:ormDiagram="http://schemas.neumont.edu/ORM/2006-04/ORMDiagram" xmlns:ormRoot="http://schemas.neumont.edu/ORM/2006-04/ORMRoot">
+	<orm:ORMModel id="_B32B1F25-2155-4991-B450-155B80A27DC8" Name="ORMModel1">
+		<orm:Objects>
+			<orm:ValueType id="_3D2B4D8F-5C0C-406A-BAF1-8455E7973A82" Name="ValueType1">
+				<orm:ConceptualDataType id="_43F08EDE-F816-4A4C-B201-024A26F2A87E" ref="_1DC24F45-F32B-4055-B041-04821774A599" Scale="0" Length="0" />
+				<orm:ValueRestriction>
+					<orm:BadValueConstraint id="_D7D7EAC1-2B37-4FCC-9025-A841A40CA1CB" Name="ValueTypeValueConstraint1">
+						<orm:ValueRanges>
+							<orm:ValueRange id="_8B115A2A-1517-48FB-A099-A75DBF89E879" MinValue="1" InvariantMinValue="1" MaxValue="10" InvariantMaxValue="10" MinInclusion="NotSet" MaxInclusion="NotSet" />
+						</orm:ValueRanges>
+					</orm:BadValueConstraint>
+				</orm:ValueRestriction>
+			</orm:ValueType>
+		</orm:Objects>
+		<orm:DataTypes>
+			<orm:UnsignedIntegerNumericDataType id="_1DC24F45-F32B-4055-B041-04821774A599" />
+		</orm:DataTypes>
+		<orm:ReferenceModeKinds>
+			<orm:ReferenceModeKind id="_04C1CDAE-76A1-448F-9518-2CF942FA29EC" FormatString="{1}" ReferenceModeType="General" />
+			<orm:ReferenceModeKind id="_57ED1BA5-F151-4FD6-8D20-A925E35D5791" FormatString="{0}_{1}" ReferenceModeType="Popular" />
+			<orm:ReferenceModeKind id="_53653DA2-B35C-4C54-BC31-04D162E3AC89" FormatString="{1}Value" ReferenceModeType="UnitBased" />
+		</orm:ReferenceModeKinds>
+	</orm:ORMModel>
+	<ormDiagram:ORMDiagram id="_D5B709E2-D3B5-41D8-8EAA-034A984EE968" IsCompleteView="false" Name="ORMModel1" BaseFontName="Tahoma" BaseFontSize="0.0972222238779068">
+		<ormDiagram:Shapes>
+			<ormDiagram:ObjectTypeShape id="_F26FD817-3BD0-48EB-9C1D-D5BE21059F4B" IsExpanded="true" AbsoluteBounds="1.2708333730697632, 1.28125, 0.73887383460998535, 0.22950302660465241">
+				<ormDiagram:RelativeShapes>
+					<ormDiagram:ValueConstraintShape id="_31BA8D41-91AF-441E-B659-52C7EA828756" IsExpanded="true" AbsoluteBounds="2.0697072076797483, 1.1517469733953476, 0.35341161489486694, 0.12950302660465241">
+						<ormDiagram:Subject ref="_D7D7EAC1-2B37-4FCC-9025-A841A40CA1CB" />
+					</ormDiagram:ValueConstraintShape>
+				</ormDiagram:RelativeShapes>
+				<ormDiagram:Subject ref="_3D2B4D8F-5C0C-406A-BAF1-8455E7973A82" />
+			</ormDiagram:ObjectTypeShape>
+		</ormDiagram:Shapes>
+		<ormDiagram:Subject ref="_B32B1F25-2155-4991-B450-155B80A27DC8" />
+	</ormDiagram:ORMDiagram>
+</ormRoot:ORM2>

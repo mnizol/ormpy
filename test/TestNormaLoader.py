@@ -674,6 +674,28 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("C1")
         self.assertEquals(cons.ranges, [])
 
+    def test_bad_value_constraint(self):
+        """ Test loading of file with badly named value constraint node. """
+        
+        with self.assertRaises(ValueError) as ex:
+            loader = NormaLoader(self.data_dir + "bad_value_constraint.orm")
+        self.assertEquals(ex.exception.message,
+            "Unexpected value constraint format")
+
+    def test_card_and_value_constraint_on_implicit_type(self):
+        """ Confirm that cardinality and value constraints on implicit types
+            are ignored. This model contains one of each on an implicit 
+            boolean object type. """
+        loader = NormaLoader(self.data_dir + "constraint_on_implicit_type.orm")
+        model = loader.model
+        self.assertEquals(model.constraints.count(), 1)
+        self.assertIsNotNone(model.constraints.get("IUC1"))
+
+    def test_unexpected_constraint_node(self):
+        """ Confirm the loader catches an unexpected constraint node. """
+        loader = NormaLoader(self.data_dir + "unexpected_constraint_node.orm")
+        self.assertItemsEqual(loader.unexpected, ["NewConstraint"])
+
 class TestSubtypes(TestCase):
     """ Unit tests for the NormaLoader class regarding subtypes. """
 

@@ -9,6 +9,7 @@
 from unittest import TestCase
 
 import lib.Constraint as Constraint
+import lib.Domain as Domain
 from lib.Model import Model
 from lib.ObjectType import ObjectType, EntityType
 from lib.FactType import FactType, Role
@@ -288,8 +289,38 @@ class TestConstraint(TestCase):
         self.assertEquals(role2.covered_by, [])
         self.assertEquals(obj1.identifying_constraint, None)
 
+    def test_commit_and_rollback_value(self):
+        """ Test commit and rollback of value constraints. """
+        d0 = Domain.IntegerDomain()
+        role = Role(name="R1")
+        obj = ObjectType(name="O1", data_type=d0)
 
+        d1 = Constraint.ValueDomain()
+        d1.add_range("Dog")
 
+        rvc = Constraint.ValueConstraint(name="RVC", covers=[role], domain=d1)
 
-       
+        self.assertEquals(role.covered_by, [])
+        rvc.commit()
+        self.assertEquals(role.covered_by, [rvc])
+        rvc.rollback()
+        self.assertEquals(role.covered_by, [])
+
+        vc = Constraint.ValueConstraint(name="VTVC", covers=[obj], domain=d1)
+        
+        self.assertEquals(obj.covered_by, [])
+        self.assertEquals(obj.domain, obj.data_type)
+        self.assertEquals(obj.domain, d0)
+
+        vc.commit()
+
+        self.assertEquals(obj.covered_by, [vc])
+        self.assertEquals(obj.domain, d1)
+        self.assertEquals(obj.data_type, d0)
+        
+        vc.rollback()
+
+        self.assertEquals(obj.covered_by, [])
+        self.assertEquals(obj.domain, obj.data_type)
+        self.assertEquals(obj.domain, d0)      
 

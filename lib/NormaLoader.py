@@ -125,8 +125,6 @@ class NormaLoader(object):
 
         # Post-processing
         self._fix_nested_fact_type_refs() 
-        self._fix_value_constraints() 
-        self._update_domains()
         self._update_indirect_subtypes()
 
         # Report any issues to the user
@@ -146,7 +144,7 @@ class NormaLoader(object):
             self.model.add(model_element)
 
     @staticmethod
-    def _construct(xml_node, model_element_type):
+    def _construct(xml_node, model_element_type, **kwargs):
         """ Construct a new model element from the XML node. """
         uid = xml_node.get("id")
         name = xml_node.get("Name")
@@ -154,7 +152,7 @@ class NormaLoader(object):
         if name is None: # Some nodes use "_Name" instead
             name = xml_node.get("_Name")
 
-        return model_element_type(uid=uid, name=name)
+        return model_element_type(uid=uid, name=name, **kwargs)
 
     def _parse_norma_file(self, filename):
         """ Parse a NORMA File and return the ORMModel node. """
@@ -202,7 +200,7 @@ class NormaLoader(object):
         if constraints_node == None: # Create a Constraints node if needed
             constraints_node = xml.SubElement(root, NS_CORE + "Constraints")
 
-        node.set('_covered_object_type', parent.uid)
+        node.set('_covered_element', parent.uid)
         constraints_node.append(node)
 
     ##########################################################################
@@ -298,52 +296,13 @@ class NormaLoader(object):
     def _load_conceptual_data_type(self, xml_node, object_type):
         """ Load ConceptualDataType for a ValueType. """
         ref = xml_node.get("ref")  # GUID for data type
-
-        try: # Look-up pre-loaded data type
-            domain = self._elements[ref]
-        except KeyError:
-            domain = None  # Leave default domain in place
-
+        domain = self._elements.get(ref)
         if domain: 
-            object_type.domain = domain()
-
-    def _fix_value_constraints(self):
-        """ Move value constraints on roles played by an object type that 
-            plays no other roles to instead cover the object type. """
-
-        # Per McGill, ORM- cannot support role value constraints, only value
-        # constraints on types.  However, if the value constraint covers a 
-        # role for an object type that plays no other roles and either
-        # 1) The type is not independent (i.e. the role is implicitly mandatory) 
-        # 2) The role is covered by an explicit mandatory constraint
-        # then the value constraint can be treated as a object type value
-        # constraint.
-
-        for cons in self.model.constraints.of_type(Constraint.ValueConstraint):
-            element = cons.covers[0]
-
-            if isinstance(element, FactType.Role):
-                role = element
-                obj = role.player
-            
-                if len(obj.roles) == 1: # Object type plays exactly 1 role,
-                    # which is implicitly or explicitly mandatory
-                    if not obj.independent or role.mandatory:
-                        self.model.remove(cons) # Rollback side effects
-                        cons.covers = [obj]     # Cover object type instead
-                        self.model.add(cons)    # Add back to model                   
-
-    def _update_domains(self):
-        """ For each value constraint that covers an object type, set that
-            object type's domain to the value constraint's domain.  This 
-            MUST be called after _fix_value_constraints.  """
-
-        for cons in self.model.constraints.of_type(Constraint.ValueConstraint):
-            element = cons.covers[0]
-
-            if isinstance(element, ObjectType.ObjectType):
-                object_type = element
-                object_type.domain = cons.domain
+            # TODO: Temporary hack, accessing private member.  Eventually plan 
+            # to have these functions set values in an attribs dictionary, and
+            # then construct ObjectType at the end of _load_object_type
+            object_type._data_type = domain()                
+            object_type.domain = object_type.data_type 
 
     def _update_indirect_subtypes(self):
         """ Starting at each root type, build a list of indirect 
@@ -538,6 +497,12 @@ class NormaLoader(object):
             if cons != None and cons.covers != None:
                 self._add(cons)
 
+    def _init_constraint(self, xml_node, constraint_type, **kwargs):
+        """ Initialize a constraint from an xml_node. """
+        cons = self._construct(xml_node, constraint_type, **kwargs)
+        cons.alethic = (xml_node.get("Modality") != "Deontic")
+        return cons
+
     def _load_equality_constraint(self, xml_node):
         """ Load equality constraint. """
         self.omissions.append("Equality constraint " + xml_node.get("Name"))
@@ -545,125 +510,85 @@ class NormaLoader(object):
 
     def _load_exclusion_constraint(self, xml_node):
         """ Load exclusion constraint. """
-        # NOTE: THIS CONSTRAINT IS NOT IMPLEMENTED.  CODE BELOW SIMPLY CHECKS
-        # WHETHER CONSTRAINT IS USED IN A SUBTYPE.
+        attribs, name = get_basic_attribs(xml_node)
+        kind = "Exclusion constraint"
 
-        cons = self._init_constraint(xml_node, Constraint.ExclusionConstraint)
-
-        seq_node = find(find(xml_node, "RoleSequences"), "RoleSequence")
-        first_seq = self._load_role_sequence(seq_node, cons)
-
+        seq_node = find(xml_node, "RoleSequences")
+        first_seq = self._load_role_sequence(seq_node[0], name)
         if isinstance(first_seq[0], Constraint.SubtypeConstraint):
-            preamble = "Subtype exclusion constraint"
-        else:
-            preamble = "Exclusion constraint"
+            kind = "Subtype " + kind.lower()
 
-        self.omissions.append(preamble + " " + xml_node.get("Name"))
+        self.omissions.append(kind + " " + name)
         return None
 
     def _load_subset_constraint(self, xml_node):
         """ Load subset constraint. """
-        cons = self._init_constraint(xml_node, Constraint.SubsetConstraint)
+        attribs, name = get_basic_attribs(xml_node)
 
-        # Find RoleSequences node (should have exactly 2 RoleSequence children)
         sequences_node = find(xml_node, "RoleSequences")
 
         if len(sequences_node) != 2:
-            raise Exception("Constraint " + cons.name +
-                " does not have exactly two role sequences (sub and super).")
+            msg = "Constraint {0} does not have exactly two role sequences"
+            raise Exception(msg.format(name))
 
         # Load subset and superset role sequences
-        cons.subset = self._load_role_sequence(sequences_node[0], cons)
-        cons.superset = self._load_role_sequence(sequences_node[1], cons)
+        attribs['subset'] = self._load_role_sequence(sequences_node[0], name)
+        attribs['superset'] = self._load_role_sequence(sequences_node[1], name)
 
-        # Role sequence will be None if sequence has unsupported feature
-        if cons.subset is not None and cons.superset is not None:
-            cons.covers = cons.subset + cons.superset # All covered roles
-        else:
-            cons.covers = None
-
-        return cons
-
+        return Constraint.SubsetConstraint(**attribs)
 
     def _load_frequency_constraint(self, xml_node):
         """ Load frequency constraint. """
-        cons = self._construct(xml_node, Constraint.FrequencyConstraint)
+        attribs, name = get_basic_attribs(xml_node)
 
         # Parse frequency attributes
-        cons.min_freq = int(xml_node.get("MinFrequency"))
-        cons.max_freq = int(xml_node.get("MaxFrequency"))
+        min_freq = int(xml_node.get("MinFrequency"))
+        max_freq = int(xml_node.get("MaxFrequency"))
 
-        if cons.max_freq == 0: # Unbounded
-            cons.max_freq = float('inf')
+        # Build attribute dictionary
+        attribs['min_freq'] = min_freq
+        attribs['max_freq'] = max_freq if max_freq > 0 else float('inf')
+        attribs['covers'] = self._load_role_sequence(xml_node, name)
 
-        # Get sequence of covered roles
-        seq_node = find(xml_node, "RoleSequence")
-        cons.covers = self._load_role_sequence(seq_node, cons)
-     
-        # Detect whether frequency constraint is internal
-        fact_types = set()
-        for role in cons.covers or []:
-            fact_types.add(role.fact_type)
-        cons.internal = (len(fact_types) == 1)
-
-        return cons
+        return Constraint.FrequencyConstraint(**attribs)
 
     def _load_mandatory_constraint(self, xml_node):
         """ Load mandatory constraint. """
-        cons = self._construct(xml_node, Constraint.MandatoryConstraint)
+        attribs, name = get_basic_attribs(xml_node)
 
         implied = (xml_node.get("IsImplied") == "true")
-        seq_node = find(xml_node, "RoleSequence")
-        cons.covers = self._load_role_sequence(seq_node, cons)
+        covers = self._load_role_sequence(xml_node, name)
 
-        if cons.covers is None or implied == True:
-            return None # Unsupported or implicit
-        elif len(cons.covers) > 1: # Part of XOR or inclusive-or constraint
-            if isinstance(cons.covers[0], Constraint.SubtypeConstraint): 
-                preamble = "Subtype inclusive-or constraint"
-            else:
-                preamble = "Inclusive-or constraint"
-            self.omissions.append(preamble + " " + cons.name)
+        # Lambda functions to decide if constraint covers a subtype or is simple
+        subtype = lambda x: x and isinstance(x[0], Constraint.SubtypeConstraint)
+        simple = lambda x: x and len(x) == 1 and isinstance(x[0], FactType.Role)
+
+        if simple(covers) and not(implied):
+            return Constraint.MandatoryConstraint(covers=covers, **attribs)
+        else:
+            if not(implied) and len(covers or []) > 1: 
+                kind = "Inclusive-or constraint"
+                if subtype(covers): kind = "Subtype " + kind.lower()
+                self.omissions.append(kind + " " + name)
             return None
-        elif isinstance(cons.covers[0], Constraint.SubtypeConstraint):
-            return None # Simple mandatory on implicit subtype fact type
-        else: # Simple mandatory on regular role
-            role = cons.covers[0]
-            role.mandatory = True
-            return cons
 
     def _load_uniqueness_constraint(self, xml_node):
         """ Load uniqueness constraint. """
-        cons = self._init_constraint(xml_node, Constraint.UniquenessConstraint)
-
-        cons.internal = (xml_node.get("IsInternal") == "true")
+        attribs, name = get_basic_attribs(xml_node)
 
         # Get object type that this constraint is a preferred id for
         pref_node = find(xml_node, "PreferredIdentifierFor")
         if pref_node is not None:
-            self._load_identifier_for(pref_node, cons)
+            uid = pref_node.get("ref")
+            attribs['identifier_for'] = self._elements.get(uid)
 
         # Get sequence of covered roles
-        seq_node = find(xml_node, "RoleSequence")
-        cons.covers = self._load_role_sequence(seq_node, cons)
+        covers = self._load_role_sequence(xml_node, name)
 
-        if cons.covers is None:
-            return None
-        elif isinstance(cons.covers[0], Constraint.SubtypeConstraint):
+        if covers and isinstance(covers[0], Constraint.SubtypeConstraint):
             return None # Covers a role in an implicit subtype fact
         else:
-            return cons
-
-    def _load_identifier_for(self, xml_node, constraint):
-        """ Loads the object type that a uniqueness constraint is a preferred
-            identifier for. """
-        uid = xml_node.get("ref")
-        try:
-            object_type = self._elements[uid]
-            constraint.identifier_for = object_type
-            object_type.identifying_constraint = constraint
-        except KeyError:
-            pass # An implicit object?
+            return Constraint.UniquenessConstraint(covers=covers, **attribs)
 
     def _load_ring_constraint(self, xml_node):
         """ Load ring constraint. """
@@ -678,30 +603,34 @@ class NormaLoader(object):
 
     def _load_value_constraint(self, parent_node):
         """ Load value constraint. """
-        node = parent_node[0]        
+        node = parent_node[0] # parent_node is <ValueRestriction>    
 
         types = ['ValueConstraint', 'RoleValueConstraint']
         if len(parent_node) != 1 or local_tag(node) not in types:
             raise ValueError("Unexpected value constraint format")
 
-        cons = self._init_constraint(node, Constraint.ValueConstraint)
-        cons.covers = self._get_covered_object_type(parent_node)
+        attribs, name = get_basic_attribs(node)
+        attribs['covers'] = covers = self._get_covered_element(parent_node)
+
+        data_type = covers[0].data_type if covers else None
 
         try:
+            domain = Constraint.ValueDomain()
             for value_range in node_collection(node, "ValueRanges"):
-                cons.add_range(
+                domain.add_range(
                     min_value=value_range.get("MinValue"),
                     max_value=value_range.get("MaxValue"),
                     min_open=(value_range.get("MinInclusion") == "Open"),
-                    max_open=(value_range.get("MaxInclusion") == "Open")
+                    max_open=(value_range.get("MaxInclusion") == "Open"),
+                    data_type=data_type
                 )
         except Constraint.ValueConstraintError as ex:
             reason = ex.message.lower()
-            mesg = "Value constraint {0} because {1}".format(cons.name, reason)
+            mesg = "Value constraint {0} because {1}".format(name, reason)
             self.omissions.append(mesg)
-            cons = None
+            return None
 
-        return cons
+        return Constraint.ValueConstraint(domain, **attribs)
 
     def _load_cardinality_constraint(self, parent_node):
         """ Load cardinality constraint. """
@@ -712,7 +641,7 @@ class NormaLoader(object):
             raise ValueError("Unexpected cardinality constraint format")
         
         cons = self._init_constraint(node, Constraint.CardinalityConstraint)   
-        cons.covers = self._get_covered_object_type(parent_node)
+        cons.covers = self._get_covered_element(parent_node)
         cons.ranges = self._load_cardinality_ranges(node)
 
         return cons
@@ -729,38 +658,35 @@ class NormaLoader(object):
             ranges.append(Constraint.CardinalityRange(lower, upper))
         return ranges
 
-    def _get_covered_object_type(self, node):
-        """ Returns object type covered by a constraint. Used by ValueConstraint
+    def _get_covered_element(self, node):
+        """ Returns element covered by a constraint. Used by ValueConstraint
             and CardinalityConstraint, which have been moved from their parent
             nodes to the Constraints node. """
         try:
-            # _covered_object_type is added via _move_node_to_constraints()
-            uid = node.get("_covered_object_type")
+            # _covered_element is added via _move_node_to_constraints()
+            uid = node.get("_covered_element")
             return [self._elements[uid]]
         except KeyError:
             return None
 
-    def _init_constraint(self, xml_node, constraint_type):
-        """ Initialize a constraint from an xml_node. """
-        cons = self._construct(xml_node, constraint_type)
-        cons.alethic = (xml_node.get("Modality") != "Deontic")
-        return cons
-
-    def _load_role_sequence(self, xml_node, constraint):
-        """ Returns a sequence of roles covered by the constraint.
+    def _load_role_sequence(self, xml_node, constraint_name):
+        """ Returns a sequence of roles covered by a constraint.
             xml_node points to the RoleSequence node. """
 
-        name = constraint.name
+        if local_tag(xml_node) != 'RoleSequence':
+            xml_node = find(xml_node, 'RoleSequence')
+
+        name = constraint_name
         role_sequence = FactType.RoleSequence()
         implied_roles = 0 # Number of implied roles in the sequence
 
         for node in xml_node:
             if local_tag(node) == "Role":
-                role = self._load_constraint_role(node, constraint)
+                role = self._load_constraint_role(node, name)
                 implied_roles += (role is None)
                 role_sequence.append(role)
             elif local_tag(node) == "JoinRule":
-                self._load_join_rule(node, constraint, role_sequence)
+                self._load_join_rule(node, name, role_sequence)
             else:
                 msg = "Constraint {0} has unexpected role sequence."
                 raise Exception(msg.format(name))
@@ -774,12 +700,12 @@ class NormaLoader(object):
         else:
             return role_sequence
 
-    def _load_constraint_role(self, xml_node, constraint):
+    def _load_constraint_role(self, xml_node, constraint_name):
         """ Returns a Role element within the RoleSequence of a constraint. """
 
         # Confirm deprecated path data is not present
         if find(xml_node, "ProjectedFrom") is not None:
-            msg = "Constraint " + constraint.name +" has deprecated join rule."
+            msg = "Constraint " + constraint_name +" has deprecated join rule."
             raise Exception(msg)
 
         try:
@@ -789,9 +715,9 @@ class NormaLoader(object):
             return None # Role not in elements[] if part of implied fact type
 
 
-    def _load_join_rule(self, xml_node, constraint, role_sequence):
+    def _load_join_rule(self, xml_node, constraint_name, role_sequence):
         """ Loads a join rule. """
-        self.omissions.append("Join path for " + constraint.name + ".")
+        self.omissions.append("Join path for " + constraint_name + ".")
         role_sequence.join_path = "" # Just so that it is not None, for now.
 
 ###############################################################################
@@ -812,6 +738,18 @@ def find(xml_node, name):
 def node_collection(xml_node, name):
     """ Return the collection of nodes named 'name' under a parent xml node. """
     return find(xml_node, name) or []
+
+def get_basic_attribs(xml_node):
+    """ Return a dictionary of commonly needed attributes from an xml_node. """
+    attribs = {}
+    attribs['uid'] = xml_node.get("id")
+    attribs['name'] = xml_node.get("Name") or xml_node.get("_Name")
+
+    alethic = xml_node.get("Modality")
+    if alethic is not None:
+        attribs['alethic'] = (alethic != "Deontic")
+
+    return attribs, attribs['name']
 
 
 

@@ -99,7 +99,7 @@ parameter.</p>
 <p>This module provides a class for ORM constraints.</p>
 <dl class="class">
 <dt id="lib.Constraint.CardinalityConstraint">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">CardinalityConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#CardinalityConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.CardinalityConstraint" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">CardinalityConstraint</tt><big>(</big><em>ranges=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#CardinalityConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.CardinalityConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
 <p>A cardinality constraint on an object type or role.</p>
 <dl class="attribute">
@@ -122,15 +122,6 @@ parameter.</p>
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">Constraint</tt><big>(</big><em>covers=None</em>, <em>alethic=True</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>An ORM Constraint.</p>
-<dl class="method">
-<dt id="lib.Constraint.Constraint.add_to">
-<tt class="descname">add_to</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.add_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.add_to" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add this constraint to a model.  Only this method and delete_from()
-will modify elements in the model.  Therefore, until add_to(model)
-is called, a constraint can still be deleted without affecting the
-model.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="lib.Constraint.Constraint.alethic">
 <tt class="descname">alethic</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.Constraint.alethic" title="Permalink to this definition">¶</a></dt>
@@ -138,23 +129,16 @@ model.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="lib.Constraint.Constraint.cover">
-<tt class="descname">cover</tt><big>(</big><em>model_element</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.cover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.cover" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a model element to the list of elements covered by
-the constraint.</p>
+<dt id="lib.Constraint.Constraint.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit side effects of this constraint in the model.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="lib.Constraint.Constraint.covers">
 <tt class="descname">covers</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.Constraint.covers" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of (<a class="reference internal" href="#lib.FactType.RoleSequence" title="lib.FactType.RoleSequence"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.RoleSequence</span></tt></a>) the constraint covers</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.Constraint.Constraint.delete_from">
-<tt class="descname">delete_from</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.delete_from"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.delete_from" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete this constraint from a model, updating any model elements
-that are affected by this constraint.</p>
+<dd><p>List of model element(s) that the constraint covers.  If the
+constraint covers a sequence of roles, use a FactType.RoleSequence.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -164,10 +148,9 @@ that are affected by this constraint.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="lib.Constraint.Constraint.uncover">
-<tt class="descname">uncover</tt><big>(</big><em>model_element</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.uncover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.uncover" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove the model element from the list of elements covered by
-the constraint.</p>
+<dt id="lib.Constraint.Constraint.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#Constraint.rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.Constraint.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback side effects of this constraint in the model.</p>
 </dd></dl>
 
 </dd></dl>
@@ -186,23 +169,10 @@ the constraint.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="lib.Constraint.ExclusionConstraint">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ExclusionConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ExclusionConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ExclusionConstraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
-<p>An exclusion constraint.</p>
-</dd></dl>
-
-<dl class="class">
 <dt id="lib.Constraint.FrequencyConstraint">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">FrequencyConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#FrequencyConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.FrequencyConstraint" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">FrequencyConstraint</tt><big>(</big><em>min_freq=0</em>, <em>max_freq=inf</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#FrequencyConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.FrequencyConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
 <p>A frequency constraint.</p>
-<dl class="attribute">
-<dt id="lib.Constraint.FrequencyConstraint.internal">
-<tt class="descname">internal</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.FrequencyConstraint.internal" title="Permalink to this definition">¶</a></dt>
-<dd><p>True if constraint covers roles in one fact type</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="lib.Constraint.FrequencyConstraint.max_freq">
 <tt class="descname">max_freq</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.FrequencyConstraint.max_freq" title="Permalink to this definition">¶</a></dt>
@@ -219,36 +189,34 @@ the constraint.</p>
 
 <dl class="class">
 <dt id="lib.Constraint.MandatoryConstraint">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">MandatoryConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#MandatoryConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.MandatoryConstraint" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">MandatoryConstraint</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#MandatoryConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.MandatoryConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
 <p>A mandatory constraint.</p>
+<dl class="method">
+<dt id="lib.Constraint.MandatoryConstraint.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#MandatoryConstraint.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.MandatoryConstraint.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit side effects of this constraint in the model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.Constraint.MandatoryConstraint.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#MandatoryConstraint.rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.MandatoryConstraint.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback side effects of this constraint in the model.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.Constraint.MandatoryConstraint.simple">
-<tt class="descname">simple</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.MandatoryConstraint.simple" title="Permalink to this definition">¶</a></dt>
-<dd><p>True for simple mandatory constraints</p>
+<tt class="descname">simple</tt><a class="reference internal" href="_modules/lib/Constraint.html#MandatoryConstraint.simple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.MandatoryConstraint.simple" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if mandatory constraint is simple.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.Constraint.SubsetConstraint">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">SubsetConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubsetConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubsetConstraint" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">SubsetConstraint</tt><big>(</big><em>subset=None</em>, <em>superset=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubsetConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubsetConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
 <p>A subset constraint.</p>
-<dl class="method">
-<dt id="lib.Constraint.SubsetConstraint.cover_subset">
-<tt class="descname">cover_subset</tt><big>(</big><em>role</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubsetConstraint.cover_subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubsetConstraint.cover_subset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a role to the list of subset roles covered by this
-constraint.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.Constraint.SubsetConstraint.cover_superset">
-<tt class="descname">cover_superset</tt><big>(</big><em>role</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubsetConstraint.cover_superset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubsetConstraint.cover_superset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a role to the list of superset roles covered by
-this constraint.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="lib.Constraint.SubsetConstraint.subset">
 <tt class="descname">subset</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.SubsetConstraint.subset" title="Permalink to this definition">¶</a></dt>
@@ -265,12 +233,12 @@ this constraint.</p>
 
 <dl class="class">
 <dt id="lib.Constraint.SubtypeConstraint">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">SubtypeConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubtypeConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubtypeConstraint" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">SubtypeConstraint</tt><big>(</big><em>subtype=None</em>, <em>supertype=None</em>, <em>idpath=True</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubtypeConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubtypeConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
 <p>A subtype constraint.</p>
 <dl class="attribute">
-<dt id="lib.Constraint.SubtypeConstraint.preferred_id">
-<tt class="descname">preferred_id</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.SubtypeConstraint.preferred_id" title="Permalink to this definition">¶</a></dt>
+<dt id="lib.Constraint.SubtypeConstraint.idpath">
+<tt class="descname">idpath</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.SubtypeConstraint.idpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if subtype constraint is on path to preferred id.  This is
 relevant if the subtype inherits one of its supertypes&#8217; reference
 schemes, and the supertype graph is not a simple path.</p>
@@ -292,9 +260,15 @@ schemes, and the supertype graph is not a simple path.</p>
 
 <dl class="class">
 <dt id="lib.Constraint.UniquenessConstraint">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">UniquenessConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#UniquenessConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.UniquenessConstraint" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">UniquenessConstraint</tt><big>(</big><em>identifier_for=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#UniquenessConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.UniquenessConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.FrequencyConstraint" title="lib.Constraint.FrequencyConstraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.FrequencyConstraint</span></tt></a></p>
 <p>A uniqueness constraint (a special case of Frequency Constraint).</p>
+<dl class="method">
+<dt id="lib.Constraint.UniquenessConstraint.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#UniquenessConstraint.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.UniquenessConstraint.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit side effects of this constraint in the model.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.Constraint.UniquenessConstraint.identifier_for">
 <tt class="descname">identifier_for</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.UniquenessConstraint.identifier_for" title="Permalink to this definition">¶</a></dt>
@@ -308,16 +282,21 @@ schemes, and the supertype graph is not a simple path.</p>
 in which the min and max frequencies are both 1</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="lib.Constraint.UniquenessConstraint.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#UniquenessConstraint.rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.UniquenessConstraint.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback side effects of this constraint in the model.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.Constraint.ValueConstraint">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ValueConstraint</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueConstraint" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ValueConstraint</tt><big>(</big><em>domain=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
 <p>A value constraint.  This implementation supports only a limited
-form of value constraint: specifically, enumerations (i.e. min
-value == max value), bounded integer ranges, or a combination
-of the two.  For example:</p>
+form of value constraint: specifically, enumerations, bounded integer 
+ranges, or a combination of the two.  For example:</p>
 <p><em>Supported:</em></p>
 <ul class="simple">
 <li>{&#8216;Dog&#8217;, &#8216;Cat&#8217;, &#8216;Monkey&#8217;}</li>
@@ -334,21 +313,9 @@ of the two.  For example:</p>
 <li>Range of float values: {3.6..3.7}</li>
 </ul>
 <dl class="attribute">
-<dt id="lib.Constraint.ValueConstraint.MAX_SIZE">
-<tt class="descname">MAX_SIZE</tt><em class="property"> = 1000</em><a class="headerlink" href="#lib.Constraint.ValueConstraint.MAX_SIZE" title="Permalink to this definition">¶</a></dt>
-<dd><p>Arbitrary, for performance.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="lib.Constraint.ValueConstraint.add_range">
-<tt class="descname">add_range</tt><big>(</big><em>min_value</em>, <em>max_value=None</em>, <em>min_open=False</em>, <em>max_open=False</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueConstraint.add_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueConstraint.add_range" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a range of values to the constraint.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="lib.Constraint.ValueConstraint.domain">
 <tt class="descname">domain</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.ValueConstraint.domain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Domain of valid values</p>
+<dd><p>A ValueDomain containing the set of valid values</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -364,6 +331,25 @@ of the two.  For example:</p>
 <em class="property">exception </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ValueConstraintError</tt><a class="reference internal" href="_modules/lib/Constraint.html#ValueConstraintError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueConstraintError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
 <p>An exception raised by an invalid value constraint.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Constraint.ValueDomain">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ValueDomain</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Domain.EnumeratedDomain" title="lib.Domain.EnumeratedDomain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.EnumeratedDomain</span></tt></a></p>
+<p>The domain of a value constraint.</p>
+<dl class="attribute">
+<dt id="lib.Constraint.ValueDomain.MAX_SIZE">
+<tt class="descname">MAX_SIZE</tt><em class="property"> = 1000</em><a class="headerlink" href="#lib.Constraint.ValueDomain.MAX_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arbitrary, for performance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.Constraint.ValueDomain.add_range">
+<tt class="descname">add_range</tt><big>(</big><em>min_value</em>, <em>max_value=None</em>, <em>min_open=False</em>, <em>max_open=False</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueDomain.add_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueDomain.add_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a range of values to the domain.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -506,6 +492,12 @@ which defaults to midnight and increments by minutes.</p>
 <dd><p>Returns the arity of the fact type.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="lib.FactType.FactType.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactType.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit any side effects of adding this fact type to a model.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.FactType.FactType.fullname">
 <tt class="descname">fullname</tt><a class="reference internal" href="_modules/lib/FactType.html#FactType.fullname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType.fullname" title="Permalink to this definition">¶</a></dt>
@@ -516,6 +508,12 @@ which defaults to midnight and increments by minutes.</p>
 <dt id="lib.FactType.FactType.roles">
 <tt class="descname">roles</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.FactType.roles" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of roles in the fact type</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.FactType.FactType.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactType.rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback any side effects of adding this fact type to a model.</p>
 </dd></dl>
 
 </dd></dl>
@@ -532,6 +530,12 @@ which defaults to midnight and increments by minutes.</p>
 <em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">Role</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#Role"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.Role" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>A role in a fact type.</p>
+<dl class="method">
+<dt id="lib.FactType.Role.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#Role.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.Role.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit any side effects of adding this role to a model.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.FactType.Role.covered_by">
 <tt class="descname">covered_by</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.covered_by" title="Permalink to this definition">¶</a></dt>
@@ -562,6 +566,12 @@ which defaults to midnight and increments by minutes.</p>
 <dd><p>Object type that plays the role</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="lib.FactType.Role.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#Role.rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.Role.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback any side effects of adding this role to a model.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -575,13 +585,6 @@ which defaults to midnight and increments by minutes.</p>
 <dd><p>Join path for the role sequence</p>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="class">
-<dt id="lib.FactType.SubtypeRole">
-<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">SubtypeRole</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#SubtypeRole"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.SubtypeRole" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.FactType.Role" title="lib.FactType.Role"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.Role</span></tt></a></p>
-<p>A subtype role.</p>
 </dd></dl>
 
 </div>
@@ -841,6 +844,12 @@ constraints.</p>
 <em class="property">class </em><tt class="descclassname">lib.Model.</tt><tt class="descname">Model</tt><a class="reference internal" href="_modules/lib/Model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Model.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Simplified representation of an ORM model.</p>
+<dl class="method">
+<dt id="lib.Model.Model.add">
+<tt class="descname">add</tt><big>(</big><em>model_element</em><big>)</big><a class="reference internal" href="_modules/lib/Model.html#Model.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Model.Model.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a model element to the model.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.Model.Model.constraints">
 <tt class="descname">constraints</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Model.Model.constraints" title="Permalink to this definition">¶</a></dt>
@@ -868,6 +877,12 @@ constraints.</p>
 (<a class="reference internal" href="#lib.ObjectType.ObjectTypeSet" title="lib.ObjectType.ObjectTypeSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ObjectType.ObjectTypeSet</span></tt></a>)</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="lib.Model.Model.remove">
+<tt class="descname">remove</tt><big>(</big><em>model_element</em><big>)</big><a class="reference internal" href="_modules/lib/Model.html#Model.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Model.Model.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the model element from the model.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -881,11 +896,27 @@ can be derived) as well as an abstract class for a set of model elements.</p>
 <em class="property">class </em><tt class="descclassname">lib.ModelElement.</tt><tt class="descname">ModelElement</tt><big>(</big><em>uid=None</em>, <em>name=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>An abstract element in an ORM model.</p>
+<dl class="method">
+<dt id="lib.ModelElement.ModelElement.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElement.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElement.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit any side effects of adding this model element to a model.
+This is an abstract method that must be implemented for each 
+subclass of ModelElement.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.ModelElement.ModelElement.name">
 <tt class="descname">name</tt><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElement.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElement.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unique name for the model element. Cannot be changed after
 the model element is created.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.ModelElement.ModelElement.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElement.rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElement.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback any side effects of adding this model element to a model.
+This is an abstract method that must be implemented for each 
+subclass of ModelElement.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -997,9 +1028,45 @@ An .orm file can be loaded via the constructor.  For example:</p>
 <dl class="attribute">
 <dt id="lib.NormaLoader.NormaLoader.omissions">
 <tt class="descname">omissions</tt><em class="property"> = None</em><a class="headerlink" href="#lib.NormaLoader.NormaLoader.omissions" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of items in the .orm file omitted by the NormaLoader</p>
+<dd><p>Intentionally omitted model elements</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="lib.NormaLoader.NormaLoader.unexpected">
+<tt class="descname">unexpected</tt><em class="property"> = None</em><a class="headerlink" href="#lib.NormaLoader.NormaLoader.unexpected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unexpected nodes in the XML file</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.NormaLoader.find">
+<tt class="descclassname">lib.NormaLoader.</tt><tt class="descname">find</tt><big>(</big><em>xml_node</em>, <em>name</em><big>)</big><a class="reference internal" href="_modules/lib/NormaLoader.html#find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.NormaLoader.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fine a node under a parent xml node.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.NormaLoader.get_basic_attribs">
+<tt class="descclassname">lib.NormaLoader.</tt><tt class="descname">get_basic_attribs</tt><big>(</big><em>xml_node</em><big>)</big><a class="reference internal" href="_modules/lib/NormaLoader.html#get_basic_attribs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.NormaLoader.get_basic_attribs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary of commonly needed attributes from an xml_node.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.NormaLoader.local_tag">
+<tt class="descclassname">lib.NormaLoader.</tt><tt class="descname">local_tag</tt><big>(</big><em>xml_node</em><big>)</big><a class="reference internal" href="_modules/lib/NormaLoader.html#local_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.NormaLoader.local_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strips namespace from a node&#8217;s tag.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.NormaLoader.node_collection">
+<tt class="descclassname">lib.NormaLoader.</tt><tt class="descname">node_collection</tt><big>(</big><em>xml_node</em>, <em>name</em><big>)</big><a class="reference internal" href="_modules/lib/NormaLoader.html#node_collection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.NormaLoader.node_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the collection of nodes named &#8216;name&#8217; under a parent xml node.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.NormaLoader.noop">
+<tt class="descclassname">lib.NormaLoader.</tt><tt class="descname">noop</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/NormaLoader.html#noop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.NormaLoader.noop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do nothing.</p>
 </dd></dl>
 
 </div>
@@ -1026,6 +1093,11 @@ the ORM- satisfiability algorithm (Smaragdakis et al.).</p>
 </tr>
 </tbody>
 </table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Generating an ORMMinusModel makes irreversible semantic
+changes to the underlying <a class="reference internal" href="#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">lib.Model.Model</span></tt></a>.</p>
+</div>
 <dl class="attribute">
 <dt id="lib.ORMMinusModel.ORMMinusModel.DEFAULT_SIZE">
 <tt class="descname">DEFAULT_SIZE</tt><em class="property"> = 15</em><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel.DEFAULT_SIZE" title="Permalink to this definition">¶</a></dt>
@@ -1089,6 +1161,12 @@ identification scheme for this entity type.</p>
 <em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>Abstract class inherited by all object types.</p>
+<dl class="method">
+<dt id="lib.ObjectType.ObjectType.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit any side effects of adding this object type to a model.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="lib.ObjectType.ObjectType.compatible">
 <tt class="descname">compatible</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.compatible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.compatible" title="Permalink to this definition">¶</a></dt>
@@ -1155,6 +1233,12 @@ or other is a supertype of self.</p>
 <dt id="lib.ObjectType.ObjectType.roles">
 <tt class="descname">roles</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.roles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Roles played by this object type</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.ObjectType.ObjectType.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback any side effects of adding this object type to a model.</p>
 </dd></dl>
 
 <dl class="attribute">

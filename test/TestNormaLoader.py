@@ -401,7 +401,7 @@ class TestNormaLoader(TestCase):
         with self.assertRaises(Exception) as ex:
             loader = NormaLoader(self.data_dir + "partial_subset.orm")
         self.assertEquals(ex.exception.message, 
-            "Constraint SubsetConstraint1 does not have exactly two role sequences (sub and super).")
+            "Constraint SubsetConstraint1 does not have exactly two role sequences")
 
     def test_implicit_role(self):
         """ Confirm constraint that covers implicit role is removed. """
@@ -588,79 +588,7 @@ class TestNormaLoader(TestCase):
         self.assertEquals(tern.roles[0].name, "R2")
         self.assertEquals(tern.roles[1].name, "R3")
         self.assertEquals(tern.roles[2].name, "R4")
-
-    def test_value_constraint_move(self):
-        """ Confirm value constraints on (implicitly or explicitly) mandatory
-            roles are moved to the object type. """
-        loader = NormaLoader(self.data_dir + "test_value_type_value_constraint.orm")
-        model = loader.model
-
-        # Constraint directly on value type should cover value type
-        cons1 = model.constraints.get("ValueConstraint1")
-        obj1 = model.object_types.get("A")
-        self.assertItemsEqual(cons1.covers, [obj1]) 
-
-        # Constraint on entity type covers role played by the reference type.
-        # If the ref type plays no other roles, the constraint should cover the
-        # type.
-        cons2 = model.constraints.get("RoleValueConstraint1")
-        obj2 = model.object_types.get("ET1_id")
-        self.assertItemsEqual(cons2.covers, [obj2]) 
-
-        # Value type value constraint --- directly covers value type
-        cons3 = model.constraints.get("ValueTypeValueConstraint1")
-        obj3 = model.object_types.get("ET2_id")
-        self.assertItemsEqual(cons3.covers, [obj3])
-
-        # In the next two tests, the constraints are on entity types with a 
-        # shared reference mode (USDValue).  Those value constraints
-        # cannot be moved to the object type and thus remain on the roles. 
-        cons4 = model.constraints.get("RoleValueConstraint2")
-        role4 = model.fact_types.get("ET3HasUSDValue").roles[1]
-        self.assertItemsEqual(cons4.covers, [role4])
-
-        cons5 = model.constraints.get("RoleValueConstraint3")
-        role5 = model.fact_types.get("ET4HasUSDValue").roles[1]
-        self.assertItemsEqual(cons5.covers, [role5])
-
-        # ET5 plays two roles: the reference role and the unary.  Thus, the 
-        # role value constraint cannot be moved.
-        cons6 = model.constraints.get("RoleValueConstraint4")
-        role6 = model.fact_types.get("ET5Exists").roles[0]
-        self.assertItemsEqual(cons6.covers, [role6]) 
-
-        # VT1 plays only a unary role and is not independent, so the role 
-        # value constraint can cover the object type instead.
-        cons7 = model.constraints.get("RoleValueConstraint5")
-        obj7 = model.object_types.get("VT1")
-        self.assertItemsEqual(cons7.covers, [obj7])  
-
-        # VT2 is independent, so the role value constraint cannot be moved.
-        cons8 = model.constraints.get("RoleValueConstraint6")
-        role8 = model.fact_types.get("VT2Exists").roles[0]
-        self.assertItemsEqual(cons8.covers, [role8])             
-
-
-    def test_domain_move(self):
-        """ Test that domain is properly moved for value constraints on types. """
-        loader = NormaLoader(self.data_dir + "test_value_type_value_constraint.orm")
-        model = loader.model
-
-        et1 = model.object_types.get("ET1")
-        self.assertItemsEqual(et1.domain.draw(3), ["ET1_0", "ET1_1", "ET1_2"])
-
-        et1_id = model.object_types.get("ET1_id")
-        self.assertItemsEqual(et1_id.domain.draw(20), [1,2,3,4,5,6,7,8,9,10])
-
-        # USDValue should not have the value constraints transferred to the 
-        # object type since there are two played roles.
-        usd = model.object_types.get("USDValue")
-        self.assertItemsEqual(usd.domain.draw(3), [0.0,0.1,0.2])
-
-        # VT1 has the value constraint moved over
-        vt1 = model.object_types.get("VT1")
-        self.assertItemsEqual(vt1.domain.draw(50), range(45,71))
-
+        
     def test_invalid_value_constraint(self):
         """ Test that invalid value constraint is ignored. """
         loader = NormaLoader(self.data_dir + "invalid_value_constraint.orm")

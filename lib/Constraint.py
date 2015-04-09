@@ -8,8 +8,9 @@
 """
 
 from lib.ModelElement import ModelElementSet, ModelElement
-from lib.FactType import RoleSequence
-from lib.Domain import EnumeratedDomain
+from lib.FactType import RoleSequence, Role
+from lib.ObjectType import ObjectType
+from lib.Domain import Domain, EnumeratedDomain, StringDomain
 
 class ConstraintSet(ModelElementSet):
     """ Container for a set of constraints. """
@@ -29,7 +30,7 @@ class Constraint(ModelElement):
 
         #: List of model element(s) that the constraint covers.  If the 
         #: constraint covers a sequence of roles, use a FactType.RoleSequence.  
-        self.covers = covers or RoleSequence()
+        self.covers = covers
 
         #: True if constraint has alethic modality (False implies deontic)
         self.alethic = alethic
@@ -41,12 +42,12 @@ class Constraint(ModelElement):
 
     def commit(self):
         """ Commit side effects of this constraint in the model. """
-        for element in self.covers:
+        for element in self.covers or []:
             element.covered_by.append(self)
 
     def rollback(self):
         """ Rollback side effects of this constraint in the model. """
-        for element in self.covers:
+        for element in self.covers or []:
             try: element.covered_by.remove(self)
             except ValueError: pass
 
@@ -83,29 +84,55 @@ class ValueConstraint(Constraint):
         * Unbounded integer range: {>1}
         * Invalid range: {3..2}
         * Range of float values: {3.6..3.7}
-        """
+    """
 
-    MAX_SIZE = 1000 #: Arbitrary, for performance.
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, domain=None, *args, **kwargs):
         super(ValueConstraint, self).__init__(*args, **kwargs)
 
-        #: An EnumeratedDomain containing the set of valid values
-        self.domain = EnumeratedDomain()
+        #: A ValueDomain containing the set of valid values
+        self.domain = domain or ValueDomain()
 
     @property
     def size(self):
         """ The number of items in the domain defined by the constraint. """
         return self.domain.size
 
-    def add_range(self, min_value, max_value=None,
-                  min_open=False, max_open=False):
-        """ Add a range of values to the constraint. """
+    def commit(self):
+        """ Commit side effects of this constraint in the model. """
+        element = self.covers[0]
+        if isinstance(element, ObjectType):
+            element.domain = self.domain
+        Constraint.commit(self)
+
+    def rollback(self):
+        """ Rollback side effects of this constraint in the model. """
+        element = self.covers[0]
+        if isinstance(element, ObjectType):
+            element.domain = element.data_type
+        Constraint.rollback(self)
+
+class ValueDomain(EnumeratedDomain):
+    """ The domain of a value constraint. """
+
+    MAX_SIZE = 1000 #: Arbitrary, for performance.
+
+    def __init__(self, *args, **kwargs):
+        super(ValueDomain, self).__init__(*args, **kwargs)        
+
+    def add_range(self, min_value, max_value=None, min_open=False, 
+                  max_open=False, data_type=None):
+        """ Add a range of values to the domain. """
         if max_value is None: # Easier specification of enumerations
             max_value = min_value
 
+        data_type = data_type or Domain() # Generic Domain will not cast
+
         if min_value == max_value and not min_open and not max_open:
-            self.domain.add(min_value)  # Single element of any data type.
+            # Single element, which we'll try to cast to the provided data type
+            try:
+                self.add(data_type.cast(min_value))
+            except (ValueError, NotImplementedError):
+                self.add(min_value)  
         else: # Possible range of integers
             try:
                 min_int = int(min_value) + (min_open == True)
@@ -118,11 +145,11 @@ class ValueConstraint(Constraint):
             if min_int > max_int:
                 msg = "The range of the value constraint is invalid"
                 raise ValueConstraintError(msg)
-            if (max_int - min_int + 1 + self.size) > ValueConstraint.MAX_SIZE:
+            if (max_int - min_int + 1 + self.size) > ValueDomain.MAX_SIZE:
                 msg = "The range of the value constraint is too large"
                 raise ValueConstraintError(msg)
             else:
-                self.domain.add(range(min_int, max_int+1))
+                self.add(range(min_int, max_int+1))
 
 class ValueConstraintError(Exception):
     """ An exception raised by an invalid value constraint. """
@@ -154,6 +181,21 @@ class MandatoryConstraint(Constraint):
         """ True if mandatory constraint is simple. """
         return len(self.covers) == 1
 
+    def commit(self):
+        """ Commit side effects of this constraint in the model. """
+        if self.simple:
+            role = self.covers[0]
+            role.mandatory = True
+        Constraint.commit(self)
+
+    def rollback(self):
+        """ Rollback side effects of this constraint in the model. """
+        if self.simple:
+            role = self.covers[0]
+            role.mandatory = False
+        Constraint.rollback(self)
+
+
 class SubsetConstraint(Constraint):
     """ A subset constraint. """
 
@@ -161,27 +203,32 @@ class SubsetConstraint(Constraint):
         super(SubsetConstraint, self).__init__(*args, **kwargs)
 
         #: Sequence of subset roles (:class:`lib.FactType.RoleSequence`)
-        self.subset = subset or RoleSequence()
+        self.subset = subset 
 
         #: Sequence of superset roles (:class:`lib.FactType.RoleSequence`)
-        self.superset = superset or RoleSequence()
+        self.superset = superset
 
         # Override whatever is passed in as the list of covered roles; instead,
         # we treat the subset and superset sequences as the truth.
-        self.covers = self.subset + self.superset
+        if subset and superset:
+            self.covers = subset + superset
+        else:
+            self.covers = None
 
 class FrequencyConstraint(Constraint):
     """ A frequency constraint. """
 
-    def __init__(self, min_freq=0, max_freq=float('inf'), internal=False,
-                 *args, **kwargs):
+    def __init__(self, min_freq=0, max_freq=float('inf'), *args, **kwargs):
         super(FrequencyConstraint, self).__init__(*args, **kwargs)
 
         self.min_freq = min_freq #: Minimum frequency
         self.max_freq = max_freq #: Maximum frequency
 
-        #: True if constraint covers roles in one fact type
-        self.internal = internal
+        # Detect whether frequency constraint is internal
+        fact_types = set()
+        for role in self.covers or []:
+            fact_types.add(role.fact_type)
+        self.internal = (len(fact_types) == 1)
 
 class UniquenessConstraint(FrequencyConstraint):
     """ A uniqueness constraint (a special case of Frequency Constraint). """
@@ -197,12 +244,15 @@ class UniquenessConstraint(FrequencyConstraint):
         #: Object type this constraint identifies
         self.identifier_for = identifier_for
 
-class ExclusionConstraint(Constraint):
-    """ An exclusion constraint. """
+    def commit(self):
+        """ Commit side effects of this constraint in the model. """
+        if self.identifier_for is not None:
+            self.identifier_for.identifying_constraint = self
+        Constraint.commit(self)
 
-    def __init__(self, *args, **kwargs):
-        super(ExclusionConstraint, self).__init__(*args, **kwargs)
-
-
-
+    def rollback(self):
+        """ Rollback side effects of this constraint in the model. """
+        if self.identifier_for is not None:
+            self.identifier_for.identifying_constraint = None
+        Constraint.rollback(self)
 

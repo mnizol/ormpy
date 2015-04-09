@@ -47,6 +47,11 @@ class Domain(object):
 
         return result                      
     
+    @staticmethod
+    def cast(obj):
+        """ Try to cast obj to the type represented by this Domain. """
+        raise NotImplementedError()
+
     def _generate(self, n):
         """ Generator function called by draw().  This is an abstract method
             that must be customized by each subclass and must return a 
@@ -58,7 +63,12 @@ class IntegerDomain(Domain):
 
     def __init__(self):
         super(IntegerDomain, self).__init__()
-        
+     
+    @staticmethod
+    def cast(obj):
+        """ Try to cast obj to an Integer. """
+        return int(obj)
+
     def _generate(self, n):
         return (i for i in xrange(n))
 
@@ -69,6 +79,11 @@ class FloatDomain(Domain):
     def __init__(self):
         super(FloatDomain, self).__init__()
 
+    @staticmethod
+    def cast(obj):
+        """ Try to cast obj to a Float. """
+        return float(obj)
+
     def _generate(self, n):
         return (float(i) / 10.0 for i in xrange(n))
 
@@ -77,6 +92,11 @@ class BoolDomain(Domain):
 
     def __init__(self):
         super(BoolDomain, self).__init__(max_size=2)
+
+    @staticmethod
+    def cast(obj):
+        """ Try to cast obj to a Bool. """
+        return bool(obj)
 
     def _generate(self, n):
         values = [False, True]
@@ -90,6 +110,11 @@ class StringDomain(Domain):
     def __init__(self, prefix=""):
         super(StringDomain, self).__init__()
         self.prefix = prefix
+
+    @staticmethod
+    def cast(obj):
+        """ Try to cast obj to a String. """
+        return str(obj)
 
     def _generate(self, n):
         return (self.prefix + str(i) for i in xrange(n))
@@ -174,5 +199,16 @@ class EnumeratedDomain(Domain):
 
     def _generate(self, n):
         return (element for element in self._domain)
+
+    def intersect(self, other):
+        """ Return a new EnumeratedDomain that is the intersection of self and
+            other. """
+        result = EnumeratedDomain()
+        items = set(self._domain) & set(other._domain)
+        result.add(list(items))
+        return result
+
+    def __and__(self, other):
+        return self.intersect(other)
 
     

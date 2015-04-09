@@ -10,7 +10,7 @@ from unittest import TestCase
 
 import lib.Constraint as Constraint
 from lib.Model import Model
-from lib.ObjectType import ObjectType
+from lib.ObjectType import ObjectType, EntityType
 from lib.FactType import FactType, Role
 
 class TestConstraint(TestCase):
@@ -44,52 +44,53 @@ class TestConstraint(TestCase):
 
     def test_vc_add_enum(self):
         """ Test the addition of enumerated items to a value constraint."""
-        cons = Constraint.ValueConstraint(uid="1", name="VC1")
-        cons.add_range("Dog", "Dog")
-        cons.add_range("Cat")
-        cons.add_range(1.35)
-        cons.add_range(9)
+        domain = Constraint.ValueDomain()
+        domain.add_range("Dog", "Dog")
+        domain.add_range("Cat")
+        domain.add_range(1.35)
+        domain.add_range(9)
+        cons = Constraint.ValueConstraint(domain, name="VC1")
         self.assertItemsEqual(cons.domain.draw(4), ["Dog","Cat", 1.35,9])
         self.assertEquals(cons.size, 4)
 
     def test_vc_bad_enum(self):
         """ Test invalid enumerations in value constraint. """
-        cons = Constraint.ValueConstraint()
+        domain = Constraint.ValueDomain()
         with self.assertRaises(Constraint.ValueConstraintError) as ex:
-            cons.add_range("Dog", max_open=True)
+            domain.add_range("Dog", max_open=True)
         self.assertEquals(ex.exception.message, 
             "Value constraints only support integer ranges")
 
         with self.assertRaises(Constraint.ValueConstraintError) as ex:
-            cons.add_range("Dog", min_open=True)
+            domain.add_range("Dog", min_open=True)
         self.assertEquals(ex.exception.message, 
             "Value constraints only support integer ranges")
 
     def test_vc_bad_ranges(self):
         """ Test a value constraint with a range of non-integers. """
-        cons = Constraint.ValueConstraint()
+        domain = Constraint.ValueDomain()
         with self.assertRaises(Constraint.ValueConstraintError) as ex:
-            cons.add_range("1.45", "5.6")
+            domain.add_range("1.45", "5.6")
         self.assertEquals(ex.exception.message,
             "Value constraints only support integer ranges")
 
     def test_vc_int_ranges(self):
         """ Test the addition of value ranges to a value constraint 
             with default inclusion values. """
-        cons = Constraint.ValueConstraint(uid="1", name="VC1")
-        cons.add_range("1", "4")
+        cons = Constraint.ValueConstraint(name="VC1")
+        cons.domain.add_range("1", "4")
         self.assertItemsEqual(cons.domain.draw(10), [1,2,3,4])
         self.assertEquals(cons.size, 4)
-        cons.add_range("3", "5")
+        cons.domain.add_range("3", "5")
         self.assertItemsEqual(cons.domain.draw(10), [1,2,3,4,5])
 
     def test_vc_int_ranges_open(self):
         """ Test the addition of value ranges to a value constraint 
             with explicit inclusion values. """
         cons = Constraint.ValueConstraint(uid="1", name="VC1")
-        cons.add_range("1", "2", min_open=True)
-        cons.add_range("5", "10", max_open=True)
-        cons.add_range("11", "13", min_open=True, max_open=True)
+        cons.domain.add_range("1", "2", min_open=True)
+        cons.domain.add_range("5", "10", max_open=True)
+        cons.domain.add_range("11", "13", min_open=True, max_open=True)
         self.assertItemsEqual(cons.domain.draw(10), [2,5,6,7,8,9,12])
         self.assertEquals(cons.size, 7)
 
@@ -97,12 +98,12 @@ class TestConstraint(TestCase):
         """ Test a value constraint with an invalid integer range. """
         cons = Constraint.ValueConstraint()
         with self.assertRaises(Constraint.ValueConstraintError) as ex:
-            cons.add_range("12", "13", min_open=True, max_open=True)
+            cons.domain.add_range("12", "13", min_open=True, max_open=True)
         self.assertEquals(ex.exception.message,
             "The range of the value constraint is invalid")
 
         with self.assertRaises(Constraint.ValueConstraintError) as ex:
-            cons.add_range("3", "2")
+            cons.domain.add_range("3", "2")
         self.assertEquals(ex.exception.message,
             "The range of the value constraint is invalid")
 
@@ -110,31 +111,25 @@ class TestConstraint(TestCase):
         """ Test a value constraint range that is too large. """
         cons = Constraint.ValueConstraint()
         with self.assertRaises(Constraint.ValueConstraintError) as ex:
-            cons.add_range(0, Constraint.ValueConstraint.MAX_SIZE)
+            cons.domain.add_range(0, Constraint.ValueDomain.MAX_SIZE)
         self.assertEquals(ex.exception.message,
             "The range of the value constraint is too large")
 
         cons = Constraint.ValueConstraint()
         with self.assertRaises(Constraint.ValueConstraintError) as ex:
-            cons.add_range(75, float('inf'))
+            cons.domain.add_range(75, float('inf'))
         self.assertEquals(ex.exception.message,
             "Value constraints only support integer ranges")       
 
     def test_add_subset_roles(self):
-        """ Test adding subset roles to subset constraint. """
-        role = Role(uid="R1", name="R1")
-        cons = Constraint.SubsetConstraint(uid="1", name="S1", subset=[role])
+        """ Test adding subset and superset roles to subset constraint. """
+        role1 = Role(name="R1")
+        role2 = Role(name="R2")
+        cons = Constraint.SubsetConstraint(name="S1", subset=[role1], superset=[role2])
         
-        self.assertIs(cons.covers[0], role)
-        self.assertIs(cons.subset[0], role)
-
-    def test_add_superset_roles(self):
-        """ Test adding superset roles to subset constraint. """
-        role = Role(uid="R1", name="R1")
-        cons = Constraint.SubsetConstraint(uid="1", name="S1", superset=[role])
-        
-        self.assertIs(cons.covers[0], role)
-        self.assertIs(cons.superset[0], role)
+        self.assertItemsEqual(cons.covers, [role1, role2])
+        self.assertEquals(cons.subset, [role1])
+        self.assertEquals(cons.superset, [role2])
 
     def test_of_type_with_hit(self):
         """ Test of_type method with non-empty result. """
@@ -221,6 +216,80 @@ class TestConstraint(TestCase):
         self.assertEquals(model.constraints.get("M1"), cons1)
         self.assertEquals(model.constraints.get("V1"), None)
         self.assertEquals(obj1.covered_by, [])
+
+    def test_commit_rollback_mandatory(self):
+        """ Test commit and rollback of mandatory constraint. """
+        role = Role(name="R1")
+        cons = Constraint.MandatoryConstraint(name="M1",covers=[role])
+
+        self.assertEquals(role.covered_by, [])
+        self.assertFalse(role.mandatory)
+
+        cons.commit()
+
+        self.assertEquals(role.covered_by, [cons])
+        self.assertTrue(role.mandatory)
+
+        cons.rollback()
+
+        self.assertEquals(role.covered_by, [])
+        self.assertFalse(role.mandatory)
+
+    def test_commit_rollback_ior(self):
+        """ Test commit and rollback of inclusive-or constraint. """
+        role1 = Role(name="R1")
+        role2 = Role(name="R2")
+        cons = Constraint.MandatoryConstraint(name="M1",covers=[role1,role2])
+
+        self.assertFalse(cons.simple)
+
+        self.assertEquals(role1.covered_by, [])
+        self.assertEquals(role2.covered_by, [])
+        self.assertFalse(role1.mandatory)
+        self.assertFalse(role2.mandatory)
+
+        cons.commit()
+
+        self.assertEquals(role1.covered_by, [cons])
+        self.assertEquals(role2.covered_by, [cons])
+        self.assertFalse(role1.mandatory) # False because cons is not simple
+        self.assertFalse(role2.mandatory) # False because cons is not simple
+
+        cons.rollback()
+
+        self.assertEquals(role1.covered_by, [])
+        self.assertEquals(role2.covered_by, [])
+        self.assertFalse(role1.mandatory)
+        self.assertFalse(role2.mandatory)
+
+    def test_commit_rollback_iuc(self):
+        """ Test commit and rollback of internal uniqueness constraints."""
+        role1 = Role(name="R1")
+        role2 = Role(name="R2")
+        obj1 = EntityType(name="O1")
+        cons1 = Constraint.UniquenessConstraint(name="U1",covers=[role1],identifier_for=obj1)
+        cons2 = Constraint.UniquenessConstraint(name="U2",covers=[role2],identifier_for=None)
+
+        self.assertEquals(role1.covered_by, [])
+        self.assertEquals(role2.covered_by, [])
+        self.assertEquals(obj1.identifying_constraint, None)
+
+        cons1.commit()
+        cons2.commit()
+
+        self.assertEquals(role1.covered_by, [cons1])
+        self.assertEquals(role2.covered_by, [cons2])
+        self.assertEquals(obj1.identifying_constraint, cons1)
+
+        cons1.rollback()
+        cons2.rollback()
+
+        self.assertEquals(role1.covered_by, [])
+        self.assertEquals(role2.covered_by, [])
+        self.assertEquals(obj1.identifying_constraint, None)
+
+
+
 
        
 

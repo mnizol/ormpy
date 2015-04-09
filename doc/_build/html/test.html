@@ -184,13 +184,37 @@
 <dl class="method">
 <dt id="test.TestConstraint.TestConstraint.test_add_subset_roles">
 <tt class="descname">test_add_subset_roles</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_add_subset_roles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_add_subset_roles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test adding subset roles to subset constraint.</p>
+<dd><p>Test adding subset and superset roles to subset constraint.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="test.TestConstraint.TestConstraint.test_add_superset_roles">
-<tt class="descname">test_add_superset_roles</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_add_superset_roles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_add_superset_roles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test adding superset roles to subset constraint.</p>
+<dt id="test.TestConstraint.TestConstraint.test_commit_and_rollback">
+<tt class="descname">test_commit_and_rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_commit_and_rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_commit_and_rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test committing and rolling back constraints on a model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_commit_rollback_ior">
+<tt class="descname">test_commit_rollback_ior</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_commit_rollback_ior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_commit_rollback_ior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test commit and rollback of inclusive-or constraint.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_commit_rollback_iuc">
+<tt class="descname">test_commit_rollback_iuc</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_commit_rollback_iuc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_commit_rollback_iuc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test commit and rollback of internal uniqueness constraints.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_commit_rollback_mandatory">
+<tt class="descname">test_commit_rollback_mandatory</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_commit_rollback_mandatory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_commit_rollback_mandatory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test commit and rollback of mandatory constraint.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestConstraint.TestConstraint.test_mandatory_is_simple">
+<tt class="descname">test_mandatory_is_simple</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_mandatory_is_simple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_mandatory_is_simple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test simple property on MandatoryConstraint.</p>
 </dd></dl>
 
 <dl class="method">
@@ -203,12 +227,6 @@
 <dt id="test.TestConstraint.TestConstraint.test_of_type_without_hit">
 <tt class="descname">test_of_type_without_hit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_of_type_without_hit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_of_type_without_hit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test of_type method with empty result.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="test.TestConstraint.TestConstraint.test_remove_object_type">
-<tt class="descname">test_remove_object_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestConstraint.html#TestConstraint.test_remove_object_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestConstraint.TestConstraint.test_remove_object_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test the removal of an object type from a constraint.</p>
 </dd></dl>
 
 <dl class="method">
@@ -583,6 +601,36 @@ on Domain class&#8217;s _generate function.</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="test.TestModel.TestModel.test_add_invalid_element">
+<tt class="descname">test_add_invalid_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_invalid_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_invalid_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test adding something unexpected to the model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestModel.TestModel.test_add_remove_constraint_with_side_effects">
+<tt class="descname">test_add_remove_constraint_with_side_effects</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_remove_constraint_with_side_effects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_remove_constraint_with_side_effects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test adding and removing a generic constraint from the model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestModel.TestModel.test_add_remove_fact_type">
+<tt class="descname">test_add_remove_fact_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_remove_fact_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_remove_fact_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test adding and removing a fact type from the model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestModel.TestModel.test_add_remove_generic_constraint">
+<tt class="descname">test_add_remove_generic_constraint</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_remove_generic_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_remove_generic_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test adding and removing a generic constraint from the model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestModel.TestModel.test_add_remove_object_type">
+<tt class="descname">test_add_remove_object_type</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_add_remove_object_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_add_remove_object_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test adding and removing an object type from the model.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestModel.TestModel.test_display_empty">
 <tt class="descname">test_display_empty</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModel.html#TestModel.test_display_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModel.TestModel.test_display_empty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test Display of an empty model.</p>
@@ -615,6 +663,12 @@ classes.</p>
 <dt id="test.TestModelElement.TestModelElementSet.test_add_element">
 <tt class="descname">test_add_element</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_add_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_add_element" title="Permalink to this definition">¶</a></dt>
 <dd><p>Confirm we can add elements to the set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestModelElement.TestModelElementSet.test_commit">
+<tt class="descname">test_commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm commit raises NotImplementedError.</p>
 </dd></dl>
 
 <dl class="method">
@@ -653,6 +707,12 @@ classes.</p>
 <dd><p>Confirm items with same name added to set get renamed.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="test.TestModelElement.TestModelElementSet.test_rollback">
+<tt class="descname">test_rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestModelElement.html#TestModelElementSet.test_rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestModelElement.TestModelElementSet.test_rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Confirm rollback raises NotImplementedError.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -668,12 +728,6 @@ classes.</p>
 <dt id="test.TestNormaLoader.TestNormaLoader.setUp">
 <tt class="descname">setUp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.setUp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="method">
-<dt id="test.TestNormaLoader.TestNormaLoader.test_add_from_empty_stack">
-<tt class="descname">test_add_from_empty_stack</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestNormaLoader.test_add_from_empty_stack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestNormaLoader.test_add_from_empty_stack" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check behavior of add_from_stack when empty.</p>
-</dd></dl>
 
 <dl class="method">
 <dt id="test.TestNormaLoader.TestNormaLoader.test_adding_invalid_element">
@@ -910,6 +964,13 @@ roles are moved to the object type.</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="test.TestNormaLoader.TestSubtypes.test_constraint_covers_both_implied_and_explicit_role">
+<tt class="descname">test_constraint_covers_both_implied_and_explicit_role</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestSubtypes.test_constraint_covers_both_implied_and_explicit_role"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestSubtypes.test_constraint_covers_both_implied_and_explicit_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test a constraint that covers both an implied and an explicit  
+role, which is a VERY UNLIKELY scenario.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="test.TestNormaLoader.TestSubtypes.test_diamond_subtype_graphs">
 <tt class="descname">test_diamond_subtype_graphs</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestNormaLoader.html#TestSubtypes.test_diamond_subtype_graphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestNormaLoader.TestSubtypes.test_diamond_subtype_graphs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test that diamond-shaped graph is properly loaded.</p>
@@ -1020,6 +1081,12 @@ correctly identified.</p>
 <dt id="test.TestORMMinusModel.TestORMMinusModel.test_unbounded_freq_constraint">
 <tt class="descname">test_unbounded_freq_constraint</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinusModel.html#TestORMMinusModel.test_unbounded_freq_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinusModel.TestORMMinusModel.test_unbounded_freq_constraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test a model with an unbounded frequency constraint.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test.TestORMMinusModel.TestORMMinusModel.test_unsat_role_and_value_type_value_constraint">
+<tt class="descname">test_unsat_role_and_value_type_value_constraint</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/test/TestORMMinusModel.html#TestORMMinusModel.test_unsat_role_and_value_type_value_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.TestORMMinusModel.TestORMMinusModel.test_unsat_role_and_value_type_value_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test unsatisfiable combination of role and value type value constraint.</p>
 </dd></dl>
 
 <dl class="method">

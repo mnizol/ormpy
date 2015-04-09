@@ -58,6 +58,8 @@
 <span class="sd">    can be derived) as well as an abstract class for a set of model elements.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">uuid</span>
+
 <div class="viewcode-block" id="ModelElement"><a class="viewcode-back" href="../../lib.html#lib.ModelElement.ModelElement">[docs]</a><span class="k">class</span> <span class="nc">ModelElement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An abstract element in an ORM model. &quot;&quot;&quot;</span>
 
@@ -66,7 +68,7 @@
 
         <span class="c"># The UID (Unique ID) and Name cannot change once the model element</span>
         <span class="c"># is created.  Therefore, it is defined as a ready-only property.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_uid</span> <span class="o">=</span> <span class="n">uid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uid</span> <span class="o">=</span> <span class="n">uid</span> <span class="ow">or</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
 
     <span class="nd">@property</span>
@@ -80,7 +82,18 @@
         <span class="sd">&quot;&quot;&quot; Unique name for the model element. Cannot be changed after</span>
 <span class="sd">            the model element is created. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
-
+</div>
+<div class="viewcode-block" id="ModelElement.commit"><a class="viewcode-back" href="../../lib.html#lib.ModelElement.ModelElement.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Commit any side effects of adding this model element to a model.</span>
+<span class="sd">            This is an abstract method that must be implemented for each </span>
+<span class="sd">            subclass of ModelElement. &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="ModelElement.rollback"><a class="viewcode-back" href="../../lib.html#lib.ModelElement.ModelElement.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Rollback any side effects of adding this model element to a model.</span>
+<span class="sd">            This is an abstract method that must be implemented for each </span>
+<span class="sd">            subclass of ModelElement. &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </div></div>
 <div class="viewcode-block" id="ModelElementSet"><a class="viewcode-back" href="../../lib.html#lib.ModelElement.ModelElementSet">[docs]</a><span class="k">class</span> <span class="nc">ModelElementSet</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A set of model elements. &quot;&quot;&quot;</span>

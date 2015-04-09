@@ -57,7 +57,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">lib.ModelElement</span> <span class="kn">import</span> <span class="n">ModelElementSet</span><span class="p">,</span> <span class="n">ModelElement</span>
-<span class="kn">from</span> <span class="nn">lib.FactType</span> <span class="kn">import</span> <span class="n">RoleSequence</span>
+<span class="kn">from</span> <span class="nn">lib.FactType</span> <span class="kn">import</span> <span class="n">RoleSequence</span><span class="p">,</span> <span class="n">Role</span>
 <span class="kn">from</span> <span class="nn">lib.Domain</span> <span class="kn">import</span> <span class="n">EnumeratedDomain</span>
 
 <div class="viewcode-block" id="ConstraintSet"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ConstraintSet">[docs]</a><span class="k">class</span> <span class="nc">ConstraintSet</span><span class="p">(</span><span class="n">ModelElementSet</span><span class="p">):</span>
@@ -76,7 +76,8 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">alethic</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Constraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="c">#: List of (:class:`lib.FactType.RoleSequence`) the constraint covers</span>
+        <span class="c">#: List of model element(s) that the constraint covers.  If the </span>
+        <span class="c">#: constraint covers a sequence of roles, use a FactType.RoleSequence.  </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="n">covers</span>
 
         <span class="c">#: True if constraint has alethic modality (False implies deontic)</span>
@@ -87,40 +88,23 @@
         <span class="sd">&quot;&quot;&quot; Returns name that is unique within the model. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s">&quot;Constraints.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 </div>
-<div class="viewcode-block" id="Constraint.cover"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.cover">[docs]</a>    <span class="k">def</span> <span class="nf">cover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_element</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add a model element to the list of elements covered by</span>
-<span class="sd">            the constraint. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_element</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Constraint.uncover"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.uncover">[docs]</a>    <span class="k">def</span> <span class="nf">uncover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_element</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Remove the model element from the list of elements covered by</span>
-<span class="sd">            the constraint. &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">model_element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">model_element</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Constraint.add_to"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.add_to">[docs]</a>    <span class="k">def</span> <span class="nf">add_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add this constraint to a model.  Only this method and delete_from()</span>
-<span class="sd">            will modify elements in the model.  Therefore, until add_to(model)</span>
-<span class="sd">            is called, a constraint can still be deleted without affecting the</span>
-<span class="sd">            model.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">:</span>
+<div class="viewcode-block" id="Constraint.commit"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Commit side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="ow">or</span> <span class="p">[]:</span>
             <span class="n">element</span><span class="o">.</span><span class="n">covered_by</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>        
 </div>
-<div class="viewcode-block" id="Constraint.delete_from"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.delete_from">[docs]</a>    <span class="k">def</span> <span class="nf">delete_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Delete this constraint from a model, updating any model elements</span>
-<span class="sd">            that are affected by this constraint.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">:</span>
+<div class="viewcode-block" id="Constraint.rollback"><a class="viewcode-back" href="../../lib.html#lib.Constraint.Constraint.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Rollback side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="ow">or</span> <span class="p">[]:</span>
             <span class="k">try</span><span class="p">:</span> <span class="n">element</span><span class="o">.</span><span class="n">covered_by</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span> <span class="k">pass</span>
-        <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>        
 </div></div>
 <div class="viewcode-block" id="CardinalityConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.CardinalityConstraint">[docs]</a><span class="k">class</span> <span class="nc">CardinalityConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A cardinality constraint on an object type or role. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">CardinalityConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ranges</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: A list of CardinalityRange objects</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ranges</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CardinalityConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranges</span> <span class="o">=</span> <span class="n">ranges</span> <span class="c">#: A list of CardinalityRange objects</span>
 </div>
 <div class="viewcode-block" id="CardinalityRange"><a class="viewcode-back" href="../../lib.html#lib.Constraint.CardinalityRange">[docs]</a><span class="k">class</span> <span class="nc">CardinalityRange</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A range for a cardinality constraint. &quot;&quot;&quot;</span>
@@ -131,9 +115,8 @@
 </div>
 <div class="viewcode-block" id="ValueConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint">[docs]</a><span class="k">class</span> <span class="nc">ValueConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A value constraint.  This implementation supports only a limited</span>
-<span class="sd">        form of value constraint: specifically, enumerations (i.e. min</span>
-<span class="sd">        value == max value), bounded integer ranges, or a combination</span>
-<span class="sd">        of the two.  For example:</span>
+<span class="sd">        form of value constraint: specifically, enumerations, bounded integer </span>
+<span class="sd">        ranges, or a combination of the two.  For example:</span>
 
 <span class="sd">        *Supported:*</span>
 
@@ -149,29 +132,35 @@
 <span class="sd">        * Unbounded integer range: {&gt;1}</span>
 <span class="sd">        * Invalid range: {3..2}</span>
 <span class="sd">        * Range of float values: {3.6..3.7}</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">MAX_SIZE</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c">#: Arbitrary, for performance.</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ValueConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ValueConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-
-        <span class="c">#: Domain of valid values</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">EnumeratedDomain</span><span class="p">()</span>
+        <span class="c">#: A ValueDomain containing the set of valid values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span> <span class="ow">or</span> <span class="n">ValueDomain</span><span class="p">()</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="ValueConstraint.size"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The number of items in the domain defined by the constraint. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">size</span>
-</div>
-<div class="viewcode-block" id="ValueConstraint.add_range"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.add_range">[docs]</a>    <span class="k">def</span> <span class="nf">add_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+</div></div>
+<div class="viewcode-block" id="ValueDomain"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueDomain">[docs]</a><span class="k">class</span> <span class="nc">ValueDomain</span><span class="p">(</span><span class="n">EnumeratedDomain</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The domain of a value constraint. &quot;&quot;&quot;</span>
+
+    <span class="n">MAX_SIZE</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c">#: Arbitrary, for performance.</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ValueDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>        
+
+<div class="viewcode-block" id="ValueDomain.add_range"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueDomain.add_range">[docs]</a>    <span class="k">def</span> <span class="nf">add_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> 
                   <span class="n">min_open</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add a range of values to the constraint. &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; Add a range of values to the domain. &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">max_value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># Easier specification of enumerations</span>
             <span class="n">max_value</span> <span class="o">=</span> <span class="n">min_value</span>
 
         <span class="k">if</span> <span class="n">min_value</span> <span class="o">==</span> <span class="n">max_value</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">min_open</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">max_open</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span>  <span class="c"># Single element of any data type.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span>  <span class="c"># Single element of any data type.</span>
         <span class="k">else</span><span class="p">:</span> <span class="c"># Possible range of integers</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">min_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">min_open</span> <span class="o">==</span> <span class="bp">True</span><span class="p">)</span>
@@ -184,11 +173,11 @@
             <span class="k">if</span> <span class="n">min_int</span> <span class="o">&gt;</span> <span class="n">max_int</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;The range of the value constraint is invalid&quot;</span>
                 <span class="k">raise</span> <span class="n">ValueConstraintError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">max_int</span> <span class="o">-</span> <span class="n">min_int</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ValueConstraint</span><span class="o">.</span><span class="n">MAX_SIZE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">max_int</span> <span class="o">-</span> <span class="n">min_int</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ValueDomain</span><span class="o">.</span><span class="n">MAX_SIZE</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;The range of the value constraint is too large&quot;</span>
                 <span class="k">raise</span> <span class="n">ValueConstraintError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">min_int</span><span class="p">,</span> <span class="n">max_int</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">min_int</span><span class="p">,</span> <span class="n">max_int</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
 </div></div>
 <div class="viewcode-block" id="ValueConstraintError"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraintError">[docs]</a><span class="k">class</span> <span class="nc">ValueConstraintError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An exception raised by an invalid value constraint. &quot;&quot;&quot;</span>
@@ -197,66 +186,83 @@
 <div class="viewcode-block" id="SubtypeConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubtypeConstraint">[docs]</a><span class="k">class</span> <span class="nc">SubtypeConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A subtype constraint. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SubtypeConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">supertype</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">idpath</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                 <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SubtypeConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">subtype</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Subtype object type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">supertype</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Supertype object type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtype</span> <span class="o">=</span> <span class="n">subtype</span> <span class="c">#: Subtype object type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supertype</span> <span class="o">=</span> <span class="n">supertype</span> <span class="c">#: Supertype object type</span>
 
         <span class="c">#: True if subtype constraint is on path to preferred id.  This is</span>
         <span class="c">#: relevant if the subtype inherits one of its supertypes&#39; reference</span>
         <span class="c">#: schemes, and the supertype graph is not a simple path.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">preferred_id</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idpath</span> <span class="o">=</span> <span class="n">idpath</span>
 </div>
 <div class="viewcode-block" id="MandatoryConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.MandatoryConstraint">[docs]</a><span class="k">class</span> <span class="nc">MandatoryConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A mandatory constraint. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">MandatoryConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MandatoryConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">simple</span> <span class="o">=</span> <span class="bp">False</span> <span class="c">#: True for simple mandatory constraints</span>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="MandatoryConstraint.simple"><a class="viewcode-back" href="../../lib.html#lib.Constraint.MandatoryConstraint.simple">[docs]</a>    <span class="k">def</span> <span class="nf">simple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; True if mandatory constraint is simple. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
 </div>
+<div class="viewcode-block" id="MandatoryConstraint.commit"><a class="viewcode-back" href="../../lib.html#lib.Constraint.MandatoryConstraint.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Commit side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simple</span><span class="p">:</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">role</span><span class="o">.</span><span class="n">mandatory</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">Constraint</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MandatoryConstraint.rollback"><a class="viewcode-back" href="../../lib.html#lib.Constraint.MandatoryConstraint.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Rollback side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simple</span><span class="p">:</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">role</span><span class="o">.</span><span class="n">mandatory</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">Constraint</span><span class="o">.</span><span class="n">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+</div></div>
 <div class="viewcode-block" id="SubsetConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubsetConstraint">[docs]</a><span class="k">class</span> <span class="nc">SubsetConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A subset constraint. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SubsetConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">superset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SubsetConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c">#: Sequence of subset roles (:class:`lib.FactType.RoleSequence`)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subset</span> <span class="o">=</span> <span class="n">RoleSequence</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subset</span> <span class="o">=</span> <span class="n">subset</span> 
 
         <span class="c">#: Sequence of superset roles (:class:`lib.FactType.RoleSequence`)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">superset</span> <span class="o">=</span> <span class="n">RoleSequence</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">superset</span> <span class="o">=</span> <span class="n">superset</span>
 
-<div class="viewcode-block" id="SubsetConstraint.cover_subset"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubsetConstraint.cover_subset">[docs]</a>    <span class="k">def</span> <span class="nf">cover_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add a role to the list of subset roles covered by this</span>
-<span class="sd">            constraint.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">role</span><span class="p">)</span> <span class="c"># Add to full list of covered roles</span>
+        <span class="c"># Override whatever is passed in as the list of covered roles; instead,</span>
+        <span class="c"># we treat the subset and superset sequences as the truth.</span>
+        <span class="k">if</span> <span class="n">subset</span> <span class="ow">and</span> <span class="n">superset</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="n">subset</span> <span class="o">+</span> <span class="n">superset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="bp">None</span>
 </div>
-<div class="viewcode-block" id="SubsetConstraint.cover_superset"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubsetConstraint.cover_superset">[docs]</a>    <span class="k">def</span> <span class="nf">cover_superset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add a role to the list of superset roles covered by</span>
-<span class="sd">            this constraint. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">superset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cover</span><span class="p">(</span><span class="n">role</span><span class="p">)</span> <span class="c"># Add to full list of covered roles</span>
-</div></div>
 <div class="viewcode-block" id="FrequencyConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.FrequencyConstraint">[docs]</a><span class="k">class</span> <span class="nc">FrequencyConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A frequency constraint. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">FrequencyConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_freq</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_freq</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s">&#39;inf&#39;</span><span class="p">),</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FrequencyConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Minimum frequency</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Maximum frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">=</span> <span class="n">min_freq</span> <span class="c">#: Minimum frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="n">max_freq</span> <span class="c">#: Maximum frequency</span>
 
-        <span class="c">#: True if constraint covers roles in one fact type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">internal</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="c"># Detect whether frequency constraint is internal</span>
+        <span class="n">fact_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="n">fact_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">fact_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internal</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fact_types</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="UniquenessConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.UniquenessConstraint">[docs]</a><span class="k">class</span> <span class="nc">UniquenessConstraint</span><span class="p">(</span><span class="n">FrequencyConstraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A uniqueness constraint (a special case of Frequency Constraint). &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier_for</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c">#: A uniqueness constraint is a special case of a frequency constraint</span>
         <span class="c">#: in which the min and max frequencies are both 1</span>
@@ -264,14 +270,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="mi">1</span>
 
         <span class="c">#: Object type this constraint identifies</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="o">=</span> <span class="bp">None</span>
-</div>
-<div class="viewcode-block" id="ExclusionConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ExclusionConstraint">[docs]</a><span class="k">class</span> <span class="nc">ExclusionConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; An exclusion constraint. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="o">=</span> <span class="n">identifier_for</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ExclusionConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-</pre></div></div>
+<div class="viewcode-block" id="UniquenessConstraint.commit"><a class="viewcode-back" href="../../lib.html#lib.Constraint.UniquenessConstraint.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Commit side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span><span class="o">.</span><span class="n">identifying_constraint</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">Constraint</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="UniquenessConstraint.rollback"><a class="viewcode-back" href="../../lib.html#lib.Constraint.UniquenessConstraint.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Rollback side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span><span class="o">.</span><span class="n">identifying_constraint</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">Constraint</span><span class="o">.</span><span class="n">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div></div></div>
 
           </div>
         </div>

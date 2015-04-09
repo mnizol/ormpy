@@ -101,6 +101,14 @@
         <span class="sd">&quot;&quot;&quot; Returns name that is unique within the model. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s">&quot;ObjectTypes.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 </div>
+<div class="viewcode-block" id="ObjectType.commit"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Commit any side effects of adding this object type to a model.&quot;&quot;&quot;</span>
+        <span class="k">pass</span> <span class="c"># TODO: Implement later</span>
+</div>
+<div class="viewcode-block" id="ObjectType.rollback"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Rollback any side effects of adding this object type to a model.&quot;&quot;&quot;</span>
+        <span class="k">pass</span> <span class="c"># TODO: Implement later</span>
+</div>
 <div class="viewcode-block" id="ObjectType.compatible"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.compatible">[docs]</a>    <span class="k">def</span> <span class="nf">compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Returns true iff self == other, self is a supertype of other,</span>
 <span class="sd">            or other is a supertype of self.&quot;&quot;&quot;</span>

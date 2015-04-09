@@ -199,6 +199,38 @@ class TestDomain(TestCase):
         # Add list with full overlap
         domain.add(['a','b'])
         self.assertEquals(domain.draw(10), [5,'a','b','c',6,7])
+
+    def test_enumerated_intersect(self):
+        """ Test intersection of enumerated domains. """
+        d1 = Domain.EnumeratedDomain()
+        d2 = Domain.EnumeratedDomain()
+
+        d1.add([1,2,3,4])
+        d2.add([3,4,5,6])
+
+        self.assertItemsEqual(d1.intersect(d2)._domain, [3,4])
+        self.assertItemsEqual((d1 & d2)._domain, [3,4])
+
+    def test_successful_cast(self):
+        """ Test successful cast operation on several types. """
+        self.assertEquals(Domain.IntegerDomain.cast("3"), 3)
+        self.assertEquals(Domain.FloatDomain.cast("1.5"), 1.5)
+        self.assertEquals(Domain.BoolDomain.cast("True"), True)
+        self.assertEquals(Domain.StringDomain.cast("1"), "1")
+
+    def test_unsuccessful_cast(self):
+        """ Test unsuccessful cast operation. """
+        with self.assertRaises(ValueError):
+            Domain.IntegerDomain.cast("Dog")
+
+    def test_not_implemented_cast(self):
+        """ Test not implemented cast operation. """
+        with self.assertRaises(NotImplementedError):
+            Domain.DateDomain.cast("1/1/2015")
+
+
+
+
         
 
 

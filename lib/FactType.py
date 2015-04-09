@@ -69,6 +69,11 @@ class Role(ModelElement):
         """ Returns name that is unique within the model. """
         return "FactTypes." + self.fact_type.name + ".Roles." + self.name
 
+    @property
+    def data_type(self):
+        """ Raw conceptual data type of the role's player. """
+        return self.player.data_type
+
     def commit(self):
         """ Commit any side effects of adding this role to a model."""
         pass # TODO: Implement later

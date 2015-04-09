@@ -82,13 +82,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">logformat</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%(levelname)s</span><span class="s">: </span><span class="si">%(message)s</span><span class="s">&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="TestNormaLoader.test_add_from_empty_stack"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_add_from_empty_stack">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_from_empty_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Check behavior of add_from_stack when empty. &quot;&quot;&quot;</span>
-        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;empty_model.orm&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">loader</span><span class="o">.</span><span class="n">_add_from_stack</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>                
-</div>
 <div class="viewcode-block" id="TestNormaLoader.test_bad_filename_extension"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_bad_filename_extension">[docs]</a>    <span class="k">def</span> <span class="nf">test_bad_filename_extension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Confirm that exception is raised when input file has .txt extension </span>
 <span class="sd">            rather than .orm extension. &quot;&quot;&quot;</span>
@@ -146,10 +139,10 @@
         <span class="n">cons1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;BIsASubtypeOfA&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">subtype</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">supertype</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cons1</span><span class="o">.</span><span class="n">subtype</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">preferred_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">covers</span><span class="p">,</span> <span class="p">[</span><span class="n">cons1</span><span class="o">.</span><span class="n">subtype</span><span class="p">,</span> <span class="n">cons1</span><span class="o">.</span><span class="n">supertype</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cons1</span><span class="o">.</span><span class="n">idpath</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;BIsASubtypeOfC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">preferred_id</span><span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;BIsASubtypeOfC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">idpath</span><span class="p">)</span>        
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_subtypefact_constraints"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_subtypefact_constraints">[docs]</a>    <span class="k">def</span> <span class="nf">test_subtypefact_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Confirm IUC and mandatory constraints on implicit subtype fact types</span>
@@ -444,17 +437,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons4</span><span class="o">.</span><span class="n">subset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">obj_b</span><span class="p">)</span>
 
         <span class="c"># Check ternary subset</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">cons3</span><span class="p">)</span> <span class="c"># Not loaded</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">,</span> 
-            <span class="p">[</span><span class="s">&quot;Subset constraint SubsetConstraint3 (due to arity &gt; 2)&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">superset</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">subset</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">subset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">aplus</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">superset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">aand</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">cons3</span><span class="o">.</span><span class="n">subset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">cons3</span><span class="o">.</span><span class="n">subset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">,</span> <span class="p">[])</span>
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_partial_subset"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_partial_subset">[docs]</a>    <span class="k">def</span> <span class="nf">test_partial_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Confirm exception fires for invalid subset constraints. &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;partial_subset.orm&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> 
-            <span class="s">&quot;Constraint SubsetConstraint1 does not have exactly two role sequences (sub and super).&quot;</span><span class="p">)</span>
+            <span class="s">&quot;Constraint SubsetConstraint1 does not have exactly two role sequences&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_implicit_role"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_implicit_role">[docs]</a>    <span class="k">def</span> <span class="nf">test_implicit_role</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Confirm constraint that covers implicit role is removed. &quot;&quot;&quot;</span>
@@ -781,14 +777,15 @@
             <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;bad_cardinality_constraint_1.orm&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
-            <span class="s">&quot;CardinalityRestriction should have only 1 child node&quot;</span><span class="p">)</span>
+            <span class="s">&quot;Unexpected cardinality constraint format&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_bad_cardinality_constraint_2"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_bad_cardinality_constraint_2">[docs]</a>    <span class="k">def</span> <span class="nf">test_bad_cardinality_constraint_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test loading of file with badly named cardinality constraint node. &quot;&quot;&quot;</span>
 
-        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;bad_cardinality_constraint_2.orm&quot;</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;bad_cardinality_constraint_2.orm&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> 
+            <span class="s">&quot;Unexpected cardinality constraint format&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TestNormaLoader.test_bad_cardinality_constraint_3"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestNormaLoader.test_bad_cardinality_constraint_3">[docs]</a>    <span class="k">def</span> <span class="nf">test_bad_cardinality_constraint_3</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test loading of file with badly named ranges node. &quot;&quot;&quot;</span>
@@ -903,6 +900,22 @@
                                 <span class="s">&quot;subtype_graph_with_multiple_roots.orm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> \
            <span class="s">&quot;Subtype graph containing ObjectTypes.F has more than one root type&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestSubtypes.test_constraint_covers_both_implied_and_explicit_role"><a class="viewcode-back" href="../../test.html#test.TestNormaLoader.TestSubtypes.test_constraint_covers_both_implied_and_explicit_role">[docs]</a>    <span class="k">def</span> <span class="nf">test_constraint_covers_both_implied_and_explicit_role</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test a constraint that covers both an implied and an explicit  </span>
+<span class="sd">            role, which is a VERY UNLIKELY scenario. &quot;&quot;&quot;</span>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> \
+            <span class="s">&quot;constraint_covers_both_implied_and_regular_roles.orm.orm&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">model</span>
+
+        <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s">&quot;Constraint FC1 because it covers implied and explicit roles&quot;</span><span class="p">,</span>
+            <span class="s">&quot;Join path for FC1.&quot;</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;FC1&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">omissions</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
 
         
             

@@ -21,8 +21,9 @@ class ObjectTypeSet(ModelElementSet):
 class ObjectType(ModelElement):
     """ Abstract class inherited by all object types. """
 
-    def __init__(self, uid=None, name=None):
+    def __init__(self, uid=None, name=None, data_type=None):
         super(ObjectType, self).__init__(uid=uid, name=name)
+
         self.independent = False #: True for independent object types
         self.implicit = False    #: True for implicit object types
         self.roles = [] #: Roles played by this object type
@@ -36,11 +37,20 @@ class ObjectType(ModelElement):
         # Prefix for domain values     
         prefix = name or '' # Empty string if name is None
         if prefix and prefix[-1].isdigit(): 
-            prefix += "_"
+            prefix += "_"        
         
-        #: The domain for the object type, which defaults to a 
-        #: :class:`lib.Domain.StringDomain` prefixed by the type's name.
-        self.domain = StringDomain(prefix=prefix) 
+        # Raw conceptual data type, ignoring any value constraints
+        self._data_type = data_type or StringDomain(prefix=prefix) 
+
+        #: The domain from which objects for this type should be drawn. Defaults
+        #: to self.data_type but may be overridden by a value constraint.
+        self.domain = self._data_type
+
+    @property
+    def data_type(self):
+        """ The raw conceptual data type for the object type, which defaults to 
+            a :class:`lib.Domain.StringDomain` prefixed by the type's name. """
+        return self._data_type
 
     @property
     def primitive(self):

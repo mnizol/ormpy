@@ -497,12 +497,6 @@ class NormaLoader(object):
             if cons != None and cons.covers != None:
                 self._add(cons)
 
-    def _init_constraint(self, xml_node, constraint_type, **kwargs):
-        """ Initialize a constraint from an xml_node. """
-        cons = self._construct(xml_node, constraint_type, **kwargs)
-        cons.alethic = (xml_node.get("Modality") != "Deontic")
-        return cons
-
     def _load_equality_constraint(self, xml_node):
         """ Load equality constraint. """
         self.omissions.append("Equality constraint " + xml_node.get("Name"))
@@ -640,11 +634,11 @@ class NormaLoader(object):
         if len(parent_node) != 1 or local_tag(node) not in types: 
             raise ValueError("Unexpected cardinality constraint format")
         
-        cons = self._init_constraint(node, Constraint.CardinalityConstraint)   
-        cons.covers = self._get_covered_element(parent_node)
-        cons.ranges = self._load_cardinality_ranges(node)
+        attribs, name = get_basic_attribs(node)
+        attribs['covers'] = self._get_covered_element(parent_node)
+        attribs['ranges'] = self._load_cardinality_ranges(node)
 
-        return cons
+        return Constraint.CardinalityConstraint(**attribs)
 
     def _load_cardinality_ranges(self, parent_node):
         """ Load a list of cardinality ranges. """
@@ -671,7 +665,7 @@ class NormaLoader(object):
 
     def _load_role_sequence(self, xml_node, constraint_name):
         """ Returns a sequence of roles covered by a constraint.
-            xml_node points to the RoleSequence node. """
+            xml_node points to the RoleSequence node or its parent node. """
 
         if local_tag(xml_node) != 'RoleSequence':
             xml_node = find(xml_node, 'RoleSequence')
@@ -686,7 +680,7 @@ class NormaLoader(object):
                 implied_roles += (role is None)
                 role_sequence.append(role)
             elif local_tag(node) == "JoinRule":
-                self._load_join_rule(node, name, role_sequence)
+                role_sequence.join_path = self._load_join_rule(node, name)
             else:
                 msg = "Constraint {0} has unexpected role sequence."
                 raise Exception(msg.format(name))
@@ -708,17 +702,13 @@ class NormaLoader(object):
             msg = "Constraint " + constraint_name +" has deprecated join rule."
             raise Exception(msg)
 
-        try:
-            uid = xml_node.get("ref")
-            return self._elements[uid]
-        except KeyError:
-            return None # Role not in elements[] if part of implied fact type
+        uid = xml_node.get("ref")
+        return self._elements.get(uid)
 
-
-    def _load_join_rule(self, xml_node, constraint_name, role_sequence):
+    def _load_join_rule(self, xml_node, constraint_name):
         """ Loads a join rule. """
         self.omissions.append("Join path for " + constraint_name + ".")
-        role_sequence.join_path = "" # Just so that it is not None, for now.
+        return "" # Just so that it is not None, for now.
 
 ###############################################################################
 # Utility Functions

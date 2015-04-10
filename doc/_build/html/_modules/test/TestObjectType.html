@@ -84,39 +84,8 @@
 
         <span class="n">actual</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Test1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">expect</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Test1_0&#39;</span><span class="p">,</span> <span class="s">&#39;Test1_1&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="TestObjectType.test_compatible_object_types"><a class="viewcode-back" href="../../test.html#test.TestObjectType.TestObjectType.test_compatible_object_types">[docs]</a>    <span class="k">def</span> <span class="nf">test_compatible_object_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Test compatible() function. &quot;&quot;&quot;</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s">&quot;subtypes.orm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-        
-        <span class="n">w</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;W&quot;</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;X&quot;</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Y&quot;</span><span class="p">)</span>
-        <span class="n">z</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Z&quot;</span><span class="p">)</span>
-        <span class="n">x1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;X1&quot;</span><span class="p">)</span>
-        <span class="n">y1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Y1&quot;</span><span class="p">)</span>
-        <span class="n">z1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;Z1&quot;</span><span class="p">)</span>
-        <span class="n">e1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;E1&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">z1</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">z1</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">x1</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">x1</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">e1</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">e1</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">y1</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">y1</span><span class="p">))</span>
-        
-</pre></div></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span></div></div>
+</pre></div>
 
           </div>
         </div>

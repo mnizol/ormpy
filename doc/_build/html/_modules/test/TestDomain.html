@@ -248,6 +248,38 @@
         <span class="c"># Add list with full overlap</span>
         <span class="n">domain</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">domain</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">,</span><span class="s">&#39;c&#39;</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="TestDomain.test_enumerated_intersect"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_enumerated_intersect">[docs]</a>    <span class="k">def</span> <span class="nf">test_enumerated_intersect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test intersection of enumerated domains. &quot;&quot;&quot;</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">Domain</span><span class="o">.</span><span class="n">EnumeratedDomain</span><span class="p">()</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">Domain</span><span class="o">.</span><span class="n">EnumeratedDomain</span><span class="p">()</span>
+
+        <span class="n">d1</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">d2</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">d1</span><span class="o">.</span><span class="n">intersect</span><span class="p">(</span><span class="n">d2</span><span class="p">)</span><span class="o">.</span><span class="n">_domain</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">((</span><span class="n">d1</span> <span class="o">&amp;</span> <span class="n">d2</span><span class="p">)</span><span class="o">.</span><span class="n">_domain</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="TestDomain.test_successful_cast"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_successful_cast">[docs]</a>    <span class="k">def</span> <span class="nf">test_successful_cast</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test successful cast operation on several types. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s">&quot;3&quot;</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">Domain</span><span class="o">.</span><span class="n">FloatDomain</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s">&quot;1.5&quot;</span><span class="p">),</span> <span class="mf">1.5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">Domain</span><span class="o">.</span><span class="n">BoolDomain</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s">&quot;True&quot;</span><span class="p">),</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">Domain</span><span class="o">.</span><span class="n">StringDomain</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s">&quot;1&quot;</span><span class="p">),</span> <span class="s">&quot;1&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestDomain.test_unsuccessful_cast"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_unsuccessful_cast">[docs]</a>    <span class="k">def</span> <span class="nf">test_unsuccessful_cast</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test unsuccessful cast operation. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s">&quot;Dog&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestDomain.test_not_implemented_cast"><a class="viewcode-back" href="../../test.html#test.TestDomain.TestDomain.test_not_implemented_cast">[docs]</a>    <span class="k">def</span> <span class="nf">test_not_implemented_cast</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test not implemented cast operation. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="n">Domain</span><span class="o">.</span><span class="n">DateDomain</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s">&quot;1/1/2015&quot;</span><span class="p">)</span>
+
+
+
+
         
 </pre></div></div></div>
 

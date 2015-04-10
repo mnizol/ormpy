@@ -15,8 +15,8 @@ from lib.Domain import Domain, EnumeratedDomain, StringDomain
 class ConstraintSet(ModelElementSet):
     """ Container for a set of constraints. """
 
-    def __init__(self, *args, **kwargs):
-        super(ConstraintSet, self).__init__(name="Constraints", *args, **kwargs)
+    def __init__(self, name="Constraints", *args, **kwargs):
+        super(ConstraintSet, self).__init__(name=name, *args, **kwargs)
 
     def of_type(self, cons_type):
         """ Return a list of constraints limited to a given type. """
@@ -165,10 +165,24 @@ class SubtypeConstraint(Constraint):
         self.subtype = subtype #: Subtype object type
         self.supertype = supertype #: Supertype object type
 
+        self.covers = [subtype, supertype]
+
         #: True if subtype constraint is on path to preferred id.  This is
         #: relevant if the subtype inherits one of its supertypes' reference
         #: schemes, and the supertype graph is not a simple path.
         self.idpath = idpath
+
+    def commit(self):
+        """ Commit side effects of this constraint in the model. """
+        self.supertype.direct_subtypes.append(self.subtype)
+        self.subtype.direct_supertypes.append(self.supertype)
+        Constraint.commit(self)
+
+    def rollback(self):
+        """ Rollback side effects of this constraint in the model. """
+        self.supertype.direct_subtypes.remove(self.subtype)
+        self.subtype.direct_supertypes.remove(self.supertype)
+        Constraint.rollback(self)
 
 class MandatoryConstraint(Constraint):
     """ A mandatory constraint. """

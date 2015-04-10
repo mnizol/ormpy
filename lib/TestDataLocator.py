@@ -16,3 +16,7 @@ def get_data_dir():
     root = os.path.dirname(os.path.dirname(__file__))
     return os.path.join(root, "test", "data")
 
+def path(filename):
+    """ Return full path of filename in test data directory. """
+    return os.path.join(get_data_dir(), filename)
+

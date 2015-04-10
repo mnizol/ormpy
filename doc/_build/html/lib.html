@@ -157,7 +157,7 @@ constraint covers a sequence of roles, use a FactType.RoleSequence.</p>
 
 <dl class="class">
 <dt id="lib.Constraint.ConstraintSet">
-<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ConstraintSet</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ConstraintSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ConstraintSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">ConstraintSet</tt><big>(</big><em>name='Constraints'</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ConstraintSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ConstraintSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElementSet" title="lib.ModelElement.ModelElementSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElementSet</span></tt></a></p>
 <p>Container for a set of constraints.</p>
 <dl class="method">
@@ -236,12 +236,24 @@ constraint covers a sequence of roles, use a FactType.RoleSequence.</p>
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">SubtypeConstraint</tt><big>(</big><em>subtype=None</em>, <em>supertype=None</em>, <em>idpath=True</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubtypeConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubtypeConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
 <p>A subtype constraint.</p>
+<dl class="method">
+<dt id="lib.Constraint.SubtypeConstraint.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubtypeConstraint.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubtypeConstraint.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit side effects of this constraint in the model.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.Constraint.SubtypeConstraint.idpath">
 <tt class="descname">idpath</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.SubtypeConstraint.idpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if subtype constraint is on path to preferred id.  This is
 relevant if the subtype inherits one of its supertypes&#8217; reference
 schemes, and the supertype graph is not a simple path.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.Constraint.SubtypeConstraint.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubtypeConstraint.rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubtypeConstraint.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback side effects of this constraint in the model.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -312,10 +324,22 @@ ranges, or a combination of the two.  For example:</p>
 <li>Invalid range: {3..2}</li>
 <li>Range of float values: {3.6..3.7}</li>
 </ul>
+<dl class="method">
+<dt id="lib.Constraint.ValueConstraint.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueConstraint.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueConstraint.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit side effects of this constraint in the model.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.Constraint.ValueConstraint.domain">
 <tt class="descname">domain</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.ValueConstraint.domain" title="Permalink to this definition">¶</a></dt>
 <dd><p>A ValueDomain containing the set of valid values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.Constraint.ValueConstraint.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueConstraint.rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueConstraint.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback side effects of this constraint in the model.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -346,7 +370,7 @@ ranges, or a combination of the two.  For example:</p>
 
 <dl class="method">
 <dt id="lib.Constraint.ValueDomain.add_range">
-<tt class="descname">add_range</tt><big>(</big><em>min_value</em>, <em>max_value=None</em>, <em>min_open=False</em>, <em>max_open=False</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueDomain.add_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueDomain.add_range" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_range</tt><big>(</big><em>min_value</em>, <em>max_value=None</em>, <em>min_open=False</em>, <em>max_open=False</em>, <em>data_type=None</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#ValueDomain.add_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.ValueDomain.add_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a range of values to the domain.</p>
 </dd></dl>
 
@@ -369,6 +393,12 @@ first 10 integers from that domain as a set.</p>
 <em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">BoolDomain</tt><a class="reference internal" href="_modules/lib/Domain.html#BoolDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.BoolDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
 <p>A domain for boolean (True/False) values.</p>
+<dl class="staticmethod">
+<dt id="lib.Domain.BoolDomain.cast">
+<em class="property">static </em><tt class="descname">cast</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#BoolDomain.cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.BoolDomain.cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to cast obj to a Bool.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -394,6 +424,12 @@ minutes.</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>A domain, which can be used to generate a set of values conforming to a
 data type.</p>
+<dl class="staticmethod">
+<dt id="lib.Domain.Domain.cast">
+<em class="property">static </em><tt class="descname">cast</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain.cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain.cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to cast obj to the type represented by this Domain.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="lib.Domain.Domain.draw">
 <tt class="descname">draw</tt><big>(</big><em>n</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#Domain.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.Domain.draw" title="Permalink to this definition">¶</a></dt>
@@ -422,6 +458,13 @@ the maximum is sys.maxsize.</p>
 <dd><p>Add an element or list of elements to the domain.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="lib.Domain.EnumeratedDomain.intersect">
+<tt class="descname">intersect</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#EnumeratedDomain.intersect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.EnumeratedDomain.intersect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new EnumeratedDomain that is the intersection of self and
+other.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.Domain.EnumeratedDomain.max_size">
 <tt class="descname">max_size</tt><a class="reference internal" href="_modules/lib/Domain.html#EnumeratedDomain.max_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.EnumeratedDomain.max_size" title="Permalink to this definition">¶</a></dt>
@@ -445,6 +488,12 @@ from the domain?).</p>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
 <p>A floating point domain.  Only includes floating point numbers
 in increments of 0.1 (e.g. 0.0, 0.1, 0.2, 0.3, etc.).</p>
+<dl class="staticmethod">
+<dt id="lib.Domain.FloatDomain.cast">
+<em class="property">static </em><tt class="descname">cast</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#FloatDomain.cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.FloatDomain.cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to cast obj to a Float.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -452,6 +501,12 @@ in increments of 0.1 (e.g. 0.0, 0.1, 0.2, 0.3, etc.).</p>
 <em class="property">class </em><tt class="descclassname">lib.Domain.</tt><tt class="descname">IntegerDomain</tt><a class="reference internal" href="_modules/lib/Domain.html#IntegerDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.IntegerDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Domain.Domain" title="lib.Domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.Domain</span></tt></a></p>
 <p>A domain containing unsigned integers.</p>
+<dl class="staticmethod">
+<dt id="lib.Domain.IntegerDomain.cast">
+<em class="property">static </em><tt class="descname">cast</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#IntegerDomain.cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.IntegerDomain.cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to cast obj to an Integer.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -461,6 +516,12 @@ in increments of 0.1 (e.g. 0.0, 0.1, 0.2, 0.3, etc.).</p>
 <p>A domain for string values. The constructor includes a prefix
 parameter.  Generated strings are of the form &#8216;prefix&lt;n&gt;&#8217;
 where &lt;n&gt; is a monotonically increasing unsigned integer.</p>
+<dl class="staticmethod">
+<dt id="lib.Domain.StringDomain.cast">
+<em class="property">static </em><tt class="descname">cast</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#StringDomain.cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.StringDomain.cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to cast obj to a String.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -540,6 +601,12 @@ which defaults to midnight and increments by minutes.</p>
 <dt id="lib.FactType.Role.covered_by">
 <tt class="descname">covered_by</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.covered_by" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constraints that cover this role</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.FactType.Role.data_type">
+<tt class="descname">data_type</tt><a class="reference internal" href="_modules/lib/FactType.html#Role.data_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.Role.data_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raw conceptual data type of the role&#8217;s player.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1144,21 +1211,21 @@ that comprise a fact type.</p>
 entity type, value type, and objectified type.</p>
 <dl class="class">
 <dt id="lib.ObjectType.EntityType">
-<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">EntityType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#EntityType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.EntityType" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">EntityType</tt><big>(</big><em>identifying_constraint=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#EntityType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.EntityType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ObjectType.ObjectType" title="lib.ObjectType.ObjectType"><tt class="xref py py-class docutils literal"><span class="pre">lib.ObjectType.ObjectType</span></tt></a></p>
 <p>An entity type is an object type that requires identification.</p>
 <dl class="attribute">
 <dt id="lib.ObjectType.EntityType.identifying_constraint">
 <tt class="descname">identifying_constraint</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.EntityType.identifying_constraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reference to the uniqueness constraint that provides the preferred
-identification scheme for this entity type.</p>
+<dd><p>Reference to the (internal or external) uniqueness constraint that
+provides the preferred identification scheme for this entity type.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.ObjectType.ObjectType">
-<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectType</tt><big>(</big><em>independent=False</em>, <em>data_type=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>Abstract class inherited by all object types.</p>
 <dl class="method">
@@ -1167,17 +1234,17 @@ identification scheme for this entity type.</p>
 <dd><p>Commit any side effects of adding this object type to a model.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="lib.ObjectType.ObjectType.compatible">
-<tt class="descname">compatible</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.compatible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.compatible" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns true iff self == other, self is a supertype of other,
-or other is a supertype of self.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="lib.ObjectType.ObjectType.covered_by">
 <tt class="descname">covered_by</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.covered_by" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constraints that cover this object type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.data_type">
+<tt class="descname">data_type</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.data_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.data_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>The raw conceptual data type for the object type, which defaults to 
+a <a class="reference internal" href="#lib.Domain.StringDomain" title="lib.Domain.StringDomain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.StringDomain</span></tt></a> prefixed by the type&#8217;s name.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1195,8 +1262,8 @@ or other is a supertype of self.</p>
 <dl class="attribute">
 <dt id="lib.ObjectType.ObjectType.domain">
 <tt class="descname">domain</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.domain" title="Permalink to this definition">¶</a></dt>
-<dd><p>The domain for the object type, which defaults to a
-<a class="reference internal" href="#lib.Domain.StringDomain" title="lib.Domain.StringDomain"><tt class="xref py py-class docutils literal"><span class="pre">lib.Domain.StringDomain</span></tt></a> prefixed by the type&#8217;s name.</p>
+<dd><p>The domain from which objects for this type should be drawn. Defaults
+to self.data_type but may be overridden by a value constraint.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1218,12 +1285,6 @@ or other is a supertype of self.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="lib.ObjectType.ObjectType.indirect_supertypes">
-<tt class="descname">indirect_supertypes</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.indirect_supertypes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indirect supertypes</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="lib.ObjectType.ObjectType.primitive">
 <tt class="descname">primitive</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.primitive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>True iff object type has no supertype.</p>
@@ -1241,33 +1302,20 @@ or other is a supertype of self.</p>
 <dd><p>Rollback any side effects of adding this object type to a model.</p>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="lib.ObjectType.ObjectType.root_type">
-<tt class="descname">root_type</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.root_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Root object type in subtype graph (if any)</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.ObjectType.ObjectTypeSet">
-<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectTypeSet</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectTypeSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectTypeSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectTypeSet</tt><big>(</big><em>name='Object Types'</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectTypeSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectTypeSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElementSet" title="lib.ModelElement.ModelElementSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElementSet</span></tt></a></p>
 <p>Container for a set of object types.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.ObjectType.ObjectifiedType">
-<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectifiedType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectifiedType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectifiedType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#lib.ObjectType.ObjectType" title="lib.ObjectType.ObjectType"><tt class="xref py py-class docutils literal"><span class="pre">lib.ObjectType.ObjectType</span></tt></a></p>
-<p>An objectified type is an object type that objectifies a fact type.</p>
-<dl class="attribute">
-<dt id="lib.ObjectType.ObjectifiedType.identifying_constraint">
-<tt class="descname">identifying_constraint</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectifiedType.identifying_constraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reference to the uniqueness constraint that provides the preferred
-identification scheme for this object type.</p>
-</dd></dl>
-
+<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ObjectifiedType</tt><big>(</big><em>nested_fact_type=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectifiedType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectifiedType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.ObjectType.EntityType" title="lib.ObjectType.EntityType"><tt class="xref py py-class docutils literal"><span class="pre">lib.ObjectType.EntityType</span></tt></a></p>
+<p>An objectified type is an entity type that objectifies a fact type.</p>
 <dl class="attribute">
 <dt id="lib.ObjectType.ObjectifiedType.nested_fact_type">
 <tt class="descname">nested_fact_type</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectifiedType.nested_fact_type" title="Permalink to this definition">¶</a></dt>
@@ -1278,7 +1326,7 @@ identification scheme for this object type.</p>
 
 <dl class="class">
 <dt id="lib.ObjectType.ValueType">
-<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ValueType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ValueType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ValueType" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.ObjectType.</tt><tt class="descname">ValueType</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ValueType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ValueType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ObjectType.ObjectType" title="lib.ObjectType.ObjectType"><tt class="xref py py-class docutils literal"><span class="pre">lib.ObjectType.ObjectType</span></tt></a></p>
 <p>A value type is a self-identifying object type.</p>
 </dd></dl>
@@ -1365,6 +1413,49 @@ algorithm of Smaragdakis, et al.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-lib.SubtypeGraph">
+<span id="lib-subtypegraph-module"></span><h2>lib.SubtypeGraph module<a class="headerlink" href="#module-lib.SubtypeGraph" title="Permalink to this headline">¶</a></h2>
+<p>SubtypeGraph.py provides a class that generates the (possibly disjoint) 
+subtype graph of an ORM model.</p>
+<dl class="class">
+<dt id="lib.SubtypeGraph.SubtypeGraph">
+<em class="property">class </em><tt class="descclassname">lib.SubtypeGraph.</tt><tt class="descname">SubtypeGraph</tt><big>(</big><em>model</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/SubtypeGraph.html#SubtypeGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.SubtypeGraph.SubtypeGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Subtype graph of an ORM model.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If the subtype constraints in the associated model change
+after the creation of the SubtypeGraph, the SubtypeGraph <em>will not</em>
+automatically update and thus will reflect incorrect information.</p>
+</div>
+<dl class="method">
+<dt id="lib.SubtypeGraph.SubtypeGraph.compatible">
+<tt class="descname">compatible</tt><big>(</big><em>first</em>, <em>second</em><big>)</big><a class="reference internal" href="_modules/lib/SubtypeGraph.html#SubtypeGraph.compatible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.SubtypeGraph.SubtypeGraph.compatible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true iff first == second, first is a supertype of second,
+or second is a supertype of first.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.SubtypeGraph.SubtypeGraph.root_of">
+<tt class="descname">root_of</tt><em class="property"> = None</em><a class="headerlink" href="#lib.SubtypeGraph.SubtypeGraph.root_of" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary from object type to its root</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.SubtypeGraph.SubtypeGraph.roots">
+<tt class="descname">roots</tt><em class="property"> = None</em><a class="headerlink" href="#lib.SubtypeGraph.SubtypeGraph.roots" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of subtype graph roots (i.e. primitive object types)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.SubtypeGraph.SubtypeGraph.supertypes_of">
+<tt class="descname">supertypes_of</tt><em class="property"> = None</em><a class="headerlink" href="#lib.SubtypeGraph.SubtypeGraph.supertypes_of" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary from object type to the set of</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-lib.TestDataLocator">
 <span id="lib-testdatalocator-module"></span><h2>lib.TestDataLocator module<a class="headerlink" href="#module-lib.TestDataLocator" title="Permalink to this headline">¶</a></h2>
 <p>Locates test data directory without resorting to environment variable.</p>
@@ -1375,6 +1466,12 @@ algorithm of Smaragdakis, et al.</p>
 See <a class="reference external" href="http://stackoverflow.com/questions/2632199/how-do-i-get-the-path-of">http://stackoverflow.com/questions/2632199/how-do-i-get-the-path-of</a>-</p>
 <blockquote>
 <div>the-current-executed-file-in-python/2632297#2632297</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.TestDataLocator.path">
+<tt class="descclassname">lib.TestDataLocator.</tt><tt class="descname">path</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lib/TestDataLocator.html#path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.TestDataLocator.path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return full path of filename in test data directory.</p>
 </dd></dl>
 
 </div>
@@ -1406,6 +1503,7 @@ See <a class="reference external" href="http://stackoverflow.com/questions/26321
 <li><a class="reference internal" href="#module-lib.ORMMinusModel">lib.ORMMinusModel module</a></li>
 <li><a class="reference internal" href="#module-lib.ObjectType">lib.ObjectType module</a></li>
 <li><a class="reference internal" href="#module-lib.Population">lib.Population module</a></li>
+<li><a class="reference internal" href="#module-lib.SubtypeGraph">lib.SubtypeGraph module</a></li>
 <li><a class="reference internal" href="#module-lib.TestDataLocator">lib.TestDataLocator module</a></li>
 <li><a class="reference internal" href="#module-lib">Module contents</a></li>
 </ul>

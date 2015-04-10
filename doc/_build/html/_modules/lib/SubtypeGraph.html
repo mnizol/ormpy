@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.SubtypeGraph &mdash; ORMPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ORMPY 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.SubtypeGraph</h1><div class="highlight"><pre>
+<span class="c">##############################################################################</span>
+<span class="c"># Package: ormpy</span>
+<span class="c"># File:    SubtypeGraph.py</span>
+<span class="c"># Author:  Matthew Nizol</span>
+<span class="c">##############################################################################</span>
+
+<span class="sd">&quot;&quot;&quot; SubtypeGraph.py provides a class that generates the (possibly disjoint) </span>
+<span class="sd">    subtype graph of an ORM model.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SubtypeGraph"><a class="viewcode-back" href="../../lib.html#lib.SubtypeGraph.SubtypeGraph">[docs]</a><span class="k">class</span> <span class="nc">SubtypeGraph</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Subtype graph of an ORM model. </span>
+
+<span class="sd">        .. warning:: If the subtype constraints in the associated model change</span>
+<span class="sd">           after the creation of the SubtypeGraph, the SubtypeGraph *will not*</span>
+<span class="sd">           automatically update and thus will reflect incorrect information. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SubtypeGraph</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">primitive</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">primitive</span>
+
+        <span class="c">#: List of subtype graph roots (i.e. primitive object types)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">roots</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_of</span> <span class="o">=</span> <span class="p">{}</span>       <span class="c">#: Dictionary from object type to its root</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supertypes_of</span> <span class="o">=</span> <span class="p">{}</span> <span class="c">#: Dictionary from object type to the set of</span>
+                                <span class="c">#: its direct and indirect supertypes.</span>
+
+        <span class="c"># Populate self.root_of and self.supertypes_of.  Raise a ValueError if</span>
+        <span class="c"># an object type has  more than one root (which is illegal in ORM), but</span>
+        <span class="c"># don&#39;t bother checking for cycles (they aren&#39;t permitted by NORMA).</span>
+        <span class="k">for</span> <span class="n">root</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">roots</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">supertypes_of</span><span class="p">[</span><span class="n">root</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root_of</span><span class="p">[</span><span class="n">root</span><span class="p">]</span> <span class="o">=</span> <span class="n">root</span>
+
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_populate_supertypes_dict</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_populate_supertypes_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Populate self.root_of and self.supertypes_of for this subtype and</span>
+<span class="sd">            recursively for each of its subtypes.  &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_of</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">this</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_of</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">this</span><span class="p">)</span> <span class="o">!=</span> <span class="n">root</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Subtype graph containing {0} has more than one root type&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">fullname</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_of</span><span class="p">[</span><span class="n">this</span><span class="p">]</span> <span class="o">=</span> <span class="n">root</span>
+
+        <span class="c"># Update the known supertypes of this node with those of its parent</span>
+        <span class="n">known</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supertypes_of</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supertypes_of</span><span class="p">[</span><span class="n">this</span><span class="p">]</span> <span class="o">=</span> <span class="n">known</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">supertypes_of</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">this</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_populate_supertypes_dict</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SubtypeGraph.compatible"><a class="viewcode-back" href="../../lib.html#lib.SubtypeGraph.SubtypeGraph.compatible">[docs]</a>    <span class="k">def</span> <span class="nf">compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns true iff first == second, first is a supertype of second,</span>
+<span class="sd">            or second is a supertype of first.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">first</span> <span class="o">==</span> <span class="n">second</span><span class="p">)</span> <span class="ow">or</span> \
+               <span class="p">(</span><span class="n">first</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supertypes_of</span><span class="p">[</span><span class="n">second</span><span class="p">])</span> <span class="ow">or</span> \
+               <span class="p">(</span><span class="n">second</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supertypes_of</span><span class="p">[</span><span class="n">first</span><span class="p">])</span>           
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Nizol.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

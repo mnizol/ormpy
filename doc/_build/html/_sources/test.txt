@@ -92,6 +92,14 @@ test.TestPopulation module
     :undoc-members:
     :show-inheritance:
 
+test.TestSubtypeGraph module
+----------------------------
+
+.. automodule:: test.TestSubtypeGraph
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 test.TestTestDataLocator module
 -------------------------------
 

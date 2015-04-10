@@ -100,6 +100,14 @@ lib.Population module
     :undoc-members:
     :show-inheritance:
 
+lib.SubtypeGraph module
+-----------------------
+
+.. automodule:: lib.SubtypeGraph
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lib.TestDataLocator module
 --------------------------
 

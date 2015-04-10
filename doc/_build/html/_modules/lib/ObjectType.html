@@ -54,7 +54,7 @@
 <span class="c">##############################################################################</span>
 
 <span class="sd">&quot;&quot;&quot; ObjectType.py provides classes for the various object types in ORM:</span>
-<span class="sd">entity type, value type, and objectified type.</span>
+<span class="sd">    entity type, value type, and objectified type.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">lib.ModelElement</span> <span class="kn">import</span> <span class="n">ModelElementSet</span><span class="p">,</span> <span class="n">ModelElement</span>
@@ -63,38 +63,48 @@
 <div class="viewcode-block" id="ObjectTypeSet"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectTypeSet">[docs]</a><span class="k">class</span> <span class="nc">ObjectTypeSet</span><span class="p">(</span><span class="n">ModelElementSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Container for a set of object types. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ObjectTypeSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Object Types&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;Object Types&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ObjectTypeSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="ObjectType"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType">[docs]</a><span class="k">class</span> <span class="nc">ObjectType</span><span class="p">(</span><span class="n">ModelElement</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Abstract class inherited by all object types. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ObjectType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">independent</span> <span class="o">=</span> <span class="bp">False</span> <span class="c">#: True for independent object types</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">independent</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ObjectType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">independent</span> <span class="o">=</span> <span class="n">independent</span> <span class="c">#: True for independent object types</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implicit</span> <span class="o">=</span> <span class="bp">False</span>    <span class="c">#: True for implicit object types</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">roles</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Roles played by this object type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">covered_by</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Constraints that cover this object type</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">root_type</span> <span class="o">=</span> <span class="bp">None</span> <span class="c">#: Root object type in subtype graph (if any)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">direct_supertypes</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Direct supertypes of this object type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">indirect_supertypes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span> <span class="c">#: Indirect supertypes</span>
+        <span class="c"># Direct subtypes and supertypes.  We do not store indirect subtypes</span>
+        <span class="c"># here because maintenance of the subtype graph would be too expensive</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">direct_subtypes</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Direct subtypes of this object type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">direct_supertypes</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Direct supertypes of this object type</span>
 
         <span class="c"># Prefix for domain values     </span>
-        <span class="n">prefix</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span> <span class="c"># Empty string if name is None</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span> <span class="c"># Empty string if name is None</span>
         <span class="k">if</span> <span class="n">prefix</span> <span class="ow">and</span> <span class="n">prefix</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span> 
-            <span class="n">prefix</span> <span class="o">+=</span> <span class="s">&quot;_&quot;</span>
+            <span class="n">prefix</span> <span class="o">+=</span> <span class="s">&quot;_&quot;</span>        
         
-        <span class="c">#: The domain for the object type, which defaults to a </span>
-        <span class="c">#: :class:`lib.Domain.StringDomain` prefixed by the type&#39;s name.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">StringDomain</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span> 
+        <span class="c"># Raw conceptual data type, ignoring any value constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_type</span> <span class="o">=</span> <span class="n">data_type</span> <span class="ow">or</span> <span class="n">StringDomain</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span> 
+
+        <span class="c">#: The domain from which objects for this type should be drawn. Defaults</span>
+        <span class="c">#: to self.data_type but may be overridden by a value constraint.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_type</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="ObjectType.primitive"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.primitive">[docs]</a>    <span class="k">def</span> <span class="nf">primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; True iff object type has no supertype. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ObjectType.data_type"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.data_type">[docs]</a>    <span class="k">def</span> <span class="nf">data_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; The raw conceptual data type for the object type, which defaults to </span>
+<span class="sd">            a :class:`lib.Domain.StringDomain` prefixed by the type&#39;s name. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_type</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="ObjectType.fullname"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.fullname">[docs]</a>    <span class="k">def</span> <span class="nf">fullname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -108,45 +118,32 @@
 <div class="viewcode-block" id="ObjectType.rollback"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Rollback any side effects of adding this object type to a model.&quot;&quot;&quot;</span>
         <span class="k">pass</span> <span class="c"># TODO: Implement later</span>
-</div>
-<div class="viewcode-block" id="ObjectType.compatible"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.compatible">[docs]</a>    <span class="k">def</span> <span class="nf">compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Returns true iff self == other, self is a supertype of other,</span>
-<span class="sd">            or other is a supertype of self.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span> <span class="ow">or</span> \
-               <span class="p">(</span><span class="bp">self</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">)</span> <span class="ow">or</span> \
-               <span class="p">(</span><span class="bp">self</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">indirect_supertypes</span><span class="p">)</span> <span class="ow">or</span> \
-               <span class="p">(</span><span class="n">other</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">)</span> <span class="ow">or</span> \
-               <span class="p">(</span><span class="n">other</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indirect_supertypes</span><span class="p">)</span>             
 </div></div>
 <div class="viewcode-block" id="EntityType"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.EntityType">[docs]</a><span class="k">class</span> <span class="nc">EntityType</span><span class="p">(</span><span class="n">ObjectType</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An entity type is an object type that requires identification. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">EntityType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifying_constraint</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EntityType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="c">#: Reference to the uniqueness constraint that provides the preferred</span>
-        <span class="c">#: identification scheme for this entity type.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">identifying_constraint</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c">#: Reference to the (internal or external) uniqueness constraint that </span>
+        <span class="c">#: provides the preferred identification scheme for this entity type.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">identifying_constraint</span> <span class="o">=</span> <span class="n">identifying_constraint</span>
 </div>
 <div class="viewcode-block" id="ValueType"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ValueType">[docs]</a><span class="k">class</span> <span class="nc">ValueType</span><span class="p">(</span><span class="n">ObjectType</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A value type is a self-identifying object type. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ValueType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ValueType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ObjectifiedType"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectifiedType">[docs]</a><span class="k">class</span> <span class="nc">ObjectifiedType</span><span class="p">(</span><span class="n">ObjectType</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; An objectified type is an object type that objectifies a fact type. &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ObjectifiedType"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectifiedType">[docs]</a><span class="k">class</span> <span class="nc">ObjectifiedType</span><span class="p">(</span><span class="n">EntityType</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An objectified type is an entity type that objectifies a fact type. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ObjectifiedType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-
-        <span class="c">#: Reference to the uniqueness constraint that provides the preferred</span>
-        <span class="c">#: identification scheme for this object type.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">identifying_constraint</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nested_fact_type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ObjectifiedType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c">#: Reference to the fact type that this object type objectifies.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nested_fact_type</span> <span class="o">=</span> <span class="bp">None</span>
-</pre></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nested_fact_type</span> <span class="o">=</span> <span class="n">nested_fact_type</span></div>
+</pre></div>
 
           </div>
         </div>

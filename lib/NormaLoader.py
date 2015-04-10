@@ -125,7 +125,6 @@ class NormaLoader(object):
 
         # Post-processing
         self._fix_nested_fact_type_refs() 
-        self._update_indirect_subtypes()
 
         # Report any issues to the user
         self._log_issues_with(filename)      
@@ -304,38 +303,6 @@ class NormaLoader(object):
             object_type._data_type = domain()                
             object_type.domain = object_type.data_type 
 
-    def _update_indirect_subtypes(self):
-        """ Starting at each root type, build a list of indirect 
-            supertypes for each subtype of the root. """
-
-        # NOTE: I do not check for cycles in the subtype graph.  I could, but
-        # (a) They are illegal in ORM, and (b) NORMA doesn't permit adding them
-        # so I don't think its worth the computational effort.
-
-        for object_type in self.model.object_types:
-            if object_type.primitive: # Is a root type
-                for child in object_type.direct_subtypes:
-                    self._update_subtype(child, object_type, object_type)
-
-                # A primitive type is its own root type
-                object_type.root_type = object_type
-                                                 
-    def _update_subtype(self, this, parent, root):
-        """ Update the list of indirect supertypes of this subtype. """
-
-        # Check for multiple root types, which are illegal
-        if this.root_type != None and this.root_type != root:
-            raise ValueError("Subtype graph containing " + this.fullname + \
-                             " has more than one root type")
-
-        this.root_type = root
-        this.indirect_supertypes.update(parent.direct_supertypes)
-        this.indirect_supertypes.update(parent.indirect_supertypes)
-
-        for child in this.direct_subtypes:
-            self._update_subtype(child, this, root)
-                   
-
     ##########################################################################
     # Private Functions to Load Fact Types
     ##########################################################################
@@ -441,8 +408,8 @@ class NormaLoader(object):
         """ Load a subtype fact, which indicates a subtype constraint.  Note,
             we chose not to move this node under <Constraints>, because it must
             be loaded prior to any associated XOR/IOR constraints. """
-        cons = self._construct(xml_node, Constraint.SubtypeConstraint)
-
+        attribs, name = get_basic_attribs(xml_node)
+ 
         # Get super and sub type XML nodes
         factroles = find(xml_node, "FactRoles")
         super_node = find(factroles, "SupertypeMetaRole")
@@ -452,19 +419,16 @@ class NormaLoader(object):
 
         # Look-up the corresponding object types
         try:
-            cons.supertype = self._elements[supertype_node.get("ref")]
-            cons.subtype = self._elements[subtype_node.get("ref")]
+            supertype = self._elements[supertype_node.get("ref")]
+            subtype = self._elements[subtype_node.get("ref")]
         except KeyError:
             raise Exception("Cannot load subtype constraint.")
 
-        cons.covers = [cons.subtype, cons.supertype]
-
         # Does this subtype constraint provide a path to the preferred ID?
-        cons.idpath = (xml_node.get("PreferredIdentificationPath") == "true")
+        path = (xml_node.get("PreferredIdentificationPath") == "true")
 
-        # Update corresponding object types
-        cons.supertype.direct_subtypes.append(cons.subtype)
-        cons.subtype.direct_supertypes.append(cons.supertype)
+        # Create constraint
+        cons = Constraint.SubtypeConstraint(subtype, supertype, path, **attribs)
 
         # If there are additional constraints on the subtype (e.g. XOR or IOR),
         # their role sequence will consist of the subtype fact's roles. We will
@@ -473,7 +437,7 @@ class NormaLoader(object):
         self._elements[super_node.get("id")] = cons
         self._elements[sub_node.get("id")] = cons
 
-        self._add(cons) # Add subtype constraint to model
+        self._add(cons) 
 
     ##########################################################################
     # Private Functions to Load Constraints

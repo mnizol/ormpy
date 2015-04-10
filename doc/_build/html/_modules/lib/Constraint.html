@@ -58,13 +58,14 @@
 
 <span class="kn">from</span> <span class="nn">lib.ModelElement</span> <span class="kn">import</span> <span class="n">ModelElementSet</span><span class="p">,</span> <span class="n">ModelElement</span>
 <span class="kn">from</span> <span class="nn">lib.FactType</span> <span class="kn">import</span> <span class="n">RoleSequence</span><span class="p">,</span> <span class="n">Role</span>
-<span class="kn">from</span> <span class="nn">lib.Domain</span> <span class="kn">import</span> <span class="n">EnumeratedDomain</span>
+<span class="kn">from</span> <span class="nn">lib.ObjectType</span> <span class="kn">import</span> <span class="n">ObjectType</span>
+<span class="kn">from</span> <span class="nn">lib.Domain</span> <span class="kn">import</span> <span class="n">Domain</span><span class="p">,</span> <span class="n">EnumeratedDomain</span><span class="p">,</span> <span class="n">StringDomain</span>
 
 <div class="viewcode-block" id="ConstraintSet"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ConstraintSet">[docs]</a><span class="k">class</span> <span class="nc">ConstraintSet</span><span class="p">(</span><span class="n">ModelElementSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Container for a set of constraints. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ConstraintSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Constraints&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;Constraints&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConstraintSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ConstraintSet.of_type"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ConstraintSet.of_type">[docs]</a>    <span class="k">def</span> <span class="nf">of_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cons_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Return a list of constraints limited to a given type. &quot;&quot;&quot;</span>
@@ -144,6 +145,20 @@
 <div class="viewcode-block" id="ValueConstraint.size"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; The number of items in the domain defined by the constraint. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">size</span>
+</div>
+<div class="viewcode-block" id="ValueConstraint.commit"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Commit side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">ObjectType</span><span class="p">):</span>
+            <span class="n">element</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span>
+        <span class="n">Constraint</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ValueConstraint.rollback"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueConstraint.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Rollback side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">ObjectType</span><span class="p">):</span>
+            <span class="n">element</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">data_type</span>
+        <span class="n">Constraint</span><span class="o">.</span><span class="n">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="ValueDomain"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueDomain">[docs]</a><span class="k">class</span> <span class="nc">ValueDomain</span><span class="p">(</span><span class="n">EnumeratedDomain</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; The domain of a value constraint. &quot;&quot;&quot;</span>
@@ -153,14 +168,20 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ValueDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>        
 
-<div class="viewcode-block" id="ValueDomain.add_range"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueDomain.add_range">[docs]</a>    <span class="k">def</span> <span class="nf">add_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> 
-                  <span class="n">min_open</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">max_open</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ValueDomain.add_range"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueDomain.add_range">[docs]</a>    <span class="k">def</span> <span class="nf">add_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">min_open</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> 
+                  <span class="n">max_open</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add a range of values to the domain. &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">max_value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># Easier specification of enumerations</span>
             <span class="n">max_value</span> <span class="o">=</span> <span class="n">min_value</span>
 
+        <span class="n">data_type</span> <span class="o">=</span> <span class="n">data_type</span> <span class="ow">or</span> <span class="n">Domain</span><span class="p">()</span> <span class="c"># Generic Domain will not cast</span>
+
         <span class="k">if</span> <span class="n">min_value</span> <span class="o">==</span> <span class="n">max_value</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">min_open</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">max_open</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span>  <span class="c"># Single element of any data type.</span>
+            <span class="c"># Single element, which we&#39;ll try to cast to the provided data type</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">data_type</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">min_value</span><span class="p">))</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">NotImplementedError</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span>  
         <span class="k">else</span><span class="p">:</span> <span class="c"># Possible range of integers</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">min_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">min_open</span> <span class="o">==</span> <span class="bp">True</span><span class="p">)</span>
@@ -197,7 +218,19 @@
         <span class="c">#: relevant if the subtype inherits one of its supertypes&#39; reference</span>
         <span class="c">#: schemes, and the supertype graph is not a simple path.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idpath</span> <span class="o">=</span> <span class="n">idpath</span>
+
+<div class="viewcode-block" id="SubtypeConstraint.commit"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubtypeConstraint.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Commit side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supertype</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subtype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtype</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supertype</span><span class="p">)</span>
+        <span class="n">Constraint</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </div>
+<div class="viewcode-block" id="SubtypeConstraint.rollback"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubtypeConstraint.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Rollback side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supertype</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subtype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtype</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supertype</span><span class="p">)</span>
+        <span class="n">Constraint</span><span class="o">.</span><span class="n">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div></div>
 <div class="viewcode-block" id="MandatoryConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.MandatoryConstraint">[docs]</a><span class="k">class</span> <span class="nc">MandatoryConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A mandatory constraint. &quot;&quot;&quot;</span>
 

@@ -118,6 +118,11 @@
         <span class="sd">&quot;&quot;&quot; Returns name that is unique within the model. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s">&quot;FactTypes.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact_type</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;.Roles.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Role.data_type"><a class="viewcode-back" href="../../lib.html#lib.FactType.Role.data_type">[docs]</a>    <span class="k">def</span> <span class="nf">data_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Raw conceptual data type of the role&#39;s player. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">player</span><span class="o">.</span><span class="n">data_type</span>
+</div>
 <div class="viewcode-block" id="Role.commit"><a class="viewcode-back" href="../../lib.html#lib.FactType.Role.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Commit any side effects of adding this role to a model.&quot;&quot;&quot;</span>
         <span class="k">pass</span> <span class="c"># TODO: Implement later</span>

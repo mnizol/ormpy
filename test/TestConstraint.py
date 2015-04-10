@@ -322,5 +322,36 @@ class TestConstraint(TestCase):
 
         self.assertEquals(obj.covered_by, [])
         self.assertEquals(obj.domain, obj.data_type)
-        self.assertEquals(obj.domain, d0)      
+        self.assertEquals(obj.domain, d0)
+
+    def test_commit_and_rollback_subtype(self):
+        """ Test commit and rollback of a subtype constraint. """
+        obj1 = ObjectType(name="O1")
+        obj2 = ObjectType(name="O2")
+        cons = Constraint.SubtypeConstraint(subtype=obj1, supertype=obj2)
+
+        self.assertEquals(obj1.covered_by, [])
+        self.assertEquals(obj1.direct_subtypes, [])
+        self.assertEquals(obj1.direct_supertypes, [])
+        self.assertEquals(obj2.covered_by, [])
+        self.assertEquals(obj2.direct_subtypes, [])
+        self.assertEquals(obj2.direct_supertypes, [])
+
+        cons.commit()
+
+        self.assertEquals(obj1.covered_by, [cons])
+        self.assertEquals(obj1.direct_subtypes, [])
+        self.assertEquals(obj1.direct_supertypes, [obj2])
+        self.assertEquals(obj2.covered_by, [cons])
+        self.assertEquals(obj2.direct_subtypes, [obj1])
+        self.assertEquals(obj2.direct_supertypes, [])
+
+        cons.rollback()
+
+        self.assertEquals(obj1.covered_by, [])
+        self.assertEquals(obj1.direct_subtypes, [])
+        self.assertEquals(obj1.direct_supertypes, [])
+        self.assertEquals(obj2.covered_by, [])
+        self.assertEquals(obj2.direct_subtypes, [])
+        self.assertEquals(obj2.direct_supertypes, [])
 

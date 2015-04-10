@@ -58,6 +58,7 @@
 <span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
 
 <span class="kn">import</span> <span class="nn">lib.Constraint</span> <span class="kn">as</span> <span class="nn">Constraint</span>
+<span class="kn">import</span> <span class="nn">lib.Domain</span> <span class="kn">as</span> <span class="nn">Domain</span>
 <span class="kn">from</span> <span class="nn">lib.Model</span> <span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">lib.ObjectType</span> <span class="kn">import</span> <span class="n">ObjectType</span><span class="p">,</span> <span class="n">EntityType</span>
 <span class="kn">from</span> <span class="nn">lib.FactType</span> <span class="kn">import</span> <span class="n">FactType</span><span class="p">,</span> <span class="n">Role</span>
@@ -336,11 +337,41 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">role1</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">role2</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">identifying_constraint</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestConstraint.test_commit_and_rollback_value"><a class="viewcode-back" href="../../test.html#test.TestConstraint.TestConstraint.test_commit_and_rollback_value">[docs]</a>    <span class="k">def</span> <span class="nf">test_commit_and_rollback_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test commit and rollback of value constraints. &quot;&quot;&quot;</span>
+        <span class="n">d0</span> <span class="o">=</span> <span class="n">Domain</span><span class="o">.</span><span class="n">IntegerDomain</span><span class="p">()</span>
+        <span class="n">role</span> <span class="o">=</span> <span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;R1&quot;</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;O1&quot;</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="n">d0</span><span class="p">)</span>
 
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">ValueDomain</span><span class="p">()</span>
+        <span class="n">d1</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="s">&quot;Dog&quot;</span><span class="p">)</span>
 
+        <span class="n">rvc</span> <span class="o">=</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">ValueConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;RVC&quot;</span><span class="p">,</span> <span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">role</span><span class="p">],</span> <span class="n">domain</span><span class="o">=</span><span class="n">d1</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">rvc</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[</span><span class="n">rvc</span><span class="p">])</span>
+        <span class="n">rvc</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[])</span>
 
-       
+        <span class="n">vc</span> <span class="o">=</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">ValueConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;VTVC&quot;</span><span class="p">,</span> <span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">obj</span><span class="p">],</span> <span class="n">domain</span><span class="o">=</span><span class="n">d1</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">d0</span><span class="p">)</span>
+
+        <span class="n">vc</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[</span><span class="n">vc</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">d1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">data_type</span><span class="p">,</span> <span class="n">d0</span><span class="p">)</span>
+        
+        <span class="n">vc</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">d0</span><span class="p">)</span>      
 </pre></div></div></div>
 
           </div>

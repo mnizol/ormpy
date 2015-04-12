@@ -116,6 +116,14 @@ lib.TestDataLocator module
     :undoc-members:
     :show-inheritance:
 
+lib.Transformation module
+-------------------------
+
+.. automodule:: lib.Transformation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

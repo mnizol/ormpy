@@ -1463,15 +1463,110 @@ or second is a supertype of first.</p>
 <dt id="lib.TestDataLocator.get_data_dir">
 <tt class="descclassname">lib.TestDataLocator.</tt><tt class="descname">get_data_dir</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/TestDataLocator.html#get_data_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.TestDataLocator.get_data_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return test data directory.
-See <a class="reference external" href="http://stackoverflow.com/questions/2632199/how-do-i-get-the-path-of">http://stackoverflow.com/questions/2632199/how-do-i-get-the-path-of</a>-</p>
-<blockquote>
-<div>the-current-executed-file-in-python/2632297#2632297</div></blockquote>
+See <a class="reference external" href="http://stackoverflow.com/questions/2632199/how-do-i-get-the-path-of">http://stackoverflow.com/questions/2632199/how-do-i-get-the-path-of</a>-
+the-current-executed-file-in-python/2632297#2632297</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="lib.TestDataLocator.path">
 <tt class="descclassname">lib.TestDataLocator.</tt><tt class="descname">path</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lib/TestDataLocator.html#path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.TestDataLocator.path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return full path of filename in test data directory.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-lib.Transformation">
+<span id="lib-transformation-module"></span><h2>lib.Transformation module<a class="headerlink" href="#module-lib.Transformation" title="Permalink to this headline">¶</a></h2>
+<p>The Transformation.py module provides classes that transform a 
+<a class="reference internal" href="#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">lib.Model.Model</span></tt></a> in various ways.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The transformations in this module modify the source Model
+in place.  There is currently no means to reverse a Transformation.</p>
+</div>
+<dl class="class">
+<dt id="lib.Transformation.Transformation">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">Transformation</tt><big>(</big><em>model=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#Transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.Transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A transformation of an ORM Model.</p>
+<dl class="attribute">
+<dt id="lib.Transformation.Transformation.added">
+<tt class="descname">added</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Transformation.Transformation.added" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of elements added by this transformation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.Transformation.Transformation.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#Transformation.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.Transformation.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the transformation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Transformation.Transformation.model">
+<tt class="descname">model</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Transformation.Transformation.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>ORM model to transform</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Transformation.Transformation.modified">
+<tt class="descname">modified</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Transformation.Transformation.modified" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of elements modified by this transformation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Transformation.Transformation.removed">
+<tt class="descname">removed</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Transformation.Transformation.removed" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of elements removed by this transformation</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Transformation.ValueConstraintTransformation">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">ValueConstraintTransformation</tt><big>(</big><em>subtype_graph=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#ValueConstraintTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.ValueConstraintTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Transformation.Transformation" title="lib.Transformation.Transformation"><tt class="xref py py-class docutils literal"><span class="pre">lib.Transformation.Transformation</span></tt></a></p>
+<p>A transformation of an ORM model that moves, removes, and modifies
+value constraints to be consistent with ORM- rules.  Specifically, this 
+transformation affects role value constraints and subtype value
+constraints as discussed in the below subsections.</p>
+<p><strong>Role value constraints:</strong></p>
+<p>ORM- does not support role value constraints, only value
+constraints on types.  However, if the value constraint covers a 
+role for an object type that plays no other roles and either:</p>
+<ol class="arabic simple">
+<li>The type is not independent (so the role is implicitly mandatory)</li>
+<li>The role is covered by an explicit mandatory constraint</li>
+</ol>
+<p>Then the value constraint can be treated as an object type value
+constraint.  Role value constraints that meet this criteria are thus
+moved to the object type.  If the object type that meets this test is 
+<em>already</em> covered by a value constraint, then we cover that object type 
+with the intersection of the two constraints.  All other role value
+constraints are removed from the model.</p>
+<p><strong>Subtype value constraints:</strong></p>
+<p>ORM- supports at most one value constraint on a non-primitive type 
+within the same subtype graph.  Thus, this transformation updates each 
+subtype graph, retaining the value constraint (if any) on the root 
+type and retaining at most one value constraint on any subtype of the 
+root.  All other value constraints on subtypes of that root are 
+removed.  Then, the remaining subtype value constraint is updated to 
+remove any elements not in the root value constraint&#8217;s domain, and the
+root value constraint is re-ordered so that the subtype value
+constraint&#8217;s elements are listed first.  This latter reordering is
+necessary to ensure that the ORM- algorithm populates each subtype
+using only elements from its root type&#8217;s population.</p>
+<dl class="method">
+<dt id="lib.Transformation.ValueConstraintTransformation.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#ValueConstraintTransformation.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.ValueConstraintTransformation.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the transformation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Transformation.ValueConstraintTransformation.subtype_graph">
+<tt class="descname">subtype_graph</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Transformation.ValueConstraintTransformation.subtype_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="#lib.SubtypeGraph.SubtypeGraph" title="lib.SubtypeGraph.SubtypeGraph"><tt class="xref py py-class docutils literal"><span class="pre">lib.SubtypeGraph.SubtypeGraph</span></tt></a> corresponding to
+<tt class="xref py py-attr docutils literal"><span class="pre">self.model</span></tt>.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -1505,6 +1600,7 @@ See <a class="reference external" href="http://stackoverflow.com/questions/26321
 <li><a class="reference internal" href="#module-lib.Population">lib.Population module</a></li>
 <li><a class="reference internal" href="#module-lib.SubtypeGraph">lib.SubtypeGraph module</a></li>
 <li><a class="reference internal" href="#module-lib.TestDataLocator">lib.TestDataLocator module</a></li>
+<li><a class="reference internal" href="#module-lib.Transformation">lib.Transformation module</a></li>
 <li><a class="reference internal" href="#module-lib">Module contents</a></li>
 </ul>
 </li>

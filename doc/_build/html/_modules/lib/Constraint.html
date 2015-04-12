@@ -214,6 +214,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">subtype</span> <span class="o">=</span> <span class="n">subtype</span> <span class="c">#: Subtype object type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">supertype</span> <span class="o">=</span> <span class="n">supertype</span> <span class="c">#: Supertype object type</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="p">[</span><span class="n">subtype</span><span class="p">,</span> <span class="n">supertype</span><span class="p">]</span>
+
         <span class="c">#: True if subtype constraint is on path to preferred id.  This is</span>
         <span class="c">#: relevant if the subtype inherits one of its supertypes&#39; reference</span>
         <span class="c">#: schemes, and the supertype graph is not a simple path.</span>

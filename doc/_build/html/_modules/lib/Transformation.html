@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.Transformation &mdash; ORMPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ORMPY 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.Transformation</h1><div class="highlight"><pre>
+<span class="c">##############################################################################</span>
+<span class="c"># Package: ormpy</span>
+<span class="c"># File:    Transformation.py</span>
+<span class="c"># Author:  Matthew Nizol</span>
+<span class="c">##############################################################################</span>
+<span class="sd">&quot;&quot;&quot; The Transformation.py module provides classes that transform a </span>
+<span class="sd">    :class:`lib.Model.Model` in various ways.  </span>
+
+<span class="sd">    .. warning:: The transformations in this module modify the source Model</span>
+<span class="sd">       in place.  There is currently no means to reverse a Transformation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">lib.Model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">lib.Constraint</span> <span class="kn">import</span> <span class="n">ValueConstraint</span>
+<span class="kn">from</span> <span class="nn">lib.FactType</span> <span class="kn">import</span> <span class="n">Role</span>
+
+<div class="viewcode-block" id="Transformation"><a class="viewcode-back" href="../../lib.html#lib.Transformation.Transformation">[docs]</a><span class="k">class</span> <span class="nc">Transformation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A transformation of an ORM Model. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Transformation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span> <span class="c">#: ORM model to transform</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">removed</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: List of elements removed by this transformation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: List of elements modified by this transformation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">added</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: List of elements added by this transformation</span>
+
+<div class="viewcode-block" id="Transformation.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.Transformation.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute the transformation. &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add an element to the model. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">added</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove an element from the model. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_modified</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Tag an element as modified. The actual modification must be </span>
+<span class="sd">            performed external to this method.  &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ValueConstraintTransformation"><a class="viewcode-back" href="../../lib.html#lib.Transformation.ValueConstraintTransformation">[docs]</a><span class="k">class</span> <span class="nc">ValueConstraintTransformation</span><span class="p">(</span><span class="n">Transformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A transformation of an ORM model that moves, removes, and modifies</span>
+<span class="sd">        value constraints to be consistent with ORM- rules.  Specifically, this </span>
+<span class="sd">        transformation affects role value constraints and subtype value</span>
+<span class="sd">        constraints as discussed in the below subsections.</span>
+
+<span class="sd">        **Role value constraints:**</span>
+
+<span class="sd">        ORM- does not support role value constraints, only value</span>
+<span class="sd">        constraints on types.  However, if the value constraint covers a </span>
+<span class="sd">        role for an object type that plays no other roles and either:</span>
+
+<span class="sd">        1) The type is not independent (so the role is implicitly mandatory) </span>
+<span class="sd">        2) The role is covered by an explicit mandatory constraint</span>
+
+<span class="sd">        Then the value constraint can be treated as an object type value</span>
+<span class="sd">        constraint.  Role value constraints that meet this criteria are thus</span>
+<span class="sd">        moved to the object type.  If the object type that meets this test is </span>
+<span class="sd">        *already* covered by a value constraint, then we cover that object type </span>
+<span class="sd">        with the intersection of the two constraints.  All other role value</span>
+<span class="sd">        constraints are removed from the model.</span>
+
+<span class="sd">        **Subtype value constraints:**</span>
+
+<span class="sd">        ORM- supports at most one value constraint on a non-primitive type </span>
+<span class="sd">        within the same subtype graph.  Thus, this transformation updates each </span>
+<span class="sd">        subtype graph, retaining the value constraint (if any) on the root </span>
+<span class="sd">        type and retaining at most one value constraint on any subtype of the </span>
+<span class="sd">        root.  All other value constraints on subtypes of that root are </span>
+<span class="sd">        removed.  Then, the remaining subtype value constraint is updated to </span>
+<span class="sd">        remove any elements not in the root value constraint&#39;s domain, and the</span>
+<span class="sd">        root value constraint is re-ordered so that the subtype value</span>
+<span class="sd">        constraint&#39;s elements are listed first.  This latter reordering is</span>
+<span class="sd">        necessary to ensure that the ORM- algorithm populates each subtype</span>
+<span class="sd">        using only elements from its root type&#39;s population.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subtype_graph</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ValueConstraintTransformation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    
+        <span class="c">#: A :class:`lib.SubtypeGraph.SubtypeGraph` corresponding to </span>
+        <span class="c">#: :attr:`self.model`.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtype_graph</span> <span class="o">=</span> <span class="n">subtype_graph</span>
+
+<div class="viewcode-block" id="ValueConstraintTransformation.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.ValueConstraintTransformation.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute the transformation. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">ValueConstraint</span><span class="p">):</span>
+            <span class="n">element</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">Role</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_transform_role_value_constraint</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">element</span><span class="o">.</span><span class="n">primtive</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_transform_subtype_value_constraint</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_transform_role_value_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cons</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">player</span> 
+   
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">mandatory</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">independent</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+            <span class="n">cons</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span> <span class="c"># Undo side effects -- e.g. uncover role</span>
+            <span class="n">cons</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="p">]</span>
+
+            <span class="c"># Intersect cons with any existing value constraint on obj</span>
+            <span class="k">for</span> <span class="n">cons2</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">covered_by</span><span class="p">):</span>
+                <span class="n">cons</span><span class="o">.</span><span class="n">domain</span> <span class="o">&amp;=</span> <span class="n">cons2</span><span class="o">.</span><span class="n">domain</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons2</span><span class="p">)</span>
+            
+            <span class="n">cons</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span> <span class="c"># Commit side effects</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_transform_subtype_value_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cons</span><span class="p">,</span> <span class="n">subtype</span><span class="p">):</span>
+        <span class="n">graph_has_subtype_vc</span> <span class="o">=</span> <span class="p">{}</span> 
+
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtype_graph</span><span class="o">.</span><span class="n">root_of</span><span class="p">[</span><span class="n">subtype</span><span class="p">]</span>
+         
+        <span class="k">if</span> <span class="n">graph_has_subtype_vc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">root</span><span class="p">):</span> <span class="c"># Only one subtype VC permitted!</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">EnumeratedDomain</span><span class="p">):</span>
+            <span class="c"># NOTE: Requiring that the root.domain is an EnumeratedDomain is </span>
+            <span class="c"># more restrictive than theoretically necessary.  However, it </span>
+            <span class="c"># would be a bit of a challege to implement the necessary set </span>
+            <span class="c"># intersection and set difference (see else clause) if root.domain</span>
+            <span class="c"># is of infinite size like IntegerDomain.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">graph_has_subtype_vc</span><span class="p">[</span><span class="n">root</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+            <span class="c"># Lazily mark these as modified, even though it&#39;s possible the below </span>
+            <span class="c"># set operations will have no effect.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
+
+            <span class="c"># Limit the subtype value constraint to those elements also in root.</span>
+            <span class="n">cons</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="n">cons</span><span class="o">.</span><span class="n">domain</span> <span class="o">&amp;=</span> <span class="n">root</span><span class="o">.</span><span class="n">domain</span>  
+            <span class="n">cons</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span> 
+
+            <span class="c"># Force the root domain to begin with the subtype domain&#39;s elements.</span>
+            <span class="n">root_only</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">domain</span><span class="p">))</span>
+            <span class="n">root</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">domain</span> <span class="o">+</span> <span class="n">root_only</span>        </div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Nizol.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

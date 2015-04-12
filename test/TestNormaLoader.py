@@ -249,7 +249,7 @@ class TestNormaLoader(TestCase):
         """ Confirm that value constraints on value types are loaded. """
         model = NormaLoader(
             self.data_dir + "test_value_type_value_constraint.orm").model
-        cons1 = model.constraints.get("ValueConstraint1")
+        cons1 = model.constraints.get("VC_A")
         
         self.assertEquals(cons1.uid, "_9F61B75E-FB59-456F-97A9-E4CF104FABE5")
         self.assertIs(cons1.covers[0], model.object_types.get("A"))

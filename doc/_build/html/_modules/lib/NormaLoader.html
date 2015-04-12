@@ -473,14 +473,11 @@
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Cannot load subtype constraint.&quot;</span><span class="p">)</span>
 
-        <span class="n">covers</span> <span class="o">=</span> <span class="p">[</span><span class="n">subtype</span><span class="p">,</span> <span class="n">supertype</span><span class="p">]</span>
-
         <span class="c"># Does this subtype constraint provide a path to the preferred ID?</span>
-        <span class="n">idpath</span> <span class="o">=</span> <span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;PreferredIdentificationPath&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">(</span><span class="n">xml_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;PreferredIdentificationPath&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">)</span>
 
         <span class="c"># Create constraint</span>
-        <span class="n">cons</span> <span class="o">=</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">SubtypeConstraint</span><span class="p">(</span><span class="n">subtype</span><span class="p">,</span> <span class="n">supertype</span><span class="p">,</span> <span class="n">idpath</span><span class="p">,</span>
-                                            <span class="n">covers</span><span class="o">=</span><span class="n">covers</span><span class="p">,</span> <span class="o">**</span><span class="n">attribs</span><span class="p">)</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">SubtypeConstraint</span><span class="p">(</span><span class="n">subtype</span><span class="p">,</span> <span class="n">supertype</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">attribs</span><span class="p">)</span>
 
         <span class="c"># If there are additional constraints on the subtype (e.g. XOR or IOR),</span>
         <span class="c"># their role sequence will consist of the subtype fact&#39;s roles. We will</span>

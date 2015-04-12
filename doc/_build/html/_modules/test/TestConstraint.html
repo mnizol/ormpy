@@ -371,7 +371,38 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">d0</span><span class="p">)</span>      
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">d0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestConstraint.test_commit_and_rollback_subtype"><a class="viewcode-back" href="../../test.html#test.TestConstraint.TestConstraint.test_commit_and_rollback_subtype">[docs]</a>    <span class="k">def</span> <span class="nf">test_commit_and_rollback_subtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test commit and rollback of a subtype constraint. &quot;&quot;&quot;</span>
+        <span class="n">obj1</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;O1&quot;</span><span class="p">)</span>
+        <span class="n">obj2</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;O2&quot;</span><span class="p">)</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="n">Constraint</span><span class="o">.</span><span class="n">SubtypeConstraint</span><span class="p">(</span><span class="n">subtype</span><span class="o">=</span><span class="n">obj1</span><span class="p">,</span> <span class="n">supertype</span><span class="o">=</span><span class="n">obj2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj2</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj2</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj2</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="n">cons</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[</span><span class="n">cons</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">,</span> <span class="p">[</span><span class="n">obj2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj2</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[</span><span class="n">cons</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj2</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="p">,</span> <span class="p">[</span><span class="n">obj1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj2</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="n">cons</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj1</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj2</span><span class="o">.</span><span class="n">covered_by</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj2</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">obj2</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="p">,</span> <span class="p">[])</span>
 </pre></div></div></div>
 
           </div>

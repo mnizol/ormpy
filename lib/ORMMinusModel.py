@@ -18,6 +18,8 @@ from lib.Constraint \
            CardinalityConstraint
 from lib.ObjectType import ObjectType, ObjectifiedType
 from lib.FactType import Role
+from lib.SubtypeGraph import SubtypeGraph
+from lib.Transformation import ValueConstraintTransformation
 
 class ORMMinusModel(object):
     """ An ORM- model along with its solution.  The solution is computed using
@@ -50,8 +52,15 @@ class ORMMinusModel(object):
         # constraint, they are grouped rather than considered separately.
         self._fact_type_parts = {}
 
+        # Generate subtype graph.  IMPORTANT: Any subsequent changes to the
+        # subtypes will NOT be reflected in this graph!
+        self._subtype_graph = SubtypeGraph(model)
+
         # Transform the model
-        self._move_role_value_constraints()
+        trans = ValueConstraintTransformation(model=self._model, 
+                                              subtype_graph=self._subtype_graph)
+        trans.execute()
+        self.ignored += trans.removed
 
         # Initialize _fact_type_parts here; _create_variables will update.
         for fact_type in self.fact_types:
@@ -188,18 +197,18 @@ class ORMMinusModel(object):
                 self._add(Inequality(lhs=obj_var, rhs=Sum(role_vars)))
 
     def _create_value_inequality(self, cons):
-        """ Value constraint inequality. """
+        """ Value constraint inequality.  
 
-        # Per McGill, we cannot support value constraints on roles, only on
-        # types.  See _move_role_value_constraints, which moves
-        # certain value constraints on roles to the type so that they can be
-        # included in the ORMMinusModel solution.
-        
+            IMPORTANT: This code assumes that a ValueConstraintTransformation 
+            has already been executed to remove unsupported value constraints.
+        """        
         if isinstance(cons.covers[0], ObjectType):
             obj_var = self._variables[cons.covers[0]]
             self._add(Inequality(lhs=obj_var, rhs=Constant(cons.size)))
-        else:
-            self._ignore(cons)
+        else: 
+            # If this executes, there is a bug in ValueConstraintTransformation
+            msg = "Model contains unexpected role value constraints"
+            raise RuntimeError(msg)
 
     def _create_mandatory_inequality(self, cons):
         """ Simple mandatory constraint inequality. """
@@ -259,34 +268,3 @@ class ORMMinusModel(object):
 
             if upper != None:
                 self._add(Inequality(lhs=var, rhs=Constant(upper)))
-
-    def _move_role_value_constraints(self):
-        """ Per McGill, ORM- cannot support role value constraints, only value
-            constraints on types.  However, if the value constraint covers a 
-            role for an object type that plays no other roles and either:
-
-            1) The type is not independent (so the role is implicitly mandatory) 
-            2) The role is covered by an explicit mandatory constraint
-
-            Then the value constraint can be treated as a object type value
-            constraint.  If the object type that meets this test is _already_ 
-            covered by a value constraint, then we cover that object type with
-            the intersection of the two constraints.
-        """
-        vc = lambda x: isinstance(x, ValueConstraint)
-        rvc = lambda x: vc(x) and x.covers and isinstance(x.covers[0], Role)
-
-        for cons in filter(rvc, self.constraints):
-            role = cons.covers[0]
-            obj = role.player 
-       
-            if len(obj.roles) == 1 and (role.mandatory or not obj.independent):
-                cons.rollback() # Undo side effects -- e.g. uncover role
-                cons.covers = [obj]
-
-                # Intersect cons with any existing value constraint on obj
-                for cons2 in filter(vc, obj.covered_by):
-                    cons.domain &= cons2.domain
-                    self._model.remove(cons2)                  
-                
-                cons.commit() # Commit side effects

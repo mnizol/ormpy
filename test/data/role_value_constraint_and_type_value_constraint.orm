@@ -21,7 +21,7 @@
 				</orm:PlayedRoles>
 				<orm:ConceptualDataType id="_440D671B-BA3C-4DCA-B9EF-346EFBDD8707" ref="_0427FC8D-FC35-4FCC-9D00-8047BF738ABC" Scale="0" Length="0" />
 				<orm:ValueRestriction>
-					<orm:ValueConstraint id="_CD2E225C-99AB-4979-87C6-4BD66C0DB9A5" Name="VTVC1">
+					<orm:ValueConstraint id="_CD2E225C-99AB-4979-87C6-4BD66C0DB9A5" Name="VC1">
 						<orm:ValueRanges>
 							<orm:ValueRange id="_6B42D57D-109C-48D6-ADD0-C859693ACBE2" MinValue="1" InvariantMinValue="1" MaxValue="1" InvariantMaxValue="1" MinInclusion="NotSet" MaxInclusion="NotSet" />
 							<orm:ValueRange id="_6BFCE517-59AC-45B6-B742-8A59039685FD" MinValue="2" InvariantMinValue="2" MaxValue="2" InvariantMaxValue="2" MinInclusion="NotSet" MaxInclusion="NotSet" />

@@ -200,6 +200,17 @@ class EnumeratedDomain(Domain):
     def _generate(self, n):
         return (element for element in self._domain)
 
+    ########################################
+    # Methods to provide list-like interface
+    def __add__(self, other):
+        """ Return a new EnumeratedDomain composed of other appended to self."""
+        result = EnumeratedDomain()
+        result.add(self._domain)
+        result.add(other._domain)
+        return result
+
+    ########################################
+    # Methods to provide set-like interface
     def intersect(self, other):
         """ Return a new EnumeratedDomain that is the intersection of self and
             other. """
@@ -210,5 +221,16 @@ class EnumeratedDomain(Domain):
 
     def __and__(self, other):
         return self.intersect(other)
+
+    def difference(self, other):
+        """ Return a new EnumeratedDomain that is the set difference of self and
+            other. """
+        result = EnumeratedDomain()
+        items = set(self._domain) - set(other._domain)
+        result.add(list(items))
+        return result
+
+    def __sub__(self, other):
+        return self.difference(other)
 
     

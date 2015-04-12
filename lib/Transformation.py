@@ -13,7 +13,6 @@
 from lib.Model import Model
 from lib.Constraint import ValueConstraint
 from lib.FactType import Role
-from lib.Domain import EnumeratedDomain
 
 class Transformation(object):
     """ A transformation of an ORM Model. """
@@ -90,6 +89,10 @@ class ValueConstraintTransformation(Transformation):
         #: :attr:`self.model`.
         self.subtype_graph = subtype_graph
 
+        # Dictionary to keep track of whether we've already found a value 
+        # constraint for a non-primitive type in the same subtype graph
+        self._graph_has_subtype_vc = {}
+
     def execute(self):
         """ Execute the transformation. """
         for cons in self.model.constraints.of_type(ValueConstraint):
@@ -100,8 +103,7 @@ class ValueConstraintTransformation(Transformation):
                 self._transform_subtype_value_constraint(cons, element)
 
     def _transform_role_value_constraint(self, cons, role):
-        obj = role.player 
-        vc = lambda x: isinstance(x, ValueConstraint)
+        obj = role.player         
 
         if len(obj.roles) == 1 and (role.mandatory or not obj.independent):
             self._modified(cons) # Mark as modified
@@ -111,7 +113,7 @@ class ValueConstraintTransformation(Transformation):
             # Intersect cons with any existing value constraint on object type.
             # Leave the (now extra) value constraints on the model---the domain
             # of the object type will consist of the intersection after commit()
-            for cons2 in filter(vc, obj.covered_by):
+            for cons2 in self._value_constraints(obj):
                 cons.domain &= cons2.domain
             
             cons.commit() # Commit side effects
@@ -119,32 +121,42 @@ class ValueConstraintTransformation(Transformation):
             self._remove(cons)
 
     def _transform_subtype_value_constraint(self, cons, subtype):
-        graph_has_subtype_vc = {} 
-
         root = self.subtype_graph.root_of[subtype]
-         
-        if graph_has_subtype_vc.get(root): # Only one subtype VC permitted!
+        root_value_constraints = self._value_constraints(root)
+ 
+        if self._graph_has_subtype_vc.get(root): # Only one subtype VC permitted
             self._remove(cons)
-        elif not isinstance(root.domain, EnumeratedDomain):
-            # NOTE: Requiring that the root.domain is an EnumeratedDomain is 
-            # more restrictive than theoretically necessary.  However, it 
-            # would be a bit of a challege to implement the necessary set 
+        elif len(root_value_constraints) == 0:
+            # NOTE: Requiring that the root has a value constraint if a subtype 
+            # does is more restrictive than theoretically necessary.  However,  
+            # it would be a bit of a challege to implement the necessary set 
             # intersection and set difference (see else clause below) if 
             # root.domain is of infinite size like IntegerDomain.
             self._remove(cons)
         else:
-            graph_has_subtype_vc[root] = True
+            assert len(root_value_constraints) == 1
+
+            self._graph_has_subtype_vc[root] = True
+            root_cons = root_value_constraints[0]
 
             # Lazily mark these as modified, even though it's possible the below 
             # set operations will have no effect.
             self._modified(cons)
-            self._modified(root.domain)
+            self._modified(root_cons)
 
             # Limit the subtype value constraint to those elements also in root.
             cons.rollback()
-            cons.domain &= root.domain  
+            cons.domain &= root_cons.domain  
             cons.commit() 
 
             # Force the root domain to begin with the subtype domain's elements.
-            root_only = sorted(set(root.domain) - set(cons.domain))
-            root.domain = cons.domain + root_only        
+            root_cons.rollback()
+            root_only = root_cons.domain - cons.domain
+            root_cons.domain = cons.domain + root_only 
+            root_cons.commit()   
+
+    @staticmethod
+    def _value_constraints(object_type):
+        """ Return the value constraints (if any) covering an object type. """
+        vc = lambda x: isinstance(x, ValueConstraint)
+        return filter(vc, object_type.covered_by)

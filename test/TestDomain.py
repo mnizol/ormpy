@@ -211,6 +211,29 @@ class TestDomain(TestCase):
         self.assertItemsEqual(d1.intersect(d2)._domain, [3,4])
         self.assertItemsEqual((d1 & d2)._domain, [3,4])
 
+    def test_enumerated_difference(self):
+        """ Test set difference of two enumerated domains. """
+        d1 = Domain.EnumeratedDomain()
+        d2 = Domain.EnumeratedDomain()
+
+        d1.add([1,2,3,4])
+        d2.add([3,4,5,6])
+
+        self.assertItemsEqual(d1.difference(d2)._domain, [1,2])
+        self.assertItemsEqual((d2 - d1)._domain, [5, 6])
+
+    def test_enumerated_concat(self):
+        """ Test concatenating two enumerated domains. """
+        d1 = Domain.EnumeratedDomain()
+        d2 = Domain.EnumeratedDomain()
+
+        d1.add([1,2,3,4])
+        d2.add([3,4,5,6])
+
+        # Use assertEquals here because I want to test the order
+        self.assertEquals((d1 + d2)._domain, [1,2,3,4,5,6])
+        self.assertEquals((d2 + d1)._domain, [3,4,5,6,1,2])
+
     def test_successful_cast(self):
         """ Test successful cast operation on several types. """
         self.assertEquals(Domain.IntegerDomain.cast("3"), 3)

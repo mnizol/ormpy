@@ -118,6 +118,32 @@ class TestPopulation(TestCase):
         self.assertEquals(pop4.names, ['R1','R2','R3','R4','R5','R6'])
 
         
+    def test_populate_subtypes(self):
+        """ Test that subtypes are properly populated. """
+        fname = TestDataLocator.path("value_constraints_on_subtypes.orm")
+        model = ORMMinusModel(NormaLoader(fname).model, ubound=6)
+        pop = Population(model)
+
+        pop_a = pop.object_types["ObjectTypes.A"]
+        pop_b = pop.object_types["ObjectTypes.B"]
+        pop_c = pop.object_types["ObjectTypes.C"]
+
+        self.assertEquals(pop_a, range(50, 56))
+        self.assertEquals(pop_b, pop_a)
+        self.assertEquals(pop_c, pop_a)
+
+        pop_w = pop.object_types["ObjectTypes.W"]
+        pop_x = pop.object_types["ObjectTypes.X"]
+        pop_y = pop.object_types["ObjectTypes.Y"]
+        pop_z = pop.object_types["ObjectTypes.Z"]
+
+        # Use assertEquals to test order, not just contents!
+        self.assertEquals(pop_w, [20, 21, 22, 1, 2, 3])
+        self.assertEquals(pop_y, [20, 21, 22, 1, 2])
+        self.assertEquals(pop_x, pop_w)
+        self.assertEquals(pop_z, [20, 21, 22])
+
+
     def test_ignored_overlapping_iuc(self):
         """ Test that overlapping IUC is ignored while populating fact type. """
         fname = os.path.join(self.data_dir, "populate_fact_types.orm")
@@ -135,6 +161,9 @@ class TestPopulation(TestCase):
 
         self.assertItemsEqual(pop.object_types["ObjectTypes.A"], [0,1,2,3,4])
 
+#####################################################################
+# Tests writing populations to stdout or CSV files
+#####################################################################
 class TestPopulationWrite(TestCase):
     """ Unit tests for writing the population out to stdout or CSV files. """
 

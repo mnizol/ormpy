@@ -48,13 +48,21 @@ class Population(object):
     def _populate_object_types_and_roles(self):
         """ Populate all object types and roles in the model. """
 
+        graph = self._model.subtype_graph
+
         for obj_type in self._model.object_types:
             name = obj_type.fullname
-            domain = obj_type.domain
-            size = self._model.solution[name]            
+            n = self._model.solution[name] 
 
-            # Populate the object type from its domain 
-            self.object_types[name] = list(domain.draw(size))
+            # Get the domain of this object type's root type (note that the root
+            # of a primitive type is itself).  In ValueConstraintTransformation,
+            # we ensured that by drawing the first n elements from the root 
+            # type's domain, a subtype's population will be a subset of any of
+            # its supertypes' populations.
+            domain = graph.root_of[obj_type].domain                       
+
+            # Populate the object type from its root type's domain 
+            self.object_types[name] = list(domain.draw(n))
 
             # Populate the roles played by this object type
             self._populate_roles(obj_type)

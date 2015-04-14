@@ -52,13 +52,14 @@ class ORMMinusModel(object):
         # constraint, they are grouped rather than considered separately.
         self._fact_type_parts = {}
 
-        # Generate subtype graph.  IMPORTANT: Any subsequent changes to the
-        # subtypes will NOT be reflected in this graph!
-        self._subtype_graph = SubtypeGraph(model)
+        # Generate subtype graph.  
+        # IMPORTANT: Any subsequent changes to the subtypes will NOT be 
+        # reflected in this graph!
+        self.subtype_graph = SubtypeGraph(model) #: Subtype graph of the model
 
         # Transform the model
         trans = ValueConstraintTransformation(model=self._model, 
-                                              subtype_graph=self._subtype_graph)
+                                              subtype_graph=self.subtype_graph)
         trans.execute()
         self.ignored += trans.removed
 

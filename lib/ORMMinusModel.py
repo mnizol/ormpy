@@ -15,7 +15,7 @@ from lib.InequalitySystem \
     import InequalitySystem, Inequality, Variable, Constant, Sum, Product
 from lib.Constraint \
     import FrequencyConstraint, MandatoryConstraint, ValueConstraint, \
-           CardinalityConstraint
+           CardinalityConstraint, SubtypeConstraint
 from lib.ObjectType import ObjectType, ObjectifiedType
 from lib.FactType import Role
 from lib.SubtypeGraph import SubtypeGraph
@@ -179,6 +179,8 @@ class ORMMinusModel(object):
                 self._create_frequency_inequality(cons)
             elif isinstance(cons, CardinalityConstraint):
                 self._create_cardinality_inequality(cons)
+            elif isinstance(cons, SubtypeConstraint):
+                self._create_subtype_inequality(cons)
             else: # Catch-all so that we can report ignored constraints.
                 self._ignore(cons)
 
@@ -268,3 +270,9 @@ class ORMMinusModel(object):
 
             if upper != None:
                 self._add(Inequality(lhs=var, rhs=Constant(upper)))
+
+    def _create_subtype_inequality(self, cons):
+        """ Subtype constraint inequality. """
+        subtype_var = self._variables[cons.covers[0]]
+        supertype_var = self._variables[cons.covers[1]]
+        self._add(Inequality(lhs=subtype_var, rhs=supertype_var))

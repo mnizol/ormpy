@@ -418,3 +418,40 @@ class TestORMMinusModel(TestCase):
 
         # Key test 2: model is unsat due to cardinality constraint
         self.assertIsNone(ormminus.solution)
+
+    def test_subtype_inequalities(self):
+        """ Test that expected subtype inequalities are created. """
+        fname = TestDataLocator.path("value_constraints_on_subtypes.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=30)
+
+        actual = set([ineq.tostring() for ineq in ormminus._ineqsys])
+
+        self.assertIn("ObjectTypes.J <= ObjectTypes.I", actual)
+        self.assertIn("ObjectTypes.L <= ObjectTypes.J", actual)
+        self.assertIn("ObjectTypes.K <= ObjectTypes.I", actual)
+        self.assertIn("ObjectTypes.M <= ObjectTypes.J", actual)
+        self.assertIn("ObjectTypes.M <= ObjectTypes.K", actual)
+
+        self.assertEquals(ormminus.solution["ObjectTypes.I"], 21)
+        self.assertEquals(ormminus.solution["ObjectTypes.J"], 21)
+        self.assertEquals(ormminus.solution["ObjectTypes.K"], 11)
+        self.assertEquals(ormminus.solution["ObjectTypes.M"], 11)
+
+    def test_unsat_subtype_with_value_constraint(self):
+        """ Test a model that is unsatisfiable because the intersection of the
+            value constraints for the root type and subtype is empty. """
+        fname = TestDataLocator.path("unsat_subtype_with_value_constraint.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=30)
+        self.assertIsNone(ormminus.solution)
+
+    def test_unsat_subtype_due_to_card_constraint(self):
+        """ Test a model that is unsatisfiable because the cardinality of the 
+            root type is less than required for one of the subtypes. """
+        fname = TestDataLocator.path("unsat_subtype_due_to_card_constraint.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=30)
+        self.assertIsNone(ormminus.solution)
+
+        

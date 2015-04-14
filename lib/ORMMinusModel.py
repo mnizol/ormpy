@@ -82,7 +82,7 @@ class ORMMinusModel(object):
             logger.warning("%d %s ignored while checking the model.",
                            size, text)
             for cons in self.ignored:
-                logger.info("Ignoring %s named %s.", 
+                logger.info("Ignored %s named %s.", 
                             type(cons).__name__, cons.name)
 
     def get_parts(self, fact_type):

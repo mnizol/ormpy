@@ -318,7 +318,7 @@ class TestNormaLoader(TestCase):
 
         # Check log contents
         expected = ["WARNING: 1 model element was ignored while loading derivation_source.orm."] + \
-                   ["INFO: Ignoring " + expected[0]]
+                   ["INFO: Ignored " + expected[0]]
 
         self.assertItemsEqual(self.log.formatLogRecords(), expected)
 
@@ -342,7 +342,7 @@ class TestNormaLoader(TestCase):
 
         # Check log contents
         expected = ["WARNING: 7 model elements were ignored while loading omitted_constraints.orm."] + \
-                   ["INFO: Ignoring " + msg for msg in expected]
+                   ["INFO: Ignored " + msg for msg in expected]
 
         self.assertItemsEqual(self.log.formatLogRecords(), expected)
 
@@ -693,8 +693,18 @@ class TestNormaLoader(TestCase):
 
     def test_unexpected_constraint_node(self):
         """ Confirm the loader catches an unexpected constraint node. """
+        self.log.beforeTest(None)
+
         loader = NormaLoader(self.data_dir + "unexpected_constraint_node.orm")
         self.assertItemsEqual(loader.unexpected, ["NewConstraint"])
+
+        # Check log contents
+        expected = ["WARNING: 1 XML node was unexpected while loading unexpected_constraint_node.orm."] + \
+                   ["INFO: Unexpected NewConstraint"]
+
+        self.assertItemsEqual(self.log.formatLogRecords(), expected)
+
+        self.log.afterTest(None)
 
     def test_constraint_covers_both_implied_and_explicit_role(self):
         """ Test a constraint that covers both an implied and an explicit  

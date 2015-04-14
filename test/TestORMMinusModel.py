@@ -72,10 +72,10 @@ class TestORMMinusModel(TestCase):
 
         self.assertItemsEqual(self.log.formatLogRecords(),
             ["WARNING: 1 model element was ignored while loading overlapping_iuc.orm.",
-             "INFO: Ignoring Join path for EUC1.",
+             "INFO: Ignored Join path for EUC1.",
              "WARNING: 2 constraints were ignored while checking the model.",
-             "INFO: Ignoring UniquenessConstraint named IUC1.",
-             "INFO: Ignoring UniquenessConstraint named EUC1."])
+             "INFO: Ignored UniquenessConstraint named IUC1.",
+             "INFO: Ignored UniquenessConstraint named EUC1."])
 
         self.log.afterTest(None)
 
@@ -341,7 +341,7 @@ class TestORMMinusModel(TestCase):
 
         self.assertItemsEqual(self.log.formatLogRecords(),
             ["WARNING: 1 constraint was ignored while checking the model.",
-             "INFO: Ignoring CardinalityConstraint named CC5."])
+             "INFO: Ignored CardinalityConstraint named CC5."])
 
         self.log.afterTest(None)
 

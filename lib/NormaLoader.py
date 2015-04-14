@@ -127,8 +127,8 @@ class NormaLoader(object):
         self._fix_nested_fact_type_refs() 
 
         # Report any issues to the user
-        self._log_issues_with(filename)      
-        
+        self._log_issues(filename, self.omissions, "model element", "ignored")      
+        self._log_issues(filename, self.unexpected, "XML node", "unexpected")
 
     ###########################################################################
     # Private Utility Functions
@@ -171,16 +171,20 @@ class NormaLoader(object):
         else:
             return model_node
 
-    def _log_issues_with(self, filename):
-        """ Log any model element omissions. """
+    def _log_issues(self, filename, issue_list, subject, issue_type):
+        """ Log issues reported in an issues list. """
         logger = logging.getLogger(__name__)
-        size = len(self.omissions)
+        size = len(issue_list)
+
         if size > 0:
-            text = "elements were" if size > 1 else "element was"
-            logger.warning("%d model %s ignored while loading %s.", 
-                           size, text, os.path.basename(filename))
-            for omission in self.omissions:
-                logger.info("Ignoring %s", omission)
+            subject = ("{0}s were" if size > 1 else "{0} was").format(subject)
+            filename = os.path.basename(filename)
+            template = "%d %s %s while loading %s."
+
+            logger.warning(template, size, subject, issue_type, filename)
+
+            for issue in issue_list:
+                logger.info("%s %s", issue_type.capitalize(), issue)
 
     def _call_loader(self, loader, node, *args):
         """ Call the loader method listed in the loader map for a given node."""

@@ -70,9 +70,16 @@ class TestModel(TestCase):
         self.assertEquals(model.fact_types.count(), 1)
         self.assertEquals(model.fact_types.get("F1"), fact)
 
+        with self.assertRaises(NotImplementedError):
+            model.remove(fact)
+
+        # I decided for now to just raise a NotImplementedError for rollback,
+        # since I'm not sure what the right behavior should be.
+        """
         model.remove(fact)
         self.assertEquals(model.fact_types.count(), 0)
         self.assertEquals(model.fact_types.get("F1"), None)
+        """
 
     def test_add_remove_generic_constraint(self):
         """ Test adding and removing a generic constraint from the model. """

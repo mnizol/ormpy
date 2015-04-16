@@ -54,5 +54,10 @@ class TestFactType(TestCase):
 
         self.assertItemsEqual(obj1.roles, [role1, role3, role4])
         self.assertItemsEqual(obj2.roles, [role2])
+
+    def test_role_rollback(self):
+        """ Confirm rollback of a role raises NotImplementedError. """
+        with self.assertRaises(NotImplementedError):
+            Role().rollback()
         
 

@@ -32,17 +32,16 @@ class FactType(ModelElement):
 
     def commit(self):
         """ Commit any side effects of adding this fact type to a model."""
-        # TODO: Implement later
-        # This is just a skeletal implementation
         for role in self.roles:
             role.commit()
 
     def rollback(self):
         """ Rollback any side effects of adding this fact type to a model."""
-        # TODO: Implement later
-        # This is just a skeletal implementation
-        for role in self.roles:
-            role.rollback()
+        # I haven't decided what rollback() should do here.  Obviously, at least
+        # it should call rollback() for each of its role.  But, if we rollback
+        # a fact type, should we also rollback (or delete) associated
+        # constraints, join paths, etc?  What if this is objectified, etc?
+        raise NotImplementedError()
 
     def add_role(self, player, name=None, uid=None):
         """ Add a role played by *player* to the fact type.  If *name* is None, 
@@ -96,7 +95,11 @@ class Role(ModelElement):
 
     def rollback(self):
         """ Rollback any side effects of adding this role to a model."""
-        pass # TODO: Implement later
+        # I haven't decided what to do here.  At minimum, I need to remove
+        # the role from self.player.roles.  However, should I also rollback
+        # constraints in self.covered_by?  Should I rollback the containing
+        # fact type?  What about join paths through this role?  Etc.
+        raise NotImplementedError()
 
 class RoleSequence(list):
     """ A sequence of roles. """

@@ -14,8 +14,22 @@ import lib.Domain as Domain
 from lib.SubtypeGraph import SubtypeGraph
 from lib.NormaLoader import NormaLoader
 
-from lib.Transformation import ValueConstraintTransformation
+from lib.Transformation import Transformation, ValueConstraintTransformation
 
+##############################################################################
+# Tests for generic Transformation class
+##############################################################################
+class TestTransformation(TestCase):
+    """ Tests for generic Transformation class. """
+
+    def setUp(self):
+        pass
+
+    def test_execute_not_implemented(self):
+        """ Confirm execution of execute() raises NotImplementedError. """
+        with self.assertRaises(NotImplementedError):
+            Transformation().execute()
+    
 ##############################################################################
 # ValueConstraintTransformation tests for role value constraints
 ##############################################################################

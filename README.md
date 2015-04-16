@@ -30,3 +30,7 @@ You can run all tests in the test suite via the [run_tests](./run_tests) script.
 This script requires [nosetests](https://nose.readthedocs.org/en/latest/) and [coverage.py](http://nedbatchelder.com/code/coverage/).
 Executing `run_tests --cover` provides test coverage information via coverage.py.
 
+## Acknowledgment
+This software is based upon work supported by the National Science Foundation Graduate Research Fellowship 
+under Grant No. DGE-1424871.
+

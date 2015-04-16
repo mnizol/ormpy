@@ -7,20 +7,21 @@
 """ This module provides a class for ORM fact types.
 """
 
+import re
 from lib.ModelElement import ModelElementSet, ModelElement
 
 class FactTypeSet(ModelElementSet):
     """ Container for a set of fact types. """
 
-    def __init__(self):
-        super(FactTypeSet, self).__init__(name="Fact Types")
+    def __init__(self, name="Fact Types", *args, **kwargs):
+        super(FactTypeSet, self).__init__(name=name, *args, **kwargs)
 
 
 class FactType(ModelElement):
     """ An ORM Fact Type. """
 
-    def __init__(self, uid=None, name=None):
-        super(FactType, self).__init__(uid=uid, name=name)
+    def __init__(self, *args, **kwargs):
+        super(FactType, self).__init__(*args, **kwargs)
 
         self.roles = [] #: List of roles in the fact type
 
@@ -43,9 +44,23 @@ class FactType(ModelElement):
         for role in self.roles:
             role.rollback()
 
-    def add(self, role):
-        """ Add *role* to the fact type. """
+    def add_role(self, player, name=None, uid=None):
+        """ Add a role played by *player* to the fact type.  If *name* is None, 
+            this method generates a name for the role based upon player's name. 
+        """
+
+        # Generate name for role if necessary
+        if name is None or name == "":
+            names = [role.name for role in self.roles] # Existing pool of names
+            suffix, i = '', 1
+            while player.name + suffix in names:
+                i += 1
+                suffix = str(i)
+            name = player.name + suffix
+
+        role = Role(fact_type=self, player=player, name=name, uid=uid)
         self.roles.append(role)
+        return role
 
     def arity(self):
         """ Returns the arity of the fact type. """
@@ -54,15 +69,16 @@ class FactType(ModelElement):
 class Role(ModelElement):
     """ A role in a fact type. """
 
-    def __init__(self, uid=None, name=None):
-        super(Role, self).__init__(uid=uid, name=name)
+    def __init__(self, fact_type=None, player=None, *args, **kwargs):
+        super(Role, self).__init__(*args, **kwargs)
 
-        self.fact_type = None #: Fact type to which role belongs
-        self.player = None #: Object type that plays the role
-        self.covered_by = [] #: Constraints that cover this role
+        self.fact_type = fact_type #: Fact type to which the role belongs.  
+        self.player = player  #: Object type that plays the role
+        self.covered_by = []  #: Constraints that cover this role
+                              #: Populated when a constraint is committed.
 
         #: True if the role is covered by an explicit mandatory constraint
-        self.mandatory = False 
+        self.mandatory = False # Populated when a mandatory cons is committed.
 
     @property
     def fullname(self):
@@ -76,7 +92,7 @@ class Role(ModelElement):
 
     def commit(self):
         """ Commit any side effects of adding this role to a model."""
-        pass # TODO: Implement later
+        self.player.roles.append(self) # Add to roles played by object type
 
     def rollback(self):
         """ Rollback any side effects of adding this role to a model."""
@@ -85,8 +101,8 @@ class Role(ModelElement):
 class RoleSequence(list):
     """ A sequence of roles. """
 
-    def __init__(self):
-        super(RoleSequence, self).__init__()
+    def __init__(self, join_path=None, *args, **kwargs):
+        super(RoleSequence, self).__init__(*args, **kwargs)
 
-        self.join_path = None #: Join path for the role sequence
+        self.join_path = join_path #: Join path for the role sequence
 

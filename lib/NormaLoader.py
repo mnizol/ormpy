@@ -136,21 +136,13 @@ class NormaLoader(object):
     def _add(self, model_element):
         """ Add model element to the model. """
         self._elements[model_element.uid] = model_element 
-
-        # Add to model, unless it is a role (which is added as part of its
-        # containing fact type).
-        if not isinstance(model_element, FactType.Role):       
-            self.model.add(model_element)
+        self.model.add(model_element)
 
     @staticmethod
     def _construct(xml_node, model_element_type, **kwargs):
         """ Construct a new model element from the XML node. """
         uid = xml_node.get("id")
-        name = xml_node.get("Name")
-
-        if name is None: # Some nodes use "_Name" instead
-            name = xml_node.get("_Name")
-
+        name = xml_node.get("Name") or xml_node.get("_Name")
         return model_element_type(uid=uid, name=name, **kwargs)
 
     def _parse_norma_file(self, filename):
@@ -301,9 +293,6 @@ class NormaLoader(object):
         ref = xml_node.get("ref")  # GUID for data type
         domain = self._elements.get(ref)
         if domain: 
-            # TODO: Temporary hack, accessing private member.  Eventually plan 
-            # to have these functions set values in an attribs dictionary, and
-            # then construct ObjectType at the end of _load_object_type
             object_type._data_type = domain()                
             object_type.domain = object_type.data_type 
 
@@ -354,59 +343,36 @@ class NormaLoader(object):
     def _load_role(self, xml_node, fact_type):
         """ Load a role in a fact type. """
         loader = {
-            'RolePlayer'            : self._load_role_player,            
+            'RolePlayer'            : noop, # We call _load_role_player directly           
             'DerivationSource'      : self._load_role_derivation,            
             'ValueRestriction'      : self._move_node_to_constraints, 
             'CardinalityRestriction': self._move_node_to_constraints,
             'RoleInstances'         : noop,
             'Extensions'            : noop
         }
-        # Note: NOT using self._construct because we may generate name
-        uid = xml_node.get("id")
-        name = xml_node.get("Name")
+        attribs, name = get_basic_attribs(xml_node)
+        uid = attribs['uid']
+        player = self._load_role_player(xml_node)
 
-        # Unnamed role.  Find a unique name within the fact type.
-        if name is None or name == "":
-            name = self._next_role_name(fact_type)
-
-        role = FactType.Role(uid=uid, name=name)
-        role.fact_type = fact_type
-
-        for node in xml_node:
-            self._call_loader(loader, node, role)
-
-        # Only add role if the role player exists (e.g. we do not want a role
+        # Add the role if the role player exists (i.e. we do not want a role
         # played by an implicit object type).  For example, NORMA binarizes 
         # unary roles; this check reverts the fact type to unary.
-        if role.player is not None:
-            self._add(role)
-            role.player.roles.append(role) # Add to roles played by object type 
-            fact_type.add(role) # Need to explicitly add role to fact_type
+        if player is not None:                         
+            role = fact_type.add_role(player, name, uid)
+            self._elements[role.uid] = role
 
-    def _next_role_name(self, fact_type):
-        """ Get next available unique name for a role in a fact type. """
-        names = set([role.name for role in fact_type.roles])
-        i = fact_type.arity() + 1
-        while "R" + str(i) in names:
-            i = i + 1
-        return "R" + str(i)
+            for node in xml_node: # Process any remaining child nodes
+                self._call_loader(loader, node, role)        
 
-    def _load_role_player(self, xml_node, role):
-        """ Add the role player to the role. """
-        uid = xml_node.get("ref")
-
-        try:
-            object_type = self._elements[uid]
-        except KeyError:
-            object_type = None  # Object type must have been implicit.
-
-        role.player = object_type
+    def _load_role_player(self, xml_node):
+        """ Return the player of the role. """
+        uid = find(xml_node, 'RolePlayer').get("ref")
+        return self._elements.get(uid)
 
     def _load_role_derivation(self, xml_node, role):
         """ Load a role derivation rule. """
         name = role.fact_type.name
         self.omissions.append("Role derivation rule within " + name)
-
 
     def _load_subtype_fact(self, xml_node):
         """ Load a subtype fact, which indicates a subtype constraint.  Note,

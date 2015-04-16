@@ -180,11 +180,9 @@ class TestConstraint(TestCase):
         obj1 = ObjectType(name="O1")
         obj2 = ObjectType(name="O2")
 
-        role1 = Role(name="R1")
-        role2 = Role(name="R2")
         fact = FactType(name="F1")
-        fact.add(role1)
-        fact.add(role2)
+        role1 = fact.add_role(player=obj1, name="R1")
+        role2 = fact.add_role(player=obj2, name="R2")
 
         cons1 = Constraint.MandatoryConstraint(name="M1",covers=[role1])
         cons2 = Constraint.UniquenessConstraint(name="U1",covers=[role1,role2])
@@ -346,6 +344,12 @@ class TestConstraint(TestCase):
         self.assertEquals(obj2.direct_subtypes, [obj1])
         self.assertEquals(obj2.direct_supertypes, [])
 
+        with self.assertRaises(NotImplementedError):
+            cons.rollback()
+
+        # The commented out code below was used before I decided to raise
+        # NotImplementedError for rollback.  See the comments in rollback().
+        """
         cons.rollback()
 
         self.assertEquals(obj1.covered_by, [])
@@ -354,4 +358,5 @@ class TestConstraint(TestCase):
         self.assertEquals(obj2.covered_by, [])
         self.assertEquals(obj2.direct_subtypes, [])
         self.assertEquals(obj2.direct_supertypes, [])
+        """
 

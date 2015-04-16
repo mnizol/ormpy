@@ -64,11 +64,14 @@ class ObjectType(ModelElement):
 
     def commit(self):
         """ Commit any side effects of adding this object type to a model."""
-        pass # TODO: Implement later
+        pass # No side effects generated when creating an ObjectType
 
     def rollback(self):
         """ Rollback any side effects of adding this object type to a model."""
-        pass # TODO: Implement later
+        # I don't see a need yet to rollback an ObjectType.  Moreover, it's not
+        # clear to me what the right behavior would be: should I also rollback
+        # all roles/fact types/constraints/subtypes associated with this type?
+        raise NotImplementedError()
 
 class EntityType(ObjectType):
     """ An entity type is an object type that requires identification. """

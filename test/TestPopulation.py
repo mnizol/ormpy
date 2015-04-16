@@ -56,28 +56,28 @@ class TestPopulation(TestCase):
         pop = Population(model)
 
         # Test role played by an object type that plays no other roles.
-        pop1 = pop._roles["FactTypes.VT1HasVT2.Roles.R1"]
+        pop1 = pop._roles["FactTypes.VT1HasVT2.Roles.VT1"]
         self.assertItemsEqual(pop1, [[1],[2],[3],[4],[5]])
 
         # Test population of two roles played by same object type such that
         # the role populations are complete and disjoint.
-        pop2a = pop._roles["FactTypes.VT1HasVT2.Roles.R2"]
-        pop2b = pop._roles["FactTypes.VT2HasVT7.Roles.R1"]
+        pop2a = pop._roles["FactTypes.VT1HasVT2.Roles.VT2"]
+        pop2b = pop._roles["FactTypes.VT2HasVT7.Roles.VT2"]
         self.assertItemsEqual(pop2a, [[1],[2],[3],[4],[5]])
         self.assertItemsEqual(pop2b, [[6],[7]])
 
         # Test population of object type that plays enough roles that its
         # objects appear in more than one role population.
-        pop3a = pop._roles["FactTypes.VT3HasVT4.Roles.R2"]
-        pop3b = pop._roles["FactTypes.VT4HasVT5.Roles.R1"]
-        pop3c = pop._roles["FactTypes.VT4HasVT6.Roles.R1"]
+        pop3a = pop._roles["FactTypes.VT3HasVT4.Roles.VT4"]
+        pop3b = pop._roles["FactTypes.VT4HasVT5.Roles.VT4"]
+        pop3c = pop._roles["FactTypes.VT4HasVT6.Roles.VT4"]
         self.assertItemsEqual(pop3a, [[1],[2]])
         self.assertItemsEqual(pop3b, [[3],[4],[5],[1],[2]])
         self.assertItemsEqual(pop3c, [[3],[4],[5]])
 
         # Test population of independent object type whose population is not
         # fully exhausted.
-        pop4 = pop._roles["FactTypes.VT4HasVT5.Roles.R2"]
+        pop4 = pop._roles["FactTypes.VT4HasVT5.Roles.VT5"]
         self.assertItemsEqual(pop4, [[1],[2],[3],[4],[5]])
 
     def test_fact_type_parts(self):
@@ -104,7 +104,7 @@ class TestPopulation(TestCase):
                                      ['B1','C3','C3'], ['B2','C4','C4'],
                                      ['B3','C1','C1'], ['B4','C2','C2']])
 
-        pop3 = pop._roles["FactTypes.AHasBBCCD.Roles.R6"]
+        pop3 = pop._roles["FactTypes.AHasBBCCD.Roles.D"]
         self.assertItemsEqual(pop3, [[False],[True]])
 
         # Population of whole predicate
@@ -115,7 +115,7 @@ class TestPopulation(TestCase):
                                      [1, 'B1', 'B2', 'C4', 'C4', True],
                                      [2, 'B2', 'B3', 'C1', 'C1', False],
                                      [3, 'B3', 'B4', 'C2', 'C2', True]])
-        self.assertEquals(pop4.names, ['R1','R2','R3','R4','R5','R6'])
+        self.assertEquals(pop4.names, ['A','B','B2','C','C2','D'])
 
         
     def test_populate_subtypes(self):
@@ -199,7 +199,7 @@ class TestPopulationWrite(TestCase):
                    '3',
 
                    'Population of FactTypes.AHasBBCCD:\n' + \
-                   'R1,R2,R3,R4,R5,R6\n' + \
+                   'A,B,B2,C,C2,D\n' + \
                    '1,B1,B4,C1,C1,False\n' + \
                    '2,B2,B5,C2,C2,True\n' + \
                    '3,B3,B1,C3,C3,False\n' + \
@@ -208,7 +208,7 @@ class TestPopulationWrite(TestCase):
                    '3,B3,B4,C2,C2,True',
 
                    'Population of FactTypes.EHasFG:\n' + \
-                   'R1,R3,R2\n' + \
+                   'E,G,F\n' + \
                    '1,3,2']
 
 

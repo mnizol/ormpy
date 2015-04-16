@@ -49,15 +49,22 @@ class TestModel(TestCase):
         self.assertEquals(model.object_types.count(), 1)
         self.assertEquals(model.object_types.get("O1"), obj1)
 
+        with self.assertRaises(NotImplementedError):
+            model.remove(obj1)
+
+        # I decided for now to just raise a NotImplementedError for rollback,
+        # since I'm not sure what the right behavior should be.
+        """
         model.remove(obj1)
         self.assertEquals(model.object_types.count(), 0)
         self.assertEquals(model.object_types.get("O1"), None)
+        """
 
     def test_add_remove_fact_type(self):
         """ Test adding and removing a fact type from the model. """
         model = Model()
         fact = FactType(name="F1")
-        fact.add(Role(name="R1"))
+        fact.add_role(player=ObjectType(name="O1"))
         model.add(fact)
 
         self.assertEquals(model.fact_types.count(), 1)

@@ -577,17 +577,17 @@ class TestNormaLoader(TestCase):
         model = NormaLoader(self.data_dir + "role_names.orm").model
 
         ahasb = model.fact_types.get("AHasB")
-        self.assertEquals(ahasb.roles[0].name, "R1")
-        self.assertEquals(ahasb.roles[1].name, "R2")
+        self.assertEquals(ahasb.roles[0].name, "A")
+        self.assertEquals(ahasb.roles[1].name, "B")
 
         alikesb = model.fact_types.get("ALikesB")
-        self.assertEquals(alikesb.roles[0].name, "R1")
+        self.assertEquals(alikesb.roles[0].name, "A")
         self.assertEquals(alikesb.roles[1].name, "Likee")
 
         tern = model.fact_types.get("AAndALikeB")
         self.assertEquals(tern.roles[0].name, "R2")
-        self.assertEquals(tern.roles[1].name, "R3")
-        self.assertEquals(tern.roles[2].name, "R4")
+        self.assertEquals(tern.roles[1].name, "A")
+        self.assertEquals(tern.roles[2].name, "B")
         
     def test_invalid_value_constraint(self):
         """ Test that invalid value constraint is ignored. """

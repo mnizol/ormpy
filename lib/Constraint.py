@@ -180,9 +180,18 @@ class SubtypeConstraint(Constraint):
 
     def rollback(self):
         """ Rollback side effects of this constraint in the model. """
-        self.supertype.direct_subtypes.remove(self.subtype)
-        self.subtype.direct_supertypes.remove(self.supertype)
-        Constraint.rollback(self)
+
+        # The code commented out below the raise statement undoes what's done
+        # in commit().  However, I am concerned that if you rollback a subtype
+        # constraint, any SubtypeGraph that exists is now invalid, as are any
+        # IOR/XOR constraints that cover the subtype.  THUS, since I can't 
+        # think of why you'd need to rollback a subtype, I'm just going to 
+        # raise an exception for now.
+        raise NotImplementedError()
+
+        #self.supertype.direct_subtypes.remove(self.subtype)
+        #self.subtype.direct_supertypes.remove(self.supertype)
+        #Constraint.rollback(self)
 
 class MandatoryConstraint(Constraint):
     """ A mandatory constraint. """

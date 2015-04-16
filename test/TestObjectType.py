@@ -36,3 +36,8 @@ class TestObjectType(TestCase):
         actual = ObjectType(name='Test1').domain.draw(2)
         expect = ['Test1_0', 'Test1_1']
         self.assertItemsEqual(actual, expect)
+
+    def test_rollback(self):
+        """ Test rollback of an ObjectType. """
+        with self.assertRaises(NotImplementedError):
+            ObjectType().rollback()

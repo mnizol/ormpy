@@ -31,7 +31,7 @@ def execute(arglist=None):
     configure_logger(args)
 
     # Import model from .ORM file
-    model = import_model(args.filename)
+    model = import_model(args.filename, args)
 
     # Print the model, if requested
     if args.print_model:
@@ -73,6 +73,8 @@ def parse_args(arglist=None):
         dest='ubound', default=10, help='upper bound on model element sizes')
     parser.add_argument('-o', '--output-dir', help='output directory',
         dest='directory', default='')
+    parser.add_argument('--include-deontic', help='include deontic constraints',
+        dest='deontic', action='store_true', default=False)
 
     # Filename to parse
     parser.add_argument('filename', type=str, help='File containing ORM model')
@@ -95,10 +97,10 @@ def configure_logger(args):
     logging.getLogger().setLevel(level)
     
 
-def import_model(path):
+def import_model(path, args):
     """ Import the request ORM model and return it. """
     try:
-        loader = NormaLoader(path)
+        loader = NormaLoader(path, deontic=args.deontic)
         return loader.model
     except Exception as exception:
         logging.error("Could not load %s: %s", 

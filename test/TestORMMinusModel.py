@@ -110,7 +110,7 @@ class TestORMMinusModel(TestCase):
         # constraints rather than omitting them.
 
         fname = os.path.join(self.data_dir, "subset_constraint.orm")
-        model = NormaLoader(fname).model
+        model = NormaLoader(fname, deontic=True).model
         ormminus = ORMMinusModel(model=model)
         solution = ormminus.solution
 
@@ -299,7 +299,7 @@ class TestORMMinusModel(TestCase):
         """ Test that correct cardinality constraint inequalities are generated. """
         self.log.beforeTest(None)
         fname = os.path.join(self.data_dir, "test_cardinality_constraint.orm")
-        model = NormaLoader(fname).model
+        model = NormaLoader(fname, deontic=True).model
         ormminus = ORMMinusModel(model)
 
         actual = set([ineq.tostring() for ineq in ormminus._ineqsys])

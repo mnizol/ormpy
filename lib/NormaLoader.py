@@ -103,7 +103,7 @@ class NormaLoader(object):
     ###########################################################################
     # Constructor: Only public method!
     ###########################################################################
-    def __init__(self, filename):
+    def __init__(self, filename, deontic=False):
         """ Initialize object and load *filename*. """
 
         #: The ORM model (:class:`lib.Model.Model`) loaded from the .orm file.
@@ -121,7 +121,7 @@ class NormaLoader(object):
         self._load_data_types()
         self._load_object_types()
         self._load_fact_types() # Also loads subtypes
-        self._load_constraints()
+        self._load_constraints(deontic)
 
         # Post-processing
         self._fix_nested_fact_type_refs() 
@@ -189,6 +189,19 @@ class NormaLoader(object):
 
     def _move_node_to_constraints(self, node, parent):
         """ Make an xml node a subelement of the Constraints sequence node. """
+
+        tag = local_tag(node)
+
+        # Special handling for ValueRestriction and CardinalityRestriction:
+        # we move the node 1 level down instead (e.g. ValueConstraint)
+        special = {'ValueRestriction'       : 'value constraint', 
+                   'CardinalityRestriction' : 'cardinality constraint'}
+        
+        if tag in special.keys():
+            if len(node) != 1: 
+                raise ValueError("Unexpected {0} format".format(special[tag]))
+            node = node[0] # Move 1 level down
+                            
         root = self._model_root
         constraints_node = find(root, "Constraints") 
 
@@ -412,7 +425,7 @@ class NormaLoader(object):
     ##########################################################################
     # Private Functions to Load Constraints
     ##########################################################################
-    def _load_constraints(self):
+    def _load_constraints(self, deontic=False):
         """ Load the collection of contraints. """
         loader = {
             'EqualityConstraint'        : self._load_equality_constraint,
@@ -423,11 +436,17 @@ class NormaLoader(object):
             'UniquenessConstraint'      : self._load_uniqueness_constraint,
             'RingConstraint'            : self._load_ring_constraint,
             'ValueComparisonConstraint' : self._load_value_comp_constraint,
-            'ValueRestriction'          : self._load_value_constraint,
-            'CardinalityRestriction'    : self._load_cardinality_constraint
+            'ValueConstraint'           : self._load_value_constraint, 
+            'RoleValueConstraint'       : self._load_value_constraint,
+            'CardinalityConstraint'         : self._load_cardinality_constraint,
+            'UnaryRoleCardinalityConstraint': self._load_cardinality_constraint
         }
         for node in node_collection(self._model_root, "Constraints"):
+            if deontic == False and node.get("Modality") == "Deontic":
+                continue
+
             cons = self._call_loader(loader, node)
+
             if cons != None and cons.covers != None:
                 self._add(cons)
 
@@ -529,16 +548,10 @@ class NormaLoader(object):
         self.omissions.append("Value comparison constraint " + name)
         return None
 
-    def _load_value_constraint(self, parent_node):
+    def _load_value_constraint(self, node):
         """ Load value constraint. """
-        node = parent_node[0] # parent_node is <ValueRestriction>    
-
-        types = ['ValueConstraint', 'RoleValueConstraint']
-        if len(parent_node) != 1 or local_tag(node) not in types:
-            raise ValueError("Unexpected value constraint format")
-
         attribs, name = get_basic_attribs(node)
-        attribs['covers'] = covers = self._get_covered_element(parent_node)
+        attribs['covers'] = covers = self._get_covered_element(node)
 
         data_type = covers[0].data_type if covers else None
 
@@ -560,16 +573,10 @@ class NormaLoader(object):
 
         return Constraint.ValueConstraint(domain, **attribs)
 
-    def _load_cardinality_constraint(self, parent_node):
+    def _load_cardinality_constraint(self, node):
         """ Load cardinality constraint. """
-        node = parent_node[0]
-
-        types = ["CardinalityConstraint", "UnaryRoleCardinalityConstraint"]
-        if len(parent_node) != 1 or local_tag(node) not in types: 
-            raise ValueError("Unexpected cardinality constraint format")
-        
         attribs, name = get_basic_attribs(node)
-        attribs['covers'] = self._get_covered_element(parent_node)
+        attribs['covers'] = self._get_covered_element(node)
         attribs['ranges'] = self._load_cardinality_ranges(node)
 
         return Constraint.CardinalityConstraint(**attribs)

@@ -350,7 +350,8 @@ class TestNormaLoader(TestCase):
 
     def test_subset_constraint(self):
         """ Confirm subset constraints load correctly. """
-        loader = NormaLoader(self.data_dir + "subset_constraint.orm")
+        fname = TestDataLocator.path("subset_constraint.orm")
+        loader = NormaLoader(fname, deontic=True)
         model = loader.model
 
         cons1 = model.constraints.get("SubsetConstraint1")
@@ -426,7 +427,8 @@ class TestNormaLoader(TestCase):
 
     def test_uniqueness_constraint(self):
         """ Confirm uniqueness constraints load properly. """
-        model = NormaLoader(self.data_dir + "uniqueness_constraints.orm").model
+        fname = TestDataLocator.path("uniqueness_constraints.orm")
+        model = NormaLoader(fname, deontic=True).model
 
         int_cons1 = model.constraints.get("InternalUniquenessConstraint4")
         int_cons2 = model.constraints.get("InternalUniquenessConstraint1")
@@ -604,7 +606,8 @@ class TestNormaLoader(TestCase):
 
     def test_cardinality_constraints(self):
         """ Test loading of cardinality constraints. """
-        loader = NormaLoader(self.data_dir + "test_cardinality_constraint.orm")
+        fname = TestDataLocator.path("test_cardinality_constraint.orm")
+        loader = NormaLoader(fname, deontic=True)
         model = loader.model
 
         cons1 = model.constraints.get("CC1")
@@ -661,10 +664,8 @@ class TestNormaLoader(TestCase):
     def test_bad_cardinality_constraint_2(self):
         """ Test loading of file with badly named cardinality constraint node. """
 
-        with self.assertRaises(ValueError) as ex:
-            loader = NormaLoader(self.data_dir + "bad_cardinality_constraint_2.orm")
-        self.assertEquals(ex.exception.message, 
-            "Unexpected cardinality constraint format")
+        loader = NormaLoader(self.data_dir + "bad_cardinality_constraint_2.orm")
+        self.assertItemsEqual(loader.unexpected, ["BadCardinalityConstraint"])
 
     def test_bad_cardinality_constraint_3(self):
         """ Test loading of file with badly named ranges node. """
@@ -677,10 +678,8 @@ class TestNormaLoader(TestCase):
     def test_bad_value_constraint(self):
         """ Test loading of file with badly named value constraint node. """
         
-        with self.assertRaises(ValueError) as ex:
-            loader = NormaLoader(self.data_dir + "bad_value_constraint.orm")
-        self.assertEquals(ex.exception.message,
-            "Unexpected value constraint format")
+        loader = NormaLoader(self.data_dir + "bad_value_constraint.orm")
+        self.assertItemsEqual(loader.unexpected, ["BadValueConstraint"])
 
     def test_card_and_value_constraint_on_implicit_type(self):
         """ Confirm that cardinality and value constraints on implicit types
@@ -720,4 +719,33 @@ class TestNormaLoader(TestCase):
 
         self.assertIsNone(model.constraints.get("FC1"))
         self.assertEquals(model.constraints.count(), 1)
-        self.assertItemsEqual(loader.omissions, expected)   
+        self.assertItemsEqual(loader.omissions, expected) 
+
+    def test_deontic_constraints(self):
+        """ Test that deontic constraints are correctly ignored. """
+        fname = TestDataLocator.path("deontic_constraints.orm")
+        loader = NormaLoader(fname, deontic=False)
+        model = loader.model
+
+        self.assertEquals(model.constraints.count(), 2)
+        self.assertIsNotNone(model.constraints.get("IUC1"))
+        self.assertIsNotNone(model.constraints.get("IUC_unary"))
+        self.assertEquals(loader.omissions, [])
+
+        loader = NormaLoader(fname, deontic=True)
+        model = loader.model
+
+        self.assertEquals(model.constraints.count(), 3)
+        self.assertIsNotNone(model.constraints.get("IUC2d"))
+        self.assertItemsEqual(loader.omissions, ["Exclusion constraint EXC1"])
+
+    def test_deontic_cardinality(self):
+        """ Test that deontic modality is recognized for cardinality constraints."""
+        fname = TestDataLocator.path("deontic_cardinality.orm")
+        loader = NormaLoader(fname, deontic=False)
+        model = loader.model
+
+        # Only the unary IUC should not be ignored
+        self.assertEquals(model.constraints.count(), 1)
+        self.assertIsNotNone(model.constraints.get("IUC_unary"))
+        

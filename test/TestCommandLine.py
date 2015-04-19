@@ -40,6 +40,7 @@ class TestCommandLine(TestCase):
         self.assertTrue(args.check_model)
         self.assertFalse(args.populate)
         self.assertEquals(args.ubound, 200)
+        self.assertFalse(args.deontic)
         self.assertEquals(args.filename, "test.orm")
 
         args = CommandLine.parse_args(["-dp", "-o /home", "test.orm"])
@@ -51,6 +52,9 @@ class TestCommandLine(TestCase):
         self.assertTrue(args.populate)
         self.assertEquals(args.ubound, 10)
         self.assertEquals(args.directory, " /home")
+
+        args = CommandLine.parse_args(["--include-deontic", "test.orm"])
+        self.assertTrue(args.deontic)
 
     def test_log_config(self):
         """ Test configuration of the logger. """
@@ -75,7 +79,8 @@ class TestCommandLine(TestCase):
     def test_import_model(self):
         """ Test successful import of a small model. """
         path = os.path.join(self.data_dir, "no_fact_types.orm")
-        model = CommandLine.import_model(path)
+        args = CommandLine.parse_args(["-cu 10", path])
+        model = CommandLine.import_model(path, args)
 
         self.assertEquals(model.object_types.count(), 1)
         self.assertIsNotNone(model.object_types.get("A"))
@@ -88,9 +93,10 @@ class TestCommandLine(TestCase):
         logging.getLogger().setLevel(logging.WARNING) # Don't want stack trace
 
         path = os.path.join(self.data_dir, "does_not_exist.orm")
-        
+        args = CommandLine.parse_args(["-cu 10", path])
+
         with self.assertRaises(SystemExit) as ex:
-            model = CommandLine.import_model(path)
+            model = CommandLine.import_model(path, args)
 
         self.assertItemsEqual(self.log.formatLogRecords(), 
             ["ERROR: Could not load does_not_exist.orm: [Errno 2] No such file or directory: '" + path + "'"])
@@ -100,7 +106,7 @@ class TestCommandLine(TestCase):
         """ Test checking unsatisfiable model."""
         path = os.path.join(self.data_dir, "unsat_smarag_1.orm")
         args = CommandLine.parse_args(["-cu 10", path])
-        model = CommandLine.import_model(path)
+        model = CommandLine.import_model(path, args)
 
         capture_stdout()
         CommandLine.check_or_populate(model, args)        
@@ -111,7 +117,7 @@ class TestCommandLine(TestCase):
         """ Test checking a satisfiable model. """
         path = os.path.join(self.data_dir, "no_fact_types.orm")
         args = CommandLine.parse_args(["-cu 1", path])
-        model = CommandLine.import_model(path)
+        model = CommandLine.import_model(path, args)
 
         capture_stdout()
         CommandLine.check_or_populate(model, args)        
@@ -122,7 +128,7 @@ class TestCommandLine(TestCase):
         """ Test populating a satisfiable model. """
         path = os.path.join(self.data_dir, "no_fact_types.orm")
         args = CommandLine.parse_args(["-pu 1", path])
-        model = CommandLine.import_model(path)
+        model = CommandLine.import_model(path, args)
 
         capture_stdout()
         CommandLine.check_or_populate(model, args)        
@@ -135,7 +141,7 @@ class TestCommandLine(TestCase):
         bad = os.path.join(self.data_dir, "..", "output", "NOT_A_DIRECTORY")
 
         args = CommandLine.parse_args(["-pu 1", "-o", bad, path])
-        model = CommandLine.import_model(path)
+        model = CommandLine.import_model(path, args)
 
         capture_stdout()
         CommandLine.check_or_populate(model, args)        
@@ -151,7 +157,7 @@ class TestCommandLine(TestCase):
         args = CommandLine.parse_args(["-pu 1", path]) # No -o option so we'll try to write to stdout
         sys.stdout = None # Force an exception when trying to write to stdout
 
-        model = CommandLine.import_model(path)        
+        model = CommandLine.import_model(path, args)        
 
         with self.assertRaises(SystemExit) as ex:
             CommandLine.check_or_populate(model, args)                

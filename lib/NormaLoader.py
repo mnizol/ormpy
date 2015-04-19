@@ -193,7 +193,7 @@ class NormaLoader(object):
         tag = local_tag(node)
 
         # Special handling for ValueRestriction and CardinalityRestriction:
-        # we move the node 1 level down instead (e.g. ValueConstraint)
+        # we move the node that is 1 level down instead (e.g. ValueConstraint)
         special = {'ValueRestriction'       : 'value constraint', 
                    'CardinalityRestriction' : 'cardinality constraint'}
         

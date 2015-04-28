@@ -30,8 +30,10 @@ class JoinPath(object):
             fact type already on the path) with role2. """
         
         # Validate the join
-        if role1.player != role2.player:
-            msg = "join roles must be played by the same object type"
+        if role1.player != role2.player and \
+           role1.player not in role2.player.direct_subtypes and \
+           role2.player not in role1.player.direct_subtypes:
+            msg = "join roles must be played by compatible object types"
             raise JoinPathException(msg)
 
         if len(self.fact_types) > 0 and role1.fact_type not in self.fact_types:

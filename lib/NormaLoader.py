@@ -678,7 +678,12 @@ class NormaLoader(object):
                     msg = "does not have exactly one RolePath node"
                     raise JoinPathException(msg)                              
             elif local_tag(child) == 'JoinPathProjections':
-                # TODO
+                # NOTE: I am ignoring this node for now, because it's not needed
+                # to determine the join path itself.  The only reason to do any
+                # processing here would be to confirm that there are no 
+                # unexpected children of this node (e.g. a CalculatedValue) and
+                # to double-check that the ProjectedFrom nodes match the roles
+                # covered by the constraint.
                 pass
             else:
                 raise JoinPathException(unsupported_node(child, node[0])) 
@@ -707,7 +712,10 @@ class NormaLoader(object):
 
         for child in node:
             if local_tag(child) == 'RootObjectType':
-                # TODO
+                # NOTE: I am ignoring this node for now, because it is not
+                # needed to determine the join path structure.  The only reason
+                # to check this node would be to confirm there is no "Negated" 
+                # or "ValueRestriction" attribute.
                 pass
             elif local_tag(child) == 'PathedRoles': # Linear Path
                 # The root_role for any sub paths that follow this linear path

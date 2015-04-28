@@ -420,10 +420,10 @@ class TestNormaLoader(TestCase):
         """ Confirm that join subset constraints are (for now) omitted. """
         loader = NormaLoader(self.data_dir + "join_subset_omission.orm")
         self.assertItemsEqual(loader.omissions, 
-            ["Join path for SubsetConstraint1."])
+            ["Constraint SubsetConstraint1 because its join path does not have exactly one JoinPath node."])
 
         cons = loader.model.constraints.get("SubsetConstraint1")
-        self.assertIsNotNone(cons.superset.join_path)
+        self.assertIsNone(cons)
 
     def test_uniqueness_constraint(self):
         """ Confirm uniqueness constraints load properly. """
@@ -712,13 +712,10 @@ class TestNormaLoader(TestCase):
             "constraint_covers_both_implied_and_regular_roles.orm.orm")
         model = loader.model
 
-        expected = [
-            "Constraint FC1 because it covers implied and explicit roles",
-            "Join path for FC1."
-        ]
+        expected = ["Constraint EUC1 because it covers implied and explicit roles"]
 
-        self.assertIsNone(model.constraints.get("FC1"))
-        self.assertEquals(model.constraints.count(), 1)
+        self.assertIsNone(model.constraints.get("EUC1"))
+        self.assertEquals(model.constraints.count(), 2)
         self.assertItemsEqual(loader.omissions, expected) 
 
     def test_deontic_constraints(self):
@@ -748,4 +745,216 @@ class TestNormaLoader(TestCase):
         # Only the unary IUC should not be ignored
         self.assertEquals(model.constraints.count(), 1)
         self.assertIsNotNone(model.constraints.get("IUC_unary"))
+
+    def test_join_rule_with_no_join_path(self):
+        """ Test <JoinRule> not followed by a <JoinPath>. """
+        fname = TestDataLocator.path("join_rule_no_join_path.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+    
+        cons = model.constraints.get("FrequencyConstraint1") 
+        self.assertIsNone(cons)
+
+        expected = "Constraint FrequencyConstraint1 because its join path does not have exactly one JoinPath node."
+        self.assertEquals(loader.omissions, [expected])
+
+    def test_join_rule_with_subquery(self):
+        """ Test <JoinRule> that contains a <SubQueries> node. """
+        fname = TestDataLocator.path("join_rule_with_subquery.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+    
+        cons = model.constraints.get("FC1_with_subquery") 
+        self.assertIsNone(cons)
+
+        expected = "Constraint FC1_with_subquery because its join path has a JoinPath node with an unsupported child node: Subqueries."
+        self.assertEquals(loader.omissions, [expected])
+
+    def test_join_rule_with_no_role_path(self):
+        """ Test <JoinRule> that contains no <RolePath> node. """
+        fname = TestDataLocator.path("join_rule_no_role_path.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+    
+        cons = model.constraints.get("FrequencyConstraint1") 
+        self.assertIsNone(cons)
+
+        expected = "Constraint FrequencyConstraint1 because its join path does not have exactly one RolePath node."
+        self.assertEquals(loader.omissions, [expected])
+
+    def test_join_rule_with_unsupported_splits(self):
+        """ Test <JoinRule> that contains negated split paths and combination
+            operators other than AND. """
+        fname = TestDataLocator.path("join_rule_negated_split.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+    
+        cons_neg = model.constraints.get("EUC_negated") 
+        cons_or  = model.constraints.get("EUC_or")
+
+        self.assertIsNone(cons_neg)
+        self.assertIsNone(cons_or)
+
+        expected = ["Constraint EUC_negated because its join path has a negated path split.",
+                    "Constraint EUC_or because its join path combines paths with an operator other than AND."]
+        self.assertEquals(loader.omissions, expected)
+
+    def test_subpath_with_bad_child_node(self):
+        """ Test <SubPath> node with bad child node. Specifically, this test
+            case has a nested <SubPaths> node under a <SubPath>, which we do 
+            not support. """
+        fname = TestDataLocator.path("bad_subpath_child_node.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        cons = model.constraints.get("EUC1")
+        self.assertIsNone(cons)
+
+        expected = ["Constraint EUC1 because its join path has a SubPaths node with an unsupported child node: BadSubPath."]
+        self.assertEquals(loader.omissions, expected)
+
+    def test_pathed_roles_with_bad_child_node(self):
+        """ Test <PathedRoles> node with bad child node. """
+        fname = TestDataLocator.path("join_rule_pathed_roles_bad_child.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        cons = model.constraints.get("FrequencyConstraint1")
+        self.assertIsNone(cons)
+
+        expected = ["Constraint FrequencyConstraint1 because its join path has a PathedRoles node with an unsupported child node: PathedRole2."]
+        self.assertEquals(loader.omissions, expected)
+
+    def test_join_rule_covering_implicit_roles(self):
+        """ Test <PathedRoles> node that include implicit roles. """
+        fname = TestDataLocator.path("join_rule_covering_implicit_roles.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        cons = model.constraints.get("EUC1")
+        self.assertIsNone(cons) # Not loaded because it covers implicit roles
+
+        expected = ["Constraint EUC1 because its join path includes an implicit role."]
+        self.assertEquals(loader.omissions, expected)
+
+    def test_pathed_role_with_value_restriction_child_node(self):
+        """ Test <PathedRole> node with bad child node. """
+        fname = TestDataLocator.path("join_rule_pathed_role_with_value_restriction.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        cons = model.constraints.get("FrequencyConstraint1")
+        self.assertIsNone(cons)
+
+        expected = ["Constraint FrequencyConstraint1 because its join path has a PathedRole node with an unsupported child node: ValueRestriction."]
+        self.assertEquals(loader.omissions, expected)
+
+    def test_pathed_role_with_outer_join(self):
+        """ Test <PathedRole> node with outer join. """
+        fname = TestDataLocator.path("join_rule_pathed_role_with_outer_join.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        cons = model.constraints.get("FrequencyConstraint1")
+        self.assertIsNone(cons)
+
+        expected = ["Constraint FrequencyConstraint1 because its join path includes an outer join."]
+        self.assertEquals(loader.omissions, expected)
+
+    def test_pathed_role_with_negated_join(self):
+        """ Test <PathedRole> node with negated join. """
+        fname = TestDataLocator.path("join_rule_pathed_role_with_negated_join.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        cons = model.constraints.get("FrequencyConstraint1")
+        self.assertIsNone(cons)
+
+        expected = ["Constraint FrequencyConstraint1 because its join path includes a negated role."]
+        self.assertEquals(loader.omissions, expected)
+
+    def test_valid_linear_join_path(self):
+        """ Test valid linear join path. """
+        fname = TestDataLocator.path("join_rule_valid_linear_path.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        cons = model.constraints.get("FrequencyConstraint1")
+
+        self.assertIsNotNone(cons)
+        self.assertIsNotNone(cons.covers.join_path)
+        self.assertEquals(loader.omissions, [])
+
+        path = cons.covers.join_path
+        f1 = model.fact_types.get("AHasB")
+        f2 = model.fact_types.get("BHasC")
+        f3 = model.fact_types.get("CHasD")
+
+        self.assertEquals(path.fact_types, [f1, f2, f3])
+        self.assertEquals(path.joins, [ (f1.roles[1], f2.roles[0]),
+                                        (f2.roles[1], f3.roles[0]) ])
+
+    def test_role_path_unexpected_child(self):
+        """ Test <RolePath> node with unexpected child node. """
+        fname = TestDataLocator.path("join_rule_with_subquery_parameter_inputs.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        cons = model.constraints.get("FrequencyConstraint1")
+        self.assertIsNone(cons)
+
+        expected = ["Constraint FrequencyConstraint1 because its join path has " \
+            "a RolePath node with an unsupported child node: SubqueryParameterInputs."]
+        self.assertEquals(loader.omissions, expected)
+
+    def test_valid_branching_join_path(self):
+        """ Test valid branching join path. """
+        fname = TestDataLocator.path("join_rule_valid_branching_path.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        cons = model.constraints.get("EUC1")
+
+        self.assertIsNotNone(cons)
+        self.assertIsNotNone(cons.covers.join_path)
+        self.assertEquals(loader.omissions, [])
+
+        path = cons.covers.join_path
+        f1 = model.fact_types.get("AHasD")
+        f2 = model.fact_types.get("BHasC")
+        f3 = model.fact_types.get("CHasD")
+        f4 = model.fact_types.get("EHasD")
+
+        self.assertEquals(path.fact_types, [f1, f3, f2, f4])
+        self.assertEquals(path.joins, [ (f1.roles[1], f3.roles[1]),
+                                        (f3.roles[0], f2.roles[1]),
+                                        (f1.roles[1], f4.roles[1]) ])
+
+    def test_valid_complex_branching_join_path(self):
+        """ Test valid complex branching join path. """
+        fname = TestDataLocator.path("join_rule_valid_complex_branching_path.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        cons = model.constraints.get("EUC1")
+
+        self.assertIsNotNone(cons)
+        self.assertIsNotNone(cons.covers.join_path)
+        self.assertEquals(loader.omissions, [])
+
+        path = cons.covers.join_path
+        DHasE = model.fact_types.get("DHasE")
+        EHasB = model.fact_types.get("EHasB")
+        BHasC = model.fact_types.get("BHasC")
+        FHasG = model.fact_types.get("FHasG")
+        GHasB = model.fact_types.get("GHasB")
+        HHasG = model.fact_types.get("HHasG")
+
+        self.assertEquals(path.fact_types, [DHasE, EHasB, GHasB, FHasG, HHasG, BHasC])
+        self.assertEquals(path.joins, [ (DHasE.roles[1], EHasB.roles[0]),
+                                        (EHasB.roles[1], GHasB.roles[1]),
+                                        (GHasB.roles[0], FHasG.roles[1]),
+                                        (GHasB.roles[0], HHasG.roles[1]),
+                                        (EHasB.roles[1], BHasC.roles[0]) ])
+         
         

@@ -8,3 +8,8 @@ The schemas are included here for two reasons:
 * Reference
 * As a point of comparison in case the file format for NORMA is updated
 
+Matt Curland (author of NORMA) provided me with the file 
+DerivationRulesInNORMA.docx, which provides some examples and context on the
+use of join paths in NORMA.  I used that document as a supplement to understand
+the <JoinRule> structure in .orm files.
+

@@ -9,34 +9,52 @@
 class JoinPath(object):
     """ A join path specifies the inner join of two or more fact types. """  
 
-    def __init__(self, init_role):
-        self.path = list()
-        
-        # TODO: initialize with init_role.
+    def __init__(self):
+        self._fact_types = list() #: List of fact types in join order
+        self._joins = list() #: List of (Role, Role) join pairs
 
-    def extend(self, role1, role2):
-        """ Extend the join path by joining role1 (which should be part of a 
+    @property
+    def fact_types(self):
+        """ The list of fact types along the join path, in join order. """
+        return self._fact_types
+
+    @property
+    def joins(self):
+        """ A list of (Role, Role) pairs in join order.  The i^th pair
+            represents the join of the (i+1)^th fact type with some earlier 
+            fact type in self.fact_types. """
+        return self._joins
+
+    def add_join(self, role1, role2):
+        """ Extend the join path by joining role1 (which must be part of a 
             fact type already on the path) with role2. """
-        raise NotImplementedError()
+        
+        # Validate the join
+        if role1.player != role2.player:
+            msg = "join roles must be played by the same object type"
+            raise JoinPathException(msg)
+
+        if len(self.fact_types) > 0 and role1.fact_type not in self.fact_types:
+            msg = "first join role must already be on the join path"
+            raise JoinPathException(msg)
+
+        if role1.fact_type == role2.fact_type or role2.fact_type in self.fact_types:
+            msg = "join would create a cycle in the join path"
+            raise JoinPathException(msg)        
+
+        # Join appears to be ok.  Let's extend the join path.
+        if len(self.fact_types) == 0:
+            self._fact_types = [role1.fact_type]
+
+        self._fact_types.append(role2.fact_type)
+        self._joins.append( (role1, role2) )
 
     def materialize(self):
         """ Executes the joins along the join path and returns the resulting
-            join fact type.  The join fact type will be covered by 
-            copies of the same kinds of constraints that cover the fact types
-            along the path.  """
+            join fact type.  """
         raise NotImplementedError()
 
-class Join(object):
-    """ A join is a tuple of roles on which two fact types will be joined.
-        The roles must be played by compatible object types. """
-
-    def __init__(self, role1, role2):
-        self.roles = (role1, role2)
-
-        # TODO: Do I confirm that roles are compatible here?  Would actually
-        #       need to have a way to check that role.player and role2.player
-        #       share common supertype.
-        # TODO: Would also then want to confirm that roles are from diff
-        #       fact types.
-        
-
+class JoinPathException(Exception):
+    """ Raised when defining or loading a join path with an unsupported 
+        feature. """
+    pass

@@ -71,9 +71,7 @@ class TestORMMinusModel(TestCase):
         self.assertItemsEqual(actual_ignored, expect_ignored) 
 
         self.assertItemsEqual(self.log.formatLogRecords(),
-            ["WARNING: 1 model element was ignored while loading overlapping_iuc.orm.",
-             "INFO: Ignored Join path for EUC1.",
-             "WARNING: 2 constraints were ignored while checking the model.",
+            ["WARNING: 2 constraints were ignored while checking the model.",
              "INFO: Ignored UniquenessConstraint named IUC1.",
              "INFO: Ignored UniquenessConstraint named EUC1."])
 

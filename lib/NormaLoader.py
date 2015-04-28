@@ -50,6 +50,7 @@ import lib.ObjectType as ObjectType
 import lib.FactType as FactType
 import lib.Constraint as Constraint
 import lib.Domain as Domain
+from lib.JoinPath import JoinPath, JoinPathException
 
 # Constants
 NS_ROOT = "{http://schemas.neumont.edu/ORM/2006-04/ORMRoot}"
@@ -614,23 +615,30 @@ class NormaLoader(object):
         name = constraint_name
         role_sequence = FactType.RoleSequence()
         implied_roles = 0 # Number of implied roles in the sequence
+        total_roles = 0   # Total number of roles in the sequence
 
         for node in xml_node:
             if local_tag(node) == "Role":
                 role = self._load_constraint_role(node, name)
                 implied_roles += (role is None)
+                total_roles += 1
                 role_sequence.append(role)
             elif local_tag(node) == "JoinRule":
-                role_sequence.join_path = self._load_join_rule(node, name)
+                try:
+                    role_sequence.join_path = self._load_join_rule(node)
+                except JoinPathException as ex:
+                    msg = "Constraint {0} because its join path {1}."
+                    self.omissions.append(msg.format(name, ex.message))
+                    return None
             else:
                 msg = "Constraint {0} has unexpected role sequence."
                 raise Exception(msg.format(name))
 
-        if 0 < implied_roles < len(xml_node):
+        if 0 < implied_roles < total_roles:
             msg = "Constraint {0} because it covers implied and explicit roles"               
             self.omissions.append(msg.format(name))
             return None
-        elif implied_roles == len(xml_node): # Implied constraint 
+        elif implied_roles == total_roles: # Implied constraint 
             return None
         else:
             return role_sequence
@@ -646,10 +654,130 @@ class NormaLoader(object):
         uid = xml_node.get("ref")
         return self._elements.get(uid)
 
-    def _load_join_rule(self, xml_node, constraint_name):
-        """ Loads a join rule. """
-        self.omissions.append("Join path for " + constraint_name + ".")
-        return "" # Just so that it is not None, for now.
+    ###########################################################################
+    # Note to future maintainers: the next four methods (_load_join_rule,
+    # _load_join_path, _load_linear_path, _load_branches) is my attempt to 
+    # parse the very complex <JoinRule> node and its children.  Join rules in 
+    # NORMA support many features (subqueries, calculations, negations, etc.) 
+    # that we haven't observed in industry ORM models.  Thus, we only load the 
+    # most common types of join rules and raise JoinPathExceptions for the rest.
+    ###########################################################################
+
+    def _load_join_rule(self, node):
+        """ Loads a join rule (i.e. a <JoinRule> node and its children). """
+        join_path = JoinPath()
+        
+        if not(len(node) == 1 and local_tag(node[0]) == 'JoinPath'):
+            raise JoinPathException("does not have exactly one JoinPath node")  
+
+        for child in node[0]:
+            if local_tag(child) in ['PathComponents', 'PathComponent']:
+                if len(child) == 1 and local_tag(child[0]) == 'RolePath':
+                    self._load_join_path(child[0], join_path)
+                else:
+                    msg = "does not have exactly one RolePath node"
+                    raise JoinPathException(msg)                              
+            elif local_tag(child) == 'JoinPathProjections':
+                # TODO
+                pass
+            else:
+                raise JoinPathException(unsupported_node(child, node[0])) 
+
+        return join_path
+
+    def _load_join_path(self, node, join_path, root_role = None):
+        """ Load <RolePath> or <SubPath> node of a <JoinRule> into join_path.
+            `node` must point to a <RolePath> or <Subpath> node.  If root_role
+            is not None, then the first role of paths along this branch will 
+            join with root_role (which must be on a previous branch of 
+            Join_path).  Returns first role on this branch of the path. """
+
+        # We do not support negated splits
+        split_neg = node.get("SplitIsNegated")
+        if split_neg and split_neg.upper() == "TRUE":
+            raise JoinPathException("has a negated path split")    
+
+        # We do not support subpath combinations other than AND
+        split_op = node.get("SplitCombinationOperator")
+        if split_op and split_op.upper() != "AND":
+            msg = "combines paths with an operator other than AND"
+            raise JoinPathException(msg)                           
+
+        first = None
+
+        for child in node:
+            if local_tag(child) == 'RootObjectType':
+                # TODO
+                pass
+            elif local_tag(child) == 'PathedRoles': # Linear Path
+                # The root_role for any sub paths that follow this linear path
+                # is the last role on the linear path.
+                first, root_role = self._load_linear_path(child, join_path, root_role)  
+            elif local_tag(child) == 'SubPaths': # Branching
+                _first = self._load_branches(child, join_path, root_role)
+                first = first or _first # Don't overwrite first if not None
+            else:
+                raise JoinPathException(unsupported_node(child, node))      
+
+        return first           
+
+    def _load_branches(self, node, join_path, root_role=None):
+        """ Load <SubPaths> node of a <JoinRule> into join_path. Returns first
+            role along any subpath. """
+
+        first = None
+
+        for child in node:
+            if local_tag(child) == 'SubPath':
+                _first = self._load_join_path(child, join_path, root_role)
+                first = first or _first # Ensure we keep the very first role
+
+                # If root_role is None, then subsequent subpaths join with 
+                # the first role of the first subpath.
+                root_role = root_role or first
+            else:
+                raise JoinPathException(unsupported_node(child, node))  
+          
+        return first
+
+    def _load_linear_path(self, node, join_path, prev_role = None):
+        """ Load <PathedRoles> node of a <JoinRule> into join_path. If prev_role
+            is not None, joins the first role of this linear path with 
+            prev_role.  Returns the first and last roles along this path. """
+
+        first_role = None # First role of this branch of the join path
+
+        for child in node:
+            if local_tag(child) != 'PathedRole':
+                raise JoinPathException(unsupported_node(child, node))         
+
+            purpose = child.get("Purpose")
+            isnegated = child.get("IsNegated")
+
+            ref = child.get("ref")
+            role = self._elements.get(ref)
+
+            if role == None:
+                raise JoinPathException("includes an implicit role")           
+            elif len(child) != 0:
+                raise JoinPathException(unsupported_node(child[0], child))     
+            elif purpose == "PostOuterJoin":
+                raise JoinPathException("includes an outer join")              
+            elif isnegated and isnegated.upper()=="TRUE":
+                raise JoinPathException("includes a negated role")             
+
+            # On the first iteration, prev_role is either a role passed by the 
+            # caller (i.e. from an earlier branch of the join path) or None.
+            # On subsequent iterations, it is the previous role on this branch.
+            if purpose == 'PostInnerJoin' and prev_role != None:               
+                join_path.add_join(prev_role, role)
+
+            if first_role == None: # First role in the path
+                first_role = role
+
+            prev_role = role  
+
+        return first_role, prev_role # Permits joining with subsequent branches.              
 
 ###############################################################################
 # Utility Functions
@@ -682,6 +810,7 @@ def get_basic_attribs(xml_node):
 
     return attribs, attribs['name']
 
-
-
-
+def unsupported_node(node, parent):
+    """ I use this error string multiple times. """
+    template = "has a {1} node with an unsupported child node: {0}"
+    return template.format(local_tag(node), local_tag(parent))

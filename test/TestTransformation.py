@@ -13,8 +13,10 @@ import lib.Domain as Domain
 
 from lib.SubtypeGraph import SubtypeGraph
 from lib.NormaLoader import NormaLoader
+from lib.Constraint import UniquenessConstraint, MandatoryConstraint
 
-from lib.Transformation import Transformation, ValueConstraintTransformation
+from lib.Transformation import Transformation, ValueConstraintTransformation, \
+                               AbsorptionTransformation
 
 ##############################################################################
 # Tests for generic Transformation class
@@ -320,5 +322,180 @@ class TestValueConstraintTransformation_Subtypes(TestCase):
         self.assertEquals(w.domain.draw(30), [20,21,22] + range(1, 20))
         self.assertEquals(z.domain.draw(30), [20,21,22])
 
+##############################################################################
+# AbsorptionTransformation tests
+##############################################################################
+class TestAbsorptionTransformation(TestCase):
+    """ Unit tests for the AbsorptionTransformation class. """
 
+    def setUp(self):
+        self.maxDiff = None
 
+    def test_pattern_not_matched(self):
+        """ Test that EUCs which don't match the pattern are ignored."""
+        fname = TestData.path("absorption_no_matching_euc.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        self.assertEquals(loader.omissions, [])
+
+        # EUCs before transformation
+        eucs = filter(lambda x: not x.internal, model.constraints.of_type(UniquenessConstraint))
+        self.assertEquals(len(eucs), 8)
+
+        trans = AbsorptionTransformation(model)
+        trans.execute()
+
+        # Same number of EUCs after transformation
+        eucs = filter(lambda x: not x.internal, model.constraints.of_type(UniquenessConstraint))
+        self.assertEquals(len(eucs), 8)
+
+        self.assertEquals(trans.added, [])
+        self.assertEquals(trans.removed, [])
+        self.assertEquals(trans.modified, [])
+
+    def test_simple_absorption(self):
+        """ Test simple absorption transformation. """
+        fname = TestData.path("absorption_valid_simple.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        self.assertEquals(loader.omissions, [])
+
+        # Before transformation
+        a = model.object_types.get("A")
+        b = model.object_types.get("B")
+        c = model.object_types.get("C")
+        euc = model.constraints.get("EUC1")
+        AHasB = model.fact_types.get("AHasB")
+        AHasC = model.fact_types.get("AHasC")
+        old_cons = [cons for cons in model.constraints]
+
+        self.assertIsNotNone(euc)
+        self.assertIsNotNone(AHasB)
+        self.assertIsNotNone(AHasC)
+
+        # Transformation
+        trans = AbsorptionTransformation(model)
+        trans.execute()
+
+        # After transformation
+        self.assertIsNone(model.constraints.get("EUC1"))
+        self.assertIsNone(model.fact_types.get("AHasB"))
+        self.assertIsNone(model.fact_types.get("AHasC"))
+
+        # Constraint count of 3: 1 mandatory, 2 IUC
+        self.assertEquals(model.constraints.count(), 3)
+        self.assertEquals(model.fact_types.count(), 1)
+        
+        absorb_fact = model.fact_types.get("EUC1")
+        self.assertIsNotNone(absorb_fact)
+
+        self.assertEquals(absorb_fact.arity(), 3)
+
+        self.assertIs(absorb_fact.root_role.player, a)
+
+        role0 = absorb_fact.roles[0]
+        self.assertIs(role0.player, a)
+        self.assertEquals(len(role0.covered_by), 2)
+
+        self.assertTrue(isinstance(role0.covered_by[0], UniquenessConstraint))
+        self.assertEquals(len(role0.covered_by[0].covers), 1)
+
+        self.assertTrue(isinstance(role0.covered_by[1], MandatoryConstraint))
+        self.assertTrue(role0.covered_by[1].simple)
+
+        role1 = absorb_fact.roles[1]
+        role2 = absorb_fact.roles[2]
+
+        self.assertIs(role1.player, b)
+        self.assertIs(role2.player, c)
+
+        self.assertEquals(len(role1.covered_by), 1)
+        self.assertEquals(len(role2.covered_by), 1)
+        self.assertEquals(role1.covered_by, role2.covered_by)
+        self.assertTrue(isinstance(role1.covered_by[0], UniquenessConstraint))
+        self.assertIs(role1.covered_by[0], role2.covered_by[0])
+
+        # Check absorb_fact.fact_type_names
+        self.assertEquals(absorb_fact.fact_type_names, ["FactTypes.AHasB", "FactTypes.AHasC"])
+
+        # Check contents of added, removed, modified
+        self.assertItemsEqual(trans.added, [absorb_fact] + list(model.constraints))
+        self.assertItemsEqual(trans.removed, [AHasB, AHasC] + old_cons)
+        self.assertItemsEqual(trans.modified, [])
+        
+    def test_four_part_absorption(self):
+        """ Test absorption transformation involving four fact types. """
+        fname = TestData.path("absorption_valid_four_facts.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        self.assertEquals(loader.omissions, [])
+
+        # Before transformation
+        a = model.object_types.get("A")
+        b = model.object_types.get("B")
+        c = model.object_types.get("C")
+        d = model.object_types.get("D")
+        e = model.object_types.get("E")
+        old_fact = [fact for fact in model.fact_types]
+        old_cons = [cons for cons in model.constraints]
+
+        # Transformation
+        trans = AbsorptionTransformation(model)
+        trans.execute()
+
+        # After transformation
+        self.assertEquals(model.constraints.count(), 4)
+        self.assertEquals(model.fact_types.count(), 1)
+        
+        absorb_fact = model.fact_types.get("EUC1")
+        self.assertIsNotNone(absorb_fact)
+
+        self.assertEquals(absorb_fact.arity(), 5)
+
+        self.assertIs(absorb_fact.root_role.player, a)
+
+        role0 = absorb_fact.roles[0]
+        self.assertIs(role0.player, a)
+        self.assertEquals(len(role0.covered_by), 2)
+
+        self.assertTrue(isinstance(role0.covered_by[0], UniquenessConstraint))
+        self.assertEquals(len(role0.covered_by[0].covers), 1)
+
+        self.assertTrue(isinstance(role0.covered_by[1], MandatoryConstraint))
+        self.assertTrue(role0.covered_by[1].simple)
+
+        role1 = absorb_fact.roles[1]
+        role2 = absorb_fact.roles[2]
+        role3 = absorb_fact.roles[3]
+        role4 = absorb_fact.roles[4]
+
+        self.assertIs(role1.player, b)
+        self.assertIs(role2.player, c)
+        self.assertIs(role3.player, d)
+        self.assertIs(role4.player, e)
+
+        self.assertEquals(len(role1.covered_by), 2)
+        self.assertTrue(isinstance(role1.covered_by[0], MandatoryConstraint))
+        self.assertTrue(role1.covered_by[0].simple)
+
+        uniq = role1.covered_by[1]
+        self.assertEquals(len(uniq.covers), 4)
+
+        self.assertTrue(isinstance(uniq, UniquenessConstraint))
+
+        self.assertEquals(role2.covered_by, [uniq])
+        self.assertEquals(role3.covered_by, [uniq])
+        self.assertEquals(role4.covered_by, [uniq])        
+        
+        # Check absorb_fact.fact_type_names
+        expected = ["FactTypes.AHasB", "FactTypes.AHasC", "FactTypes.AHasD", "FactTypes.AHasE"]
+        self.assertEquals(absorb_fact.fact_type_names, expected)
+
+        # Check contents of added, removed, modified
+        self.assertItemsEqual(trans.added, [absorb_fact] + list(model.constraints))
+        self.assertItemsEqual(trans.removed, old_fact + old_cons)
+        self.assertItemsEqual(trans.modified, [])
+ 

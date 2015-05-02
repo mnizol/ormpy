@@ -19,7 +19,8 @@ from lib.Constraint \
 from lib.ObjectType import ObjectType, ObjectifiedType
 from lib.FactType import Role
 from lib.SubtypeGraph import SubtypeGraph
-from lib.Transformation import ValueConstraintTransformation
+from lib.Transformation import ValueConstraintTransformation, \
+                               AbsorptionTransformation
 
 class ORMMinusModel(object):
     """ An ORM- model along with its solution.  The solution is computed using
@@ -62,6 +63,8 @@ class ORMMinusModel(object):
                                               subtype_graph=self.subtype_graph)
         trans.execute()
         self.ignored += trans.removed
+
+        AbsorptionTransformation(model).execute()
 
         # Initialize _fact_type_parts here; _create_variables will update.
         for fact_type in self.fact_types:

@@ -11,8 +11,10 @@
 """
 
 from lib.Model import Model
-from lib.Constraint import ValueConstraint
-from lib.FactType import Role
+from lib.Constraint import ValueConstraint, UniquenessConstraint, \
+                           FrequencyConstraint, MandatoryConstraint
+from lib.FactType import Role, FactType
+from lib.ObjectType import ObjectifiedType
 
 class Transformation(object):
     """ A transformation of an ORM Model. """
@@ -45,6 +47,10 @@ class Transformation(object):
             performed external to this method.  """
         self.modified.append(element)
 
+
+###############################################################################
+# Value Constraint Transformation
+###############################################################################
 class ValueConstraintTransformation(Transformation):
     """ A transformation of an ORM model that moves, removes, and modifies
         value constraints to be consistent with ORM- rules.  Specifically, this 
@@ -160,3 +166,137 @@ class ValueConstraintTransformation(Transformation):
         """ Return the value constraints (if any) covering an object type. """
         vc = lambda x: isinstance(x, ValueConstraint)
         return filter(vc, object_type.covered_by)
+
+###############################################################################
+# Absorption
+###############################################################################
+class AbsorptionTransformation(Transformation):
+    """ An absorption transformation as described by McGill et al. (2011).
+        Replaces compound refererence schemes with absorption fact types. """
+
+    def __init__(self, *args, **kwargs):
+        super(AbsorptionTransformation, self).__init__(*args, **kwargs)
+
+        # Get list of objectified fact types
+        self.nested_fact_types = {obj.nested_fact_type for obj in 
+            self.model.object_types if isinstance(obj, ObjectifiedType)}
+
+    def execute(self):
+        """ Execute the transformation. """
+        candidates = self.model.constraints.of_type(UniquenessConstraint)
+
+        for euc in filter(self._pattern, candidates): 
+            # Get root player
+            root_player = self._other_role(euc.covers[0]).player
+
+            # Build absorption fact type
+            fact_type = AbsorptionFactType(root_player, name=euc.name)
+
+            # Cover the root role with an IUC and a mandatory constraint
+            self._add(UniquenessConstraint(covers=[fact_type.root_role]))
+            self._add(MandatoryConstraint(covers=[fact_type.root_role]))
+
+            # Loop over covered roles, move to absorption fact type
+            new_roles = []
+
+            for old_role in euc.covers:
+                new_roles.append(fact_type.add_role(old_role.player))
+
+                old_name = old_role.fact_type.fullname
+                fact_type.fact_type_names.append(old_name)
+
+                if old_role.mandatory:
+                    self._add(MandatoryConstraint(covers=[new_roles[-1]]))
+
+                # Remove original fact type from the model. Can't call 
+                # self._remove here because fact_type.rollback is unimplemented
+                self._remove_fact_type(old_role.fact_type) 
+
+            self._add(UniquenessConstraint(covers=new_roles))
+            self._add(fact_type)
+            #self._remove(euc) # Removed when we remove first fact type.
+
+    def _pattern(self, euc):
+        """ Check if euc matches absorption pattern. """
+
+        if euc.internal:
+            return False
+
+        obj_type = None
+
+        for role in euc.covers:
+            # Covered fact type must be binary
+            if role.fact_type.arity() != 2:
+                return False
+
+            # Covered roles may only be *also* covered by a mandatory constraint
+            for cons in role.covered_by:
+                if cons != euc and not self._simple_mandatory(cons):
+                    return False
+
+            # All other roles must be played by the same object type.
+            role2 = self._other_role(role)
+            obj_type = obj_type or role2.player # First player among other roles
+            
+            if role2.player != obj_type:
+                return False
+
+            # Other role must be covered only by simple IUC and simple mandatory
+            if len(role2.covered_by) != 2:
+                return False
+ 
+            if any(filter(self._simple_iuc, role2.covered_by)) == False:
+                return False
+
+            if any(filter(self._simple_mandatory, role2.covered_by)) == False:
+                return False
+
+            # Fact type cannot be objectified
+            if role.fact_type in self.nested_fact_types:
+                return False                
+
+        return True
+
+    def _remove_fact_type(self, fact_type):
+        """ Remove fact_type from self.model.
+
+            IMPORTANT: This is implemented here rather than via a remove 
+                       method of fact_type because I haven't decided how to 
+                       handle fact type rollback/removal in the general case.
+                       
+                       Specifically, this method does not consider join paths or
+                       objectifications that may be on the fact type, but since
+                       (a) _pattern() forbids objectification and (b) absorption
+                       assumes there are no join paths, this is OK.
+        """
+        for role in fact_type.roles:
+            # To remove constraints, I first need to make a copy of covered_by
+            map(self._remove, [cons for cons in role.covered_by])
+            role.player.roles.remove(role)
+
+        self.model.fact_types.remove(fact_type)
+        self.removed.append(fact_type)
+
+    def _simple_iuc(self, cons):
+        """ Returns True if cons is a simple internal uniqueness constraint. """
+        return isinstance(cons, UniquenessConstraint) and len(cons.covers) == 1
+
+    def _simple_mandatory(self, cons):
+        """ Returns True if cons is a simple mandatory constraint. """
+        return isinstance(cons, MandatoryConstraint) and cons.simple
+
+    def _other_role(self, role):
+        """ Returns the other role in a binary fact type. """
+        return (set(role.fact_type.roles) - set([role])).pop() 
+
+class AbsorptionFactType(FactType):
+    """ The fact type created by an absorption transformation. """
+
+    def __init__(self, root_player=None, *args, **kwargs):
+        super(AbsorptionFactType, self).__init__(*args, **kwargs)  
+
+        #: Role played by the identified object type
+        self.root_role = FactType.add_role(self, root_player)       
+
+        #: Original fact type name for each role
+        self.fact_type_names = []  

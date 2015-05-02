@@ -452,4 +452,18 @@ class TestORMMinusModel(TestCase):
         ormminus = ORMMinusModel(model, ubound=30)
         self.assertIsNone(ormminus.solution)
 
+    def test_sat_with_absorption(self):
+        """ Test a satisfiable model with a compound reference scheme. """
+        fname = TestDataLocator.path("absorption_valid_simple.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=10)        
+        self.assertEquals(ormminus.solution["FactTypes.EUC1"], 10)
+
+    def test_unsat_absorption(self):
+        """ Test an unsatisfiable model with a compound reference scheme. """
+        fname = TestDataLocator.path("absorption_unsat.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=10)        
+        self.assertIsNone(ormminus.solution)
+
         

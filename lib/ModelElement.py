@@ -14,7 +14,7 @@ import uuid
 class ModelElement(object):
     """ An abstract element in an ORM model. """
 
-    def __init__(self, uid=None, name=None, *args, **kwargs):
+    def __init__(self, uid=None, name="", *args, **kwargs):
         super(ModelElement, self).__init__(*args, **kwargs)
 
         # The UID (Unique ID) and Name cannot change once the model element

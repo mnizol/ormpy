@@ -13,6 +13,9 @@ import fractions
 import lib.FactType as FactType
 from lib.ORMMinusModel import ORMMinusModel
 from lib.Constraint import FrequencyConstraint
+from lib.SubtypeGraph import SubtypeGraph
+from lib.Transformation import AbsorptionFactType
+
 from itertools import cycle
 
 class Population(object):
@@ -48,7 +51,7 @@ class Population(object):
     def _populate_object_types_and_roles(self):
         """ Populate all object types and roles in the model. """
 
-        graph = self._model.subtype_graph
+        graph = SubtypeGraph(self._model.base_model)
 
         for obj_type in self._model.object_types:
             name = obj_type.fullname
@@ -114,7 +117,11 @@ class Population(object):
             size = self._model.solution[name]
             parts = self._model.get_parts(fact_type)            
             pop = self._combine_partial_pops(name, size, parts)
-            self.fact_types[name] = pop
+
+            if isinstance(fact_type, AbsorptionFactType):
+                self._split_absorption_pop(fact_type, pop)
+            else:                
+                self.fact_types[name] = pop
 
     def _combine_partial_pops(self, name, size, parts):
         """ Combine populations of elements in parts list to create a combined
@@ -125,6 +132,34 @@ class Population(object):
             next_pop = self._roles[part.fullname]
             pop = pop.combine_with(next_pop, size)
         return pop
+
+    def _split_absorption_pop(self, fact_type, pop):
+        """ Split the population of an AbsorptionFactType into populations of 
+            the original fact types. """
+        
+        # Pre-condition: role names in fact_type are unique
+        assert len(set(pop.names)) == len(pop.names), "Role names not unique"
+
+        # Population of root role of absorption 
+        root_pop = self._roles[fact_type.root_role.fullname]
+
+        # Get a list of projections on each role of pop
+        projections = zip(*pop) 
+
+        # Combine each non-root role population with the root role population
+        for i in range(pop.arity):
+            role_name = pop.names[i]
+            if role_name == fact_type.root_role.name:
+                continue
+
+            role_pop = Relation(names=[role_name])
+            role_pop.extend([[x] for x in projections[i]])
+
+            assert len(root_pop) == len(role_pop), "Unexpected population size"
+
+            fact_pop = root_pop.combine_with(role_pop, len(root_pop))
+            fact_name = fact_type.fact_type_names[role_name]
+            self.fact_types[fact_name] = fact_pop               
 
     def _write_objects(self, name, stream):
         """ Write the populate of an object type to a file stream. """

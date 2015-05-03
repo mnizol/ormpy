@@ -15,6 +15,7 @@ from lib.Constraint import ValueConstraint, UniquenessConstraint, \
                            FrequencyConstraint, MandatoryConstraint
 from lib.FactType import Role, FactType
 from lib.ObjectType import ObjectifiedType
+from lib.SubtypeGraph import SubtypeGraph
 
 class Transformation(object):
     """ A transformation of an ORM Model. """
@@ -93,7 +94,7 @@ class ValueConstraintTransformation(Transformation):
     
         #: A :class:`lib.SubtypeGraph.SubtypeGraph` corresponding to 
         #: :attr:`self.model`.
-        self.subtype_graph = subtype_graph
+        self.subtype_graph = subtype_graph or SubtypeGraph(self.model)
 
         # Dictionary to keep track of whether we've already found a value 
         # constraint for a non-primitive type in the same subtype graph
@@ -200,13 +201,14 @@ class AbsorptionTransformation(Transformation):
             new_roles = []
 
             for old_role in euc.covers:
-                new_roles.append(fact_type.add_role(old_role.player))
+                new_role = fact_type.add_role(old_role.player)
+                new_roles.append(new_role)
 
-                old_name = old_role.fact_type.fullname
-                fact_type.fact_type_names.append(old_name)
+                old_fact_type_name = old_role.fact_type.fullname
+                fact_type.fact_type_names[new_role.name] = old_fact_type_name
 
                 if old_role.mandatory:
-                    self._add(MandatoryConstraint(covers=[new_roles[-1]]))
+                    self._add(MandatoryConstraint(covers=[new_role]))
 
                 # Remove original fact type from the model. Can't call 
                 # self._remove here because fact_type.rollback is unimplemented
@@ -299,4 +301,4 @@ class AbsorptionFactType(FactType):
         self.root_role = FactType.add_role(self, root_player)       
 
         #: Original fact type name for each role
-        self.fact_type_names = []  
+        self.fact_type_names = {}  

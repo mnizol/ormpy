@@ -59,5 +59,16 @@ class TestFactType(TestCase):
         """ Confirm rollback of a role raises NotImplementedError. """
         with self.assertRaises(NotImplementedError):
             Role().rollback()
+
+    def test_duplicate_role_name(self):
+        """ Test that a new name is generated for a role if the role name is
+            already present on the fact type. """
+        fact_type = FactType(name="Test")
+        fact_type.add_role(ObjectType(name="Person"), name="R1")
+        fact_type.add_role(ObjectType(name="Dog"), name="R1")
+
+        names = [role.name for role in fact_type.roles]
+
+        self.assertEquals(names, ["R1", "Dog"])
         
 

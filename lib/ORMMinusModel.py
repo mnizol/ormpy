@@ -18,7 +18,7 @@ from lib.Constraint \
            CardinalityConstraint, SubtypeConstraint
 from lib.ObjectType import ObjectType, ObjectifiedType
 from lib.FactType import Role
-from lib.SubtypeGraph import SubtypeGraph
+
 from lib.Transformation import ValueConstraintTransformation, \
                                AbsorptionTransformation
 
@@ -37,13 +37,13 @@ class ORMMinusModel(object):
 
     def __init__(self, model=None, ubound=DEFAULT_SIZE):
         # Initialize public attributes
+        self.base_model = model #: Underlying ORM Model
         self.object_types = model.object_types #: Object types
         self.fact_types = model.fact_types #: Fact types
         self.constraints = model.constraints #: Constraints
         self.ignored = [] #: List of ignored constraints
         
-        # Initialize private attributes
-        self._model = model #: Underlying ORM Model
+        # Initialize private attributes        
         self._ubound = ubound #: Bound on model element size
         self._ineqsys = InequalitySystem() #: System of inequalities
         self._variables = {} #: Dictionary from model element to variable
@@ -53,18 +53,8 @@ class ORMMinusModel(object):
         # constraint, they are grouped rather than considered separately.
         self._fact_type_parts = {}
 
-        # Generate subtype graph.  
-        # IMPORTANT: Any subsequent changes to the subtypes will NOT be 
-        # reflected in this graph!
-        self.subtype_graph = SubtypeGraph(model) #: Subtype graph of the model
-
         # Transform the model
-        trans = ValueConstraintTransformation(model=self._model, 
-                                              subtype_graph=self.subtype_graph)
-        trans.execute()
-        self.ignored += trans.removed
-
-        AbsorptionTransformation(model).execute()
+        self._apply_transformations()
 
         # Initialize _fact_type_parts here; _create_variables will update.
         for fact_type in self.fact_types:
@@ -78,6 +68,18 @@ class ORMMinusModel(object):
         self.solution = self._ineqsys.solve()
 
         # Log any ignored constraints
+        self._log_ignored_constraints()
+
+    def _apply_transformations(self):
+        """ Apply transformations to the model. """
+        trans = ValueConstraintTransformation(model=self.base_model)
+        trans.execute()
+        self.ignored += trans.removed
+
+        AbsorptionTransformation(model=self.base_model).execute()
+
+    def _log_ignored_constraints(self):
+        """ Log any constraints in self.ignored. """
         logger = logging.getLogger(__name__)
         size = len(self.ignored)
         if size > 0:

@@ -44,13 +44,15 @@ class FactType(ModelElement):
         raise NotImplementedError()
 
     def add_role(self, player, name=None, uid=None):
-        """ Add a role played by *player* to the fact type.  If *name* is None, 
+        """ Add a role played by *player* to the fact type.  If *name* is None
+            or if *name* is already used by a role in the fact type, then 
             this method generates a name for the role based upon player's name. 
         """
 
         # Generate name for role if necessary
-        if name is None or name == "":
-            names = [role.name for role in self.roles] # Existing pool of names
+        names = [role.name for role in self.roles] # Existing pool of names
+
+        if name is None or name == "" or name in names:            
             suffix, i = '', 1
             while player.name + suffix in names:
                 i += 1

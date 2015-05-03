@@ -161,6 +161,34 @@ class TestPopulation(TestCase):
 
         self.assertItemsEqual(pop.object_types["ObjectTypes.A"], [0,1,2,3,4])
 
+    def test_absorption_population(self):
+        """ Test population involving absorption fact type."""
+        fname = os.path.join(self.data_dir, "absorption_valid_simple.orm")
+        model = ORMMinusModel(NormaLoader(fname).model, ubound=5)
+        pop = Population(model)
+
+        self.assertEquals(len(pop.fact_types), 2)
+
+        expected = [[0,0],[1,1],[2,2],[3,3],[4,4]]
+
+        self.assertItemsEqual(pop.fact_types["FactTypes.AHasB"], expected)
+        self.assertItemsEqual(pop.fact_types["FactTypes.AHasC"], expected)
+
+    def test_absorption_population_non_trivial(self):
+        """ Test population involving absorption fact type whose population
+            is actually affected by the EUC."""
+        fname = os.path.join(self.data_dir, "absorption_sat_nontrivial_pop.orm")
+        model = ORMMinusModel(NormaLoader(fname).model, ubound=100)
+        pop = Population(model)
+
+        self.assertEquals(len(pop.fact_types), 2)
+
+        expectedB = [[0,False],[1,True],[2,False],[3,True],[4,False],[5,True]]
+        expectedC = [[0,'C1'], [1,'C2'],[2,'C3'], [3,'C1'],[4,'C2'], [5,'C3']]
+
+        self.assertItemsEqual(pop.fact_types["FactTypes.AHasB"], expectedB)
+        self.assertItemsEqual(pop.fact_types["FactTypes.AHasC"], expectedC)
+
 #####################################################################
 # Tests writing populations to stdout or CSV files
 #####################################################################

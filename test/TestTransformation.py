@@ -418,7 +418,8 @@ class TestAbsorptionTransformation(TestCase):
         self.assertIs(role1.covered_by[0], role2.covered_by[0])
 
         # Check absorb_fact.fact_type_names
-        self.assertEquals(absorb_fact.fact_type_names, ["FactTypes.AHasB", "FactTypes.AHasC"])
+        expected = {'B': "FactTypes.AHasB", 'C': "FactTypes.AHasC"}
+        self.assertDictEqual(absorb_fact.fact_type_names, expected)
 
         # Check contents of added, removed, modified
         self.assertItemsEqual(trans.added, [absorb_fact] + list(model.constraints))
@@ -491,8 +492,8 @@ class TestAbsorptionTransformation(TestCase):
         self.assertEquals(role4.covered_by, [uniq])        
         
         # Check absorb_fact.fact_type_names
-        expected = ["FactTypes.AHasB", "FactTypes.AHasC", "FactTypes.AHasD", "FactTypes.AHasE"]
-        self.assertEquals(absorb_fact.fact_type_names, expected)
+        expected = {'B':"FactTypes.AHasB", 'C':"FactTypes.AHasC", 'D':"FactTypes.AHasD", 'E':"FactTypes.AHasE"}
+        self.assertDictEqual(absorb_fact.fact_type_names, expected)
 
         # Check contents of added, removed, modified
         self.assertItemsEqual(trans.added, [absorb_fact] + list(model.constraints))

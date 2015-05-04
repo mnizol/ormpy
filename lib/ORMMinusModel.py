@@ -43,7 +43,10 @@ class ORMMinusModel(object):
         self.fact_types = model.fact_types #: Fact types
         self.constraints = model.constraints #: Constraints
         self.ignored = [] #: List of ignored constraints
-        
+
+        #: True iff the model is changed by a strengthening transformation
+        self.strengthened = False 
+                                    
         # Initialize private attributes        
         self._ubound = ubound #: Bound on model element size
         self._ineqsys = InequalitySystem() #: System of inequalities
@@ -81,7 +84,8 @@ class ORMMinusModel(object):
             # IMPORTANT: Absorption is inappropriate once we permit join paths 
             # and additional constraints.  JoinMaterialization replaces it.
 
-            DisjunctiveRefTransformation(model=self.base_model).execute()
+            if DisjunctiveRefTransformation(model=self.base_model).execute():
+                self.strengthened = True
         else:
             self._remove_disjunctive_ref_schemes()
             AbsorptionTransformation(model=self.base_model).execute()

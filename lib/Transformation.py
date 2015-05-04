@@ -33,6 +33,11 @@ class Transformation(object):
         """ Execute the transformation. """
         raise NotImplementedError()
 
+    @property
+    def model_changed(self):
+        """ True iff model is changed by this transformation. """
+        return len(self.removed + self.modified + self.added) > 0
+
     def _add(self, element):
         """ Add an element to the model. """
         self.added.append(element)
@@ -108,6 +113,8 @@ class ValueConstraintTransformation(Transformation):
                 self._transform_role_value_constraint(cons, element)
             elif not element.primitive:
                 self._transform_subtype_value_constraint(cons, element)
+
+        return self.model_changed
 
     def _transform_role_value_constraint(self, cons, role):
         obj = role.player         
@@ -219,6 +226,8 @@ class AbsorptionTransformation(Transformation):
             self._add(fact_type)
             #self._remove(euc) # Removed when we remove first fact type.
 
+        return self.model_changed
+
     def _pattern(self, euc):
         """ Check if euc matches absorption pattern. """
 
@@ -324,3 +333,5 @@ class DisjunctiveRefTransformation(Transformation):
                     self._add(MandatoryConstraint(covers=[role]))
 
                 map(self._remove, filter(ior, role.covered_by))
+
+        return self.model_changed

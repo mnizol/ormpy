@@ -117,7 +117,10 @@ def check_or_populate(model, args):
                               experimental=args.experimental)
 
         if model.solution == None:
-            print "Model is unsatisfiable."
+            if model.strengthened:
+                print "Model satisfiability cannot be determined."
+            else:
+                print "Model is unsatisfiable."
         elif args.populate:
             pop = Population(model)
 

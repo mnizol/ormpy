@@ -117,6 +117,17 @@ class TestCommandLine(TestCase):
         self.assertEquals(read_stdout(), "Model is unsatisfiable.\n")
         restore_stdout()
 
+    def test_check_unsat_strengthened(self):
+        """ Test checking unsatisfiable strengthened model."""
+        path = os.path.join(self.data_dir, "disjunctive_reference_scheme_unsat.orm")
+        args = CommandLine.parse_args(["-cu 10", "--experimental", path])
+        model = CommandLine.import_model(path, args)
+
+        capture_stdout()
+        CommandLine.check_or_populate(model, args)        
+        self.assertEquals(read_stdout(), "Model satisfiability cannot be determined.\n")
+        restore_stdout()
+
     def test_check_sat(self):
         """ Test checking a satisfiable model. """
         path = os.path.join(self.data_dir, "no_fact_types.orm")

@@ -534,7 +534,7 @@ class TestDisjunctiveRefTransformation(TestCase):
     
         # Execute the transformation
         trans = DisjunctiveRefTransformation(model=model)
-        trans.execute()
+        self.assertTrue(trans.execute())
 
         mand = model.constraints.of_type(MandatoryConstraint)
         self.assertEquals(len(mand), 2)
@@ -563,7 +563,7 @@ class TestDisjunctiveRefTransformation(TestCase):
     
         # Execute the transformation
         trans = DisjunctiveRefTransformation(model=model)
-        trans.execute()
+        self.assertTrue(trans.execute())
 
         mand = model.constraints.of_type(MandatoryConstraint)
         self.assertEquals(len(mand), 2)

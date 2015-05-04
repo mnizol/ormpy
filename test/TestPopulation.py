@@ -189,6 +189,25 @@ class TestPopulation(TestCase):
         self.assertItemsEqual(pop.fact_types["FactTypes.AHasB"], expectedB)
         self.assertItemsEqual(pop.fact_types["FactTypes.AHasC"], expectedC)
 
+    def test_mandatory_middle_role(self):
+        """ I'm verifying my assumption that if a mandatory role is populated
+            between two other roles, the subsequent role's population will pick
+            up where the first role left off."""
+        fname = os.path.join(self.data_dir, "middle_mandatory_role.orm")
+        model = ORMMinusModel(NormaLoader(fname).model, ubound=100)
+
+        # Forceably re-order roles of value type V
+        v = model.object_types.get("V")
+        v.roles = sorted(v.roles, key=lambda x: x.fact_type.name)
+        
+        self.assertEquals(v.roles[1].fact_type.name, "VHasQ")
+
+        pop = Population(model)
+
+        self.assertItemsEqual(pop.fact_types["FactTypes.VExists"], [[0],[1],[2]])
+        self.assertItemsEqual(pop.fact_types["FactTypes.VSwims"], [[3],[4],[5],[6]])        
+        
+
 #####################################################################
 # Tests writing populations to stdout or CSV files
 #####################################################################

@@ -507,18 +507,17 @@ class NormaLoader(object):
         implied = (xml_node.get("IsImplied") == "true")
         covers = self._load_role_sequence(xml_node, name)
 
-        # Lambda functions to decide if constraint covers a subtype or is simple
+        # Lambda function to decide if constraint covers a subtype
         subtype = lambda x: x and isinstance(x[0], Constraint.SubtypeConstraint)
-        simple = lambda x: x and len(x) == 1 and isinstance(x[0], FactType.Role)
 
-        if simple(covers) and not(implied):
-            return Constraint.MandatoryConstraint(covers=covers, **attribs)
-        else:
-            if not(implied) and len(covers or []) > 1: 
-                kind = "Inclusive-or constraint"
-                if subtype(covers): kind = "Subtype " + kind.lower()
-                self.omissions.append(kind + " " + name)
+        if implied:
             return None
+        elif subtype(covers):   
+            if len(covers) > 1: # If len == 1 its on the implicit subtype fact
+                self.omissions.append("Subtype inclusive-or constraint " + name)
+            return None
+        else:
+            return Constraint.MandatoryConstraint(covers=covers, **attribs)
 
     def _load_uniqueness_constraint(self, xml_node):
         """ Load uniqueness constraint. """

@@ -214,7 +214,8 @@ class AbsorptionTransformation(Transformation):
                 # self._remove here because fact_type.rollback is unimplemented
                 self._remove_fact_type(old_role.fact_type) 
 
-            self._add(UniquenessConstraint(covers=new_roles))
+            self._add(UniquenessConstraint(covers=new_roles, 
+                                           identifier_for = euc.identifier_for))
             self._add(fact_type)
             #self._remove(euc) # Removed when we remove first fact type.
 
@@ -302,3 +303,24 @@ class AbsorptionFactType(FactType):
 
         #: Original fact type name for each role
         self.fact_type_names = {}  
+
+###############################################################################
+# Disjunctive Reference Transformation
+###############################################################################
+class DisjunctiveRefTransformation(Transformation):
+    """ Sets all ref roles in a disjunctive reference scheme to mandatory,
+        and removes any inclusive-or constraints on those roles.  """
+
+    def __init__(self, *args, **kwargs):
+        super(DisjunctiveRefTransformation, self).__init__(*args, **kwargs)
+
+    def execute(self):
+        """ Execute the transformation. """
+        ior = lambda x: isinstance(x, MandatoryConstraint) and not x.simple
+
+        for obj in self.model.object_types:
+            for role in obj.ref_roles:
+                if not role.mandatory:
+                    self._add(MandatoryConstraint(covers=[role]))
+
+                map(self._remove, filter(ior, role.covered_by))

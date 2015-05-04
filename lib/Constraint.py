@@ -270,12 +270,20 @@ class UniquenessConstraint(FrequencyConstraint):
     def commit(self):
         """ Commit side effects of this constraint in the model. """
         if self.identifier_for is not None:
-            self.identifier_for.identifying_constraint = self
+            obj = self.identifier_for
+            obj.identifying_constraint = self
+
+            # Set the reference roles for the identified object type
+            obj.ref_roles = []
+            for fact_type in {role.fact_type for role in self.covers}:
+                obj.ref_roles += [r for r in fact_type.roles if r.player == obj]                                 
+
         Constraint.commit(self)
 
     def rollback(self):
         """ Rollback side effects of this constraint in the model. """
         if self.identifier_for is not None:
             self.identifier_for.identifying_constraint = None
+            self.identifier_for.ref_roles = []
         Constraint.rollback(self)
 

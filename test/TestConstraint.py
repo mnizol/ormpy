@@ -263,22 +263,35 @@ class TestConstraint(TestCase):
 
     def test_commit_rollback_iuc(self):
         """ Test commit and rollback of internal uniqueness constraints."""
-        role1 = Role(name="R1")
-        role2 = Role(name="R2")
         obj1 = EntityType(name="O1")
-        cons1 = Constraint.UniquenessConstraint(name="U1",covers=[role1],identifier_for=obj1)
-        cons2 = Constraint.UniquenessConstraint(name="U2",covers=[role2],identifier_for=None)
+        obj2 = EntityType(name="V1")
+
+        fact1 = FactType(name="F1")
+        role1 = fact1.add_role(player=obj1)
+        role2 = fact1.add_role(player=obj2)
+        fact1.commit()
+
+        fact2 = FactType(name="F2")
+        role3 = fact2.add_role(player=obj1)
+        fact2.commit()
+        
+        cons1 = Constraint.UniquenessConstraint(covers=[role1],identifier_for=None)
+        cons2 = Constraint.UniquenessConstraint(covers=[role2],identifier_for=obj1)
 
         self.assertEquals(role1.covered_by, [])
         self.assertEquals(role2.covered_by, [])
+
         self.assertEquals(obj1.identifying_constraint, None)
+        self.assertEquals(obj1.ref_roles, [])
+        self.assertItemsEqual(obj1.roles, [role1, role3])
 
         cons1.commit()
         cons2.commit()
 
         self.assertEquals(role1.covered_by, [cons1])
         self.assertEquals(role2.covered_by, [cons2])
-        self.assertEquals(obj1.identifying_constraint, cons1)
+        self.assertEquals(obj1.identifying_constraint, cons2)
+        self.assertEquals(obj1.ref_roles, [role1])
 
         cons1.rollback()
         cons2.rollback()
@@ -286,6 +299,43 @@ class TestConstraint(TestCase):
         self.assertEquals(role1.covered_by, [])
         self.assertEquals(role2.covered_by, [])
         self.assertEquals(obj1.identifying_constraint, None)
+        self.assertEquals(obj1.ref_roles, [])
+
+    def test_commit_rollback_euc(self):
+        """ Test commit and rollback of external uniqueness constraint."""
+        obj1 = EntityType(name="O1")
+        obj2 = EntityType(name="V1")
+        obj3 = EntityType(name="V2")
+
+        fact1 = FactType(name="F1")
+        role11 = fact1.add_role(player=obj1)
+        role12 = fact1.add_role(player=obj2)
+        fact1.commit()
+
+        fact2 = FactType(name="F2")
+        role21 = fact2.add_role(player=obj1)
+        role23 = fact2.add_role(player=obj3)
+        fact2.commit()
+
+        fact3 = FactType(name="F3")
+        role31 = fact3.add_role(player=obj1)
+        fact3.commit()
+        
+        cons = Constraint.UniquenessConstraint(covers=[role12, role23], identifier_for=obj1)
+
+        self.assertEquals(obj1.identifying_constraint, None)
+        self.assertEquals(obj1.ref_roles, [])
+        self.assertItemsEqual(obj1.roles, [role11, role21, role31])
+
+        cons.commit()
+
+        self.assertEquals(obj1.identifying_constraint, cons)
+        self.assertItemsEqual(obj1.ref_roles, [role11, role21])
+
+        cons.rollback()
+
+        self.assertEquals(obj1.identifying_constraint, None)
+        self.assertEquals(obj1.ref_roles, [])
 
     def test_commit_and_rollback_value(self):
         """ Test commit and rollback of value constraints. """

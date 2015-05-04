@@ -29,6 +29,12 @@ class ObjectType(ModelElement):
         self.roles = [] #: Roles played by this object type
         self.covered_by = [] #: Constraints that cover this object type
 
+        #: A list of the entity type's reference roles, which must be a subset
+        #: of self.roles.  This attribute is set by the identifying constraint
+        #: when that constraint is committed.  The list should always be empty
+        #: for value types.
+        self.ref_roles = []
+
         # Direct subtypes and supertypes.  We do not store indirect subtypes
         # here because maintenance of the subtype graph would be too expensive
         self.direct_subtypes = [] #: Direct subtypes of this object type
@@ -82,7 +88,7 @@ class EntityType(ObjectType):
         #: Reference to the (internal or external) uniqueness constraint that 
         #: provides the preferred identification scheme for this entity type.
         self.identifying_constraint = identifying_constraint
-
+   
 class ValueType(ObjectType):
     """ A value type is a self-identifying object type. """
 

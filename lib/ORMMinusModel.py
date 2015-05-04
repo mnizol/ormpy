@@ -20,7 +20,8 @@ from lib.ObjectType import ObjectType, ObjectifiedType
 from lib.FactType import Role
 
 from lib.Transformation import ValueConstraintTransformation, \
-                               AbsorptionTransformation
+                               AbsorptionTransformation, \
+                               DisjunctiveRefTransformation
 
 class ORMMinusModel(object):
     """ An ORM- model along with its solution.  The solution is computed using
@@ -35,7 +36,7 @@ class ORMMinusModel(object):
 
     DEFAULT_SIZE = 15 #: Default upper bound on model element cardinalities.
 
-    def __init__(self, model=None, ubound=DEFAULT_SIZE):
+    def __init__(self, model=None, ubound=DEFAULT_SIZE, experimental=False):
         # Initialize public attributes
         self.base_model = model #: Underlying ORM Model
         self.object_types = model.object_types #: Object types
@@ -54,7 +55,7 @@ class ORMMinusModel(object):
         self._fact_type_parts = {}
 
         # Transform the model
-        self._apply_transformations()
+        self._apply_transformations(experimental)
 
         # Initialize _fact_type_parts here; _create_variables will update.
         for fact_type in self.fact_types:
@@ -70,13 +71,31 @@ class ORMMinusModel(object):
         # Log any ignored constraints
         self._log_ignored_constraints()
 
-    def _apply_transformations(self):
+    def _apply_transformations(self, experimental=False):
         """ Apply transformations to the model. """
         trans = ValueConstraintTransformation(model=self.base_model)
         trans.execute()
         self.ignored += trans.removed
 
-        AbsorptionTransformation(model=self.base_model).execute()
+        if experimental:
+            # IMPORTANT: Absorption is inappropriate once we permit join paths 
+            # and additional constraints.  JoinMaterialization replaces it.
+
+            DisjunctiveRefTransformation(model=self.base_model).execute()
+        else:
+            self._remove_disjunctive_ref_schemes()
+            AbsorptionTransformation(model=self.base_model).execute()
+
+    def _remove_disjunctive_ref_schemes(self):
+        """ The old McGill approach cannot handle disjunctive reference schemes.
+            So, if an object type has a disjunctive ref scheme, treat all of its 
+            roles as non-referential.  """
+        for obj in self.object_types:
+            if not(all([role.mandatory for role in obj.ref_roles])):
+                cons = obj.identifying_constraint
+                cons.rollback()
+                cons.identifier_for = None
+                cons.commit()
 
     def _log_ignored_constraints(self):
         """ Log any constraints in self.ignored. """
@@ -197,11 +216,12 @@ class ORMMinusModel(object):
             part_vars = [self._variables[part] for part in parts]
             self._add(Inequality(lhs=fact_var, rhs=Product(part_vars)))
 
-        # Create inequalities for implicit disjunctive constraint
+        # Create inequalities for implicit disjunctive mandatory constraint
         for obj in self.object_types:
-            if obj.independent == False and len(obj.roles) > 0:
+            non_ref = set(obj.roles) - set(obj.ref_roles)
+            if obj.primitive and obj.independent == False and len(non_ref) > 0:
                 obj_var = self._variables[obj]
-                role_vars = [self._variables[role] for role in obj.roles]
+                role_vars = [self._variables[role] for role in non_ref]
                 self._add(Inequality(lhs=obj_var, rhs=Sum(role_vars)))
 
     def _create_value_inequality(self, cons):

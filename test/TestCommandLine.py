@@ -55,6 +55,10 @@ class TestCommandLine(TestCase):
 
         args = CommandLine.parse_args(["--include-deontic", "test.orm"])
         self.assertTrue(args.deontic)
+        self.assertFalse(args.experimental)
+
+        args = CommandLine.parse_args(["--experimental", "test.orm"])
+        self.assertTrue(args.experimental)
 
     def test_log_config(self):
         """ Test configuration of the logger. """

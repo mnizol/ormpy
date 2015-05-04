@@ -75,6 +75,8 @@ def parse_args(arglist=None):
         dest='directory', default='')
     parser.add_argument('--include-deontic', help='include deontic constraints',
         dest='deontic', action='store_true', default=False)
+    parser.add_argument('--experimental', help='use experimental extensions',
+        dest='experimental', action='store_true', default=False)
 
     # Filename to parse
     parser.add_argument('filename', type=str, help='File containing ORM model')
@@ -111,7 +113,8 @@ def import_model(path, args):
 def check_or_populate(model, args):
     """ Check or populate the model, as requested. """
     try:
-        model = ORMMinusModel(model, max(1, args.ubound))
+        model = ORMMinusModel(model, max(1, args.ubound), 
+                              experimental=args.experimental)
 
         if model.solution == None:
             print "Model is unsatisfiable."

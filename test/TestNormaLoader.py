@@ -332,8 +332,6 @@ class TestNormaLoader(TestCase):
         expected = ["Equality constraint EqualityConstraint1",
              "Exclusion constraint ExclusionConstraint1",
              "Exclusion constraint ExclusiveOrConstraint1",
-             "Inclusive-or constraint InclusiveOrConstraint1",
-             "Inclusive-or constraint InclusiveOrConstraint2",
              "Ring constraint RingConstraint1",
              "Value comparison constraint ValueComparisonConstraint1"]
 
@@ -341,7 +339,7 @@ class TestNormaLoader(TestCase):
         self.assertItemsEqual(loader.omissions, expected)
 
         # Check log contents
-        expected = ["WARNING: 7 model elements were ignored while loading omitted_constraints.orm."] + \
+        expected = ["WARNING: 5 model elements were ignored while loading omitted_constraints.orm."] + \
                    ["INFO: Ignored " + msg for msg in expected]
 
         self.assertItemsEqual(self.log.formatLogRecords(), expected)
@@ -550,29 +548,43 @@ class TestNormaLoader(TestCase):
         self.assertIsNone(cons2) # Implied due to objectification
 
         # Confirm constraint count
-        self.assertEquals(model.constraints.count(), 8)
+        self.assertEquals(model.constraints.count(), 9)
 
-        # Confirm all mandatories are simple
-        i = 0
-        for cons in model.constraints:
-            if isinstance(cons, Constraint.MandatoryConstraint):
-                i = i+1
-                self.assertTrue(cons.simple)
-                self.assertEquals(len(cons.covers), 1)
+        # Check loaded mandatories
+        cons = model.constraints.of_type(Constraint.MandatoryConstraint)
+        self.assertEquals(len(cons), 3)
+        
+        s1 = model.constraints.get("SimpleMandatoryConstraint1")
+        s2 = model.constraints.get("SimpleMandatoryConstraint2")
+        i1 = model.constraints.get("InclusiveOrConstraint1")
 
-        self.assertEquals(i, 2)
+        fact_type1 = model.fact_types.get("EHasEId")
+        self.assertTrue(s1.simple)
+        self.assertEquals(len(s1.covers), 1)
+        self.assertIs(s1.covers[0], fact_type1.roles[0])
+        self.assertTrue(fact_type1.roles[0].mandatory)
+        self.assertFalse(fact_type1.roles[1].mandatory)
 
-        # Confirm inclusive-or ignored
-        self.assertItemsEqual(loader.omissions,
-            ["Inclusive-or constraint InclusiveOrConstraint1"])
+        fact_type2 = model.fact_types.get("EHasB")
+        self.assertTrue(s2.simple)
+        self.assertEquals(len(s2.covers), 1)
+        self.assertIs(s2.covers[0], fact_type2.roles[0])
+        self.assertTrue(fact_type2.roles[0].mandatory)
+        self.assertFalse(fact_type2.roles[1].mandatory)
 
-        # Check assignment of mandatory to roles
-        fact_type = model.fact_types.get("EHasEId")
-        r1 = fact_type.roles[0]
-        r2 = fact_type.roles[1]
-
-        self.assertTrue(r1.mandatory)
-        self.assertFalse(r2.mandatory)
+        role1 = model.fact_types.get("EHasB").roles[1]
+        role2 = model.fact_types.get("BIsCool").roles[0]
+        self.assertFalse(i1.simple)
+        self.assertEquals(len(i1.covers), 2)
+        self.assertItemsEqual(i1.covers, [role1, role2])
+        
+        # For inclusive-or, neither covered role should have "mandatory" true
+        self.assertFalse(role1.mandatory)
+        self.assertFalse(role2.mandatory)
+        
+        # Confirm nothing ignored
+        self.assertItemsEqual(loader.omissions, [])
+      
 
     def test_role_names(self):
         """ Confirm role names are generated properly. """

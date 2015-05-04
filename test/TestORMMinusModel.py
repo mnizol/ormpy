@@ -81,20 +81,10 @@ class TestORMMinusModel(TestCase):
         """ Test that disjunctive mandatory constraint is ignored. """
         fname = os.path.join(self.data_dir, "disjunctive_mandatory.orm")
         model = NormaLoader(fname).model
-
-        # NormaLoader actually drops the disjunctive mandatory, so create a
-        # fake one to test that the constraint is ignored
-        cons = Constraint.MandatoryConstraint(name="Cons1")
-        role1 = model.fact_types.get("EntityType1A").roles[0]
-        role2 = model.fact_types.get("EntityType1B").roles[0]
-        cons.covers = [role1, role2]        
-        model.add(cons)
-
         ormminus = ORMMinusModel(model=model)
-        solution = ormminus.solution
 
         actual = [cons.name for cons in ormminus.ignored]
-        expected = ["Cons1"]
+        expected = ["InclusiveOrConstraint1"]
 
         self.assertItemsEqual(actual, expected)  
         
@@ -190,41 +180,164 @@ class TestORMMinusModel(TestCase):
                   "ObjectTypes.B <= " + str(ORMMinusModel.DEFAULT_SIZE),
                   "ObjectTypes.C <= " + str(ORMMinusModel.DEFAULT_SIZE),
                   "ObjectTypes.D <= " + str(ORMMinusModel.DEFAULT_SIZE),
+                  "ObjectTypes.E <= " + str(ORMMinusModel.DEFAULT_SIZE),
+                  "ObjectTypes.F <= " + str(ORMMinusModel.DEFAULT_SIZE),
+
                   "FactTypes.ALikesA.Roles.R1 <= ObjectTypes.A",
                   "FactTypes.ALikesA.Roles.R1 <= FactTypes.ALikesA",
                   "FactTypes.ALikesA.Roles.R2 <= ObjectTypes.A",
                   "FactTypes.ALikesA.Roles.R2 <= FactTypes.ALikesA",
+
                   "FactTypes.ASharesB.Roles.R3 <= ObjectTypes.A",
                   "FactTypes.ASharesB.Roles.R3 <= FactTypes.ASharesB",
                   "FactTypes.ASharesB.Roles.R4 <= ObjectTypes.B",
                   "FactTypes.ASharesB.Roles.R4 <= FactTypes.ASharesB",
+
                   "FactTypes.AOwnsD.Roles.R5 <= ObjectTypes.A",
                   "FactTypes.AOwnsD.Roles.R5 <= FactTypes.AOwnsD",
                   "FactTypes.AOwnsD.Roles.R6 <= ObjectTypes.D",
                   "FactTypes.AOwnsD.Roles.R6 <= FactTypes.AOwnsD",
+
+                  "FactTypes.EHasF.Roles.R7 <= ObjectTypes.E",
+                  "FactTypes.EHasF.Roles.R7 <= FactTypes.EHasF",
+                  "FactTypes.EHasF.Roles.R8 <= ObjectTypes.F",
+                  "FactTypes.EHasF.Roles.R8 <= FactTypes.EHasF",
+
                   "FactTypes.ALikesA <= Constraints.IUC1",
                   "Constraints.IUC1 <= FactTypes.ALikesA",
                   "Constraints.IUC1 <= FactTypes.ALikesA.Roles.R1",
                   "FactTypes.ALikesA.Roles.R1 <= Constraints.IUC1",
+
                   "FactTypes.ASharesB <= Constraints.IUC2",
                   "Constraints.IUC2 <= FactTypes.ASharesB",
                   "Constraints.IUC2 <= FactTypes.ASharesB.Roles.R3",
                   "FactTypes.ASharesB.Roles.R3 <= Constraints.IUC2",
+
                   "FactTypes.AOwnsD <= Constraints.IUC3",
                   "Constraints.IUC3 <= FactTypes.AOwnsD",
                   "Constraints.IUC3 <= FactTypes.AOwnsD.Roles.R5",
                   "FactTypes.AOwnsD.Roles.R5 <= Constraints.IUC3",
+
+                  "FactTypes.EHasF <= Constraints.IUC4",
+                  "Constraints.IUC4 <= FactTypes.EHasF",
+                  "Constraints.IUC4 <= FactTypes.EHasF.Roles.R7",
+                  "FactTypes.EHasF.Roles.R7 <= Constraints.IUC4",
+
                   "ObjectTypes.A <= FactTypes.ALikesA.Roles.R1 + FactTypes.ALikesA.Roles.R2 + FactTypes.AOwnsD.Roles.R5 + FactTypes.ASharesB.Roles.R3",
                   "ObjectTypes.D <= FactTypes.AOwnsD.Roles.R6",
+                  "ObjectTypes.E <= FactTypes.EHasF.Roles.R7",
+
+                  "ObjectTypes.F <= ObjectTypes.D",
+
                   "FactTypes.ALikesA <= Constraints.IUC1 * FactTypes.ALikesA.Roles.R2",
                   "FactTypes.ASharesB <= Constraints.IUC2 * FactTypes.ASharesB.Roles.R4",
-                  "FactTypes.AOwnsD <= Constraints.IUC3 * FactTypes.AOwnsD.Roles.R6"
+                  "FactTypes.AOwnsD <= Constraints.IUC3 * FactTypes.AOwnsD.Roles.R6",
+                  "FactTypes.EHasF <= Constraints.IUC4 * FactTypes.EHasF.Roles.R8"
                  ]
         
         self.assertItemsEqual(actual, expect)
 
         self.assertItemsEqual(self.log.formatLogRecords(), [])
         self.log.afterTest(None)
+
+    def test_implicit_disjunctive_on_entities(self):
+        """ Test implicit disjunctive mandatory constraint inequality on
+            entity types. """
+        fname = os.path.join(self.data_dir, "implicit_disjunctive_test_2.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model=model)
+        solution = ormminus.solution
+
+        actual = set([ineq.tostring() for ineq in ormminus._ineqsys])
+        
+        expected = ["ObjectTypes.A <= " + str(ORMMinusModel.DEFAULT_SIZE),
+                    "ObjectTypes.A_id <= " + str(ORMMinusModel.DEFAULT_SIZE),
+                    "ObjectTypes.Boolean <= 2",
+                    
+                  "FactTypes.AHasBoolean.Roles.R1 <= ObjectTypes.A",
+                  "FactTypes.AHasBoolean.Roles.R1 <= FactTypes.AHasBoolean",
+                  "FactTypes.AHasBoolean.Roles.R2 <= ObjectTypes.Boolean",
+                  "FactTypes.AHasBoolean.Roles.R2 <= FactTypes.AHasBoolean",
+
+                  "FactTypes.AHasAId.Roles.R1 <= ObjectTypes.A",
+                  "FactTypes.AHasAId.Roles.R1 <= FactTypes.AHasAId",
+                  "FactTypes.AHasAId.Roles.R2 <= ObjectTypes.A_id",
+                  "FactTypes.AHasAId.Roles.R2 <= FactTypes.AHasAId",
+
+                  "FactTypes.AHasAId <= Constraints.IUC1",
+                  "Constraints.IUC1 <= FactTypes.AHasAId",
+                  "Constraints.IUC1 <= FactTypes.AHasAId.Roles.R2",
+                  "FactTypes.AHasAId.Roles.R2 <= Constraints.IUC1",
+
+                  "FactTypes.AHasAId <= Constraints.IUC2",
+                  "Constraints.IUC2 <= FactTypes.AHasAId",
+                  "Constraints.IUC2 <= FactTypes.AHasAId.Roles.R1",
+                  "FactTypes.AHasAId.Roles.R1 <= Constraints.IUC2",
+
+                  "FactTypes.AHasBoolean <= Constraints.IUC3",
+                  "Constraints.IUC3 <= FactTypes.AHasBoolean",
+                  "Constraints.IUC3 <= FactTypes.AHasBoolean.Roles.R2",
+                  "FactTypes.AHasBoolean.Roles.R2 <= Constraints.IUC3",
+
+                  "ObjectTypes.A <= FactTypes.AHasAId.Roles.R1",
+
+                  "ObjectTypes.A <= FactTypes.AHasBoolean.Roles.R1",
+                  "ObjectTypes.A_id <= FactTypes.AHasAId.Roles.R2",
+                  "ObjectTypes.Boolean <= FactTypes.AHasBoolean.Roles.R2",
+
+                  "FactTypes.AHasAId <= Constraints.IUC1 * Constraints.IUC2",
+                  "FactTypes.AHasBoolean <= Constraints.IUC3 * FactTypes.AHasBoolean.Roles.R1"
+                ]
+
+        self.assertItemsEqual(actual, expected)
+
+        self.assertEquals(solution["ObjectTypes.A"], 2)
+                  
+    def test_idmc_with_disjunctive_ref_old_approach(self):
+        """ Test implicit disjunctive mandatory constraint inequality when
+            entity type has disjunctive ref scheme, using the old approach. """
+        fname = os.path.join(self.data_dir, "disjunctive_reference_scheme.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model=model, experimental=False)
+        
+        # Confirm IDMC inequality includes all roles played by A
+        actual = set([ineq.tostring() for ineq in ormminus._ineqsys])
+        euc = model.constraints.get("EUC")
+        a = model.object_types.get("A")
+
+        self.assertIn("ObjectTypes.A <= FactTypes.AHasB.Roles.A + FactTypes.AHasC.Roles.A", actual)
+        self.assertIsNone(a.identifying_constraint)
+        self.assertIsNone(euc.identifier_for)
+        self.assertEquals(a.ref_roles, [])
+
+    def test_idmc_with_disjunctive_ref_new_approach(self):
+        """ Test implicit disjunctive mandatory constraint inequality when
+            entity type has disjunctive ref scheme, using the new approach. """
+        fname = os.path.join(self.data_dir, "disjunctive_reference_scheme.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model=model, experimental=True)
+        
+        # Confirm there is *no* IDMC inequality for A because all of its roles
+        # are reference roles
+        actual = set([ineq.tostring() for ineq in ormminus._ineqsys if ineq.tostring().startswith("ObjectTypes.A <=")])
+        expected = ["ObjectTypes.A <= " + str(ORMMinusModel.DEFAULT_SIZE),
+                    "ObjectTypes.A <= FactTypes.AHasB.Roles.A",
+                    "ObjectTypes.A <= FactTypes.AHasC.Roles.A"]
+
+        self.assertItemsEqual(actual, expected)
+
+        # Confirm all roles of A are mandatory now
+        euc = model.constraints.get("EUC")
+        a = model.object_types.get("A") 
+        role1 = model.fact_types.get("AHasB").roles[0]
+        role2 = model.fact_types.get("AHasC").roles[0]
+
+        self.assertTrue(role1.mandatory)
+        self.assertTrue(role2.mandatory)
+
+        self.assertIs(a.identifying_constraint, euc)
+        self.assertIs(euc.identifier_for, a)
+        self.assertItemsEqual(a.ref_roles, [role1, role2])
 
     def test_unsat_smarag_1(self):
         """ Test 1st unsatisfiable model provided by Smaragdakis. """

@@ -16,7 +16,8 @@ from lib.NormaLoader import NormaLoader
 from lib.Constraint import UniquenessConstraint, MandatoryConstraint
 
 from lib.Transformation import Transformation, ValueConstraintTransformation, \
-                               AbsorptionTransformation
+                               AbsorptionTransformation, \
+                               DisjunctiveRefTransformation
 
 ##############################################################################
 # Tests for generic Transformation class
@@ -489,7 +490,12 @@ class TestAbsorptionTransformation(TestCase):
 
         self.assertEquals(role2.covered_by, [uniq])
         self.assertEquals(role3.covered_by, [uniq])
-        self.assertEquals(role4.covered_by, [uniq])        
+        self.assertEquals(role4.covered_by, [uniq])  
+
+        # Confirm that new uniqueness constraint is the identifier for "A"
+        self.assertIs(a.identifying_constraint, uniq)
+        self.assertIs(uniq.identifier_for, a)
+        self.assertItemsEqual(a.ref_roles, [role0])      
         
         # Check absorb_fact.fact_type_names
         expected = {'B':"FactTypes.AHasB", 'C':"FactTypes.AHasC", 'D':"FactTypes.AHasD", 'E':"FactTypes.AHasE"}
@@ -499,4 +505,72 @@ class TestAbsorptionTransformation(TestCase):
         self.assertItemsEqual(trans.added, [absorb_fact] + list(model.constraints))
         self.assertItemsEqual(trans.removed, old_fact + old_cons)
         self.assertItemsEqual(trans.modified, [])
+
+##############################################################################
+# DisjunctiveRefTransformation tests
+##############################################################################
+class TestDisjunctiveRefTransformation(TestCase):
+    """ Unit tests for the DisjunctiveRefTransformation class. """
+
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_disjunctive_ref_no_ior(self):
+        """ Test a disjunctive reference scheme with no IOR constraint. """
+        fname = TestData.path("disjunctive_reference_scheme.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        mand = model.constraints.of_type(MandatoryConstraint)
+        self.assertEquals(len(mand), 1)
+
+        a = model.object_types.get("A")
+        role1 = model.fact_types.get("AHasB").roles[0]
+        role2 = model.fact_types.get("AHasC").roles[0]
+
+        self.assertItemsEqual(a.ref_roles, [role1, role2])
+        self.assertTrue(role1.mandatory)
+        self.assertFalse(role2.mandatory)
+    
+        # Execute the transformation
+        trans = DisjunctiveRefTransformation(model=model)
+        trans.execute()
+
+        mand = model.constraints.of_type(MandatoryConstraint)
+        self.assertEquals(len(mand), 2)
+
+        # Both ref roles now mandatory
+        self.assertTrue(role1.mandatory)
+        self.assertTrue(role2.mandatory)
+
+    def test_disjunctive_ref_with_ior(self):
+        """ Test a disjunctive reference scheme WITH an IOR constraint. """
+        fname = TestData.path("disjunctive_reference_scheme_2.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        mand = model.constraints.of_type(MandatoryConstraint)
+        self.assertEquals(len(mand), 1)
+        self.assertFalse(mand[0].simple) # IOR constraint
+
+        a = model.object_types.get("A")
+        role1 = model.fact_types.get("AHasB").roles[0]
+        role2 = model.fact_types.get("AHasC").roles[0]
+
+        self.assertItemsEqual(a.ref_roles, [role1, role2])
+        self.assertFalse(role1.mandatory)
+        self.assertFalse(role2.mandatory)
+    
+        # Execute the transformation
+        trans = DisjunctiveRefTransformation(model=model)
+        trans.execute()
+
+        mand = model.constraints.of_type(MandatoryConstraint)
+        self.assertEquals(len(mand), 2)
+        self.assertTrue(mand[0].simple)
+        self.assertTrue(mand[1].simple)
+
+        # Both ref roles now mandatory
+        self.assertTrue(role1.mandatory)
+        self.assertTrue(role2.mandatory)
  

@@ -357,6 +357,16 @@ class TestORMMinusModel(TestCase):
         model = NormaLoader(fname).model
         self.assertIsNone(ORMMinusModel(model=model).solution)
 
+    def test_unsat_overlapping_iuc(self):
+        """ Test case where OverlappingIFCTransform makes model unsat. """
+        fname = os.path.join(self.data_dir, "overlapping_iuc_unsat_if_strengthened.orm")
+
+        model = NormaLoader(fname).model
+        self.assertIsNotNone(ORMMinusModel(model=model, experimental=False).solution)
+
+        model = NormaLoader(fname).model
+        self.assertIsNone(ORMMinusModel(model=model, experimental=True).solution)
+
     def test_ubound_on_object_types(self):
         """ Test upper bound on object type variables.  """
         fname = os.path.join(self.data_dir, "data_types.orm")

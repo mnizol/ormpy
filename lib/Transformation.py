@@ -17,6 +17,8 @@ from lib.FactType import Role, FactType
 from lib.ObjectType import ObjectifiedType
 from lib.SubtypeGraph import SubtypeGraph
 
+import itertools
+
 class Transformation(object):
     """ A transformation of an ORM Model. """
 
@@ -25,9 +27,9 @@ class Transformation(object):
 
         self.model = model #: ORM model to transform
 
-        self.removed = [] #: List of elements removed by this transformation
-        self.modified = [] #: List of elements modified by this transformation
-        self.added = [] #: List of elements added by this transformation
+        self.removed = set() #: Set of elements removed by this transformation
+        self.modified = set() #: Set of elements modified by this transformation
+        self.added = set() #: Set of elements added by this transformation
 
     def execute(self):
         """ Execute the transformation. """
@@ -36,22 +38,22 @@ class Transformation(object):
     @property
     def model_changed(self):
         """ True iff model is changed by this transformation. """
-        return len(self.removed + self.modified + self.added) > 0
+        return len(self.removed | self.modified | self.added) > 0
 
     def _add(self, element):
         """ Add an element to the model. """
-        self.added.append(element)
+        self.added.add(element)
         self.model.add(element)
 
     def _remove(self, element):
         """ Remove an element from the model. """
-        self.removed.append(element)
+        self.removed.add(element)
         self.model.remove(element)
 
     def _modified(self, element):
         """ Tag an element as modified. The actual modification must be 
             performed external to this method.  """
-        self.modified.append(element)
+        self.modified.add(element)
 
 
 ###############################################################################
@@ -287,7 +289,7 @@ class AbsorptionTransformation(Transformation):
             role.player.roles.remove(role)
 
         self.model.fact_types.remove(fact_type)
-        self.removed.append(fact_type)
+        self.removed.add(fact_type)
 
     def _simple_iuc(self, cons):
         """ Returns True if cons is a simple internal uniqueness constraint. """
@@ -335,3 +337,92 @@ class DisjunctiveRefTransformation(Transformation):
                 map(self._remove, filter(ior, role.covered_by))
 
         return self.model_changed
+
+###############################################################################
+# Overlapping IFC Transformation
+###############################################################################
+class OverlappingIFCTransformation(Transformation):
+    """ Uses IFC-Strengthening transformations to remove overlapping part of 
+        internal frequency constraints whereever possible.  """
+
+    def __init__(self, *args, **kwargs):
+        super(OverlappingIFCTransformation, self).__init__(*args, **kwargs)
+
+    def execute(self):
+        """ Execute the transformation. """
+        is_ifc = lambda x: isinstance(x, FrequencyConstraint) and x.internal
+
+        for fact_type in self.model.fact_types:
+            # Get IFCs covering this fact type
+            ifc_set = {cons for role in fact_type.roles
+                            for cons in role.covered_by if is_ifc(cons)}
+
+            # Sort set so we process more restrictive constraints first
+            ifc_set = sorted(ifc_set, key=lambda x: (len(x.covers), x.name))
+
+            # Compare each pair of IFCs that cover the fact type
+            for pair in itertools.combinations(ifc_set, 2):
+                covers0 = set(pair[0].covers)
+                covers1 = set(pair[1].covers)
+
+                # Don't process a constraint we've already removed
+                if set(pair) - set(self.model.constraints):
+                    continue
+
+                # Case 1: No overlap
+                if not(covers0 & covers1):
+                    continue
+
+                # Case 2: pair[0] contains pair[1]
+                elif not(covers1 - covers0):
+                    self._contained_overlap(inner=pair[1], outer=pair[0])
+
+                # Case 3: pair[1] contains pair[0]
+                elif not(covers0 - covers1):
+                    self._contained_overlap(inner=pair[0], outer=pair[1])
+
+                # Case 4: Non-containing overlap
+                else:
+                    self._non_contained_overlap(pair)
+
+        return self.model_changed
+
+    def _contained_overlap(self, inner, outer):
+        """ Outer constraint covers all roles covered by inner constraint. """
+
+        # If both inner and outer constraints can be replaced by IUCs, then we
+        # can just convert the inner to an IUC and remove the outer.
+        if inner.min_freq == outer.min_freq == 1:
+            if getattr(outer, 'identifier_for', None):
+                return # Don't remove outer if it identifies an entity type
+
+            self._remove(outer)
+
+            if inner.max_freq > 1:
+                inner.rollback()
+                inner.max_freq = 1 # Force inner to act as IUC
+                inner.commit()
+                self._modified(inner)
+
+        # If only the outer can be replaced by an IUC, then convert it and 
+        # shorten it to just cover the roles not covered by the inner constraint
+        elif outer.min_freq == 1:
+            self._shorten(outer, inner)
+
+    def _non_contained_overlap(self, pair):
+        """ Constraints overlap but each covers at least one role not covered
+            by the other constraint. """
+        pair = sorted(pair, key=lambda x: (x.min_freq, x.name))
+        if pair[0].min_freq > 1: # At least one must be convertible to an IUC
+            return
+        self._shorten(*pair)
+
+    def _shorten(self, this, other):
+        """ Shorten this constraint relative to other constraint. """
+        shortlist = set(this.covers) - set(other.covers)
+        if this.min_freq == 1 and shortlist:
+            this.rollback()
+            this.max_freq = 1
+            this.covers = list(shortlist)
+            this.commit()
+            self._modified(this)

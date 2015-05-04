@@ -13,11 +13,13 @@ import lib.Domain as Domain
 
 from lib.SubtypeGraph import SubtypeGraph
 from lib.NormaLoader import NormaLoader
-from lib.Constraint import UniquenessConstraint, MandatoryConstraint
+from lib.Constraint import UniquenessConstraint, MandatoryConstraint, \
+                           FrequencyConstraint
 
 from lib.Transformation import Transformation, ValueConstraintTransformation, \
                                AbsorptionTransformation, \
-                               DisjunctiveRefTransformation
+                               DisjunctiveRefTransformation, \
+                               OverlappingIFCTransformation
 
 ##############################################################################
 # Tests for generic Transformation class
@@ -351,9 +353,9 @@ class TestAbsorptionTransformation(TestCase):
         eucs = filter(lambda x: not x.internal, model.constraints.of_type(UniquenessConstraint))
         self.assertEquals(len(eucs), 8)
 
-        self.assertEquals(trans.added, [])
-        self.assertEquals(trans.removed, [])
-        self.assertEquals(trans.modified, [])
+        self.assertItemsEqual(trans.added, [])
+        self.assertItemsEqual(trans.removed, [])
+        self.assertItemsEqual(trans.modified, [])
 
     def test_simple_absorption(self):
         """ Test simple absorption transformation. """
@@ -573,4 +575,242 @@ class TestDisjunctiveRefTransformation(TestCase):
         # Both ref roles now mandatory
         self.assertTrue(role1.mandatory)
         self.assertTrue(role2.mandatory)
- 
+
+##############################################################################
+# OverlappingIFCTransformation tests
+##############################################################################
+class TestOverlappingIFCTransformation(TestCase):
+    """ Unit tests for the OverlappingIFCTransformation class. """
+
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_non_overlapping(self):
+        """ Test case where IUCs don't overlap. """
+        fname = TestData.path("uniqueness_constraints.orm")
+        loader = NormaLoader(fname)
+        model = loader.model 
+
+        get = model.constraints.get
+        self.assertEquals(len(get("InternalUniquenessConstraint5").covers), 2)
+        self.assertEquals(len(get("InternalUniquenessConstraint1").covers), 2)
+        self.assertEquals(len(get("InternalUniquenessConstraint4").covers), 1)
+        self.assertEquals(len(get("InternalUniquenessConstraint9").covers), 1)
+        self.assertEquals(len(get("InternalUniquenessConstraint10").covers), 1)
+
+        # Run transformation and confirm return value is false
+        self.assertFalse(OverlappingIFCTransformation(model).execute())
+
+        # Assert that nothing changed.
+        self.assertEquals(len(get("InternalUniquenessConstraint5").covers), 2)
+        self.assertEquals(len(get("InternalUniquenessConstraint1").covers), 2)
+        self.assertEquals(len(get("InternalUniquenessConstraint4").covers), 1)
+        self.assertEquals(len(get("InternalUniquenessConstraint9").covers), 1)
+        self.assertEquals(len(get("InternalUniquenessConstraint10").covers), 1)
+
+    def test_overlap_but_cannot_transform(self):
+        """ Test case where there is overlap but due to properties of the 
+            constraints we can't transform them. """
+        fname = TestData.path("overlapping_iuc_no_transform.orm")
+        loader = NormaLoader(fname)
+        model = loader.model 
+        get = model.constraints.get
+
+        # Force BOTH IUCs on this fact type to be preferred id's
+        e = model.object_types.get("E")
+        f = model.object_types.get("F")
+        iuc2 = get("IUC2")
+        iuc3 = get("IUC3")
+
+        iuc2.rollback()
+        iuc2.identifier_for = f
+        iuc2.commit()
+
+        iuc3.rollback()
+        iuc3.identifier_for = e
+        iuc3.commit()
+
+        self.assertIsNotNone(iuc2.identifier_for)
+        self.assertIsNotNone(iuc3.identifier_for)
+
+        old_cons = model.constraints.of_type(FrequencyConstraint)
+
+        self.assertEquals(len(old_cons), 8)
+
+        # Run transformation and confirm return value is false
+        self.assertFalse(OverlappingIFCTransformation(model).execute())
+
+        # Confirm nothing changed
+        self.assertEquals(len(old_cons), 8)
+
+        fc1 = get("FC1")
+        self.assertEquals(fc1.min_freq, 1)
+        self.assertEquals(fc1.max_freq, 3)
+        self.assertEquals(len(fc1.covers), 3)
+
+        fc2 = get("FC2")
+        self.assertEquals(fc2.min_freq, 2)
+        self.assertEquals(fc2.max_freq, 4)
+        self.assertEquals(len(fc2.covers), 3)
+
+        fc3 = get("FC3")
+        self.assertEquals(fc3.min_freq, 2)
+        self.assertEquals(fc3.max_freq, 2)
+        self.assertEquals(len(fc3.covers), 2)
+
+        self.assertEquals(len(get("IUC1").covers), 1)
+
+        fc4 = get("FC4")
+        self.assertEquals(fc4.min_freq, 2)
+        self.assertEquals(fc4.max_freq, 2)
+        self.assertEquals(len(fc4.covers), 2)
+        
+        fc5 = get("FC5")
+        self.assertEquals(fc5.min_freq, 2)
+        self.assertEquals(fc5.max_freq, 2)
+        self.assertEquals(len(fc5.covers), 2)
+
+        self.assertEquals(len(get("IUC2").covers), 3)
+        self.assertEquals(len(get("IUC3").covers), 2)
+
+    def test_ifc_transforms(self):
+        """ Test successful application of IFC transformations."""
+        fname = TestData.path("overlapping_iuc_transform.orm")
+        loader = NormaLoader(fname)
+        model = loader.model 
+
+        obj = model.object_types.get
+        cons = model.constraints.get
+        fact = model.fact_types.get
+
+        # Check AHasBC
+        role1, role2, role3 = fact("AHasBC").roles
+        self.assertItemsEqual(cons("IUC_AB").covers, [role1, role2])
+        self.assertItemsEqual(cons("IUC_B").covers, [role2])
+        self.assertItemsEqual(cons("IUC_BC").covers, [role2, role3])
+
+        # Check DHasEF
+        role1, role2, role3 = fact("DHasEF").roles
+        self.assertItemsEqual(cons("IUC_DE").covers, [role1, role2])
+        self.assertItemsEqual(cons("IUC_EF").covers, [role2, role3])
+
+        # Check GHasH
+        role1, role2 = fact("GHasH").roles
+        self.assertItemsEqual(cons("IUC_G").covers, [role1])
+        self.assertItemsEqual(cons("IUC_GH").covers, [role1, role2])
+
+        # Check IHasIJJ
+        role1, role2, role3, role4 = fact("IHasIJJ").roles
+        self.assertItemsEqual(cons("IUC_II").covers, [role1, role2])
+        self.assertItemsEqual(cons("IUC_IJ").covers, [role2, role3])
+        self.assertItemsEqual(cons("IUC_JJ").covers, [role3, role4])
+
+        # Check KHasLM
+        role1, role2, role3 = fact("KHasLM").roles
+        self.assertItemsEqual(cons("IUC_KLM").covers, [role1, role2, role3])
+        self.assertItemsEqual(cons("IUC_KL").covers, [role1, role2])
+        self.assertItemsEqual(cons("IUC_LM").covers, [role2, role3])
+
+        # Check NHasO
+        role1, role2 = fact("NHasO").roles
+        self.assertItemsEqual(cons("FC_NO").covers, [role1, role2])
+        self.assertEquals(cons("FC_NO").min_freq, 1)
+        self.assertEquals(cons("FC_NO").max_freq, 3)
+        self.assertItemsEqual(cons("FC_O").covers, [role2])
+        self.assertEquals(cons("FC_O").min_freq, 2)
+        self.assertEquals(cons("FC_O").max_freq, 4)
+
+        # Check PHasQ
+        role1, role2 = fact("PHasQ").roles
+        self.assertItemsEqual(cons("FC_PQ").covers, [role1, role2])
+        self.assertEquals(cons("FC_PQ").min_freq, 1)
+        self.assertEquals(cons("FC_PQ").max_freq, 2)
+        self.assertItemsEqual(cons("FC_Q").covers, [role2])
+        self.assertEquals(cons("FC_Q").min_freq, 1)
+        self.assertEquals(cons("FC_Q").max_freq, 2)
+
+        # Check RHasST
+        role1, role2, role3 = fact("RHasST").roles
+        self.assertItemsEqual(cons("IUC_RS").covers, [role1, role2])
+        self.assertItemsEqual(cons("FC_ST").covers, [role2, role3])
+        self.assertEquals(cons("FC_ST").min_freq, 1)
+        self.assertEquals(cons("FC_ST").max_freq, 2)
+
+        # Check UHasVW
+        role1, role2, role3 = fact("UHasVW").roles
+        self.assertItemsEqual(cons("IUC_UV").covers, [role1, role2])
+        self.assertItemsEqual(cons("FC_VW").covers, [role2, role3])
+        self.assertEquals(cons("FC_VW").min_freq, 2)
+        self.assertEquals(cons("FC_VW").max_freq, float('inf'))
+
+        # Assert that transformation does something
+        trans = OverlappingIFCTransformation(model)
+        self.assertTrue(trans.execute())
+        #####################################################################
+
+        # Check AHasBC after transformation
+        role1, role2, role3 = fact("AHasBC").roles
+        self.assertIsNone(cons("IUC_AB")) # REMOVED
+        self.assertItemsEqual(cons("IUC_B").covers, [role2])
+        self.assertIsNone(cons("IUC_BC")) # REMOVED
+
+        # Check DHasEF after transformation
+        role1, role2, role3 = fact("DHasEF").roles
+        self.assertItemsEqual(cons("IUC_DE").covers, [role1])
+        self.assertItemsEqual(cons("IUC_EF").covers, [role2, role3])
+
+        # Check GHasH after transformation
+        role1, role2 = fact("GHasH").roles
+        self.assertItemsEqual(cons("IUC_G").covers, [role1])
+        self.assertIsNone(cons("IUC_GH"))
+
+        # Check IHasIJJ after transformation
+        role1, role2, role3, role4 = fact("IHasIJJ").roles
+        self.assertItemsEqual(cons("IUC_II").covers, [role1])
+        self.assertItemsEqual(cons("IUC_IJ").covers, [role2])
+        self.assertItemsEqual(cons("IUC_JJ").covers, [role3, role4])
+
+        # Check KHasLM after transformation
+        role1, role2, role3 = fact("KHasLM").roles
+        self.assertIsNone(cons("IUC_KLM"))
+        self.assertItemsEqual(cons("IUC_KL").covers, [role1])
+        self.assertItemsEqual(cons("IUC_LM").covers, [role2, role3])
+
+        # Check NHasO after transformation
+        role1, role2 = fact("NHasO").roles
+        self.assertItemsEqual(cons("FC_NO").covers, [role1])
+        self.assertEquals(cons("FC_NO").min_freq, 1)
+        self.assertEquals(cons("FC_NO").max_freq, 1)
+        self.assertItemsEqual(cons("FC_O").covers, [role2])
+        self.assertEquals(cons("FC_O").min_freq, 2)
+        self.assertEquals(cons("FC_O").max_freq, 4)
+
+        # Check PHasQ after transformation
+        role1, role2 = fact("PHasQ").roles
+        self.assertIsNone(cons("FC_PQ"))
+        self.assertItemsEqual(cons("FC_Q").covers, [role2])
+        self.assertEquals(cons("FC_Q").min_freq, 1)
+        self.assertEquals(cons("FC_Q").max_freq, 1)
+
+        # Check RHasST after transformation
+        role1, role2, role3 = fact("RHasST").roles
+        self.assertItemsEqual(cons("IUC_RS").covers, [role1, role2])
+        self.assertItemsEqual(cons("FC_ST").covers, [role3])
+        self.assertEquals(cons("FC_ST").min_freq, 1)
+        self.assertEquals(cons("FC_ST").max_freq, 1)
+
+        # Check UHasVW after transformation
+        role1, role2, role3 = fact("UHasVW").roles
+        self.assertItemsEqual(cons("IUC_UV").covers, [role1])
+        self.assertItemsEqual(cons("FC_VW").covers, [role2, role3])
+        self.assertEquals(cons("FC_VW").min_freq, 2)
+        self.assertEquals(cons("FC_VW").max_freq, float('inf'))
+
+        # Check added, modified, removed
+        self.assertItemsEqual(trans.added, [])
+        self.assertItemsEqual(["IUC_AB", "IUC_BC", "IUC_GH", "IUC_KLM", "FC_PQ"], 
+                              [cons.name for cons in trans.removed])
+        self.assertItemsEqual(["IUC_DE", "IUC_II", "IUC_IJ", "IUC_KL", "FC_NO", "FC_Q", "FC_ST", "IUC_UV"], 
+                              [cons.name for cons in trans.modified])
+        
+        

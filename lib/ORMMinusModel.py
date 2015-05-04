@@ -21,7 +21,8 @@ from lib.FactType import Role
 
 from lib.Transformation import ValueConstraintTransformation, \
                                AbsorptionTransformation, \
-                               DisjunctiveRefTransformation
+                               DisjunctiveRefTransformation, \
+                               OverlappingIFCTransformation
 
 class ORMMinusModel(object):
     """ An ORM- model along with its solution.  The solution is computed using
@@ -58,7 +59,7 @@ class ORMMinusModel(object):
         self._fact_type_parts = {}
 
         # Transform the model
-        self._apply_transformations(experimental)
+        self._apply_transformations(self.base_model, experimental)
 
         # Initialize _fact_type_parts here; _create_variables will update.
         for fact_type in self.fact_types:
@@ -74,9 +75,9 @@ class ORMMinusModel(object):
         # Log any ignored constraints
         self._log_ignored_constraints()
 
-    def _apply_transformations(self, experimental=False):
+    def _apply_transformations(self, model, experimental=False):
         """ Apply transformations to the model. """
-        trans = ValueConstraintTransformation(model=self.base_model)
+        trans = ValueConstraintTransformation(model=model)
         trans.execute()
         self.ignored += trans.removed
 
@@ -84,11 +85,11 @@ class ORMMinusModel(object):
             # IMPORTANT: Absorption is inappropriate once we permit join paths 
             # and additional constraints.  JoinMaterialization replaces it.
 
-            if DisjunctiveRefTransformation(model=self.base_model).execute():
-                self.strengthened = True
+            self.strengthened |= DisjunctiveRefTransformation(model).execute()
+            self.strengthened |= OverlappingIFCTransformation(model).execute()
         else:
             self._remove_disjunctive_ref_schemes()
-            AbsorptionTransformation(model=self.base_model).execute()
+            AbsorptionTransformation(model).execute()
 
     def _remove_disjunctive_ref_schemes(self):
         """ The old McGill approach cannot handle disjunctive reference schemes.

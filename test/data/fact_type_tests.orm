@@ -169,7 +169,7 @@
 			</orm:Fact>
 		</orm:Facts>
 		<orm:Constraints>
-			<orm:UniquenessConstraint id="_99B2FD47-8262-4B6D-B71B-529D387D2382" Name="InternalUniquenessConstraint1" IsInternal="true">
+			<orm:UniquenessConstraint id="_99B2FD47-8262-4B6D-B71B-529D387D2382" Name="Ident_A" IsInternal="true">
 				<orm:RoleSequence>
 					<orm:Role id="_ADD1E227-7DA7-40A3-BD31-48A30FEBC150" ref="_3720107C-682F-4323-A558-D64A9FAE37CD" />
 				</orm:RoleSequence>
@@ -234,7 +234,7 @@
 	</orm:ORMModel>
 	<ormDiagram:ORMDiagram id="_C2C61F60-D6D2-4163-A104-649F207B1CB9" IsCompleteView="false" Name="ORMModel2" BaseFontName="Tahoma" BaseFontSize="0.0972222238779068">
 		<ormDiagram:Shapes>
-			<ormDiagram:ObjectTypeShape id="_2326D913-4783-456C-A7AE-590491E176DE" IsExpanded="true" AbsoluteBounds="1.005757637321949, 0.72691517323255539, 0.36792931973934173, 0.35900605320930479">
+			<ormDiagram:ObjectTypeShape id="_2326D913-4783-456C-A7AE-590491E176DE" IsExpanded="true" AbsoluteBounds="1.079243965446949, 0.79166668653488159, 0.22095666348934173, 0.22950302660465241" ExpandRefMode="true">
 				<ormDiagram:Subject ref="_1E20DB9F-F3B0-47B8-8C32-0DC9E4EBD53B" />
 			</ormDiagram:ObjectTypeShape>
 			<ormDiagram:ObjectTypeShape id="_D6215953-96CD-43B2-BE48-FF85A5F2AD74" IsExpanded="true" AbsoluteBounds="2.3943041227757926, 0.85416666666666663, 0.22109908133745193, 0.22950302660465241">
@@ -259,6 +259,17 @@
 				</ormDiagram:RelativeShapes>
 				<ormDiagram:Subject ref="_28489B88-F984-4462-B053-A4C740E22628" />
 			</ormDiagram:FactTypeShape>
+			<ormDiagram:FactTypeShape id="_A5240A2B-7BE9-4E61-9984-90B6720B7D18" IsExpanded="true" AbsoluteBounds="1.6752006289362909, 2.0990646553412082, 0.38388888899236917, 0.24388888899236916">
+				<ormDiagram:RelativeShapes>
+					<ormDiagram:ReadingShape id="_22AF9812-7287-47B1-B02F-DB9DF0C5719E" IsExpanded="true" AbsoluteBounds="1.6752006289362909, 2.4077050576359036, 0.55735039710998535, 0.12950302660465241">
+						<ormDiagram:Subject ref="_1D5D69BA-7B4E-42F6-8EA9-F574440AB980" />
+					</ormDiagram:ReadingShape>
+				</ormDiagram:RelativeShapes>
+				<ormDiagram:Subject ref="_8C96FD40-5E82-4E8F-B5EE-C6CEE8BCF74B" />
+			</ormDiagram:FactTypeShape>
+			<ormDiagram:ObjectTypeShape id="_2DE40651-4D50-47C3-B12B-5A6247E0D90E" IsExpanded="true" AbsoluteBounds="2.4564506289362908, 2.1048394064108535, 0.37799334049224853, 0.22950302660465241">
+				<ormDiagram:Subject ref="_A73879F7-8B4D-440D-9C9E-C8038E96CB5C" />
+			</ormDiagram:ObjectTypeShape>
 		</ormDiagram:Shapes>
 		<ormDiagram:Subject ref="_B17CBD4E-1418-4230-B5F3-37E53829FA43" />
 	</ormDiagram:ORMDiagram>

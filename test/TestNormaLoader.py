@@ -764,10 +764,10 @@ class TestNormaLoader(TestCase):
         loader = NormaLoader(fname)
         model = loader.model
     
-        cons = model.constraints.get("FrequencyConstraint1") 
+        cons = model.constraints.get("ExternalUniquenessConstraint1") 
         self.assertIsNone(cons)
 
-        expected = "Constraint FrequencyConstraint1 because its join path does not have exactly one JoinPath node."
+        expected = "Constraint ExternalUniquenessConstraint1 because its join path does not have exactly one JoinPath node."
         self.assertEquals(loader.omissions, [expected])
 
     def test_join_rule_with_subquery(self):

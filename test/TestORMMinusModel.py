@@ -326,8 +326,14 @@ class TestORMMinusModel(TestCase):
 
         self.assertItemsEqual(actual, expected)
 
+        # Assert EUC removed and B's role is covered by IUC
+        self.assertIsNone(model.constraints.get("EUC"))
+
+        buniq = model.object_types.get("B").roles[0].covered_by[0]
+        self.assertTrue(isinstance(buniq, Constraint.UniquenessConstraint))
+        self.assertTrue(buniq.simple)
+
         # Confirm all roles of A are mandatory now
-        euc = model.constraints.get("EUC")
         a = model.object_types.get("A") 
         role1 = model.fact_types.get("AHasB").roles[0]
         role2 = model.fact_types.get("AHasC").roles[0]
@@ -335,8 +341,8 @@ class TestORMMinusModel(TestCase):
         self.assertTrue(role1.mandatory)
         self.assertTrue(role2.mandatory)
 
-        self.assertIs(a.identifying_constraint, euc)
-        self.assertIs(euc.identifier_for, a)
+        # Confirm A's reference roles are intact
+        self.assertIs(a.identifying_constraint, None)
         self.assertItemsEqual(a.ref_roles, [role1, role2])
 
     def test_unsat_smarag_1(self):
@@ -360,6 +366,16 @@ class TestORMMinusModel(TestCase):
     def test_unsat_overlapping_iuc(self):
         """ Test case where OverlappingIFCTransform makes model unsat. """
         fname = os.path.join(self.data_dir, "overlapping_iuc_unsat_if_strengthened.orm")
+
+        model = NormaLoader(fname).model
+        self.assertIsNotNone(ORMMinusModel(model=model, experimental=False).solution)
+
+        model = NormaLoader(fname).model
+        self.assertIsNone(ORMMinusModel(model=model, experimental=True).solution)
+
+    def test_unsat_euc_strengthening(self):
+        """ Test case where EUC Strengthening makes model unsat. """
+        fname = os.path.join(self.data_dir, "euc_strengthening_unsat.orm")
 
         model = NormaLoader(fname).model
         self.assertIsNotNone(ORMMinusModel(model=model, experimental=False).solution)

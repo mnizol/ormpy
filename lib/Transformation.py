@@ -196,6 +196,11 @@ class AbsorptionTransformation(Transformation):
         candidates = self.model.constraints.of_type(UniquenessConstraint)
 
         for euc in filter(self._pattern, candidates): 
+            # Name prefixes for new constraints.  self._add() will 
+            # automatically assign a unique numeric suffix.
+            uc_name = "Absorption_UC_for_" + euc.name
+            mc_name = "Absorption_MC_for_" + euc.name
+
             # Get root player
             root_player = self._other_role(euc.covers[0]).player
 
@@ -203,8 +208,8 @@ class AbsorptionTransformation(Transformation):
             fact_type = AbsorptionFactType(root_player, name=euc.name)
 
             # Cover the root role with an IUC and a mandatory constraint
-            self._add(UniquenessConstraint(covers=[fact_type.root_role]))
-            self._add(MandatoryConstraint(covers=[fact_type.root_role]))
+            self._add(UniquenessConstraint(covers=[fact_type.root_role], name=uc_name))
+            self._add(MandatoryConstraint(covers=[fact_type.root_role], name=mc_name))
 
             # Loop over covered roles, move to absorption fact type
             new_roles = []
@@ -217,14 +222,14 @@ class AbsorptionTransformation(Transformation):
                 fact_type.fact_type_names[new_role.name] = old_fact_type_name
 
                 if old_role.mandatory:
-                    self._add(MandatoryConstraint(covers=[new_role]))
+                    self._add(MandatoryConstraint(covers=[new_role], name=mc_name))
 
                 # Remove original fact type from the model. Can't call 
                 # self._remove here because fact_type.rollback is unimplemented
                 self._remove_fact_type(old_role.fact_type) 
 
-            self._add(UniquenessConstraint(covers=new_roles, 
-                                           identifier_for = euc.identifier_for))
+            self._add(UniquenessConstraint(covers=new_roles, name=uc_name,
+                                           identifier_for=euc.identifier_for))
             self._add(fact_type)
             #self._remove(euc) # Removed when we remove first fact type.
 
@@ -329,21 +334,24 @@ class DisjunctiveRefTransformation(Transformation):
         """ Execute the transformation. """
         ior = lambda x: isinstance(x, MandatoryConstraint) and not x.simple
 
+        name = "DisjunctiveRefTransformed_MC"
+
         for obj in self.model.object_types:
             for role in obj.ref_roles:
                 if not role.mandatory:
-                    self._add(MandatoryConstraint(covers=[role]))
+                    self._add(MandatoryConstraint(covers=[role], name=name))
 
                 map(self._remove, filter(ior, role.covered_by))
 
         return self.model_changed
 
 ###############################################################################
-# Overlapping IFC Transformation
+# Overlapping Internal Frequency Constraint (IFC) Transformation
 ###############################################################################
 class OverlappingIFCTransformation(Transformation):
     """ Uses IFC-Strengthening transformations to remove overlapping part of 
-        internal frequency constraints whereever possible.  """
+        internal frequency constraints whereever possible.  Recall that
+        internal uniqueness constraints (IUCs) are a special case of IFC. """
 
     def __init__(self, *args, **kwargs):
         super(OverlappingIFCTransformation, self).__init__(*args, **kwargs)
@@ -393,10 +401,18 @@ class OverlappingIFCTransformation(Transformation):
         # If both inner and outer constraints can be replaced by IUCs, then we
         # can just convert the inner to an IUC and remove the outer.
         if inner.min_freq == outer.min_freq == 1:
-            if getattr(outer, 'identifier_for', None):
-                return # Don't remove outer if it identifies an entity type
+            # Save list of reference roles played by the identified type.
+            try:
+                ref_roles = outer.identifier_for.ref_roles
+            except AttributeError:
+                ref_roles = None
 
             self._remove(outer)
+
+            # Preserve the set of reference roles: strengthening an IFC doesn't
+            # change the nature of what is and is not a ref role.
+            if ref_roles:
+                outer.identifier_for.ref_roles = ref_roles
 
             if inner.max_freq > 1:
                 inner.rollback()
@@ -426,3 +442,62 @@ class OverlappingIFCTransformation(Transformation):
             this.covers = list(shortlist)
             this.commit()
             self._modified(this)
+
+###############################################################################
+# External Uniqueness Constraint (EUC) Strengthening Transformation
+###############################################################################
+class EUCStrengtheningTransformation(Transformation):
+    """ Uses EUC-Strengthening transformations to remove external uniqueness 
+        constraints whereever possible.  """
+
+    def __init__(self, *args, **kwargs):
+        super(EUCStrengtheningTransformation, self).__init__(*args, **kwargs)
+
+    def execute(self):
+        """ Execute the transformation. """
+        is_euc = lambda x: isinstance(x, UniquenessConstraint) and not x.internal
+
+        for euc in filter(is_euc, self.model.constraints):
+            join_path = euc.covers.join_path
+            name = "Strengthened_IUC_from_" + euc.name
+
+            try:
+                first_role = self._first_role(euc, join_path)
+            except KeyError:
+                continue # Some problem with this EUC.  Don't transform.
+
+            # Preserve the ref roles identified by the EUC
+            try:
+                ref_roles = euc.identifier_for.ref_roles
+            except AttributeError:
+                ref_roles = None
+
+            # Replace EUC with an internal uniqueness constraint on first_role
+            self._remove(euc)
+
+            # Restore the reference roles, because strengthening an EUC doesn't 
+            # change the nature of what is and is not a reference role.
+            if ref_roles:
+                euc.identifier_for.ref_roles = ref_roles
+
+            # The IUC does not become the identifying constraint because it 
+            # doesn't cover all of the reference roles.
+            self._add(UniquenessConstraint(covers=[first_role], name=name))
+
+            # Cover each in-role of the join path with an internal uniqueness
+            # constraint (IUC).  An in-role is the second role in a join pair.
+            for join_pair in join_path.joins:
+                if not join_pair[1].unique:
+                    self._add(UniquenessConstraint(covers=[join_pair[1]], name=name))
+
+        return self.model_changed
+
+    def _first_role(self, euc, join_path):
+        """ Return role covered by EUC in first fact type on join path.  Raise
+            KeyError if the EUC doesn't cover a role in the first fact type. """
+        if not join_path:
+            raise KeyError("No join path for EUC")
+        else:
+            fact_roles = set(join_path.fact_types[0].roles)
+            covers = set(euc.covers)
+            return (covers & fact_roles).pop() # Raises KeyError if empty

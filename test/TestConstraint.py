@@ -410,3 +410,43 @@ class TestConstraint(TestCase):
         self.assertEquals(obj2.direct_supertypes, [])
         """
 
+    def test_commit_and_rollback_affect_on_role_unique(self):
+        """ Test affect of commit and rollback on role.unique """
+        fact = FactType("AHasB")
+        fact.add_role(ObjectType("A"))
+        fact.add_role(ObjectType("B"))
+        fact.commit()
+
+        role = fact.roles[0]
+        self.assertFalse(role.unique)
+
+        # Unique after covered by a simple IUC
+        uniq1 = Constraint.UniquenessConstraint(covers=[role])
+        uniq1.commit()
+        self.assertTrue(role.unique)
+
+        # No longer unique after rollback
+        uniq1.rollback()
+        self.assertFalse(role.unique)
+
+        # Not unique after covered by spanning IUC
+        uniq2 = Constraint.UniquenessConstraint(covers=[role, fact.roles[1]])
+        uniq2.commit()
+        self.assertFalse(role.unique)
+
+        # Unique again, covered by simple IUC
+        uniq1.commit()
+        self.assertTrue(role.unique)
+
+        # Cover by a second simple IUC
+        uniq3 = Constraint.UniquenessConstraint(covers=[role])
+        uniq3.commit()
+
+        # Still unique after rollback, because it's still covered by a simple IUC
+        uniq1.rollback()
+        self.assertTrue(role.unique)
+
+        # No longer unique: not covered by any simple IUCs.
+        uniq3.rollback()
+        self.assertFalse(role.unique)
+

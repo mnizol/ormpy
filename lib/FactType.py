@@ -81,6 +81,9 @@ class Role(ModelElement):
         #: True if the role is covered by an explicit mandatory constraint
         self.mandatory = False # Populated when a mandatory cons is committed.
 
+        #: True if the role is covered by simple internal uniqueness constraint
+        self.unique = False # Populated when the IUC is committed.
+
     @property
     def fullname(self):
         """ Returns name that is unique within the model. """

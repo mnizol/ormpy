@@ -198,14 +198,14 @@
 					<orm:Role id="_5C4EEC52-6EEE-4ED6-94A0-5BF507621EBD" ref="_A7E4465B-CFEC-4019-B044-51705A374E79" />
 				</orm:RoleSequence>
 			</orm:UniquenessConstraint>
-			<orm:FrequencyConstraint id="_EF204766-8B40-439D-8491-D043679C0396" Name="FrequencyConstraint1" MinFrequency="1" MaxFrequency="2">
+			<orm:UniquenessConstraint id="_EF204766-8B40-439D-8491-D043679C0396" Name="ExternalUniquenessConstraint1">
 				<orm:RoleSequence>
 					<orm:Role id="_65B1FCA1-32E2-4A0F-8FF7-42D6671C2189" ref="_0E58F788-603A-43D4-BFB5-7A4D4E3A01D2" />
 					<orm:Role id="_F1370C1E-0F7D-4079-8E05-DF7346C5AF0B" ref="_6172033F-94CE-4577-9BAE-453F89592AE1" />
           <orm:JoinRule>            
           </orm:JoinRule>
 				</orm:RoleSequence>
-			</orm:FrequencyConstraint>
+			</orm:UniquenessConstraint>
 		</orm:Constraints>
 		<orm:DataTypes>
 			<orm:UnsignedIntegerNumericDataType id="_26402DCD-99C1-4B41-8321-783D4B140933" />

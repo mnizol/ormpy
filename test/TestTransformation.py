@@ -10,7 +10,10 @@ from unittest import TestCase
 
 import lib.TestDataLocator as TestData
 import lib.Domain as Domain
+import lib.Model as Model
 
+from lib.FactType import FactType, RoleSequence
+from lib.ObjectType import ObjectType
 from lib.SubtypeGraph import SubtypeGraph
 from lib.NormaLoader import NormaLoader
 from lib.Constraint import UniquenessConstraint, MandatoryConstraint, \
@@ -19,7 +22,8 @@ from lib.Constraint import UniquenessConstraint, MandatoryConstraint, \
 from lib.Transformation import Transformation, ValueConstraintTransformation, \
                                AbsorptionTransformation, \
                                DisjunctiveRefTransformation, \
-                               OverlappingIFCTransformation
+                               OverlappingIFCTransformation, \
+                               EUCStrengtheningTransformation
 
 ##############################################################################
 # Tests for generic Transformation class
@@ -420,6 +424,12 @@ class TestAbsorptionTransformation(TestCase):
         self.assertTrue(isinstance(role1.covered_by[0], UniquenessConstraint))
         self.assertIs(role1.covered_by[0], role2.covered_by[0])
 
+        # Check ref roles
+        idcons = role1.covered_by[0]
+        self.assertIs(a.identifying_constraint, idcons)
+        self.assertIs(idcons.identifier_for, a)
+        self.assertEquals(a.ref_roles, [role0])
+
         # Check absorb_fact.fact_type_names
         expected = {'B': "FactTypes.AHasB", 'C': "FactTypes.AHasC"}
         self.assertDictEqual(absorb_fact.fact_type_names, expected)
@@ -616,32 +626,15 @@ class TestOverlappingIFCTransformation(TestCase):
         model = loader.model 
         get = model.constraints.get
 
-        # Force BOTH IUCs on this fact type to be preferred id's
-        e = model.object_types.get("E")
-        f = model.object_types.get("F")
-        iuc2 = get("IUC2")
-        iuc3 = get("IUC3")
-
-        iuc2.rollback()
-        iuc2.identifier_for = f
-        iuc2.commit()
-
-        iuc3.rollback()
-        iuc3.identifier_for = e
-        iuc3.commit()
-
-        self.assertIsNotNone(iuc2.identifier_for)
-        self.assertIsNotNone(iuc3.identifier_for)
-
         old_cons = model.constraints.of_type(FrequencyConstraint)
 
-        self.assertEquals(len(old_cons), 8)
+        self.assertEquals(len(old_cons), 6)
 
         # Run transformation and confirm return value is false
         self.assertFalse(OverlappingIFCTransformation(model).execute())
 
         # Confirm nothing changed
-        self.assertEquals(len(old_cons), 8)
+        self.assertEquals(len(old_cons), 6)
 
         fc1 = get("FC1")
         self.assertEquals(fc1.min_freq, 1)
@@ -669,9 +662,6 @@ class TestOverlappingIFCTransformation(TestCase):
         self.assertEquals(fc5.min_freq, 2)
         self.assertEquals(fc5.max_freq, 2)
         self.assertEquals(len(fc5.covers), 2)
-
-        self.assertEquals(len(get("IUC2").covers), 3)
-        self.assertEquals(len(get("IUC3").covers), 2)
 
     def test_ifc_transforms(self):
         """ Test successful application of IFC transformations."""
@@ -813,4 +803,203 @@ class TestOverlappingIFCTransformation(TestCase):
         self.assertItemsEqual(["IUC_DE", "IUC_II", "IUC_IJ", "IUC_KL", "FC_NO", "FC_Q", "FC_ST", "IUC_UV"], 
                               [cons.name for cons in trans.modified])
         
+    def test_preservation_of_ref_roles(self):
+        """ Test that removing an identifying constraint does not change the 
+            list of ref roles for an object type. """
+        fname = TestData.path("fact_type_tests.orm")
+        loader = NormaLoader(fname)
+        model = loader.model        
+
+        a = model.object_types.get("A")
+        role0 = model.fact_types.get("AHasB").roles[0]
+        role1 = model.fact_types.get("AExists").roles[0]
+        role2 = model.fact_types.get("AHasAId").roles[0]
+
+        self.assertItemsEqual(a.roles, [role0, role1, role2])
+        self.assertItemsEqual(a.ref_roles, [role2])
+
+        ident = model.constraints.get("Ident_A")
+
+        self.assertIs(a.identifying_constraint, ident)
+        self.assertIs(ident.identifier_for, a)
+
+        # Add a constraint which will sort before Ident_A by name
+        model.add(UniquenessConstraint(name="__A", covers=ident.covers))
+
+        trans = OverlappingIFCTransformation(model)
+        self.assertTrue(trans.execute())
+
+        self.assertItemsEqual(trans.removed, [ident])
+        self.assertIsNone(model.constraints.get("Ident_A"))
+
+        # A no longer has an identifying constraint
+        self.assertIs(a.identifying_constraint, None)
+
+        # However, its reference role hasn't changed
+        self.assertItemsEqual(a.ref_roles, [role2])
+
+##############################################################################
+# EUCStrengtheningTransformation tests
+##############################################################################
+class TestEUCStrengtheningTransformation(TestCase):
+    """ Unit tests for the EUCStrengtheningTransformation class. """
+
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_simple_linear_path(self):
+        """ Test EUC strengthening on simple linear path. """
+        fname = TestData.path("join_rule_valid_linear_path_euc.orm")
+        loader = NormaLoader(fname)
+        model = loader.model 
+
+        euc = model.constraints.get("EUC")
+        self.assertEquals(len(euc.covers), 2)
+
+        # Assert that transformation does something
+        trans = EUCStrengtheningTransformation(model)
+        self.assertTrue(trans.execute())
+
+        # Confirm EUC no longer in model
+        self.assertIsNone(model.constraints.get("EUC"))
+
+        # Get new uniqueness constraints
+        root_cons = model.fact_types.get("AHasB").roles[0].covered_by[0]
+        self.assertTrue(isinstance(root_cons, UniquenessConstraint))
+        self.assertEquals(len(root_cons.covers), 1)
+
+        new_cons1 = model.fact_types.get("BHasC").roles[0].covered_by[1]
+        self.assertTrue(isinstance(new_cons1, UniquenessConstraint))
+        self.assertEquals(len(new_cons1.covers), 1)
+
+        # First role of CHasD already covered by a simple IUC, so there should
+        # not be a new one added
+        role = model.fact_types.get("CHasD").roles[0]
+        cons = model.constraints.get("IUC_C")
+        self.assertEquals(role.covered_by, [cons])
+        self.assertEquals(len(cons.covers), 1)
+
+        # Check added, modified, removed lists
+        self.assertItemsEqual(trans.added, [root_cons, new_cons1])
+        self.assertItemsEqual(trans.removed, [euc])
+        self.assertItemsEqual(trans.modified, [])
+
+    def test_compound_ref_scheme(self):
+        """ Test using EUC strengthening for compound ref scheme. """
+        fname = TestData.path("absorption_valid_four_facts.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        euc = model.constraints.get("EUC1")
+        a = model.object_types.get("A")
+
+        self.assertEquals(len(euc.covers), 4)
+        self.assertIs(euc.identifier_for, a)
+        self.assertIs(a.identifying_constraint, euc)
+        self.assertItemsEqual(a.ref_roles, a.roles)
+
+        trans = EUCStrengtheningTransformation(model)
+        self.assertTrue(trans.execute())
+
+        # Confirm EUC removed
+        self.assertIsNone(model.constraints.get("EUC1"))
+
+        # Assert a has no identifying constraint but ref roles haven't changed
+        self.assertIsNone(a.identifying_constraint)
+        self.assertItemsEqual(a.ref_roles, a.roles)
+
+        # Confirm constraints the same on ref roles
+        self.assertEquals(len(a.roles[0].covered_by), 2)
+        self.assertEquals(len(a.roles[1].covered_by), 2)
+        self.assertEquals(len(a.roles[2].covered_by), 2)
+        self.assertEquals(len(a.roles[3].covered_by), 2)
+
+        # Confirm role played by B now covered by IUC
+        role = a.roles[0].fact_type.roles[1]
+        new_cons = role.covered_by[1]
+
+        self.assertEquals(len(role.covered_by), 2)
+        self.assertTrue(isinstance(new_cons, UniquenessConstraint))
+        self.assertTrue(role.unique)
+
+        self.assertEquals(model.constraints.count(), 10)
+
+        # Check added, removed, modified lists
+        self.assertItemsEqual(trans.modified, [])
+        self.assertItemsEqual(trans.removed, [euc])
+        self.assertItemsEqual(trans.added, [new_cons])
+
+    def test_skipped_due_to_no_join_path(self):
+        """ Test that EUC is skipped because it has no join path. """
+        model = Model.Model()
+        fact1 = FactType("AHasB")
+        fact1.add_role(ObjectType("A"))
+        fact1.add_role(ObjectType("B"))
+        model.add(fact1)
+
+        fact2 = FactType("AHasC")
+        fact2.add_role(ObjectType("A"))
+        fact2.add_role(ObjectType("C"))
+        model.add(fact2)
+
+        covers = RoleSequence()
+        covers.extend([fact1.roles[1], fact2.roles[1]])
+        
+        euc = UniquenessConstraint(name="EUC", covers=covers)
+        model.add(euc)
+
+        self.assertFalse(euc.internal)
+        self.assertIsNone(euc.covers.join_path)
+
+        self.assertFalse(EUCStrengtheningTransformation(model).execute())
+
+        self.assertIs(euc, model.constraints.get("EUC"))
+
+    def test_skipped_due_to_join_path_out_of_order(self):
+        """ EUC skipped because it doesn't cover a role on the first fact type
+            along the join path. """
+        fname = TestData.path("join_rule_join_path_defined_out_of_order.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        self.assertIsNotNone(model.constraints.get("EUC"))
+        self.assertFalse(EUCStrengtheningTransformation(model).execute())
+        self.assertIsNotNone(model.constraints.get("EUC"))
+
+    def test_euc_on_branching_path(self):
+        """ Test strengthening of complex branching path. """
+        fname = TestData.path("join_rule_valid_complex_branching_path.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        euc = model.constraints.get("EUC1")
+
+        self.assertEquals(len(euc.covers), 4)
+
+        trans = EUCStrengtheningTransformation(model)
+        self.assertTrue(trans.execute())
+
+        # Confirm EUC removed
+        self.assertIsNone(model.constraints.get("EUC1"))
+
+        # Confirm a new IUC is on role played by D
+        new_iuc = model.object_types.get("D").roles[0].covered_by[0]
+        
+        # Confirm all expected constraints added
+        ehasb = model.fact_types.get("EHasB").roles[0].covered_by[1]
+        bhasc = model.fact_types.get("BHasC").roles[0].covered_by[1]
+        ghasb = model.fact_types.get("GHasB").roles[1].covered_by[1]
+        fhasg = model.fact_types.get("FHasG").roles[1].covered_by[1]
+        hhasg = model.fact_types.get("HHasG").roles[1].covered_by[1]
+
+        new_cons = [new_iuc, ehasb, bhasc, ghasb, fhasg, hhasg]
+
+        for cons in new_cons:
+            self.assertTrue(isinstance(cons, UniquenessConstraint))
+            self.assertTrue(cons.simple)
+
+        # Check lists of added, modified, and removed constraints
+        self.assertItemsEqual(trans.added, new_cons)
+        self.assertItemsEqual(trans.removed, [euc])
+        self.assertItemsEqual(trans.modified, [])        
         

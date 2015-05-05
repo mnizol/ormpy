@@ -22,7 +22,8 @@ from lib.FactType import Role
 from lib.Transformation import ValueConstraintTransformation, \
                                AbsorptionTransformation, \
                                DisjunctiveRefTransformation, \
-                               OverlappingIFCTransformation
+                               OverlappingIFCTransformation, \
+                               EUCStrengtheningTransformation
 
 class ORMMinusModel(object):
     """ An ORM- model along with its solution.  The solution is computed using
@@ -86,6 +87,7 @@ class ORMMinusModel(object):
             # and additional constraints.  JoinMaterialization replaces it.
 
             self.strengthened |= DisjunctiveRefTransformation(model).execute()
+            self.strengthened |= EUCStrengtheningTransformation(model).execute()
             self.strengthened |= OverlappingIFCTransformation(model).execute()
         else:
             self._remove_disjunctive_ref_schemes()

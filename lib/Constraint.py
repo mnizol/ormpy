@@ -269,6 +269,9 @@ class UniquenessConstraint(FrequencyConstraint):
 
     def commit(self):
         """ Commit side effects of this constraint in the model. """
+        if self.simple:
+            self.covers[0].unique = True
+
         if self.identifier_for is not None:
             obj = self.identifier_for
             obj.identifying_constraint = self
@@ -282,8 +285,18 @@ class UniquenessConstraint(FrequencyConstraint):
 
     def rollback(self):
         """ Rollback side effects of this constraint in the model. """
+        if self.simple:
+            simple = lambda x: isinstance(x, UniquenessConstraint) and x.simple
+            if len(filter(simple, self.covers[0].covered_by)) == 1:
+                self.covers[0].unique = False
+
         if self.identifier_for is not None:
             self.identifier_for.identifying_constraint = None
             self.identifier_for.ref_roles = []
         Constraint.rollback(self)
+
+    @property
+    def simple(self):
+        """ True iff constraint is internal and covers only one role. """
+        return len(self.covers) == 1 and self.internal
 

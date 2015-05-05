@@ -169,7 +169,7 @@ class TestPopulation(TestCase):
 
         self.assertEquals(len(pop.fact_types), 2)
 
-        expected = [[0,0],[1,1],[2,2],[3,3],[4,4]]
+        expected = [['A0',0],['A1',1],['A2',2],['A3',3],['A4',4]]
 
         self.assertItemsEqual(pop.fact_types["FactTypes.AHasB"], expected)
         self.assertItemsEqual(pop.fact_types["FactTypes.AHasC"], expected)
@@ -208,6 +208,29 @@ class TestPopulation(TestCase):
         self.assertItemsEqual(pop.fact_types["FactTypes.VSwims"], [[3],[4],[5],[6]])        
         
 
+    def test_euc_strengthen_pop(self):
+        """ Test population after EUC strengthening. """
+        fname = os.path.join(self.data_dir, "join_rule_valid_linear_path_euc.orm")
+        model = NormaLoader(fname).model
+        model = ORMMinusModel(model, ubound=100, experimental=True)
+        pop = Population(model)
+
+        self.assertItemsEqual(model.ignored, [])
+
+        ahasb = [[0,0], 
+                 [1,1]]
+
+        bhasc = [[0,0], 
+                 [1,1]]
+
+        chasd = [[2,0], 
+                 [0,1], 
+                 [1,0]]
+
+        self.assertItemsEqual(pop.fact_types["FactTypes.AHasB"], ahasb)
+        self.assertItemsEqual(pop.fact_types["FactTypes.BHasC"], bhasc)
+        self.assertItemsEqual(pop.fact_types["FactTypes.CHasD"], chasd)
+        
 #####################################################################
 # Tests writing populations to stdout or CSV files
 #####################################################################

@@ -68,6 +68,17 @@ class ObjectType(ModelElement):
         """ Returns name that is unique within the model. """
         return "ObjectTypes." + self.name
 
+    @property
+    def non_ref_roles(self):
+        """ Set of non-reference roles played by the object type. """
+        return set(self.roles) - set(self.ref_roles)
+
+    @property
+    def subject_to_idmc(self):
+        """ True iff object type is subject to the implicit disjunctive 
+            mandatory constraint. """
+        return self.primitive and not self.independent and self.non_ref_roles
+
     def commit(self):
         """ Commit any side effects of adding this object type to a model."""
         pass # No side effects generated when creating an ObjectType

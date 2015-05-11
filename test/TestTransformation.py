@@ -17,13 +17,17 @@ from lib.ObjectType import ObjectType
 from lib.SubtypeGraph import SubtypeGraph
 from lib.NormaLoader import NormaLoader
 from lib.Constraint import UniquenessConstraint, MandatoryConstraint, \
-                           FrequencyConstraint
+                           FrequencyConstraint, SubsetConstraint
 
 from lib.Transformation import Transformation, ValueConstraintTransformation, \
                                AbsorptionTransformation, \
                                DisjunctiveRefTransformation, \
                                OverlappingIFCTransformation, \
-                               EUCStrengtheningTransformation
+                               EUCStrengtheningTransformation, \
+                               UnsupportedSubsetRemoval, \
+                               TupleSubsetTransformation, \
+                               RootRoleTransformation, \
+                               direct_subsets
 
 ##############################################################################
 # Tests for generic Transformation class
@@ -1001,5 +1005,346 @@ class TestEUCStrengtheningTransformation(TestCase):
         # Check lists of added, modified, and removed constraints
         self.assertItemsEqual(trans.added, new_cons)
         self.assertItemsEqual(trans.removed, [euc])
-        self.assertItemsEqual(trans.modified, [])        
-        
+        self.assertItemsEqual(trans.modified, [])   
+
+##############################################################################
+# Unsupported Subset Removal tests
+##############################################################################
+class TestUnsupportedSubsetRemoval(TestCase):
+    """ Unit tests for the UnsupportedSubsetRemoval class. """
+
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_removed_constraints(self):
+        """ Test that unsupported constraints are removed. """
+        fname = TestData.path("subset_variety.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        sub_ok = model.constraints.get("SUB_OK")
+        sub_ok2 = model.constraints.get("SUB_OK2")
+        sub_ok3 = model.constraints.get("SUB_OK3")
+
+        sub_join = model.constraints.get("SUB_JOIN")
+        sub_join2 = model.constraints.get("SUB_JOIN2")
+
+        sub_incompat = model.constraints.get("SUB_INCOMPAT")
+
+        sub_superset_ref = model.constraints.get("SUB_SUPERSET_REF")
+        sub_superset_subtype = model.constraints.get("SUB_SUPERSET_SUBTYPE")
+
+        sub_cycle = model.constraints.get("SUB_CYCLE")
+
+        # Assert these are all subset constraints
+        self.assertTrue(isinstance(sub_ok, SubsetConstraint))
+        self.assertTrue(isinstance(sub_ok2, SubsetConstraint))
+        self.assertTrue(isinstance(sub_ok3, SubsetConstraint))
+        self.assertTrue(isinstance(sub_join, SubsetConstraint))
+        self.assertTrue(isinstance(sub_join2, SubsetConstraint))
+        self.assertTrue(isinstance(sub_incompat, SubsetConstraint))
+        self.assertTrue(isinstance(sub_superset_ref, SubsetConstraint))
+        self.assertTrue(isinstance(sub_superset_subtype, SubsetConstraint))
+        self.assertTrue(isinstance(sub_cycle, SubsetConstraint))
+
+        # Execute transformation
+        trans = UnsupportedSubsetRemoval(model)
+        self.assertTrue(trans.execute())
+    
+        # OK constraints still in model        
+        self.assertIsNotNone(model.constraints.get("SUB_OK"))
+        self.assertIsNotNone(model.constraints.get("SUB_OK2"))
+        self.assertIsNotNone(model.constraints.get("SUB_OK3"))
+
+        # Unsupported constraints removed
+        self.assertIsNone(model.constraints.get("SUB_JOIN"))
+        self.assertIsNone(model.constraints.get("SUB_JOIN2"))
+        self.assertIsNone(model.constraints.get("SUB_INCOMPAT"))
+        self.assertIsNone(model.constraints.get("SUB_SUPERSET_REF"))
+        self.assertIsNone(model.constraints.get("SUB_SUPERSET_SUBTYPE"))
+        self.assertIsNone(model.constraints.get("SUB_CYCLE"))
+
+        # Check lists of added, modified, and removed constraints
+        self.assertItemsEqual(trans.added, [])
+        self.assertItemsEqual(trans.removed, 
+                              [sub_join, sub_join2, sub_incompat, sub_superset_ref,
+                               sub_superset_subtype, sub_cycle])
+        self.assertItemsEqual(trans.modified, []) 
+
+    def test_direct_subsets_function(self):
+        """ Test direct_subsets function that returns subset roles adjacent to a role. """
+        fname = TestData.path("subset_variety.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        role = model.fact_types.get("ALikesC").roles[1]
+        role2 = model.fact_types.get("BHasC").roles[1]
+
+        #trans = UnsupportedSubsetRemoval(model)
+
+        actual = [(r, c.name) for (r,c) in direct_subsets(role)]
+
+        expected = [(role2, "SUB_OK3"), (role2, "SUB_JOIN")]
+
+        self.assertItemsEqual(actual, expected) 
+
+    def test_cycle_detection_1(self):
+        """ Test cycle detection #1. """
+        fname = TestData.path("subset_variety.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        sub_cycle = model.constraints.get("SUB_CYCLE")
+        self.assertIsNotNone(sub_cycle)
+
+        trans = UnsupportedSubsetRemoval(model)
+        trans._remove_subset_cycles()
+
+        self.assertIsNone(model.constraints.get("SUB_CYCLE"))
+        self.assertItemsEqual(trans.removed, [sub_cycle])   
+
+    def test_cycle_detection_no_cycle(self):
+        """ Model has undirected cycle but not a directed cycle. """
+        fname = TestData.path("subset_no_cycle.orm")
+        loader = NormaLoader(fname)
+        model = loader.model 
+
+        self.assertEquals(4, len(model.constraints.of_type(SubsetConstraint)))
+
+        trans = UnsupportedSubsetRemoval(model)
+        self.assertFalse(trans.execute())
+
+        self.assertEquals(4, len(model.constraints.of_type(SubsetConstraint)))
+
+    def test_simple_cycle_detection(self):
+        """ Model has a simple directed cycle. """
+        fname = TestData.path("subset_simple_cycle.orm")
+        loader = NormaLoader(fname)
+        model = loader.model 
+
+        self.assertEquals(4, len(model.constraints.of_type(SubsetConstraint)))
+
+        trans = UnsupportedSubsetRemoval(model)
+        self.assertTrue(trans.execute())
+
+        self.assertEquals(3, len(model.constraints.of_type(SubsetConstraint)))
+
+        # Transformation does nothing now that cycles are removed
+        self.assertFalse(UnsupportedSubsetRemoval(model).execute())
+
+    def test_simple_cycle_detection_2(self):
+        """ Model has a simple directed cycle requiring deletion of 2 constraints. """
+        fname = TestData.path("subset_simple_cycle_2.orm")
+        loader = NormaLoader(fname)
+        model = loader.model 
+
+        self.assertEquals(6, len(model.constraints.of_type(SubsetConstraint)))
+
+        trans = UnsupportedSubsetRemoval(model)
+        self.assertTrue(trans.execute())
+
+        self.assertEquals(4, len(model.constraints.of_type(SubsetConstraint)))
+
+        # Transformation does nothing now that cycles are removed
+        self.assertFalse(UnsupportedSubsetRemoval(model).execute())
+
+    def test_simple_cycle_detection_3(self):
+        """ Model has a simple directed cycle requiring deletion of 2 
+            constraints on the same fact type. """
+        fname = TestData.path("subset_simple_cycle_3.orm")
+        loader = NormaLoader(fname)
+        model = loader.model 
+
+        self.assertEquals(4, len(model.constraints.of_type(SubsetConstraint)))
+
+        trans = UnsupportedSubsetRemoval(model)
+        self.assertTrue(trans.execute())
+
+        self.assertTrue(1 <= len(model.constraints.of_type(SubsetConstraint)) <= 2)
+
+        # Transformation does nothing now that cycles are removed
+        self.assertFalse(UnsupportedSubsetRemoval(model).execute())
+
+##############################################################################
+# Tuple Subset Transformation tests
+##############################################################################
+class TestTupleSubsetTransformation(TestCase):
+    """ Unit tests for the TupleSubsetTransformation class. """
+
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_ternary_subset(self):
+        """ Test transformation of ternary subset. """
+        fname = TestData.path("subset_tuple.orm")
+        loader = NormaLoader(fname)
+        model = loader.model 
+
+        subset = model.constraints.get("SUB1")
+        uniq = model.constraints.get("IUC1")
+
+        self.assertIsNotNone(subset)
+        self.assertIsNotNone(uniq)
+
+        self.assertEquals(1, len(model.constraints.of_type(SubsetConstraint)))
+        self.assertEquals(2, len(model.constraints.of_type(UniquenessConstraint)))
+
+        # Transform model
+        trans = TupleSubsetTransformation(model)
+        self.assertTrue(trans.execute())
+
+        # Confirm tuple subset is still present
+        self.assertIsNotNone(model.constraints.get("SUB1"))
+        self.assertIsNotNone(model.constraints.get("IUC1"))
+
+        # Confirm new simple subsets added
+        self.assertEquals(4, len(model.constraints.of_type(SubsetConstraint)))
+        self.assertEquals(4, len(model.constraints.of_type(UniquenessConstraint)))
+
+        fact_type = model.fact_types.get("AHasBCD")
+
+        # Check constraints on role played by A
+        sc0 = fact_type.roles[0].covered_by[0]
+        sc1 = fact_type.roles[0].covered_by[1]
+        uc1 = fact_type.roles[0].covered_by[2]
+
+        self.assertIs(sc0, subset)
+        self.assertTrue(isinstance(sc1, SubsetConstraint))
+        self.assertEquals(len(sc1.subset), 1)
+        self.assertTrue(isinstance(uc1, UniquenessConstraint))
+        self.assertTrue(len(uc1.covers), 1)
+
+        # Check constraints on role played by B
+        uc2 = fact_type.roles[1].covered_by[0]
+        sc0 = fact_type.roles[1].covered_by[1]
+        sc2 = fact_type.roles[1].covered_by[2]
+
+        self.assertIs(sc0, subset)
+        self.assertIs(uc2, uniq)
+        self.assertTrue(isinstance(sc2, SubsetConstraint))
+        self.assertEquals(len(sc2.subset), 1)
+
+        # Check constraints on role played by C
+        self.assertEquals(fact_type.roles[2].covered_by, [])
+
+        # Check constraints on role played by D
+        sc0 = fact_type.roles[3].covered_by[0]
+        sc3 = fact_type.roles[3].covered_by[1]
+        uc3 = fact_type.roles[3].covered_by[2]
+
+        self.assertIs(sc0, subset)
+        self.assertTrue(isinstance(sc3, SubsetConstraint))
+        self.assertEquals(len(sc3.subset), 1)
+        self.assertTrue(isinstance(uc3, UniquenessConstraint))
+        self.assertTrue(len(uc3.covers), 1)
+
+        # Check contents of added, removed, modified
+        self.assertItemsEqual(trans.added, [sc1, sc2, sc3, uc1, uc3])
+        self.assertItemsEqual(trans.removed, [])
+        self.assertItemsEqual(trans.modified, [])
+
+##############################################################################
+# Root Role Transformation tests
+##############################################################################
+class TestRootRoleTransformation(TestCase):
+    """ Unit tests for the RootRoleTransformation class. """
+
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_subset_single_root(self):
+        """ Subset graph has a single root. """
+        fname = TestData.path("subset_no_cycle.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        self.assertEquals(4, len(model.constraints.of_type(SubsetConstraint)))
+
+        # Execute transformation
+        trans = RootRoleTransformation(model)
+        self.assertFalse(trans.execute())
+
+        # Confirm no change in constraints
+        self.assertEquals(4, len(model.constraints.of_type(SubsetConstraint)))
+
+        expected_root = model.fact_types.get("ASmokes").roles[0]
+
+        # KEY: Confirm all roles played by A have expected root
+        roles = [r for r in model.object_types.get("A").roles if r != expected_root]
+
+        self.assertEquals(3, len(roles))
+
+        for role in roles:
+            self.assertIs(role.root_role, expected_root)
+
+        # Confirm roles played by B have no root
+        b = model.object_types.get("B")
+        self.assertFalse(hasattr(b.roles[0], "root_role"))
+        self.assertFalse(hasattr(b.roles[1], "root_role"))
+
+        # Check contents of added, removed, modified
+        self.assertItemsEqual(trans.added, [])
+        self.assertItemsEqual(trans.removed, [])
+        self.assertItemsEqual(trans.modified, [])     
+
+    def test_subset_multiple_roots(self):
+        """ Subset graph has multiple roots. """
+        fname = TestData.path("subset_multiple_roots.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+  
+        self.assertEquals(4, len(model.constraints.of_type(SubsetConstraint)))
+
+        # Execute transformation
+        trans = RootRoleTransformation(model)
+        self.assertTrue(trans.execute())
+
+        # Confirm addition of two new subset constraints
+        self.assertEquals(6, len(model.constraints.of_type(SubsetConstraint)))
+
+        a = model.object_types.get("A")
+        asmokes = model.fact_types.get("ASmokes")
+        aexists = model.fact_types.get("AExists")
+        alikesb = model.fact_types.get("ALikesB")
+
+        sub1 = asmokes.roles[0].covered_by[2] # covered_by[0] is an IUC
+
+        self.assertTrue(isinstance(sub1, SubsetConstraint))
+        self.assertItemsEqual(sub1.subset, [asmokes.roles[0]])
+        self.assertItemsEqual(sub1.superset, [alikesb.roles[0]])
+
+        sub2 = aexists.roles[0].covered_by[2] # covered_by[0] is an IUC
+        self.assertTrue(isinstance(sub2, SubsetConstraint))
+        self.assertItemsEqual(sub2.subset, [aexists.roles[0]])
+        self.assertItemsEqual(sub2.superset, [alikesb.roles[0]])
+
+        # Confirm all of A's roles roots are the A likes B role
+        expected_root = alikesb.roles[0]
+        roles = [r for r in a.roles if r != expected_root]
+
+        self.assertEquals(len(roles), 4)
+
+        for role in roles:
+            self.assertIs(role.root_role, expected_root)        
+
+        # Confirm A's A likes B role has no root
+        self.assertFalse(hasattr(expected_root, "root_role"))
+
+        # Confirm B's subset role has correct root_role        
+        b = model.object_types.get("B")
+        b1 = model.fact_types.get("AHasB").roles[1]
+        b2 = model.fact_types.get("ALikesB").roles[1]
+
+        self.assertTrue(hasattr(b1, "root_role"))
+        self.assertFalse(hasattr(b2, "root_role"))
+        self.assertIs(b1.root_role, b2)
+
+        # Confirm C's role has no root_role attribute
+        c = model.object_types.get("C")
+        self.assertFalse(hasattr(c.roles[0], "root_role"))
+
+        # Check contents of added, removed, modified
+        self.assertItemsEqual(trans.added, [sub1, sub2])
+        self.assertItemsEqual(trans.removed, [])
+        self.assertItemsEqual(trans.modified, [])
+

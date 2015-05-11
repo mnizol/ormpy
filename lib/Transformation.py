@@ -12,8 +12,9 @@
 
 from lib.Model import Model
 from lib.Constraint import ValueConstraint, UniquenessConstraint, \
-                           FrequencyConstraint, MandatoryConstraint
-from lib.FactType import Role, FactType
+                           FrequencyConstraint, MandatoryConstraint, \
+                           SubsetConstraint
+from lib.FactType import Role, FactType, RoleSequence
 from lib.ObjectType import ObjectifiedType
 from lib.SubtypeGraph import SubtypeGraph
 
@@ -501,3 +502,214 @@ class EUCStrengtheningTransformation(Transformation):
             fact_roles = set(join_path.fact_types[0].roles)
             covers = set(euc.covers)
             return (covers & fact_roles).pop() # Raises KeyError if empty
+
+###############################################################################
+# Unsupported Subset Removal Transformation
+###############################################################################
+class UnsupportedSubsetRemoval(Transformation):
+    """ A transformations that removes unsupported subset constraints. """
+
+    def __init__(self, *args, **kwargs):
+        super(UnsupportedSubsetRemoval, self).__init__(*args, **kwargs)
+        self._subtype_graph = SubtypeGraph(self.model)
+
+    def execute(self):
+        """ Execute the transformation. """
+        self._remove_unsupported_subsets()
+        self._remove_subset_cycles()
+        return self.model_changed
+
+    def _remove_unsupported_subsets(self):
+        """ Remove subset constraints from the model that we cannot support."""
+
+        for cons in self.model.constraints.of_type(SubsetConstraint):   
+            # Remove join subsets (materialization should have happened earlier)
+            try:            
+                if cons.subset.join_path or cons.superset.join_path:
+                    self._remove(cons)
+                    continue
+            except AttributeError:
+                pass
+            
+            # Remove if cons covers same role more than once
+            if len(set(cons.covers)) < len(cons.covers):
+                self._remove(cons)
+                continue
+
+            # Check each pair of subset and superset roles
+            for subset, superset in zip(cons.subset, cons.superset): 
+                # Confirm subset role and superset role are compatible
+                if not self._compatible(subset, superset):
+                    self._remove(cons)
+                    continue
+
+                # If subset role is non-reference and player is subject to IDMC:
+                # Remove cons if superset is a ref role OR played by a subtype
+                # NOTE: In theory, we could relax this if the ref role / subtype
+                #       role is in turn a subset of a non-ref role.
+                obj = subset.player
+                subject_to_idmc = obj.subject_to_idmc and subset in obj.non_ref_roles
+                superset_is_ref = superset in superset.player.ref_roles
+                superset_is_subtype = not superset.player.primitive
+
+                if subject_to_idmc and (superset_is_ref or superset_is_subtype):
+                    self._remove(cons)
+                    continue
+        
+    def _remove_subset_cycles(self):
+        """ Remove subset constraints that form cycles in the model.
+            Credit: DFS algorithm, Cormen et al. 2003 (p. 541) """
+
+        # Create set of roles that participate in some subset constraint
+        V = {role for cons in self.model.constraints.of_type(SubsetConstraint)
+                  for role in cons.covers}
+
+        # Initially color all vertices as WHITE
+        color = {role: "WHITE" for role in V}
+        backedges = set()
+
+        # Visit each unvisited (WHITE) node
+        for role in V:
+            if color[role] == "WHITE":
+                self._visit(role, color, backedges)        
+
+        # Remove back edges, which create cycles in subset graph
+        for cons in backedges:
+            self._remove(cons)
+
+    def _visit(self, role, color, backedges):
+        """ DFS visit algorithm per Cormen et al. p541 (2003). """
+        color[role] = "GRAY" # Mark role as partially visited.
+
+        for child, cons in direct_subsets(role):
+            if color[child] == "GRAY": # Cycle!
+                backedges.add(cons)
+            elif color[child] == "WHITE": # Unvisited
+                self._visit(child, color, backedges)
+        
+        color[role] = "BLACK" # Mark role as completely visited.
+
+    def _compatible(self, role1, role2):
+        return self._subtype_graph.compatible(role1.player, role2.player)
+
+###############################################################################
+# Tuple Subset Transformation
+###############################################################################
+class TupleSubsetTransformation(Transformation):
+    """ Add implied simple subset constraints for each tuple subset, and 
+        strengthen tuple subsets as needed.  """
+
+    def __init__(self, *args, **kwargs):
+        super(TupleSubsetTransformation, self).__init__(*args, **kwargs)
+
+    def execute(self):
+        """ Execute the transformation. """ 
+        for cons in filter(self._tuple_subset, self.model.constraints):
+            name = "Added_due_to_" + cons.name
+
+            # Loop over each pair of (subset, superset) roles
+            for subset, superset in zip(cons.subset, cons.superset):
+                # Add implied simple subset constraint
+                self._add(SubsetConstraint(name=name, subset=[subset], 
+                                           superset=[superset]))
+
+                # For now, take easy approach and cover all subset roles with
+                # simple IUC.
+                if not subset.unique:
+                    self._add(UniquenessConstraint(name=name, covers=[subset]))
+
+        return self.model_changed
+
+    @staticmethod
+    def _tuple_subset(cons):
+        """ Returns True iff constraint is a tuple subset. """
+        return isinstance(cons, SubsetConstraint) and len(cons.subset) > 1
+
+
+###############################################################################
+# Root Role Transformation
+###############################################################################
+class RootRoleTransformation(Transformation):
+    """ Add root_role attribute to each role in the model that has a root role.
+        If a role has more than one root, correct this via the addition of
+        SubsetConstraints. 
+
+        IMPORTANT: We assume here that the subset graph contains no cycles.  
+        More specifically, we assume that UnsupportedSubsetRemoval and 
+        TupleSubsetTransformation were executed earlier. """
+
+    def __init__(self, *args, **kwargs):
+        super(RootRoleTransformation, self).__init__(*args, **kwargs)
+
+    def execute(self):
+        """ Execute the transformation.  """ 
+      
+        # Find current list of roots
+        roots = {role for fact in self.model.fact_types
+                      for role in fact.roles if is_root(role)}
+
+        pairs = [] # Initial list of (root, subsets) pairs
+        final = [] # Final list of (root, subsets) pairs
+
+        # For each root, determine its direct and indirect subset roles
+        for root in roots:
+            subsets = set()
+            self._get_subsets(root, subsets)  # CRITICAL: Assumes no cycles!  
+            pairs.append( (root, subsets) )
+
+        # Sort pairs list so that addition of subset constraints is predictable
+        pairs.sort(key=lambda x: len(x[1])) # Sort by size of subsets set
+
+        # Correct overlap between root subsets by adding Subset Constraints
+        while pairs:
+            root1, subsets1 = pairs.pop()
+
+            for pair in list(pairs):
+                root2, subsets2 = pair
+                if subsets1 & subsets2: # Overlap between subsets                    
+                    self._add(SubsetConstraint(name="From_RootRoleTransform",
+                                              subset=[root2], superset=[root1]))
+                    subsets1 |= subsets2 | set([root2])
+                    pairs.remove(pair)
+                
+            final.append( (root1, subsets1) )
+
+        # Add an attribute to each role containing its root role
+        for root, subset in final:
+            for role in subset:
+                role.root_role = root
+
+        return self.model_changed
+
+    def _get_subsets(self, role, subsets):
+        """ Add all direct and indirect subset roles of *role* to subsets. """
+        for child, cons in direct_subsets(role):
+            subsets.add(child)
+            self._get_subsets(child, subsets)        
+
+###############################################################################
+# Utility Functions
+###############################################################################
+def subset_triples(role):
+    """ Generator function that yields all triples (cons, subset role, 
+        superset role) in which role plays one of the roles. """
+    subset_cons = lambda x: isinstance(x, SubsetConstraint)
+    for cons in filter(subset_cons, role.covered_by):
+        for subset, superset in zip(cons.subset, cons.superset):
+            if subset == role or superset == role:
+                yield cons, subset, superset  
+
+def direct_subsets(role):
+    """ Return the list of edges (subset constraints) and nodes (roles)
+        adjacent to role, where role is the superset. """
+    for cons, subset, superset in subset_triples(role):
+        if superset == role:
+            yield subset, cons
+
+def is_root(role):
+    """ Return True iff the role is a root role. """
+    for cons, subset, superset in subset_triples(role):
+        if subset == role:
+            return False
+    return True
+        

@@ -109,8 +109,10 @@ class Role(ModelElement):
 class RoleSequence(list):
     """ A sequence of roles. """
 
-    def __init__(self, join_path=None, *args, **kwargs):
+    def __init__(self, roles=None, join_path=None, *args, **kwargs):
         super(RoleSequence, self).__init__(*args, **kwargs)
+
+        if roles: self.extend(roles)
 
         self.join_path = join_path #: Join path for the role sequence
 

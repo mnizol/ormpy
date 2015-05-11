@@ -224,12 +224,10 @@ class ORMMinusModel(object):
             self._add(Inequality(lhs=fact_var, rhs=Product(part_vars)))
 
         # Create inequalities for implicit disjunctive mandatory constraint
-        for obj in self.object_types:
-            non_ref = set(obj.roles) - set(obj.ref_roles)
-            if obj.primitive and obj.independent == False and len(non_ref) > 0:
-                obj_var = self._variables[obj]
-                role_vars = [self._variables[role] for role in non_ref]
-                self._add(Inequality(lhs=obj_var, rhs=Sum(role_vars)))
+        for obj in filter(lambda x: x.subject_to_idmc, self.object_types):
+            obj_var = self._variables[obj]
+            role_vars = [self._variables[role] for role in obj.non_ref_roles]
+            self._add(Inequality(lhs=obj_var, rhs=Sum(role_vars)))
 
     def _create_value_inequality(self, cons):
         """ Value constraint inequality.  

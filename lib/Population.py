@@ -111,6 +111,7 @@ class Population(object):
             size = self._model.solution[name]
             try:
                 pop = self._roles[role.root_role.fullname].first(size)
+                pop.names = [role.name] # Fix the column name in case of subtype
             except KeyError:
                 raise Exception("Cannot find root role for " + name)
             self._roles[name] = pop

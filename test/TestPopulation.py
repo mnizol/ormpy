@@ -308,6 +308,8 @@ class TestPopulation(TestCase):
         self.assertItemsEqual(pop.fact_types["FactTypes.BExists"], [[3],[4],[5],[6]])
         self.assertItemsEqual(pop.fact_types["FactTypes.AExists"], [[3],[4],[5],[6]])
 
+        self.assertItemsEqual(pop.fact_types["FactTypes.AExists"].names, ["A"])
+
 #####################################################################
 # Tests writing populations to stdout or CSV files
 #####################################################################

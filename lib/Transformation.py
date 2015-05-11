@@ -657,8 +657,8 @@ class RootRoleTransformation(Transformation):
             self._get_subsets(root, subsets)  # CRITICAL: Assumes no cycles!  
             pairs.append( (root, subsets) )
 
-        # Sort pairs list so that addition of subset constraints is predictable
-        pairs.sort(key=lambda x: len(x[1])) # Sort by size of subsets set
+        # Sort pairs list.  See _sort_key() docstring for justification.
+        pairs.sort(key=self._sort_key) 
 
         # Correct overlap between root subsets by adding Subset Constraints
         while pairs:
@@ -680,6 +680,17 @@ class RootRoleTransformation(Transformation):
                 role.root_role = root
 
         return self.model_changed
+
+    @staticmethod
+    def _sort_key(pair):
+        """ Sort by whether the root player is subject to the IDMC, then by
+            whether the root is non-reference, then by the size of the subset.
+            In this way, we will process all non-ref, primitive, non-independent
+            roots before we process anything else. """
+        root = pair[0]
+        obj = root.player
+        subsets = pair[1]
+        return (obj.subject_to_idmc, root in obj.non_ref_roles, len(subsets))
 
     def _get_subsets(self, role, subsets):
         """ Add all direct and indirect subset roles of *role* to subsets. """

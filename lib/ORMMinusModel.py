@@ -15,7 +15,7 @@ from lib.InequalitySystem \
     import InequalitySystem, Inequality, Variable, Constant, Sum, Product
 from lib.Constraint \
     import FrequencyConstraint, MandatoryConstraint, ValueConstraint, \
-           CardinalityConstraint, SubtypeConstraint
+           CardinalityConstraint, SubtypeConstraint, SubsetConstraint
 from lib.ObjectType import ObjectType, ObjectifiedType
 from lib.FactType import Role
 
@@ -23,7 +23,10 @@ from lib.Transformation import ValueConstraintTransformation, \
                                AbsorptionTransformation, \
                                DisjunctiveRefTransformation, \
                                OverlappingIFCTransformation, \
-                               EUCStrengtheningTransformation
+                               EUCStrengtheningTransformation, \
+                               UnsupportedSubsetRemoval, \
+                               TupleSubsetTransformation, \
+                               RootRoleTransformation
 
 class ORMMinusModel(object):
     """ An ORM- model along with its solution.  The solution is computed using
@@ -48,7 +51,10 @@ class ORMMinusModel(object):
 
         #: True iff the model is changed by a strengthening transformation
         self.strengthened = False 
-                                    
+         
+        # Flag to switch to experimental mode
+        self.experimental = experimental
+                           
         # Initialize private attributes        
         self._ubound = ubound #: Bound on model element size
         self._ineqsys = InequalitySystem() #: System of inequalities
@@ -60,7 +66,7 @@ class ORMMinusModel(object):
         self._fact_type_parts = {}
 
         # Transform the model
-        self._apply_transformations(self.base_model, experimental)
+        self._apply_transformations(self.base_model)
 
         # Initialize _fact_type_parts here; _create_variables will update.
         for fact_type in self.fact_types:
@@ -76,18 +82,27 @@ class ORMMinusModel(object):
         # Log any ignored constraints
         self._log_ignored_constraints()
 
-    def _apply_transformations(self, model, experimental=False):
+    def _apply_transformations(self, model):
         """ Apply transformations to the model. """
         trans = ValueConstraintTransformation(model=model)
         trans.execute()
         self.ignored += trans.removed
 
-        if experimental:
+        if self.experimental:
             # IMPORTANT: Absorption is inappropriate once we permit join paths 
             # and additional constraints.  JoinMaterialization replaces it.
 
             self.strengthened |= DisjunctiveRefTransformation(model).execute()
             self.strengthened |= EUCStrengtheningTransformation(model).execute()
+
+            # Remove unsupported subsets before strengthening others
+            trans = UnsupportedSubsetRemoval(model)
+            trans.execute() # Don't update self.strengthened
+            self.ignored += trans.removed
+
+            self.strengthened |= TupleSubsetTransformation(model).execute()
+            self.strengthened |= RootRoleTransformation(model).execute()
+
             self.strengthened |= OverlappingIFCTransformation(model).execute()
         else:
             self._remove_disjunctive_ref_schemes()
@@ -213,6 +228,8 @@ class ORMMinusModel(object):
                 self._create_cardinality_inequality(cons)
             elif isinstance(cons, SubtypeConstraint):
                 self._create_subtype_inequality(cons)
+            elif isinstance(cons, SubsetConstraint):
+                self._create_subset_inequality(cons)
             else: # Catch-all so that we can report ignored constraints.
                 self._ignore(cons)
 
@@ -226,8 +243,14 @@ class ORMMinusModel(object):
         # Create inequalities for implicit disjunctive mandatory constraint
         for obj in filter(lambda x: x.subject_to_idmc, self.object_types):
             obj_var = self._variables[obj]
-            role_vars = [self._variables[role] for role in obj.non_ref_roles]
+            role_vars = [self._variables[role] for role in obj.non_ref_roles
+                         if self._is_root_role(role)]
             self._add(Inequality(lhs=obj_var, rhs=Sum(role_vars)))
+
+    @staticmethod
+    def _is_root_role(role):
+        """ Returns True if role is a root role. """
+        return not hasattr(role, "root_role") # Always True if not experimental
 
     def _create_value_inequality(self, cons):
         """ Value constraint inequality.  
@@ -307,3 +330,13 @@ class ORMMinusModel(object):
         subtype_var = self._variables[cons.covers[0]]
         supertype_var = self._variables[cons.covers[1]]
         self._add(Inequality(lhs=subtype_var, rhs=supertype_var))
+
+    def _create_subset_inequality(self, cons):
+        """ Subset constraint inequality. """
+        if self.experimental:
+            for subset, superset in zip(cons.subset, cons.superset):
+                subset_var = self._variables[subset]
+                superset_var = self._variables[superset]
+                self._add(Inequality(lhs=subset_var, rhs=superset_var))
+        else:
+            self._ignore(cons)

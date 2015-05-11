@@ -1313,7 +1313,7 @@ class TestRootRoleTransformation(TestCase):
         self.assertItemsEqual(sub1.subset, [asmokes.roles[0]])
         self.assertItemsEqual(sub1.superset, [alikesb.roles[0]])
 
-        sub2 = aexists.roles[0].covered_by[2] # covered_by[0] is an IUC
+        sub2 = aexists.roles[0].covered_by[3] # covered_by[0] is IUC, [1] is subset, [2] is cardinality
         self.assertTrue(isinstance(sub2, SubsetConstraint))
         self.assertItemsEqual(sub2.subset, [aexists.roles[0]])
         self.assertItemsEqual(sub2.superset, [alikesb.roles[0]])
@@ -1348,3 +1348,24 @@ class TestRootRoleTransformation(TestCase):
         self.assertItemsEqual(trans.removed, [])
         self.assertItemsEqual(trans.modified, [])
 
+    def test_root_on_subtype_and_supertype(self):
+        """ Subset graph has multiple roots, where one is a subtype and
+            one is a supertype. """
+        fname = TestData.path("subset_root_role_test.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+  
+        self.assertEquals(3, len(model.constraints.of_type(SubsetConstraint)))
+
+        # Execute transformation
+        trans = RootRoleTransformation(model)
+        self.assertTrue(trans.execute())
+
+        self.assertEquals(4, len(model.constraints.of_type(SubsetConstraint)))
+
+        root1 = model.fact_types.get("AExists").roles[0]
+        root2 = model.fact_types.get("BExists").roles[0]
+
+        self.assertFalse(hasattr(root1, "root_role"))
+        self.assertIs(root2.root_role, root1)
+        

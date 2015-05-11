@@ -230,7 +230,84 @@ class TestPopulation(TestCase):
         self.assertItemsEqual(pop.fact_types["FactTypes.AHasB"], ahasb)
         self.assertItemsEqual(pop.fact_types["FactTypes.BHasC"], bhasc)
         self.assertItemsEqual(pop.fact_types["FactTypes.CHasD"], chasd)
+
+    def test_pop_with_subset(self):
+        """ Test population with subset constraint. """
+        fname = os.path.join(self.data_dir, "subset_population_test.orm")
+        model = NormaLoader(fname).model
+        model = ORMMinusModel(model, ubound=12, experimental=True)
+        pop = Population(model)
+
+        self.assertItemsEqual(model.ignored, [])
+
+        ahasb = [[0,0],
+                 [1,1]]
+
+        alikescb = [[0,0,0],
+                    [1,1,1],
+                    [2,2,0],
+                    [0,3,1],
+                    [1,4,0],
+                    [2,5,1],
+                    [0,6,0],
+                    [1,7,1],
+                    [2,8,0],
+                    [0,9,1],
+                    [1,0,0],
+                    [2,1,1]]
+
+        self.assertItemsEqual(pop.fact_types["FactTypes.AHasB"], ahasb)
+        self.assertItemsEqual(pop.fact_types["FactTypes.ALikesCB"], alikescb)
+
+    def test_pop_with_subset_2(self):
+        """ Test population with subset constraint. """
+        fname = os.path.join(self.data_dir, "subset_population_test2.orm")
+        model = NormaLoader(fname).model
+        model = ORMMinusModel(model, ubound=12, experimental=True)
+        pop = Population(model)
+
+        self.assertItemsEqual(model.ignored, [])
+
+        ahasid = [['A0',0],
+                  ['A1',1],
+                  ['A2',2],
+                  ['A3',3],
+                  ['A4',4],
+                  ['A5',5],
+                  ['A6',6]]
+
+        ahasb = [['A0',10],
+                 ['A1',20],
+                 ['A2',30],
+                 ['A3',40]]
+
+        chasa = [[1,'A4'],
+                 [2,'A5'],
+                 [3,'A6']]
+
+        chasda = [[1,0,'A4'],
+                  [2,1,'A5'],
+                  [3,2,'A6']]
+
+        self.assertItemsEqual(pop.fact_types["FactTypes.AHasAId"], ahasid)
+        self.assertItemsEqual(pop.fact_types["FactTypes.AHasB"], ahasb)
+        self.assertItemsEqual(pop.fact_types["FactTypes.CHasA"], chasa)
+        self.assertItemsEqual(pop.fact_types["FactTypes.CHasDA"], chasda)
         
+    def test_how_population_order_affects_subset(self):
+        """ Subset has subtype that was created before supertype, and a subset
+            constraint from subtype to supertype role.  Because of the order
+            of the types, the superset role pop won't be available when we 
+            try to populate the subset role pop. """
+        fname = os.path.join(self.data_dir, "subset_population_ordering.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+        model = ORMMinusModel(model, ubound=5, experimental=True)
+        pop = Population(model)
+
+        self.assertItemsEqual(pop.fact_types["FactTypes.BExists"], [[3],[4],[5],[6]])
+        self.assertItemsEqual(pop.fact_types["FactTypes.AExists"], [[3],[4],[5],[6]])
+
 #####################################################################
 # Tests writing populations to stdout or CSV files
 #####################################################################
@@ -511,6 +588,16 @@ class TestRelation(TestCase):
                                    [0,2], [1,0], [2,1]])
 
        
+    def test_first(self):
+        """ Test first() method. """
+        orig = Relation(['col1', 'col2'])
+        for i in xrange(10):
+            orig.add((i,i+1))
+        final = orig.first(5)
+
+        self.assertItemsEqual(final.names, ['col1','col2'])
+        self.assertEquals(final.arity, 2)
+        self.assertItemsEqual(final, [(0,1),(1,2),(2,3),(3,4),(4,5)])
 
 #####################################################################
 # Tests for Utility Functions

@@ -67,20 +67,30 @@ class Population(object):
             # Populate the object type from its root type's domain 
             self.object_types[name] = list(domain.draw(n))
 
-            # Populate the roles played by this object type
-            self._populate_roles(obj_type)
+            # Populate the root roles played by this object type
+            self._populate_root_roles(obj_type)
 
-    def _populate_roles(self, obj_type):
-        """ Populate all roles played by an object type. """
+        # Iterate over object types again to populate non-root roles. Populating 
+        # root roles first ensures that root populations are available to 
+        # non-root roles, even if played by a different (but compatible) type
+        for obj_type in self._model.object_types:
+            self._populate_non_root_roles(obj_type)
+
+    def _populate_root_roles(self, obj_type):
+        """ Populate all root roles played by an object type. """
         
         # Create an iterator that will cycle over all objects in the object
         # type's domain in an endless loop.
         obj_name = obj_type.fullname
         obj_cycle = cycle(self.object_types[obj_name])
 
-        # Populate each role by drawing the next <size> elements from obj_cycle, 
-        # where <size> is the value of the role variable in the solution.
-        for role in obj_type.roles:
+        # Get lists of root roles.  For non-experimental case (i.e. McGill), 
+        # root_roles should equal obj_type.roles.
+        root_roles = [r for r in obj_type.roles if is_root_role(r)]
+
+        # Populate each root role by drawing the next N elements from obj_cycle, 
+        # where N is the value of the role variable in the solution.
+        for role in root_roles:
             name = role.fullname
             size = self._model.solution[name]
             pop = Relation([role.name]) # Create an empty population
@@ -89,6 +99,20 @@ class Population(object):
                 next = obj_cycle.next()
                 pop.add([next])
 
+            self._roles[name] = pop
+
+    def _populate_non_root_roles(self, obj_type):
+        """ Populate non-root roles with first N elements of root role's pop."""
+
+        non_root_roles = [r for r in obj_type.roles if not is_root_role(r)]
+
+        for role in non_root_roles:
+            name = role.fullname
+            size = self._model.solution[name]
+            try:
+                pop = self._roles[role.root_role.fullname].first(size)
+            except KeyError:
+                raise Exception("Cannot find root role for " + name)
             self._roles[name] = pop
        
     def _populate_role_sequences(self):
@@ -224,6 +248,12 @@ class Relation(list):
             raise Exception("Cannot add tuple of arity " + str(len(tupl)) +
                             " to a Relation of arity " + str(self.arity))
 
+    def first(self, n):
+        """ Return a new Relation containing first n elements of this one. """
+        result = Relation(names=list(self.names))
+        result.extend(self[:n])
+        return result
+        
     def combine_with(self, target, n):
         """ Combine self with a target relation according to the enumeration 
             algorithm of Smaragdakis, et al. """
@@ -260,6 +290,9 @@ def lcm(a,b):
     # Credit: http://rosettacode.org/wiki/Least_common_multiple#Python. 
     return abs(a * b) / fractions.gcd(a,b) if a and b else 0
             
+def is_root_role(role):
+    """ Returns True if role is a root role. """
+    return not hasattr(role, "root_role") # Always True if not experimental
 
 
 

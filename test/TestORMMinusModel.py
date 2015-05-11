@@ -605,4 +605,69 @@ class TestORMMinusModel(TestCase):
         ormminus = ORMMinusModel(model, ubound=10)        
         self.assertIsNone(ormminus.solution)
 
+    def test_unsat_subset(self):
+        """ Test a model that is unsatisfiable due to a subset constraint. """
+        fname = TestDataLocator.path("subset_unsat.orm")
+
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=100, experimental=True)        
+        self.assertIsNone(ormminus.solution)
+
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=100, experimental=False)        
+        self.assertIsNotNone(ormminus.solution)
+
+    def test_sat_subset(self):
+        """ Test a model that is satisfiable with subset constraints. """
+        fname = TestDataLocator.path("subset_multiple_roots.orm")
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=100, experimental=True)  
+        solution = ormminus.solution
+
+        self.assertIsNotNone(solution)
+        self.assertItemsEqual(ormminus.ignored, [])
+
+        self.assertEquals(solution["FactTypes.ALikesB.Roles.A"], 7)
+        self.assertEquals(solution["FactTypes.CLikesA.Roles.A"], 7)
+        self.assertEquals(solution["FactTypes.ASmokes.Roles.A"], 7)
+        self.assertEquals(solution["FactTypes.AExists.Roles.A"], 6)
+        self.assertEquals(solution["FactTypes.AHasB.Roles.A"], 6)
+        self.assertEquals(solution["ObjectTypes.A"], 7)
+
+        self.assertEquals(solution["FactTypes.ALikesB.Roles.B"], 7)
+        self.assertEquals(solution["FactTypes.AHasB.Roles.B"], 6)
+        self.assertEquals(solution["ObjectTypes.B"], 7)
+
+        self.assertEquals(solution["ObjectTypes.C"], 100) 
+
+        # Check inequalities
+        actual = [ineq.tostring() for ineq in ormminus._ineqsys]
+
+        # Check IDMC for A
+        filt = lambda x: x.startswith("ObjectTypes.A <=")        
+        self.assertItemsEqual(filter(filt, actual),
+            ["ObjectTypes.A <= 100", "ObjectTypes.A <= FactTypes.ALikesB.Roles.A"]) 
+
+        # Check IDMC for B
+        filt = lambda x: x.startswith("ObjectTypes.B <=")        
+        self.assertItemsEqual(filter(filt, actual),
+            ["ObjectTypes.B <= 100", "ObjectTypes.B <= 7",
+             "ObjectTypes.B <= FactTypes.ALikesB.Roles.B + FactTypes.BExists.Roles.B"])   
+
+        # Confirm R < S inequalities present
+        self.assertIn("FactTypes.AHasB.Roles.A <= FactTypes.ALikesB.Roles.A", actual)
+        self.assertIn("FactTypes.AHasB.Roles.B <= FactTypes.ALikesB.Roles.B", actual) 
+
+    def test_ignored_subset(self):
+        """ Test a model with an ignored subset constraint. """
+        fname = TestDataLocator.path("subset_with_ref_role_superset.orm")
+        model = NormaLoader(fname).model
+
+        subset = model.constraints.get("SUB1")
+
+        ormminus = ORMMinusModel(model, ubound=100, experimental=True)  
+        solution = ormminus.solution 
+
+        self.assertIsNotNone(solution)
+        self.assertItemsEqual(ormminus.ignored, [subset])  
         

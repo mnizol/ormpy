@@ -329,7 +329,7 @@ class TestNormaLoader(TestCase):
         self.log.beforeTest(None)
         loader = NormaLoader(self.data_dir + "omitted_constraints.orm")
 
-        expected = ["Equality constraint EqualityConstraint1",
+        expected = [
              "Exclusion constraint ExclusionConstraint1",
              "Exclusion constraint ExclusiveOrConstraint1",
              "Ring constraint RingConstraint1",
@@ -339,7 +339,7 @@ class TestNormaLoader(TestCase):
         self.assertItemsEqual(loader.omissions, expected)
 
         # Check log contents
-        expected = ["WARNING: 5 model elements were ignored while loading omitted_constraints.orm."] + \
+        expected = ["WARNING: 4 model elements were ignored while loading omitted_constraints.orm."] + \
                    ["INFO: Ignored " + msg for msg in expected]
 
         self.assertItemsEqual(self.log.formatLogRecords(), expected)
@@ -969,4 +969,36 @@ class TestNormaLoader(TestCase):
                                         (GHasB.roles[0], HHasG.roles[1]),
                                         (EHasB.roles[1], BHasC.roles[0]) ])
          
+    def test_load_equality_constraint(self):
+        """ Test loading of equality constraint. """
+        fname = TestDataLocator.path("equality_four_role.orm")
+        loader = NormaLoader(fname)
+        model = loader.model       
+
+        self.assertItemsEqual(loader.omissions, [])
+
+        cons_list = model.constraints.of_type(Constraint.EqualityConstraint)
+
+        self.assertEquals(3, len(cons_list))
+
+        eq1 = model.constraints.get("EQ")
+        eq2 = model.constraints.get("EQ2")
+        eq3 = model.constraints.get("EQ3")
+
+        self.assertTrue(isinstance(eq1, Constraint.EqualityConstraint))
+        self.assertTrue(isinstance(eq2, Constraint.EqualityConstraint))
+        self.assertTrue(isinstance(eq3, Constraint.EqualityConstraint))
+
+        obj = model.object_types.get("A")
+
+        self.assertEquals(eq1.superset, [obj.roles[0]])
+        self.assertEquals(eq1.subset, [obj.roles[1]])
+        self.assertEquals(eq1.covers, eq1.subset + eq1.superset)
+
+        self.assertEquals(eq2.superset, [obj.roles[0]])
+        self.assertEquals(eq2.subset, [obj.roles[2]])
+        self.assertEquals(eq2.covers, eq2.subset + eq2.superset)
         
+        self.assertEquals(eq3.superset, [obj.roles[0]])
+        self.assertEquals(eq3.subset, [obj.roles[3]])
+        self.assertEquals(eq3.covers, eq3.subset + eq3.superset)

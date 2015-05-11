@@ -446,15 +446,14 @@ class NormaLoader(object):
             if deontic == False and node.get("Modality") == "Deontic":
                 continue
 
-            cons = self._call_loader(loader, node)
+            result = self._call_loader(loader, node)
+    
+            if not isinstance(result, list): 
+                result = [result]
 
-            if cons != None and cons.covers != None:
-                self._add(cons)
-
-    def _load_equality_constraint(self, xml_node):
-        """ Load equality constraint. """
-        self.omissions.append("Equality constraint " + xml_node.get("Name"))
-        return None
+            for cons in result:
+                if cons != None and cons.covers != None:
+                    self._add(cons)
 
     def _load_exclusion_constraint(self, xml_node):
         """ Load exclusion constraint. """
@@ -484,6 +483,28 @@ class NormaLoader(object):
         attribs['superset'] = self._load_role_sequence(sequences_node[1], name)
 
         return Constraint.SubsetConstraint(**attribs)
+
+    def _load_equality_constraint(self, xml_node):
+        """ Load equality constraint. """
+        attribs, name = get_basic_attribs(xml_node)
+
+        sequences_node = find(xml_node, "RoleSequences")
+
+        # If there are > 2 role sequences, we split the equality constraint
+        # into multiple 2-role-sequence equality constraints.  Each of them use
+        # sequences_node[0] as the superset sequence and then one of the
+        # subsequent role sequences as their subset sequence.
+
+        cons_list = []
+        superset_seq = sequences_node[0]        
+        attribs['superset'] = self._load_role_sequence(superset_seq, name)
+        sequences_node.remove(superset_seq)
+
+        for sequence in sequences_node:
+            attribs['subset'] = self._load_role_sequence(sequence, name)                
+            cons_list.append(Constraint.EqualityConstraint(**attribs))
+
+        return cons_list
 
     def _load_frequency_constraint(self, xml_node):
         """ Load frequency constraint. """

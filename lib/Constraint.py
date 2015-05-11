@@ -238,6 +238,15 @@ class SubsetConstraint(Constraint):
         else:
             self.covers = None
 
+class EqualityConstraint(SubsetConstraint):
+    """ An equality constraint.  This is a subtype of SubsetConstraint because
+        of how they are handled by the instantiation algorithm (i.e. an
+        EqualityConstraint is equivalent to a SubsetConstraint whose role
+        sequences have the same cardinality). """
+    
+    def __init__(self, *args, **kwargs):
+        super(EqualityConstraint, self).__init__(*args, **kwargs)
+
 class FrequencyConstraint(Constraint):
     """ A frequency constraint. """
 

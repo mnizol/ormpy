@@ -13,7 +13,7 @@
 from lib.Model import Model
 from lib.Constraint import ValueConstraint, UniquenessConstraint, \
                            FrequencyConstraint, MandatoryConstraint, \
-                           SubsetConstraint
+                           SubsetConstraint, EqualityConstraint
 from lib.FactType import Role, FactType, RoleSequence
 from lib.ObjectType import ObjectifiedType
 from lib.SubtypeGraph import SubtypeGraph
@@ -596,8 +596,8 @@ class UnsupportedSubsetRemoval(Transformation):
 # Tuple Subset Transformation
 ###############################################################################
 class TupleSubsetTransformation(Transformation):
-    """ Add implied simple subset constraints for each tuple subset, and 
-        strengthen tuple subsets as needed.  """
+    """ Add implied simple subset (or equality) constraints for each tuple 
+        subset (or equality), and strengthen roles with IUCs as needed.  """
 
     def __init__(self, *args, **kwargs):
         super(TupleSubsetTransformation, self).__init__(*args, **kwargs)
@@ -606,17 +606,28 @@ class TupleSubsetTransformation(Transformation):
         """ Execute the transformation. """ 
         for cons in filter(self._tuple_subset, self.model.constraints):
             name = "Added_due_to_" + cons.name
+            cons_type = type(cons) # SubsetConstraint or EqualityConstraint
+
+            n_super_uniq = 0 # Number of superset roles covered by simple IUC
 
             # Loop over each pair of (subset, superset) roles
             for subset, superset in zip(cons.subset, cons.superset):
-                # Add implied simple subset constraint
-                self._add(SubsetConstraint(name=name, subset=[subset], 
-                                           superset=[superset]))
+                # Add implied simple subset or equality constraint
+                # TODO: Not certain this is needed. May be redundant/overkill.
+                self._add(cons_type(name=name, subset=[subset], superset=[superset]))
 
                 # For now, take easy approach and cover all subset roles with
                 # simple IUC.
                 if not subset.unique:
                     self._add(UniquenessConstraint(name=name, covers=[subset]))
+
+                if superset.unique:
+                    n_super_uniq += 1
+
+            # If none of the superset roles are unique, and this is an 
+            # equality constraint, strengthen the last superset role
+            if n_super_uniq == 0 and isinstance(cons, EqualityConstraint):
+                self._add(UniquenessConstraint(name=name, covers=[superset]))
 
         return self.model_changed
 

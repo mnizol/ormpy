@@ -15,7 +15,8 @@ from lib.InequalitySystem \
     import InequalitySystem, Inequality, Variable, Constant, Sum, Product
 from lib.Constraint \
     import FrequencyConstraint, MandatoryConstraint, ValueConstraint, \
-           CardinalityConstraint, SubtypeConstraint, SubsetConstraint
+           CardinalityConstraint, SubtypeConstraint, SubsetConstraint, \
+           EqualityConstraint
 from lib.ObjectType import ObjectType, ObjectifiedType
 from lib.FactType import Role
 
@@ -332,11 +333,14 @@ class ORMMinusModel(object):
         self._add(Inequality(lhs=subtype_var, rhs=supertype_var))
 
     def _create_subset_inequality(self, cons):
-        """ Subset constraint inequality. """
+        """ Subset constraint inequality.  Also handles equality constraints."""
         if self.experimental:
             for subset, superset in zip(cons.subset, cons.superset):
                 subset_var = self._variables[subset]
                 superset_var = self._variables[superset]
                 self._add(Inequality(lhs=subset_var, rhs=superset_var))
+
+                if isinstance(cons, EqualityConstraint):
+                    self._add(Inequality(lhs=superset_var, rhs=subset_var))
         else:
             self._ignore(cons)

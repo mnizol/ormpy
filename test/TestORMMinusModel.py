@@ -669,5 +669,22 @@ class TestORMMinusModel(TestCase):
         solution = ormminus.solution 
 
         self.assertIsNotNone(solution)
-        self.assertItemsEqual(ormminus.ignored, [subset])  
+        self.assertItemsEqual(ormminus.ignored, [subset]) 
+
+    def test_unsat_equality(self):
+        """ Test a model that is unsatisfiable due to an equality constraint. """
+        fname = TestDataLocator.path("equality_unsat.orm")
+
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=100, experimental=True)        
+        self.assertIsNone(ormminus.solution)
+
+        actual = [ineq.tostring() for ineq in ormminus._ineqsys]
+
+        self.assertIn("FactTypes.ALovesB.Roles.A <= FactTypes.AHasB.Roles.A", actual)
+        self.assertIn("FactTypes.AHasB.Roles.A <= FactTypes.ALovesB.Roles.A", actual)
+
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=100, experimental=False)        
+        self.assertIsNotNone(ormminus.solution) 
         

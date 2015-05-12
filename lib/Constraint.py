@@ -114,7 +114,7 @@ class ValueConstraint(Constraint):
 class ValueDomain(EnumeratedDomain):
     """ The domain of a value constraint. """
 
-    MAX_SIZE = 1000 #: Arbitrary, for performance.
+    MAX_SIZE = 10000 #: Arbitrary, for performance.
 
     def __init__(self, *args, **kwargs):
         super(ValueDomain, self).__init__(*args, **kwargs)        

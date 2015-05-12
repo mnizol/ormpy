@@ -17,7 +17,8 @@ from lib.ObjectType import ObjectType
 from lib.SubtypeGraph import SubtypeGraph
 from lib.NormaLoader import NormaLoader
 from lib.Constraint import UniquenessConstraint, MandatoryConstraint, \
-                           FrequencyConstraint, SubsetConstraint
+                           FrequencyConstraint, SubsetConstraint, \
+                           EqualityConstraint
 
 from lib.Transformation import Transformation, ValueConstraintTransformation, \
                                AbsorptionTransformation, \
@@ -1242,6 +1243,97 @@ class TestTupleSubsetTransformation(TestCase):
         self.assertItemsEqual(trans.added, [sc1, sc2, sc3, uc1, uc3])
         self.assertItemsEqual(trans.removed, [])
         self.assertItemsEqual(trans.modified, [])
+
+    def test_ternary_equality(self):
+        """ Test transformation of ternary equality. """
+        fname = TestData.path("equality_tuple.orm")
+        loader = NormaLoader(fname)
+        model = loader.model 
+
+        equal = model.constraints.get("EQ")
+        uniq = model.constraints.get("IUC1")
+
+        self.assertIsNotNone(equal)
+        self.assertIsNotNone(uniq)
+
+        self.assertEquals(1, len(model.constraints.of_type(EqualityConstraint)))
+        self.assertEquals(2, len(model.constraints.of_type(UniquenessConstraint)))
+
+        # Transform model
+        trans = TupleSubsetTransformation(model)
+        self.assertTrue(trans.execute())
+
+        # Confirm tuple equality is still present
+        self.assertIsNotNone(model.constraints.get("EQ"))
+        self.assertIsNotNone(model.constraints.get("IUC1"))
+
+        # Confirm new simple subsets added
+        self.assertEquals(4, len(model.constraints.of_type(EqualityConstraint)))
+        self.assertEquals(5, len(model.constraints.of_type(UniquenessConstraint)))
+
+        fact_type = model.fact_types.get("AHasBCD")
+
+        # Check constraints on role played by A
+        eq0 = fact_type.roles[0].covered_by[0]
+        eq1 = fact_type.roles[0].covered_by[1]
+        uc1 = fact_type.roles[0].covered_by[2]
+
+        self.assertIs(eq0, equal)
+        self.assertTrue(isinstance(eq1, EqualityConstraint))
+        self.assertEquals(len(eq1.subset), 1)
+        self.assertTrue(isinstance(uc1, UniquenessConstraint))
+        self.assertTrue(len(uc1.covers), 1)
+
+        # Check constraints on role played by B
+        uc2 = fact_type.roles[1].covered_by[0]
+        eq0 = fact_type.roles[1].covered_by[1]
+        eq2 = fact_type.roles[1].covered_by[2]
+
+        self.assertIs(eq0, equal)
+        self.assertIs(uc2, uniq)
+        self.assertTrue(isinstance(eq2, EqualityConstraint))
+        self.assertEquals(len(eq2.subset), 1)
+
+        # Check constraints on role played by C
+        self.assertEquals(fact_type.roles[2].covered_by, [])
+
+        # Check constraints on role played by D
+        eq0 = fact_type.roles[3].covered_by[0]
+        eq3 = fact_type.roles[3].covered_by[1]
+        uc3 = fact_type.roles[3].covered_by[2]
+
+        self.assertIs(eq0, equal)
+        self.assertTrue(isinstance(eq3, EqualityConstraint))
+        self.assertEquals(len(eq3.subset), 1)
+        self.assertTrue(isinstance(uc3, UniquenessConstraint))
+        self.assertTrue(len(uc3.covers), 1)
+
+        # Confirm IUC add to role played by D in ternary fact type
+        # (i.e. the "superset" of the equality constraint)
+        role = model.fact_types.get("AHasBD").roles[2]
+        uc4 = role.covered_by[2]
+        self.assertTrue(isinstance(uc4, UniquenessConstraint))
+        self.assertTrue(len(uc4.covers), 1)
+
+        # Check contents of added, removed, modified
+        self.assertItemsEqual(trans.added, [eq1, eq2, eq3, uc1, uc3, uc4])
+        self.assertItemsEqual(trans.removed, [])
+        self.assertItemsEqual(trans.modified, [])
+
+    def test_binary_equality(self):
+        """ Test transformation of binary equality. """
+        fname = TestData.path("equality_tuple2.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        # Transform model
+        trans = TupleSubsetTransformation(model)
+        self.assertTrue(trans.execute())
+ 
+        self.assertEquals(3, len(model.constraints.of_type(EqualityConstraint)))
+        self.assertEquals(3, len(model.constraints.of_type(UniquenessConstraint)))
+
+        self.assertFalse(model.fact_types.get("ALikesB").roles[0].unique)        
 
 ##############################################################################
 # Root Role Transformation tests

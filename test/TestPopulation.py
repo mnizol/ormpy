@@ -310,6 +310,51 @@ class TestPopulation(TestCase):
 
         self.assertItemsEqual(pop.fact_types["FactTypes.AExists"].names, ["A"])
 
+    def test_pop_with_equality(self):
+        """ Test population with equality constraint. """
+        fname = os.path.join(self.data_dir, "equality_population_test.orm")
+        model = NormaLoader(fname).model
+        model = ORMMinusModel(model, ubound=1000, experimental=True)
+        pop = Population(model)
+
+        self.assertItemsEqual(model.ignored, [])
+
+        ehasa = [['E1','A1'],
+                 ['E2','A2']]
+
+        quat = [['A1',100,200,300],
+                ['A2',101,201,301]]
+
+        tern = [['A1',100,300],
+                ['A2',101,301]]
+
+        self.assertItemsEqual(pop.fact_types["FactTypes.EHasA"], ehasa)
+        self.assertItemsEqual(pop.fact_types["FactTypes.AHasBCD"], quat)
+        self.assertItemsEqual(pop.fact_types["FactTypes.ALikesBD"], tern)
+
+    def test_pop_with_equality2(self):
+        """ Test population with equality constraint. """
+        fname = os.path.join(self.data_dir, "equality_population_test2.orm")
+        model = NormaLoader(fname).model
+        model = ORMMinusModel(model, ubound=1000, experimental=True)
+        pop = Population(model)
+
+        self.assertItemsEqual(model.ignored, [])
+
+        aexists = [[0],[1],[2]]
+        alikes = [[3]]
+        aloves = [[3]]
+        alikesb = [[3,0]]
+        alovesb = [[3,0]]
+        asink = [[4],[0],[1],[2],[3]]
+
+        self.assertItemsEqual(pop.fact_types["FactTypes.AExists"], aexists)
+        self.assertItemsEqual(pop.fact_types["FactTypes.ALikes"], alikes)
+        self.assertItemsEqual(pop.fact_types["FactTypes.ALoves"], aloves)
+        self.assertItemsEqual(pop.fact_types["FactTypes.ALikesB"], alikesb)
+        self.assertItemsEqual(pop.fact_types["FactTypes.ALovesB"], alovesb)
+        self.assertItemsEqual(pop.fact_types["FactTypes.ASink"], asink)
+
 #####################################################################
 # Tests writing populations to stdout or CSV files
 #####################################################################

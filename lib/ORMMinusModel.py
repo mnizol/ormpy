@@ -27,7 +27,8 @@ from lib.Transformation import ValueConstraintTransformation, \
                                EUCStrengtheningTransformation, \
                                UnsupportedSubsetRemoval, \
                                TupleSubsetTransformation, \
-                               RootRoleTransformation
+                               RootRoleTransformation, \
+                               JoinMaterialization
 
 class ORMMinusModel(object):
     """ An ORM- model along with its solution.  The solution is computed using
@@ -95,6 +96,7 @@ class ORMMinusModel(object):
 
             self.strengthened |= DisjunctiveRefTransformation(model).execute()
             self.strengthened |= EUCStrengtheningTransformation(model).execute()
+            self.strengthened |= JoinMaterialization(model).execute()
 
             # Remove unsupported subsets before strengthening others
             trans = UnsupportedSubsetRemoval(model)

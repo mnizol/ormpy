@@ -355,6 +355,26 @@ class TestPopulation(TestCase):
         self.assertItemsEqual(pop.fact_types["FactTypes.ALovesB"], alovesb)
         self.assertItemsEqual(pop.fact_types["FactTypes.ASink"], asink)
 
+    def test_pop_with_join_equality(self):
+        """ Test population with join equality constraint. """
+        fname = os.path.join(self.data_dir, "join_equality_sat.orm")
+        model = NormaLoader(fname).model
+        model = ORMMinusModel(model, ubound=1000, experimental=True)
+        pop = Population(model)
+
+        self.assertItemsEqual(model.ignored, [])
+
+        expected_bin = [[0,0],[1,1],[2,2],[3,3],[4,4]]
+        expected_join = [[0,0,0],[1,1,1],[2,2,2],[3,3,3],[4,4,4]]
+
+        self.assertItemsEqual(pop.fact_types["FactTypes.AHasB"], expected_bin)
+        self.assertItemsEqual(pop.fact_types["FactTypes.AHasD"], expected_bin)
+        self.assertItemsEqual(pop.fact_types["FactTypes.BHasC"], expected_bin)
+        self.assertItemsEqual(pop.fact_types["FactTypes.DHasC"], expected_bin)
+
+        self.assertItemsEqual(pop.fact_types["FactTypes.EQ_join_fact"], expected_join)
+        self.assertItemsEqual(pop.fact_types["FactTypes.EQ_join_fact2"], expected_join)
+
 #####################################################################
 # Tests writing populations to stdout or CSV files
 #####################################################################

@@ -687,4 +687,22 @@ class TestORMMinusModel(TestCase):
         model = NormaLoader(fname).model
         ormminus = ORMMinusModel(model, ubound=100, experimental=False)        
         self.assertIsNotNone(ormminus.solution) 
+
+    def test_unsat_join_equality(self):
+        """ Test a model that is unsatisfiable due to a join equality constraint. """
+        fname = TestDataLocator.path("join_equality_unsat.orm")
+
+        model = NormaLoader(fname).model
+        ormminus = ORMMinusModel(model, ubound=100, experimental=True)  
+
+        self.assertEquals(ormminus.ignored, [])      
+        self.assertIsNone(ormminus.solution)
+
+        model = NormaLoader(fname).model
+        eq = model.constraints.get("EQ")
+        ormminus = ORMMinusModel(model, ubound=100, experimental=False)   
+
+        self.assertEquals(ormminus.ignored, [eq])     
+        self.assertIsNotNone(ormminus.solution) 
+
         

@@ -231,12 +231,17 @@ class SubsetConstraint(Constraint):
         #: Sequence of superset roles (:class:`lib.FactType.RoleSequence`)
         self.superset = superset
 
-        # Override whatever is passed in as the list of covered roles; instead,
-        # we treat the subset and superset sequences as the truth.
-        if subset and superset:
-            self.covers = subset + superset
+    @property
+    def covers(self):
+        """ List of covered roles (combines self.subset and self.superset). """
+        if self.subset and self.superset:
+            return self.subset + self.superset
         else:
-            self.covers = None
+            return None
+
+    @covers.setter
+    def covers(self, value):
+        pass # Ignore any attempt to directly set covers on a subset constraint
 
 class EqualityConstraint(SubsetConstraint):
     """ An equality constraint.  This is a subtype of SubsetConstraint because

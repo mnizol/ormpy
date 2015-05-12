@@ -710,6 +710,118 @@ class RootRoleTransformation(Transformation):
             self._get_subsets(child, subsets)        
 
 ###############################################################################
+# Join Materialization
+###############################################################################
+class JoinMaterialization(Transformation):
+    """ Transformation to convert a join path to a join fact type. """
+
+    def __init__(self, *args, **kwargs):
+        super(JoinMaterialization, self).__init__(*args, **kwargs)
+
+    def execute(self):
+        """ Execute the transformation. """
+
+        # For now, we'll just support subset and equality constraints
+        for cons in self.model.constraints.of_type(SubsetConstraint):
+            if getattr(cons.subset, 'join_path', None):
+                self._materialize(cons, cons.subset)
+   
+            if getattr(cons.superset, 'join_path', None):
+                self._materialize(cons, cons.superset)                
+
+        return self.model_changed
+
+    def _materialize(self, cons, roleseq):
+        """ Materialize the join path. """
+
+        join_path = getattr(roleseq, 'join_path', None)
+
+        if not join_path or len(join_path.fact_types) < 2:
+            return
+
+        joinfact = JoinFactType(name=cons.name + "_join_fact")
+        
+        # Initialize list of equality constraints that will cover join fact type
+        eq_list = [EqualityConstraint(name="join_eq", subset=[], superset=[])]
+
+        # Add first fact type to join fact type
+        for role in join_path.fact_types[0].roles:
+            new_role = joinfact.add_role(player=role.player)
+            joinfact.corr[role] = new_role
+
+            eq_list[0].subset.append(role)
+            eq_list[0].superset.append(new_role)
+        
+        # Build out the full join fact type
+        for join in join_path.joins:
+            eq = EqualityConstraint(name="join_eq", subset=[], superset=[])
+
+            for role in join[1].fact_type.roles:
+                if role is join[1]:
+                    new_role = joinfact.corr[join[0]]
+                else:
+                    new_role = joinfact.add_role(player=role.player)
+                    
+                joinfact.corr[role] = new_role 
+
+                eq.subset.append(role)
+                eq.superset.append(new_role)
+
+            eq_list.append(eq)
+
+        new_seq = [joinfact.corr[role] for role in roleseq]
+
+        # Ensure join constraint still covers same number of roles!
+        if len(set(new_seq)) != len(roleseq):
+            return # We haven't changed anything yet.  BAIL OUT!
+
+        # Update the constraint to cover join fact roles instead of orig roles
+        cons.rollback()
+        del roleseq[:] # Empty out the role sequence
+        roleseq.extend(new_seq)
+        roleseq.join_path = None # Join path is gone now
+
+        # Cover join roles on original and join fact type with simple IUCs
+        # Must be done *after* we validate new_seq length above
+        for join in join_path.joins:
+            self._make_unique(join[0])
+            self._make_unique(join[1])
+            self._make_unique(joinfact.corr[join[0]])
+    
+        # Commit changes
+        self._add(joinfact)
+        map(self._add, eq_list)
+        self._modified(cons) 
+        cons.commit()       
+
+    def _make_unique(self, role):
+        """ Cover role with a simple IUC if it is not already unique. """
+        if not role.unique:
+            self._add(UniquenessConstraint(name="join_uc", covers=[role]))        
+
+class JoinFactType(FactType):
+    """ A join fact type produced by a join materialization transformation. """
+
+    def __init__(self, *args, **kwargs):
+        super(JoinFactType, self).__init__(*args, **kwargs)
+        self.corr = {} # Correlation between old roles and new roles
+
+    def commit(self):
+        """ Commit side effects. """
+        for orig_role in self.corr:
+            ref_roles = orig_role.player.ref_roles
+            new_role = self.corr[orig_role]
+
+            if orig_role in ref_roles and new_role not in ref_roles:
+                ref_roles.append(new_role)
+
+        FactType.commit(self)
+
+    def rollback(self):
+        """ Rollback side effects. """
+        raise NotImplementedError()    
+
+###############################################################################
 # Utility Functions
 ###############################################################################
 def subset_triples(role):

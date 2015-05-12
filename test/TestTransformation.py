@@ -28,6 +28,7 @@ from lib.Transformation import Transformation, ValueConstraintTransformation, \
                                UnsupportedSubsetRemoval, \
                                TupleSubsetTransformation, \
                                RootRoleTransformation, \
+                               JoinMaterialization, JoinFactType, \
                                direct_subsets
 
 ##############################################################################
@@ -1460,4 +1461,146 @@ class TestRootRoleTransformation(TestCase):
 
         self.assertFalse(hasattr(root1, "root_role"))
         self.assertIs(root2.root_role, root1)
+
+##############################################################################
+# Join Materialization tests
+##############################################################################
+class TestJoinMaterialization(TestCase):
+    """ Unit tests for the JoinMaterialization class. """
+
+    def setUp(self):
+        self.maxDiff = None
+
+    def test_simple_materialization(self):
+        """ Test simple join subset materialization. """
+        fname = TestData.path("join_subset_simple.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        sub = model.constraints.get("SUB")
+
+        self.assertIsNotNone(sub)
+
+        self.assertEquals(3, model.fact_types.count())
+        self.assertEquals(4, model.constraints.count())
+
+        # Execute transformation
+        trans = JoinMaterialization(model)
+        self.assertTrue(trans.execute())
+
+        # Confirm new constraints and new fact type are present
+        self.assertEquals(4, model.fact_types.count())
+        self.assertEquals(9, model.constraints.count())
+
+        joinfact = model.fact_types.get("SUB_join_fact")
+        self.assertEquals(joinfact.arity(), 3)
+        self.assertTrue(isinstance(joinfact, JoinFactType))
+
+        # Check constraint covering
+        ahasb_0 = model.fact_types.get("AHasB").roles[0]
+        ahasb_1 = model.fact_types.get("AHasB").roles[1]
+
+        bhasc_0 = model.fact_types.get("BHasC").roles[0]
+        bhasc_1 = model.fact_types.get("BHasC").roles[1]
+
+        ahasc_0 = model.fact_types.get("AHasC").roles[0]
+        ahasc_1 = model.fact_types.get("AHasC").roles[1]
+
+        join_a = joinfact.roles[0]
+        join_b = joinfact.roles[1]
+        join_c = joinfact.roles[2]
+
+        # Check new equality constraints
+        join_eq1 = model.constraints.get("join_eq")
+        join_eq2 = model.constraints.get("join_eq2")
+
+        self.assertTrue(isinstance(join_eq1, EqualityConstraint))
+        self.assertTrue(isinstance(join_eq2, EqualityConstraint))
+
+        self.assertEquals(join_eq1.subset, [ahasb_0, ahasb_1])
+        self.assertEquals(join_eq1.superset, [join_a, join_b])
+
+        self.assertEquals(join_eq2.subset, [bhasc_0, bhasc_1])
+        self.assertEquals(join_eq2.superset, [join_b, join_c])
+
+        # Check modification of subset constraint
+        self.assertEquals(sub.superset, [ahasc_0, ahasc_1])
+        self.assertEquals(sub.subset, [join_a, join_c])
+        self.assertEquals(sub.covers, sub.subset + sub.superset)
+        self.assertIsNone(sub.subset.join_path)
+
+        uniq_j1 = model.constraints.get("join_uc")
+        uniq_j2 = model.constraints.get("join_uc2")
+        uniq_j3 = model.constraints.get("join_uc3")
+
+        self.assertItemsEqual(join_a.covered_by, [sub, join_eq1])
+        self.assertItemsEqual(join_b.covered_by, [uniq_j3, join_eq1, join_eq2])
+        self.assertItemsEqual(join_c.covered_by, [sub, join_eq2])
+
+        # Check uniqueness constraints
+        uniq1 = model.constraints.get("IUC1")
+        uniq2 = model.constraints.get("IUC2")
+
+        self.assertItemsEqual(ahasb_0.covered_by, [uniq1, join_eq1])
+        self.assertItemsEqual(ahasb_1.covered_by, [uniq1, uniq_j1, join_eq1])
+        self.assertItemsEqual(bhasc_0.covered_by, [uniq2, uniq_j2, join_eq2])
+        self.assertItemsEqual(bhasc_1.covered_by, [uniq2, join_eq2])
         
+        # Check correlation
+        self.assertIs(joinfact.corr[ahasb_0], join_a)
+        self.assertIs(joinfact.corr[ahasb_1], join_b)
+        self.assertIs(joinfact.corr[bhasc_0], join_b)
+        self.assertIs(joinfact.corr[bhasc_1], join_c)
+
+        # Check contents of added, removed, modified
+        self.assertItemsEqual(trans.modified, [sub])
+        self.assertItemsEqual(trans.added, 
+            [joinfact, uniq_j1, uniq_j2, uniq_j3, join_eq1, join_eq2])
+        self.assertItemsEqual(trans.removed, [])
+
+    def test_join_subset_covering_ref_roles(self):
+        """ Test when the join fact type contains ref roles. """
+        fname = TestData.path("join_subset_ref_roles.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+        
+        self.assertTrue(JoinMaterialization(model).execute())
+
+        join_fact = model.fact_types.get("SUB_join_fact")
+
+        self.assertEquals(3, join_fact.arity())
+
+        obj_e = model.object_types.get("E")
+        join_role = join_fact.roles[0]
+
+        self.assertIs(join_role.player, obj_e)
+        self.assertIn(join_role, obj_e.roles)
+        self.assertIn(join_role, obj_e.ref_roles)
+        self.assertEquals(3, len(obj_e.ref_roles))
+
+        self.assertEquals(model.object_types.get("A").ref_roles, [])
+
+    def test_join_subset_covering_both_join_roles(self):
+        """ This is a case that should be ignored: join subset covering
+            both join roles. """
+        fname = TestData.path("join_subset_covering_both_join_roles.orm")
+        loader = NormaLoader(fname)
+        model = loader.model
+
+        sub = model.constraints.get("SUB")
+        self.assertIsNotNone(sub)
+        self.assertIsNotNone(sub.superset.join_path)
+
+        self.assertEquals(4, model.constraints.count())
+        self.assertEquals(3, model.fact_types.count())
+
+        # Transformation should not affect anything
+        self.assertFalse(JoinMaterialization(model).execute())
+        self.assertEquals(4, model.constraints.count())
+        self.assertEquals(3, model.fact_types.count())
+
+    def test_join_fact_rollback_not_implemented(self):
+        with self.assertRaises(NotImplementedError):
+            JoinFactType().rollback()
+
+

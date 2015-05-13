@@ -96,12 +96,12 @@ class ORMMinusModel(object):
 
             self.strengthened |= DisjunctiveRefTransformation(model).execute()
             self.strengthened |= EUCStrengtheningTransformation(model).execute()
+
+            self._remove_unsupported_subsets(model, remove_joins=False)
+
             self.strengthened |= JoinMaterialization(model).execute()
 
-            # Remove unsupported subsets before strengthening others
-            trans = UnsupportedSubsetRemoval(model)
-            trans.execute() # Don't update self.strengthened
-            self.ignored += trans.removed
+            self._remove_unsupported_subsets(model, remove_joins=True)
 
             self.strengthened |= TupleSubsetTransformation(model).execute()
             self.strengthened |= RootRoleTransformation(model).execute()
@@ -110,6 +110,12 @@ class ORMMinusModel(object):
         else:
             self._remove_disjunctive_ref_schemes()
             AbsorptionTransformation(model).execute()
+
+    def _remove_unsupported_subsets(self, model, remove_joins=True):
+        """ Wrapper for UnsupportedSubsetTransformation call. """
+        trans = UnsupportedSubsetRemoval(model)
+        trans.execute(remove_joins) # Don't update self.strengthened
+        self.ignored += trans.removed
 
     def _remove_disjunctive_ref_schemes(self):
         """ The old McGill approach cannot handle disjunctive reference schemes.

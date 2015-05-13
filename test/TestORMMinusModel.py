@@ -660,7 +660,7 @@ class TestORMMinusModel(TestCase):
 
     def test_ignored_subset(self):
         """ Test a model with an ignored subset constraint. """
-        fname = TestDataLocator.path("subset_with_ref_role_superset.orm")
+        fname = TestDataLocator.path("subset_with_incompat_superset.orm")
         model = NormaLoader(fname).model
 
         subset = model.constraints.get("SUB1")

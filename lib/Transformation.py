@@ -513,19 +513,19 @@ class UnsupportedSubsetRemoval(Transformation):
         super(UnsupportedSubsetRemoval, self).__init__(*args, **kwargs)
         self._subtype_graph = SubtypeGraph(self.model)
 
-    def execute(self):
+    def execute(self, remove_joins=True):
         """ Execute the transformation. """
-        self._remove_unsupported_subsets()
+        self._remove_unsupported_subsets(remove_joins)
         self._remove_subset_cycles()
         return self.model_changed
 
-    def _remove_unsupported_subsets(self):
+    def _remove_unsupported_subsets(self, remove_joins=True):
         """ Remove subset constraints from the model that we cannot support."""
 
         for cons in self.model.constraints.of_type(SubsetConstraint):   
             # Remove join subsets (materialization should have happened earlier)
             try:            
-                if cons.subset.join_path or cons.superset.join_path:
+                if remove_joins and (cons.subset.join_path or cons.superset.join_path):
                     self._remove(cons)
                     continue
             except AttributeError:
@@ -544,17 +544,21 @@ class UnsupportedSubsetRemoval(Transformation):
                     continue
 
                 # If subset role is non-reference and player is subject to IDMC:
-                # Remove cons if superset is a ref role OR played by a subtype
+                # Strengthen role to mandatory if superset is a ref role OR 
+                # played by a subtype.
+                #
                 # NOTE: In theory, we could relax this if the ref role / subtype
                 #       role is in turn a subset of a non-ref role.
                 obj = subset.player
-                subject_to_idmc = obj.subject_to_idmc and subset in obj.non_ref_roles
+                subject_to_idmc = obj.subject_to_idmc and \
+                                  not subset.mandatory and \
+                                  subset in obj.non_ref_roles
                 superset_is_ref = superset in superset.player.ref_roles
                 superset_is_subtype = not superset.player.primitive
 
                 if subject_to_idmc and (superset_is_ref or superset_is_subtype):
-                    self._remove(cons)
-                    continue
+                    #self._remove(cons)
+                    self._add(MandatoryConstraint(name="subset_mc", covers=[subset]))
         
     def _remove_subset_cycles(self):
         """ Remove subset constraints that form cycles in the model.

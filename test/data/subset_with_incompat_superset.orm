@@ -248,15 +248,13 @@
 					<orm:Role id="_F4452181-39A5-4F76-AD5E-C3184FDBD0DF" ref="_B2C49A17-82F4-42F7-8EF7-402034CC9C0D" />
 				</orm:RoleSequence>
 			</orm:UniquenessConstraint>
-			<orm:SubsetConstraint id="_D3A506DC-87F7-4634-8786-3B98A41970AB" Name="SUB1">
+			<orm:SubsetConstraint id="_C106A9CD-2F72-4A84-B0DD-C41885476B2E" Name="SUB1">
 				<orm:RoleSequences>
-					<orm:RoleSequence id="_FCC5783C-42B2-4623-AD49-D2B2A7EA34C0">
-						<orm:Role id="_E266086E-A0E6-4DB9-82FD-A3677516093B" ref="_9635B398-FD6E-481D-B616-BB781DD5B190" />
-						<orm:Role id="_0EFCC534-7DF7-4496-A6F6-113B46A01C04" ref="_AAACF787-7227-49D1-8556-4045C1B3BF79" />
+					<orm:RoleSequence id="_596E3499-0642-4848-938A-8B0332E93046">
+						<orm:Role id="_7530F02A-C17B-4DAA-8CE7-73358EEB4D59" ref="_9635B398-FD6E-481D-B616-BB781DD5B190" />
 					</orm:RoleSequence>
-					<orm:RoleSequence id="_ADCDF19D-C432-4E2D-BFCB-BAE1DB8BA838">
-						<orm:Role id="_8A5CAB71-BADE-40F5-841E-39A2BD504E7C" ref="_8B4BF53F-23CF-41CC-BF60-CDD0BCB1790C" />
-						<orm:Role id="_BDC67FEC-BDE8-464F-8F7E-D2FA1FF8EA01" ref="_2A842211-C02D-4F82-8475-83A581D4FAA4" />
+					<orm:RoleSequence id="_5B6118B9-62BB-4DA6-A95F-B3EE2BA60593">
+						<orm:Role id="_13396E89-B1E8-456B-99BF-B63287C65709" ref="_2A842211-C02D-4F82-8475-83A581D4FAA4" />
 					</orm:RoleSequence>
 				</orm:RoleSequences>
 			</orm:SubsetConstraint>
@@ -264,6 +262,11 @@
 		<orm:DataTypes>
 			<orm:AutoCounterNumericDataType id="_208FC89A-0AB2-4193-852D-8B1071EEAC0E" />
 		</orm:DataTypes>
+		<orm:ModelErrors>
+			<orm:CompatibleRolePlayerTypeError id="_E935AA0A-4487-487B-B1CB-F3A6EFA6B850" Name="Constraint 'SUB1' in model 'ORMModel7' has role players with incompatible types." Column="0">
+				<orm:SetComparisonConstraint ref="_C106A9CD-2F72-4A84-B0DD-C41885476B2E" />
+			</orm:CompatibleRolePlayerTypeError>
+		</orm:ModelErrors>
 		<orm:ReferenceModeKinds>
 			<orm:ReferenceModeKind id="_9A3AC5B9-529C-4800-B091-BC90F6497085" FormatString="{1}" ReferenceModeType="General" />
 			<orm:ReferenceModeKind id="_9E04BD26-0935-4900-92E5-CC4E3F5DA8A8" FormatString="{0}_{1}" ReferenceModeType="Popular" />
@@ -294,8 +297,8 @@
 				</ormDiagram:RelativeShapes>
 				<ormDiagram:Subject ref="_E1D7FD5E-5C1E-4BEA-B7E8-FD28299A11FA" />
 			</ormDiagram:FactTypeShape>
-			<ormDiagram:ExternalConstraintShape id="_73C5AD1E-3070-4693-9DCC-09BDF57A6645" IsExpanded="true" AbsoluteBounds="2.21875, 2.0520832538604736, 0.16, 0.16">
-				<ormDiagram:Subject ref="_D3A506DC-87F7-4634-8786-3B98A41970AB" />
+			<ormDiagram:ExternalConstraintShape id="_392D02FF-1CF0-473C-A8E1-C160C0968FDA" IsExpanded="true" AbsoluteBounds="2.1666667461395264, 2.0416667461395264, 0.16, 0.16">
+				<ormDiagram:Subject ref="_C106A9CD-2F72-4A84-B0DD-C41885476B2E" />
 			</ormDiagram:ExternalConstraintShape>
 		</ormDiagram:Shapes>
 		<ormDiagram:Subject ref="_7E27BF5F-EB33-429A-AD86-AE52FFDD5FC8" />

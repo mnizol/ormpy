@@ -540,14 +540,14 @@ class TestDisjunctiveRefTransformation(TestCase):
         model = loader.model
 
         mand = model.constraints.of_type(MandatoryConstraint)
-        self.assertEquals(len(mand), 1)
+        self.assertEquals(len(mand), 0)
 
         a = model.object_types.get("A")
         role1 = model.fact_types.get("AHasB").roles[0]
         role2 = model.fact_types.get("AHasC").roles[0]
 
         self.assertItemsEqual(a.ref_roles, [role1, role2])
-        self.assertTrue(role1.mandatory)
+        self.assertFalse(role1.mandatory)
         self.assertFalse(role2.mandatory)
     
         # Execute the transformation
@@ -1057,20 +1057,32 @@ class TestUnsupportedSubsetRemoval(TestCase):
         self.assertIsNotNone(model.constraints.get("SUB_OK"))
         self.assertIsNotNone(model.constraints.get("SUB_OK2"))
         self.assertIsNotNone(model.constraints.get("SUB_OK3"))
+        self.assertIsNotNone(model.constraints.get("SUB_SUPERSET_REF"))
+        self.assertIsNotNone(model.constraints.get("SUB_SUPERSET_SUBTYPE"))
+
+        # Mandatories added
+        mc1 = model.constraints.get("subset_mc")
+        mc2 = model.constraints.get("subset_mc2")
+
+        role1 = model.fact_types.get("CHasD").roles[0]
+        role2 = model.fact_types.get("FLikesFId").roles[0]
+
+        self.assertTrue(role1.mandatory)
+        self.assertTrue(role2.mandatory)
+
+        self.assertEquals(mc1.covers, [role1])
+        self.assertEquals(mc2.covers, [role2])
 
         # Unsupported constraints removed
         self.assertIsNone(model.constraints.get("SUB_JOIN"))
         self.assertIsNone(model.constraints.get("SUB_JOIN2"))
-        self.assertIsNone(model.constraints.get("SUB_INCOMPAT"))
-        self.assertIsNone(model.constraints.get("SUB_SUPERSET_REF"))
-        self.assertIsNone(model.constraints.get("SUB_SUPERSET_SUBTYPE"))
+        self.assertIsNone(model.constraints.get("SUB_INCOMPAT"))        
         self.assertIsNone(model.constraints.get("SUB_CYCLE"))
 
         # Check lists of added, modified, and removed constraints
-        self.assertItemsEqual(trans.added, [])
+        self.assertItemsEqual(trans.added, [mc1, mc2])
         self.assertItemsEqual(trans.removed, 
-                              [sub_join, sub_join2, sub_incompat, sub_superset_ref,
-                               sub_superset_subtype, sub_cycle])
+                              [sub_join, sub_join2, sub_incompat, sub_cycle])
         self.assertItemsEqual(trans.modified, []) 
 
     def test_direct_subsets_function(self):

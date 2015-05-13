@@ -25,10 +25,10 @@
 		<orm:Facts>
 			<orm:Fact id="_F414763F-52CF-430C-8067-AD33814E49C4" _Name="AHasB">
 				<orm:FactRoles>
-					<orm:Role id="_5C3583DE-1A57-402E-9C5F-989270E19E36" _IsMandatory="true" _Multiplicity="ZeroToMany" Name="">
+					<orm:Role id="_5C3583DE-1A57-402E-9C5F-989270E19E36" _IsMandatory="false" _Multiplicity="ZeroToMany" Name="">
 						<orm:RolePlayer ref="_5C0B8355-EB77-49E9-82A9-BEC0BC4DBF8B" />
 					</orm:Role>
-					<orm:Role id="_4027B978-B0B1-4625-A988-8F5AFE08AF9A" _IsMandatory="false" _Multiplicity="ExactlyOne" Name="">
+					<orm:Role id="_4027B978-B0B1-4625-A988-8F5AFE08AF9A" _IsMandatory="false" _Multiplicity="ZeroToOne" Name="">
 						<orm:RolePlayer ref="_14D52B0B-3A8A-4BF4-BAB4-B780492ACA66" />
 					</orm:Role>
 				</orm:FactRoles>
@@ -64,7 +64,6 @@
 				</orm:ReadingOrders>
 				<orm:InternalConstraints>
 					<orm:UniquenessConstraint ref="_F58552C3-BB3F-41FC-B8F3-0F67F3EA596A" />
-					<orm:MandatoryConstraint ref="_92BD59AE-1C85-461C-9C6E-C1F28D44BAAC" />
 				</orm:InternalConstraints>
 			</orm:Fact>
 			<orm:Fact id="_B2199036-CEDC-4196-8696-79401292D53E" _Name="AHasC">
@@ -108,11 +107,6 @@
 					<orm:Role id="_E11813DB-457C-4700-9B10-A6B474C54E27" ref="_4027B978-B0B1-4625-A988-8F5AFE08AF9A" />
 				</orm:RoleSequence>
 				<orm:ImpliedByObjectType ref="_14D52B0B-3A8A-4BF4-BAB4-B780492ACA66" />
-			</orm:MandatoryConstraint>
-			<orm:MandatoryConstraint id="_92BD59AE-1C85-461C-9C6E-C1F28D44BAAC" Name="SimpleMandatoryConstraint1" IsSimple="true">
-				<orm:RoleSequence>
-					<orm:Role id="_7A7C150B-63E7-407F-92E1-5EFEA6ACD702" ref="_5C3583DE-1A57-402E-9C5F-989270E19E36" />
-				</orm:RoleSequence>
 			</orm:MandatoryConstraint>
 			<orm:UniquenessConstraint id="_3AD71AB4-DAE1-4651-BBB9-E496021708EB" Name="InternalUniquenessConstraint1" IsInternal="true">
 				<orm:RoleSequence>
@@ -174,6 +168,11 @@
 			<orm:UnsignedIntegerNumericDataType id="_1812A231-C6AA-4586-B921-3FCB8D45DEA4" />
 			<orm:AutoCounterNumericDataType id="_560B3190-A49A-445B-833B-AE5791D4C744" />
 		</orm:DataTypes>
+		<orm:ModelErrors>
+			<orm:PreferredIdentifierRequiresMandatoryError id="_709052BD-B91C-489E-B28B-66A8FDDB8B48" Name="Object type 'A' in model 'ORMModel2' has a preferred identification scheme with no corresponding mandatory roles. One or more near roles in the facts attached to the preferred identifier must be mandatory.">
+				<orm:ObjectType ref="_5C0B8355-EB77-49E9-82A9-BEC0BC4DBF8B" />
+			</orm:PreferredIdentifierRequiresMandatoryError>
+		</orm:ModelErrors>
 		<orm:ReferenceModeKinds>
 			<orm:ReferenceModeKind id="_3937392C-E51A-4974-9584-65BCC327A34A" FormatString="{1}" ReferenceModeType="General" />
 			<orm:ReferenceModeKind id="_DA0DDC0C-7EE3-4472-9498-90A9FA5555D0" FormatString="{0}_{1}" ReferenceModeType="Popular" />

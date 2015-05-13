@@ -77,7 +77,9 @@ class ObjectType(ModelElement):
     def subject_to_idmc(self):
         """ True iff object type is subject to the implicit disjunctive 
             mandatory constraint. """
-        return self.primitive and not self.independent and len(self.non_ref_roles) > 0
+        return self.primitive and not self.independent and \
+               len(self.non_ref_roles) > 0 and \
+               not any([role.mandatory for role in self.non_ref_roles])
 
     def commit(self):
         """ Commit any side effects of adding this object type to a model."""

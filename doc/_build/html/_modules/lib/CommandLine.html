@@ -80,7 +80,7 @@
     <span class="n">configure_logger</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 
     <span class="c"># Import model from .ORM file</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">import_model</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">import_model</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
     <span class="c"># Print the model, if requested</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">print_model</span><span class="p">:</span>
@@ -122,6 +122,10 @@
         <span class="n">dest</span><span class="o">=</span><span class="s">&#39;ubound&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;upper bound on model element sizes&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;--output-dir&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;output directory&#39;</span><span class="p">,</span>
         <span class="n">dest</span><span class="o">=</span><span class="s">&#39;directory&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--include-deontic&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;include deontic constraints&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s">&#39;deontic&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--experimental&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;use experimental extensions&#39;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s">&#39;experimental&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
     <span class="c"># Filename to parse</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;filename&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;File containing ORM model&#39;</span><span class="p">)</span>
@@ -144,10 +148,10 @@
     <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
     
 </div>
-<div class="viewcode-block" id="import_model"><a class="viewcode-back" href="../../lib.html#lib.CommandLine.import_model">[docs]</a><span class="k">def</span> <span class="nf">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<div class="viewcode-block" id="import_model"><a class="viewcode-back" href="../../lib.html#lib.CommandLine.import_model">[docs]</a><span class="k">def</span> <span class="nf">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Import the request ORM model and return it. &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">loader</span> <span class="o">=</span> <span class="n">NormaLoader</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">deontic</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">deontic</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">loader</span><span class="o">.</span><span class="n">model</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Could not load </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> 
@@ -158,10 +162,14 @@
 <div class="viewcode-block" id="check_or_populate"><a class="viewcode-back" href="../../lib.html#lib.CommandLine.check_or_populate">[docs]</a><span class="k">def</span> <span class="nf">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Check or populate the model, as requested. &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ubound</span><span class="p">))</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ORMMinusModel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ubound</span><span class="p">),</span> 
+                              <span class="n">experimental</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">experimental</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">solution</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&quot;Model is unsatisfiable.&quot;</span>
+            <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">strengthened</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;Model satisfiability cannot be determined.&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;Model is unsatisfiable.&quot;</span>
         <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">populate</span><span class="p">:</span>
             <span class="n">pop</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 

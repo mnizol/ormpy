@@ -163,7 +163,7 @@
 <div class="viewcode-block" id="ValueDomain"><a class="viewcode-back" href="../../lib.html#lib.Constraint.ValueDomain">[docs]</a><span class="k">class</span> <span class="nc">ValueDomain</span><span class="p">(</span><span class="n">EnumeratedDomain</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; The domain of a value constraint. &quot;&quot;&quot;</span>
 
-    <span class="n">MAX_SIZE</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c">#: Arbitrary, for performance.</span>
+    <span class="n">MAX_SIZE</span> <span class="o">=</span> <span class="mi">10000</span> <span class="c">#: Arbitrary, for performance.</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ValueDomain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>        
@@ -229,9 +229,18 @@
 </div>
 <div class="viewcode-block" id="SubtypeConstraint.rollback"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubtypeConstraint.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Rollback side effects of this constraint in the model. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">supertype</span><span class="o">.</span><span class="n">direct_subtypes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subtype</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subtype</span><span class="o">.</span><span class="n">direct_supertypes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supertype</span><span class="p">)</span>
-        <span class="n">Constraint</span><span class="o">.</span><span class="n">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c"># The code commented out below the raise statement undoes what&#39;s done</span>
+        <span class="c"># in commit().  However, I am concerned that if you rollback a subtype</span>
+        <span class="c"># constraint, any SubtypeGraph that exists is now invalid, as are any</span>
+        <span class="c"># IOR/XOR constraints that cover the subtype.  THUS, since I can&#39;t </span>
+        <span class="c"># think of why you&#39;d need to rollback a subtype, I&#39;m just going to </span>
+        <span class="c"># raise an exception for now.</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+        <span class="c">#self.supertype.direct_subtypes.remove(self.subtype)</span>
+        <span class="c">#self.subtype.direct_supertypes.remove(self.supertype)</span>
+        <span class="c">#Constraint.rollback(self)</span>
 </div></div>
 <div class="viewcode-block" id="MandatoryConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.MandatoryConstraint">[docs]</a><span class="k">class</span> <span class="nc">MandatoryConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A mandatory constraint. &quot;&quot;&quot;</span>
@@ -271,12 +280,26 @@
         <span class="c">#: Sequence of superset roles (:class:`lib.FactType.RoleSequence`)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">superset</span> <span class="o">=</span> <span class="n">superset</span>
 
-        <span class="c"># Override whatever is passed in as the list of covered roles; instead,</span>
-        <span class="c"># we treat the subset and superset sequences as the truth.</span>
-        <span class="k">if</span> <span class="n">subset</span> <span class="ow">and</span> <span class="n">superset</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="n">subset</span> <span class="o">+</span> <span class="n">superset</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">covers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; List of covered roles (combines self.subset and self.superset). &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subset</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">superset</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subset</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">superset</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="nd">@covers.setter</span>
+<div class="viewcode-block" id="SubsetConstraint.covers"><a class="viewcode-back" href="../../lib.html#lib.Constraint.SubsetConstraint.covers">[docs]</a>    <span class="k">def</span> <span class="nf">covers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">pass</span> <span class="c"># Ignore any attempt to directly set covers on a subset constraint</span>
+</div></div>
+<div class="viewcode-block" id="EqualityConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.EqualityConstraint">[docs]</a><span class="k">class</span> <span class="nc">EqualityConstraint</span><span class="p">(</span><span class="n">SubsetConstraint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An equality constraint.  This is a subtype of SubsetConstraint because</span>
+<span class="sd">        of how they are handled by the instantiation algorithm (i.e. an</span>
+<span class="sd">        EqualityConstraint is equivalent to a SubsetConstraint whose role</span>
+<span class="sd">        sequences have the same cardinality). &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EqualityConstraint</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="FrequencyConstraint"><a class="viewcode-back" href="../../lib.html#lib.Constraint.FrequencyConstraint">[docs]</a><span class="k">class</span> <span class="nc">FrequencyConstraint</span><span class="p">(</span><span class="n">Constraint</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A frequency constraint. &quot;&quot;&quot;</span>
@@ -309,15 +332,36 @@
 
 <div class="viewcode-block" id="UniquenessConstraint.commit"><a class="viewcode-back" href="../../lib.html#lib.Constraint.UniquenessConstraint.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Commit side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simple</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span> <span class="o">=</span> <span class="bp">True</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span><span class="o">.</span><span class="n">identifying_constraint</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">identifying_constraint</span> <span class="o">=</span> <span class="bp">self</span>
+
+            <span class="c"># Set the reference roles for the identified object type</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">ref_roles</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">fact_type</span> <span class="ow">in</span> <span class="p">{</span><span class="n">role</span><span class="o">.</span><span class="n">fact_type</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">}:</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">ref_roles</span> <span class="o">+=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">player</span> <span class="o">==</span> <span class="n">obj</span><span class="p">]</span>                                 
+
         <span class="n">Constraint</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="UniquenessConstraint.rollback"><a class="viewcode-back" href="../../lib.html#lib.Constraint.UniquenessConstraint.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Rollback side effects of this constraint in the model. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simple</span><span class="p">:</span>
+            <span class="n">simple</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">UniquenessConstraint</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">simple</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">simple</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">covered_by</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span> <span class="o">=</span> <span class="bp">False</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span><span class="o">.</span><span class="n">identifying_constraint</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">identifier_for</span><span class="o">.</span><span class="n">ref_roles</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">Constraint</span><span class="o">.</span><span class="n">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="UniquenessConstraint.simple"><a class="viewcode-back" href="../../lib.html#lib.Constraint.UniquenessConstraint.simple">[docs]</a>    <span class="k">def</span> <span class="nf">simple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; True iff constraint is internal and covers only one role. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">covers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">internal</span>
 </pre></div></div></div>
 
           </div>

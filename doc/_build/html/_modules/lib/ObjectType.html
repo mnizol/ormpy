@@ -78,6 +78,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">roles</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Roles played by this object type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">covered_by</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Constraints that cover this object type</span>
 
+        <span class="c">#: A list of the entity type&#39;s reference roles, which must be a subset</span>
+        <span class="c">#: of self.roles.  This attribute is set by the identifying constraint</span>
+        <span class="c">#: when that constraint is committed.  The list should always be empty</span>
+        <span class="c">#: for value types.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ref_roles</span> <span class="o">=</span> <span class="p">[]</span>
+
         <span class="c"># Direct subtypes and supertypes.  We do not store indirect subtypes</span>
         <span class="c"># here because maintenance of the subtype graph would be too expensive</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">direct_subtypes</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: Direct subtypes of this object type</span>
@@ -111,13 +117,29 @@
         <span class="sd">&quot;&quot;&quot; Returns name that is unique within the model. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s">&quot;ObjectTypes.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ObjectType.non_ref_roles"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.non_ref_roles">[docs]</a>    <span class="k">def</span> <span class="nf">non_ref_roles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set of non-reference roles played by the object type. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_roles</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ObjectType.subject_to_idmc"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.subject_to_idmc">[docs]</a>    <span class="k">def</span> <span class="nf">subject_to_idmc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; True iff object type is subject to the implicit disjunctive </span>
+<span class="sd">            mandatory constraint. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">independent</span> <span class="ow">and</span> \
+               <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">non_ref_roles</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> \
+               <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="n">role</span><span class="o">.</span><span class="n">mandatory</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">non_ref_roles</span><span class="p">])</span>
+</div>
 <div class="viewcode-block" id="ObjectType.commit"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Commit any side effects of adding this object type to a model.&quot;&quot;&quot;</span>
-        <span class="k">pass</span> <span class="c"># TODO: Implement later</span>
+        <span class="k">pass</span> <span class="c"># No side effects generated when creating an ObjectType</span>
 </div>
 <div class="viewcode-block" id="ObjectType.rollback"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ObjectType.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Rollback any side effects of adding this object type to a model.&quot;&quot;&quot;</span>
-        <span class="k">pass</span> <span class="c"># TODO: Implement later</span>
+        <span class="c"># I don&#39;t see a need yet to rollback an ObjectType.  Moreover, it&#39;s not</span>
+        <span class="c"># clear to me what the right behavior would be: should I also rollback</span>
+        <span class="c"># all roles/fact types/constraints/subtypes associated with this type?</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </div></div>
 <div class="viewcode-block" id="EntityType"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.EntityType">[docs]</a><span class="k">class</span> <span class="nc">EntityType</span><span class="p">(</span><span class="n">ObjectType</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; An entity type is an object type that requires identification. &quot;&quot;&quot;</span>
@@ -128,7 +150,7 @@
         <span class="c">#: Reference to the (internal or external) uniqueness constraint that </span>
         <span class="c">#: provides the preferred identification scheme for this entity type.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">identifying_constraint</span> <span class="o">=</span> <span class="n">identifying_constraint</span>
-</div>
+   </div>
 <div class="viewcode-block" id="ValueType"><a class="viewcode-back" href="../../lib.html#lib.ObjectType.ValueType">[docs]</a><span class="k">class</span> <span class="nc">ValueType</span><span class="p">(</span><span class="n">ObjectType</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A value type is a self-identifying object type. &quot;&quot;&quot;</span>
 

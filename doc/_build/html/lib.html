@@ -81,7 +81,7 @@ to provide an argument list manually (i.e. not via sys.argv).</p>
 
 <dl class="function">
 <dt id="lib.CommandLine.import_model">
-<tt class="descclassname">lib.CommandLine.</tt><tt class="descname">import_model</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/lib/CommandLine.html#import_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.CommandLine.import_model" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lib.CommandLine.</tt><tt class="descname">import_model</tt><big>(</big><em>path</em>, <em>args</em><big>)</big><a class="reference internal" href="_modules/lib/CommandLine.html#import_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.CommandLine.import_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Import the request ORM model and return it.</p>
 </dd></dl>
 
@@ -169,6 +169,16 @@ constraint covers a sequence of roles, use a FactType.RoleSequence.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="lib.Constraint.EqualityConstraint">
+<em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">EqualityConstraint</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#EqualityConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.EqualityConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Constraint.SubsetConstraint" title="lib.Constraint.SubsetConstraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.SubsetConstraint</span></tt></a></p>
+<p>An equality constraint.  This is a subtype of SubsetConstraint because
+of how they are handled by the instantiation algorithm (i.e. an
+EqualityConstraint is equivalent to a SubsetConstraint whose role
+sequences have the same cardinality).</p>
+</dd></dl>
+
+<dl class="class">
 <dt id="lib.Constraint.FrequencyConstraint">
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">FrequencyConstraint</tt><big>(</big><em>min_freq=0</em>, <em>max_freq=inf</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#FrequencyConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.FrequencyConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
@@ -217,6 +227,12 @@ constraint covers a sequence of roles, use a FactType.RoleSequence.</p>
 <em class="property">class </em><tt class="descclassname">lib.Constraint.</tt><tt class="descname">SubsetConstraint</tt><big>(</big><em>subset=None</em>, <em>superset=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Constraint.html#SubsetConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubsetConstraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.Constraint.Constraint" title="lib.Constraint.Constraint"><tt class="xref py py-class docutils literal"><span class="pre">lib.Constraint.Constraint</span></tt></a></p>
 <p>A subset constraint.</p>
+<dl class="attribute">
+<dt id="lib.Constraint.SubsetConstraint.covers">
+<tt class="descname">covers</tt><a class="reference internal" href="_modules/lib/Constraint.html#SubsetConstraint.covers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.SubsetConstraint.covers" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of covered roles (combines self.subset and self.superset).</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.Constraint.SubsetConstraint.subset">
 <tt class="descname">subset</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Constraint.SubsetConstraint.subset" title="Permalink to this definition">¶</a></dt>
@@ -300,6 +316,12 @@ in which the min and max frequencies are both 1</p>
 <dd><p>Rollback side effects of this constraint in the model.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="lib.Constraint.UniquenessConstraint.simple">
+<tt class="descname">simple</tt><a class="reference internal" href="_modules/lib/Constraint.html#UniquenessConstraint.simple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Constraint.UniquenessConstraint.simple" title="Permalink to this definition">¶</a></dt>
+<dd><p>True iff constraint is internal and covers only one role.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -364,7 +386,7 @@ ranges, or a combination of the two.  For example:</p>
 <p>The domain of a value constraint.</p>
 <dl class="attribute">
 <dt id="lib.Constraint.ValueDomain.MAX_SIZE">
-<tt class="descname">MAX_SIZE</tt><em class="property"> = 1000</em><a class="headerlink" href="#lib.Constraint.ValueDomain.MAX_SIZE" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">MAX_SIZE</tt><em class="property"> = 10000</em><a class="headerlink" href="#lib.Constraint.ValueDomain.MAX_SIZE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Arbitrary, for performance.</p>
 </dd></dl>
 
@@ -459,6 +481,13 @@ the maximum is sys.maxsize.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="lib.Domain.EnumeratedDomain.difference">
+<tt class="descname">difference</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#EnumeratedDomain.difference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.EnumeratedDomain.difference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new EnumeratedDomain that is the set difference of self and
+other.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="lib.Domain.EnumeratedDomain.intersect">
 <tt class="descname">intersect</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/lib/Domain.html#EnumeratedDomain.intersect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Domain.EnumeratedDomain.intersect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new EnumeratedDomain that is the intersection of self and
@@ -538,13 +567,15 @@ which defaults to midnight and increments by minutes.</p>
 <p>This module provides a class for ORM fact types.</p>
 <dl class="class">
 <dt id="lib.FactType.FactType">
-<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">FactType</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">FactType</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>An ORM Fact Type.</p>
 <dl class="method">
-<dt id="lib.FactType.FactType.add">
-<tt class="descname">add</tt><big>(</big><em>role</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactType.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType.add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add <em>role</em> to the fact type.</p>
+<dt id="lib.FactType.FactType.add_role">
+<tt class="descname">add_role</tt><big>(</big><em>player</em>, <em>name=None</em>, <em>uid=None</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactType.add_role"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactType.add_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a role played by <em>player</em> to the fact type.  If <em>name</em> is None
+or if <em>name</em> is already used by a role in the fact type, then 
+this method generates a name for the role based upon player&#8217;s name.</p>
 </dd></dl>
 
 <dl class="method">
@@ -581,14 +612,14 @@ which defaults to midnight and increments by minutes.</p>
 
 <dl class="class">
 <dt id="lib.FactType.FactTypeSet">
-<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">FactTypeSet</tt><a class="reference internal" href="_modules/lib/FactType.html#FactTypeSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactTypeSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">FactTypeSet</tt><big>(</big><em>name='Fact Types'</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#FactTypeSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.FactTypeSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElementSet" title="lib.ModelElement.ModelElementSet"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElementSet</span></tt></a></p>
 <p>Container for a set of fact types.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.FactType.Role">
-<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">Role</tt><big>(</big><em>uid=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#Role"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.Role" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">Role</tt><big>(</big><em>fact_type=None</em>, <em>player=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#Role"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.Role" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lib.ModelElement.ModelElement" title="lib.ModelElement.ModelElement"><tt class="xref py py-class docutils literal"><span class="pre">lib.ModelElement.ModelElement</span></tt></a></p>
 <p>A role in a fact type.</p>
 <dl class="method">
@@ -612,7 +643,7 @@ which defaults to midnight and increments by minutes.</p>
 <dl class="attribute">
 <dt id="lib.FactType.Role.fact_type">
 <tt class="descname">fact_type</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.fact_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fact type to which role belongs</p>
+<dd><p>Fact type to which the role belongs.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -624,7 +655,8 @@ which defaults to midnight and increments by minutes.</p>
 <dl class="attribute">
 <dt id="lib.FactType.Role.mandatory">
 <tt class="descname">mandatory</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.mandatory" title="Permalink to this definition">¶</a></dt>
-<dd><p>True if the role is covered by an explicit mandatory constraint</p>
+<dd><p>Populated when a constraint is committed.
+True if the role is covered by an explicit mandatory constraint</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -639,11 +671,17 @@ which defaults to midnight and increments by minutes.</p>
 <dd><p>Rollback any side effects of adding this role to a model.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="lib.FactType.Role.unique">
+<tt class="descname">unique</tt><em class="property"> = None</em><a class="headerlink" href="#lib.FactType.Role.unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the role is covered by simple internal uniqueness constraint</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="lib.FactType.RoleSequence">
-<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">RoleSequence</tt><a class="reference internal" href="_modules/lib/FactType.html#RoleSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.RoleSequence" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.FactType.</tt><tt class="descname">RoleSequence</tt><big>(</big><em>roles=None</em>, <em>join_path=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/FactType.html#RoleSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.FactType.RoleSequence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
 <p>A sequence of roles.</p>
 <dl class="attribute">
@@ -870,34 +908,46 @@ of evaluating the inequalities in the system.</p>
 <span id="lib-joinpath-module"></span><h2>lib.JoinPath module<a class="headerlink" href="#module-lib.JoinPath" title="Permalink to this headline">¶</a></h2>
 <p>The JoinPath module implements the JoinPath class and supporting classes.</p>
 <dl class="class">
-<dt id="lib.JoinPath.Join">
-<em class="property">class </em><tt class="descclassname">lib.JoinPath.</tt><tt class="descname">Join</tt><big>(</big><em>role1</em>, <em>role2</em><big>)</big><a class="reference internal" href="_modules/lib/JoinPath.html#Join"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.Join" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>A join is a tuple of roles on which two fact types will be joined.
-The roles must be played by compatible object types.</p>
-</dd></dl>
-
-<dl class="class">
 <dt id="lib.JoinPath.JoinPath">
-<em class="property">class </em><tt class="descclassname">lib.JoinPath.</tt><tt class="descname">JoinPath</tt><big>(</big><em>init_role</em><big>)</big><a class="reference internal" href="_modules/lib/JoinPath.html#JoinPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.JoinPath" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.JoinPath.</tt><tt class="descname">JoinPath</tt><a class="reference internal" href="_modules/lib/JoinPath.html#JoinPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.JoinPath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>A join path specifies the inner join of two or more fact types.</p>
 <dl class="method">
-<dt id="lib.JoinPath.JoinPath.extend">
-<tt class="descname">extend</tt><big>(</big><em>role1</em>, <em>role2</em><big>)</big><a class="reference internal" href="_modules/lib/JoinPath.html#JoinPath.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.JoinPath.extend" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extend the join path by joining role1 (which should be part of a 
+<dt id="lib.JoinPath.JoinPath.add_join">
+<tt class="descname">add_join</tt><big>(</big><em>role1</em>, <em>role2</em><big>)</big><a class="reference internal" href="_modules/lib/JoinPath.html#JoinPath.add_join"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.JoinPath.add_join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend the join path by joining role1 (which must be part of a 
 fact type already on the path) with role2.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.JoinPath.JoinPath.fact_types">
+<tt class="descname">fact_types</tt><a class="reference internal" href="_modules/lib/JoinPath.html#JoinPath.fact_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.JoinPath.fact_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of fact types along the join path, in join order.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.JoinPath.JoinPath.joins">
+<tt class="descname">joins</tt><a class="reference internal" href="_modules/lib/JoinPath.html#JoinPath.joins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.JoinPath.joins" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of (Role, Role) pairs in join order.  The i^th pair
+represents the join of the (i+1)^th fact type with some earlier 
+fact type in self.fact_types.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="lib.JoinPath.JoinPath.materialize">
 <tt class="descname">materialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/JoinPath.html#JoinPath.materialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.JoinPath.materialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Executes the joins along the join path and returns the resulting
-join fact type.  The join fact type will be covered by 
-copies of the same kinds of constraints that cover the fact types
-along the path.</p>
+join fact type.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="exception">
+<dt id="lib.JoinPath.JoinPathException">
+<em class="property">exception </em><tt class="descclassname">lib.JoinPath.</tt><tt class="descname">JoinPathException</tt><a class="reference internal" href="_modules/lib/JoinPath.html#JoinPathException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.JoinPath.JoinPathException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Raised when defining or loading a join path with an unsupported 
+feature.</p>
 </dd></dl>
 
 </div>
@@ -960,7 +1010,7 @@ element in a model from which an object type, fact type, and constraint
 can be derived) as well as an abstract class for a set of model elements.</p>
 <dl class="class">
 <dt id="lib.ModelElement.ModelElement">
-<em class="property">class </em><tt class="descclassname">lib.ModelElement.</tt><tt class="descname">ModelElement</tt><big>(</big><em>uid=None</em>, <em>name=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElement" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.ModelElement.</tt><tt class="descname">ModelElement</tt><big>(</big><em>uid=None</em>, <em>name=''</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/ModelElement.html#ModelElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ModelElement.ModelElement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>An abstract element in an ORM model.</p>
 <dl class="method">
@@ -1077,7 +1127,7 @@ to a subclass of <a class="reference internal" href="#lib.Domain.Domain" title="
 length and scale facets specified in the .orm file.</p>
 <dl class="class">
 <dt id="lib.NormaLoader.NormaLoader">
-<em class="property">class </em><tt class="descclassname">lib.NormaLoader.</tt><tt class="descname">NormaLoader</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lib/NormaLoader.html#NormaLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.NormaLoader.NormaLoader" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.NormaLoader.</tt><tt class="descname">NormaLoader</tt><big>(</big><em>filename</em>, <em>deontic=False</em><big>)</big><a class="reference internal" href="_modules/lib/NormaLoader.html#NormaLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.NormaLoader.NormaLoader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Loads an .orm file produced by the NORMA modeling tool into a
 <a class="reference internal" href="#lib.Model.Model" title="lib.Model.Model"><tt class="xref py py-class docutils literal"><span class="pre">lib.Model.Model</span></tt></a>.  There are no public methods in this class.
@@ -1136,6 +1186,12 @@ An .orm file can be loaded via the constructor.  For example:</p>
 <dd><p>Do nothing.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="lib.NormaLoader.unsupported_node">
+<tt class="descclassname">lib.NormaLoader.</tt><tt class="descname">unsupported_node</tt><big>(</big><em>node</em>, <em>parent</em><big>)</big><a class="reference internal" href="_modules/lib/NormaLoader.html#unsupported_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.NormaLoader.unsupported_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>I use this error string multiple times.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-lib.ORMMinusModel">
 <span id="lib-ormminusmodel-module"></span><h2>lib.ORMMinusModel module<a class="headerlink" href="#module-lib.ORMMinusModel" title="Permalink to this headline">¶</a></h2>
@@ -1144,7 +1200,7 @@ model that can be checked for satisfiability and populated in
 polynomial time.</p>
 <dl class="class">
 <dt id="lib.ORMMinusModel.ORMMinusModel">
-<em class="property">class </em><tt class="descclassname">lib.ORMMinusModel.</tt><tt class="descname">ORMMinusModel</tt><big>(</big><em>model=None</em>, <em>ubound=15</em><big>)</big><a class="reference internal" href="_modules/lib/ORMMinusModel.html#ORMMinusModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">lib.ORMMinusModel.</tt><tt class="descname">ORMMinusModel</tt><big>(</big><em>model=None</em>, <em>ubound=15</em>, <em>experimental=False</em><big>)</big><a class="reference internal" href="_modules/lib/ORMMinusModel.html#ORMMinusModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>An ORM- model along with its solution.  The solution is computed using
 the ORM- satisfiability algorithm (Smaragdakis et al.).</p>
@@ -1169,6 +1225,12 @@ changes to the underlying <a class="reference internal" href="#lib.Model.Model" 
 <dt id="lib.ORMMinusModel.ORMMinusModel.DEFAULT_SIZE">
 <tt class="descname">DEFAULT_SIZE</tt><em class="property"> = 15</em><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel.DEFAULT_SIZE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default upper bound on model element cardinalities.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ORMMinusModel.ORMMinusModel.base_model">
+<tt class="descname">base_model</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel.base_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Underlying ORM Model</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1200,6 +1262,12 @@ that comprise a fact type.</p>
 <dt id="lib.ORMMinusModel.ORMMinusModel.object_types">
 <tt class="descname">object_types</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel.object_types" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object types</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ORMMinusModel.ORMMinusModel.strengthened">
+<tt class="descname">strengthened</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ORMMinusModel.ORMMinusModel.strengthened" title="Permalink to this definition">¶</a></dt>
+<dd><p>True iff the model is changed by a strengthening transformation</p>
 </dd></dl>
 
 </dd></dl>
@@ -1285,9 +1353,24 @@ to self.data_type but may be overridden by a value constraint.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.non_ref_roles">
+<tt class="descname">non_ref_roles</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.non_ref_roles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.non_ref_roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set of non-reference roles played by the object type.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="lib.ObjectType.ObjectType.primitive">
 <tt class="descname">primitive</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.primitive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>True iff object type has no supertype.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.ref_roles">
+<tt class="descname">ref_roles</tt><em class="property"> = None</em><a class="headerlink" href="#lib.ObjectType.ObjectType.ref_roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of the entity type&#8217;s reference roles, which must be a subset
+of self.roles.  This attribute is set by the identifying constraint
+when that constraint is committed.  The list should always be empty
+for value types.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1300,6 +1383,13 @@ to self.data_type but may be overridden by a value constraint.</p>
 <dt id="lib.ObjectType.ObjectType.rollback">
 <tt class="descname">rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.rollback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rollback any side effects of adding this object type to a model.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.ObjectType.ObjectType.subject_to_idmc">
+<tt class="descname">subject_to_idmc</tt><a class="reference internal" href="_modules/lib/ObjectType.html#ObjectType.subject_to_idmc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.ObjectType.ObjectType.subject_to_idmc" title="Permalink to this definition">¶</a></dt>
+<dd><p>True iff object type is subject to the implicit disjunctive 
+mandatory constraint.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1398,12 +1488,24 @@ is assumed to match the order of self.names.</p>
 algorithm of Smaragdakis, et al.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="lib.Population.Relation.first">
+<tt class="descname">first</tt><big>(</big><em>n</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#Relation.first"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.Relation.first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new Relation containing first n elements of this one.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="lib.Population.Relation.names">
 <tt class="descname">names</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Population.Relation.names" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of names of each column in the relation</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.Population.is_root_role">
+<tt class="descclassname">lib.Population.</tt><tt class="descname">is_root_role</tt><big>(</big><em>role</em><big>)</big><a class="reference internal" href="_modules/lib/Population.html#is_root_role"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Population.is_root_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if role is a root role.</p>
 </dd></dl>
 
 <dl class="function">
@@ -1484,6 +1586,132 @@ the-current-executed-file-in-python/2632297#2632297</p>
 in place.  There is currently no means to reverse a Transformation.</p>
 </div>
 <dl class="class">
+<dt id="lib.Transformation.AbsorptionFactType">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">AbsorptionFactType</tt><big>(</big><em>root_player=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#AbsorptionFactType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.AbsorptionFactType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.FactType.FactType" title="lib.FactType.FactType"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.FactType</span></tt></a></p>
+<p>The fact type created by an absorption transformation.</p>
+<dl class="attribute">
+<dt id="lib.Transformation.AbsorptionFactType.fact_type_names">
+<tt class="descname">fact_type_names</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Transformation.AbsorptionFactType.fact_type_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Original fact type name for each role</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.Transformation.AbsorptionFactType.root_role">
+<tt class="descname">root_role</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Transformation.AbsorptionFactType.root_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Role played by the identified object type</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Transformation.AbsorptionTransformation">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">AbsorptionTransformation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#AbsorptionTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.AbsorptionTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Transformation.Transformation" title="lib.Transformation.Transformation"><tt class="xref py py-class docutils literal"><span class="pre">lib.Transformation.Transformation</span></tt></a></p>
+<p>An absorption transformation as described by McGill et al. (2011).
+Replaces compound refererence schemes with absorption fact types.</p>
+<dl class="method">
+<dt id="lib.Transformation.AbsorptionTransformation.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#AbsorptionTransformation.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.AbsorptionTransformation.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the transformation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Transformation.DisjunctiveRefTransformation">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">DisjunctiveRefTransformation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#DisjunctiveRefTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.DisjunctiveRefTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Transformation.Transformation" title="lib.Transformation.Transformation"><tt class="xref py py-class docutils literal"><span class="pre">lib.Transformation.Transformation</span></tt></a></p>
+<p>Sets all ref roles in a disjunctive reference scheme to mandatory,
+and removes any inclusive-or constraints on those roles.</p>
+<dl class="method">
+<dt id="lib.Transformation.DisjunctiveRefTransformation.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#DisjunctiveRefTransformation.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.DisjunctiveRefTransformation.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the transformation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Transformation.EUCStrengtheningTransformation">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">EUCStrengtheningTransformation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#EUCStrengtheningTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.EUCStrengtheningTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Transformation.Transformation" title="lib.Transformation.Transformation"><tt class="xref py py-class docutils literal"><span class="pre">lib.Transformation.Transformation</span></tt></a></p>
+<p>Uses EUC-Strengthening transformations to remove external uniqueness 
+constraints whereever possible.</p>
+<dl class="method">
+<dt id="lib.Transformation.EUCStrengtheningTransformation.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#EUCStrengtheningTransformation.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.EUCStrengtheningTransformation.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the transformation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Transformation.JoinFactType">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">JoinFactType</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#JoinFactType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.JoinFactType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.FactType.FactType" title="lib.FactType.FactType"><tt class="xref py py-class docutils literal"><span class="pre">lib.FactType.FactType</span></tt></a></p>
+<p>A join fact type produced by a join materialization transformation.</p>
+<dl class="method">
+<dt id="lib.Transformation.JoinFactType.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#JoinFactType.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.JoinFactType.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit side effects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.Transformation.JoinFactType.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#JoinFactType.rollback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.JoinFactType.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback side effects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Transformation.JoinMaterialization">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">JoinMaterialization</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#JoinMaterialization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.JoinMaterialization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Transformation.Transformation" title="lib.Transformation.Transformation"><tt class="xref py py-class docutils literal"><span class="pre">lib.Transformation.Transformation</span></tt></a></p>
+<p>Transformation to convert a join path to a join fact type.</p>
+<dl class="method">
+<dt id="lib.Transformation.JoinMaterialization.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#JoinMaterialization.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.JoinMaterialization.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the transformation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Transformation.OverlappingIFCTransformation">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">OverlappingIFCTransformation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#OverlappingIFCTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.OverlappingIFCTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Transformation.Transformation" title="lib.Transformation.Transformation"><tt class="xref py py-class docutils literal"><span class="pre">lib.Transformation.Transformation</span></tt></a></p>
+<p>Uses IFC-Strengthening transformations to remove overlapping part of 
+internal frequency constraints whereever possible.  Recall that
+internal uniqueness constraints (IUCs) are a special case of IFC.</p>
+<dl class="method">
+<dt id="lib.Transformation.OverlappingIFCTransformation.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#OverlappingIFCTransformation.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.OverlappingIFCTransformation.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the transformation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Transformation.RootRoleTransformation">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">RootRoleTransformation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#RootRoleTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.RootRoleTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Transformation.Transformation" title="lib.Transformation.Transformation"><tt class="xref py py-class docutils literal"><span class="pre">lib.Transformation.Transformation</span></tt></a></p>
+<p>Add root_role attribute to each role in the model that has a root role.
+If a role has more than one root, correct this via the addition of
+SubsetConstraints.</p>
+<p>IMPORTANT: We assume here that the subset graph contains no cycles.  
+More specifically, we assume that UnsupportedSubsetRemoval and 
+TupleSubsetTransformation were executed earlier.</p>
+<dl class="method">
+<dt id="lib.Transformation.RootRoleTransformation.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#RootRoleTransformation.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.RootRoleTransformation.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the transformation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="lib.Transformation.Transformation">
 <em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">Transformation</tt><big>(</big><em>model=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#Transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.Transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
@@ -1491,7 +1719,7 @@ in place.  There is currently no means to reverse a Transformation.</p>
 <dl class="attribute">
 <dt id="lib.Transformation.Transformation.added">
 <tt class="descname">added</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Transformation.Transformation.added" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of elements added by this transformation</p>
+<dd><p>Set of elements added by this transformation</p>
 </dd></dl>
 
 <dl class="method">
@@ -1507,15 +1735,48 @@ in place.  There is currently no means to reverse a Transformation.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="lib.Transformation.Transformation.model_changed">
+<tt class="descname">model_changed</tt><a class="reference internal" href="_modules/lib/Transformation.html#Transformation.model_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.Transformation.model_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>True iff model is changed by this transformation.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="lib.Transformation.Transformation.modified">
 <tt class="descname">modified</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Transformation.Transformation.modified" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of elements modified by this transformation</p>
+<dd><p>Set of elements modified by this transformation</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="lib.Transformation.Transformation.removed">
 <tt class="descname">removed</tt><em class="property"> = None</em><a class="headerlink" href="#lib.Transformation.Transformation.removed" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of elements removed by this transformation</p>
+<dd><p>Set of elements removed by this transformation</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Transformation.TupleSubsetTransformation">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">TupleSubsetTransformation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#TupleSubsetTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.TupleSubsetTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Transformation.Transformation" title="lib.Transformation.Transformation"><tt class="xref py py-class docutils literal"><span class="pre">lib.Transformation.Transformation</span></tt></a></p>
+<p>Add implied simple subset (or equality) constraints for each tuple 
+subset (or equality), and strengthen roles with IUCs as needed.</p>
+<dl class="method">
+<dt id="lib.Transformation.TupleSubsetTransformation.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#TupleSubsetTransformation.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.TupleSubsetTransformation.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the transformation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.Transformation.UnsupportedSubsetRemoval">
+<em class="property">class </em><tt class="descclassname">lib.Transformation.</tt><tt class="descname">UnsupportedSubsetRemoval</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#UnsupportedSubsetRemoval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.UnsupportedSubsetRemoval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lib.Transformation.Transformation" title="lib.Transformation.Transformation"><tt class="xref py py-class docutils literal"><span class="pre">lib.Transformation.Transformation</span></tt></a></p>
+<p>A transformations that removes unsupported subset constraints.</p>
+<dl class="method">
+<dt id="lib.Transformation.UnsupportedSubsetRemoval.execute">
+<tt class="descname">execute</tt><big>(</big><em>remove_joins=True</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#UnsupportedSubsetRemoval.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.UnsupportedSubsetRemoval.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the transformation.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1567,6 +1828,26 @@ using only elements from its root type&#8217;s population.</p>
 <tt class="xref py py-attr docutils literal"><span class="pre">self.model</span></tt>.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.Transformation.direct_subsets">
+<tt class="descclassname">lib.Transformation.</tt><tt class="descname">direct_subsets</tt><big>(</big><em>role</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#direct_subsets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.direct_subsets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of edges (subset constraints) and nodes (roles)
+adjacent to role, where role is the superset.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.Transformation.is_root">
+<tt class="descclassname">lib.Transformation.</tt><tt class="descname">is_root</tt><big>(</big><em>role</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#is_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.is_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True iff the role is a root role.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.Transformation.subset_triples">
+<tt class="descclassname">lib.Transformation.</tt><tt class="descname">subset_triples</tt><big>(</big><em>role</em><big>)</big><a class="reference internal" href="_modules/lib/Transformation.html#subset_triples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.Transformation.subset_triples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function that yields all triples (cons, subset role, 
+superset role) in which role plays one of the roles.</p>
 </dd></dl>
 
 </div>

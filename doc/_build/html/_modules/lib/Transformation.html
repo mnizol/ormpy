@@ -60,8 +60,14 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">lib.Model</span> <span class="kn">import</span> <span class="n">Model</span>
-<span class="kn">from</span> <span class="nn">lib.Constraint</span> <span class="kn">import</span> <span class="n">ValueConstraint</span>
-<span class="kn">from</span> <span class="nn">lib.FactType</span> <span class="kn">import</span> <span class="n">Role</span>
+<span class="kn">from</span> <span class="nn">lib.Constraint</span> <span class="kn">import</span> <span class="n">ValueConstraint</span><span class="p">,</span> <span class="n">UniquenessConstraint</span><span class="p">,</span> \
+                           <span class="n">FrequencyConstraint</span><span class="p">,</span> <span class="n">MandatoryConstraint</span><span class="p">,</span> \
+                           <span class="n">SubsetConstraint</span><span class="p">,</span> <span class="n">EqualityConstraint</span>
+<span class="kn">from</span> <span class="nn">lib.FactType</span> <span class="kn">import</span> <span class="n">Role</span><span class="p">,</span> <span class="n">FactType</span><span class="p">,</span> <span class="n">RoleSequence</span>
+<span class="kn">from</span> <span class="nn">lib.ObjectType</span> <span class="kn">import</span> <span class="n">ObjectifiedType</span>
+<span class="kn">from</span> <span class="nn">lib.SubtypeGraph</span> <span class="kn">import</span> <span class="n">SubtypeGraph</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
 
 <div class="viewcode-block" id="Transformation"><a class="viewcode-back" href="../../lib.html#lib.Transformation.Transformation">[docs]</a><span class="k">class</span> <span class="nc">Transformation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A transformation of an ORM Model. &quot;&quot;&quot;</span>
@@ -71,29 +77,38 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span> <span class="c">#: ORM model to transform</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">removed</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: List of elements removed by this transformation</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: List of elements modified by this transformation</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">added</span> <span class="o">=</span> <span class="p">[]</span> <span class="c">#: List of elements added by this transformation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> <span class="c">#: Set of elements removed by this transformation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> <span class="c">#: Set of elements modified by this transformation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">added</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> <span class="c">#: Set of elements added by this transformation</span>
 
 <div class="viewcode-block" id="Transformation.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.Transformation.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Execute the transformation. &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Transformation.model_changed"><a class="viewcode-back" href="../../lib.html#lib.Transformation.Transformation.model_changed">[docs]</a>    <span class="k">def</span> <span class="nf">model_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; True iff model is changed by this transformation. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">removed</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">added</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</div>
     <span class="k">def</span> <span class="nf">_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Add an element to the model. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">added</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">added</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Remove an element from the model. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">removed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_modified</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Tag an element as modified. The actual modification must be </span>
 <span class="sd">            performed external to this method.  &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">modified</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+
+<span class="c">###############################################################################</span>
+<span class="c"># Value Constraint Transformation</span>
+<span class="c">###############################################################################</span></div>
 <div class="viewcode-block" id="ValueConstraintTransformation"><a class="viewcode-back" href="../../lib.html#lib.Transformation.ValueConstraintTransformation">[docs]</a><span class="k">class</span> <span class="nc">ValueConstraintTransformation</span><span class="p">(</span><span class="n">Transformation</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; A transformation of an ORM model that moves, removes, and modifies</span>
 <span class="sd">        value constraints to be consistent with ORM- rules.  Specifically, this </span>
@@ -136,7 +151,11 @@
     
         <span class="c">#: A :class:`lib.SubtypeGraph.SubtypeGraph` corresponding to </span>
         <span class="c">#: :attr:`self.model`.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subtype_graph</span> <span class="o">=</span> <span class="n">subtype_graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subtype_graph</span> <span class="o">=</span> <span class="n">subtype_graph</span> <span class="ow">or</span> <span class="n">SubtypeGraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="c"># Dictionary to keep track of whether we&#39;ve already found a value </span>
+        <span class="c"># constraint for a non-primitive type in the same subtype graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graph_has_subtype_vc</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="ValueConstraintTransformation.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.ValueConstraintTransformation.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Execute the transformation. &quot;&quot;&quot;</span>
@@ -144,56 +163,743 @@
             <span class="n">element</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">Role</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_transform_role_value_constraint</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="ow">not</span> <span class="n">element</span><span class="o">.</span><span class="n">primtive</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">element</span><span class="o">.</span><span class="n">primitive</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_transform_subtype_value_constraint</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_changed</span>
 </div>
     <span class="k">def</span> <span class="nf">_transform_role_value_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cons</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">player</span> 
-   
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">mandatory</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">independent</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
-            <span class="n">cons</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span> <span class="c"># Undo side effects -- e.g. uncover role</span>
-            <span class="n">cons</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="p">]</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">player</span>         
 
-            <span class="c"># Intersect cons with any existing value constraint on obj</span>
-            <span class="k">for</span> <span class="n">cons2</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">covered_by</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">mandatory</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">independent</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span> <span class="c"># Mark as modified</span>
+            <span class="n">cons</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span> <span class="c"># Undo side effects -- e.g. uncover role</span>
+            <span class="n">cons</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="p">]</span> <span class="c"># Move constraint to object type</span>
+
+            <span class="c"># Intersect cons with any existing value constraint on object type.</span>
+            <span class="c"># Leave the (now extra) value constraints on the model---the domain</span>
+            <span class="c"># of the object type will consist of the intersection after commit()</span>
+            <span class="k">for</span> <span class="n">cons2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_constraints</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
                 <span class="n">cons</span><span class="o">.</span><span class="n">domain</span> <span class="o">&amp;=</span> <span class="n">cons2</span><span class="o">.</span><span class="n">domain</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons2</span><span class="p">)</span>
             
             <span class="n">cons</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span> <span class="c"># Commit side effects</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c"># Remove all other role value constraints</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_transform_subtype_value_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cons</span><span class="p">,</span> <span class="n">subtype</span><span class="p">):</span>
-        <span class="n">graph_has_subtype_vc</span> <span class="o">=</span> <span class="p">{}</span> 
-
         <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtype_graph</span><span class="o">.</span><span class="n">root_of</span><span class="p">[</span><span class="n">subtype</span><span class="p">]</span>
-         
-        <span class="k">if</span> <span class="n">graph_has_subtype_vc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">root</span><span class="p">):</span> <span class="c"># Only one subtype VC permitted!</span>
+        <span class="n">root_value_constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_constraints</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+ 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph_has_subtype_vc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">root</span><span class="p">):</span> <span class="c"># Only one subtype VC permitted</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">EnumeratedDomain</span><span class="p">):</span>
-            <span class="c"># NOTE: Requiring that the root.domain is an EnumeratedDomain is </span>
-            <span class="c"># more restrictive than theoretically necessary.  However, it </span>
-            <span class="c"># would be a bit of a challege to implement the necessary set </span>
-            <span class="c"># intersection and set difference (see else clause) if root.domain</span>
-            <span class="c"># is of infinite size like IntegerDomain.</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">root_value_constraints</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c"># NOTE: Requiring that the root has a value constraint if a subtype </span>
+            <span class="c"># does is more restrictive than theoretically necessary.  However,  </span>
+            <span class="c"># it would be a bit of a challege to implement the necessary set </span>
+            <span class="c"># intersection and set difference (see else clause below) if </span>
+            <span class="c"># root.domain is of infinite size like IntegerDomain.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">graph_has_subtype_vc</span><span class="p">[</span><span class="n">root</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">root_value_constraints</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_graph_has_subtype_vc</span><span class="p">[</span><span class="n">root</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">root_cons</span> <span class="o">=</span> <span class="n">root_value_constraints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
             <span class="c"># Lazily mark these as modified, even though it&#39;s possible the below </span>
             <span class="c"># set operations will have no effect.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="p">(</span><span class="n">root_cons</span><span class="p">)</span>
 
             <span class="c"># Limit the subtype value constraint to those elements also in root.</span>
             <span class="n">cons</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
-            <span class="n">cons</span><span class="o">.</span><span class="n">domain</span> <span class="o">&amp;=</span> <span class="n">root</span><span class="o">.</span><span class="n">domain</span>  
+            <span class="n">cons</span><span class="o">.</span><span class="n">domain</span> <span class="o">&amp;=</span> <span class="n">root_cons</span><span class="o">.</span><span class="n">domain</span>  
             <span class="n">cons</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span> 
 
             <span class="c"># Force the root domain to begin with the subtype domain&#39;s elements.</span>
-            <span class="n">root_only</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">domain</span><span class="p">))</span>
-            <span class="n">root</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">domain</span> <span class="o">+</span> <span class="n">root_only</span>        </div>
+            <span class="n">root_cons</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="n">root_only</span> <span class="o">=</span> <span class="n">root_cons</span><span class="o">.</span><span class="n">domain</span> <span class="o">-</span> <span class="n">cons</span><span class="o">.</span><span class="n">domain</span>
+            <span class="n">root_cons</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">domain</span> <span class="o">+</span> <span class="n">root_only</span> 
+            <span class="n">root_cons</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>   
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_value_constraints</span><span class="p">(</span><span class="n">object_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the value constraints (if any) covering an object type. &quot;&quot;&quot;</span>
+        <span class="n">vc</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ValueConstraint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="n">vc</span><span class="p">,</span> <span class="n">object_type</span><span class="o">.</span><span class="n">covered_by</span><span class="p">)</span>
+
+<span class="c">###############################################################################</span>
+<span class="c"># Absorption</span>
+<span class="c">###############################################################################</span></div>
+<div class="viewcode-block" id="AbsorptionTransformation"><a class="viewcode-back" href="../../lib.html#lib.Transformation.AbsorptionTransformation">[docs]</a><span class="k">class</span> <span class="nc">AbsorptionTransformation</span><span class="p">(</span><span class="n">Transformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An absorption transformation as described by McGill et al. (2011).</span>
+<span class="sd">        Replaces compound refererence schemes with absorption fact types. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AbsorptionTransformation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c"># Get list of objectified fact types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nested_fact_types</span> <span class="o">=</span> <span class="p">{</span><span class="n">obj</span><span class="o">.</span><span class="n">nested_fact_type</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">ObjectifiedType</span><span class="p">)}</span>
+
+<div class="viewcode-block" id="AbsorptionTransformation.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.AbsorptionTransformation.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute the transformation. &quot;&quot;&quot;</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">euc</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span><span class="p">,</span> <span class="n">candidates</span><span class="p">):</span> 
+            <span class="c"># Name prefixes for new constraints.  self._add() will </span>
+            <span class="c"># automatically assign a unique numeric suffix.</span>
+            <span class="n">uc_name</span> <span class="o">=</span> <span class="s">&quot;Absorption_UC_for_&quot;</span> <span class="o">+</span> <span class="n">euc</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">mc_name</span> <span class="o">=</span> <span class="s">&quot;Absorption_MC_for_&quot;</span> <span class="o">+</span> <span class="n">euc</span><span class="o">.</span><span class="n">name</span>
+
+            <span class="c"># Get root player</span>
+            <span class="n">root_player</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_other_role</span><span class="p">(</span><span class="n">euc</span><span class="o">.</span><span class="n">covers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">player</span>
+
+            <span class="c"># Build absorption fact type</span>
+            <span class="n">fact_type</span> <span class="o">=</span> <span class="n">AbsorptionFactType</span><span class="p">(</span><span class="n">root_player</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">euc</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="c"># Cover the root role with an IUC and a mandatory constraint</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">(</span><span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">fact_type</span><span class="o">.</span><span class="n">root_role</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">uc_name</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">MandatoryConstraint</span><span class="p">(</span><span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">fact_type</span><span class="o">.</span><span class="n">root_role</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">mc_name</span><span class="p">))</span>
+
+            <span class="c"># Loop over covered roles, move to absorption fact type</span>
+            <span class="n">new_roles</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">old_role</span> <span class="ow">in</span> <span class="n">euc</span><span class="o">.</span><span class="n">covers</span><span class="p">:</span>
+                <span class="n">new_role</span> <span class="o">=</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="n">old_role</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+                <span class="n">new_roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_role</span><span class="p">)</span>
+
+                <span class="n">old_fact_type_name</span> <span class="o">=</span> <span class="n">old_role</span><span class="o">.</span><span class="n">fact_type</span><span class="o">.</span><span class="n">fullname</span>
+                <span class="n">fact_type</span><span class="o">.</span><span class="n">fact_type_names</span><span class="p">[</span><span class="n">new_role</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_fact_type_name</span>
+
+                <span class="k">if</span> <span class="n">old_role</span><span class="o">.</span><span class="n">mandatory</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">MandatoryConstraint</span><span class="p">(</span><span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">new_role</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">mc_name</span><span class="p">))</span>
+
+                <span class="c"># Remove original fact type from the model. Can&#39;t call </span>
+                <span class="c"># self._remove here because fact_type.rollback is unimplemented</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_remove_fact_type</span><span class="p">(</span><span class="n">old_role</span><span class="o">.</span><span class="n">fact_type</span><span class="p">)</span> 
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">(</span><span class="n">covers</span><span class="o">=</span><span class="n">new_roles</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">uc_name</span><span class="p">,</span>
+                                           <span class="n">identifier_for</span><span class="o">=</span><span class="n">euc</span><span class="o">.</span><span class="n">identifier_for</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">fact_type</span><span class="p">)</span>
+            <span class="c">#self._remove(euc) # Removed when we remove first fact type.</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_changed</span>
+</div>
+    <span class="k">def</span> <span class="nf">_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">euc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Check if euc matches absorption pattern. &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">euc</span><span class="o">.</span><span class="n">internal</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="n">obj_type</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">euc</span><span class="o">.</span><span class="n">covers</span><span class="p">:</span>
+            <span class="c"># Covered fact type must be binary</span>
+            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">fact_type</span><span class="o">.</span><span class="n">arity</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+
+            <span class="c"># Covered roles may only be *also* covered by a mandatory constraint</span>
+            <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">covered_by</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">cons</span> <span class="o">!=</span> <span class="n">euc</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_mandatory</span><span class="p">(</span><span class="n">cons</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="bp">False</span>
+
+            <span class="c"># All other roles must be played by the same object type.</span>
+            <span class="n">role2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_other_role</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+            <span class="n">obj_type</span> <span class="o">=</span> <span class="n">obj_type</span> <span class="ow">or</span> <span class="n">role2</span><span class="o">.</span><span class="n">player</span> <span class="c"># First player among other roles</span>
+            
+            <span class="k">if</span> <span class="n">role2</span><span class="o">.</span><span class="n">player</span> <span class="o">!=</span> <span class="n">obj_type</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+
+            <span class="c"># Other role must be covered only by simple IUC and simple mandatory</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">role2</span><span class="o">.</span><span class="n">covered_by</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+ 
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_simple_iuc</span><span class="p">,</span> <span class="n">role2</span><span class="o">.</span><span class="n">covered_by</span><span class="p">))</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_simple_mandatory</span><span class="p">,</span> <span class="n">role2</span><span class="o">.</span><span class="n">covered_by</span><span class="p">))</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+
+            <span class="c"># Fact type cannot be objectified</span>
+            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">fact_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nested_fact_types</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>                
+
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">_remove_fact_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fact_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove fact_type from self.model.</span>
+
+<span class="sd">            IMPORTANT: This is implemented here rather than via a remove </span>
+<span class="sd">                       method of fact_type because I haven&#39;t decided how to </span>
+<span class="sd">                       handle fact type rollback/removal in the general case.</span>
+<span class="sd">                       </span>
+<span class="sd">                       Specifically, this method does not consider join paths or</span>
+<span class="sd">                       objectifications that may be on the fact type, but since</span>
+<span class="sd">                       (a) _pattern() forbids objectification and (b) absorption</span>
+<span class="sd">                       assumes there are no join paths, this is OK.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+            <span class="c"># To remove constraints, I first need to make a copy of covered_by</span>
+            <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">,</span> <span class="p">[</span><span class="n">cons</span> <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">covered_by</span><span class="p">])</span>
+            <span class="n">role</span><span class="o">.</span><span class="n">player</span><span class="o">.</span><span class="n">roles</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fact_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fact_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_simple_iuc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cons</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns True if cons is a simple internal uniqueness constraint. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">UniquenessConstraint</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_simple_mandatory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cons</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns True if cons is a simple mandatory constraint. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">MandatoryConstraint</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cons</span><span class="o">.</span><span class="n">simple</span>
+
+    <span class="k">def</span> <span class="nf">_other_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns the other role in a binary fact type. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">role</span><span class="p">]))</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span> 
+</div>
+<div class="viewcode-block" id="AbsorptionFactType"><a class="viewcode-back" href="../../lib.html#lib.Transformation.AbsorptionFactType">[docs]</a><span class="k">class</span> <span class="nc">AbsorptionFactType</span><span class="p">(</span><span class="n">FactType</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The fact type created by an absorption transformation. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_player</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AbsorptionFactType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  
+
+        <span class="c">#: Role played by the identified object type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_role</span> <span class="o">=</span> <span class="n">FactType</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_player</span><span class="p">)</span>       
+
+        <span class="c">#: Original fact type name for each role</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact_type_names</span> <span class="o">=</span> <span class="p">{}</span>  
+
+<span class="c">###############################################################################</span>
+<span class="c"># Disjunctive Reference Transformation</span>
+<span class="c">###############################################################################</span></div>
+<div class="viewcode-block" id="DisjunctiveRefTransformation"><a class="viewcode-back" href="../../lib.html#lib.Transformation.DisjunctiveRefTransformation">[docs]</a><span class="k">class</span> <span class="nc">DisjunctiveRefTransformation</span><span class="p">(</span><span class="n">Transformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Sets all ref roles in a disjunctive reference scheme to mandatory,</span>
+<span class="sd">        and removes any inclusive-or constraints on those roles.  &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DisjunctiveRefTransformation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DisjunctiveRefTransformation.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.DisjunctiveRefTransformation.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute the transformation. &quot;&quot;&quot;</span>
+        <span class="n">ior</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">MandatoryConstraint</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">simple</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;DisjunctiveRefTransformed_MC&quot;</span>
+
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">ref_roles</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">role</span><span class="o">.</span><span class="n">mandatory</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">MandatoryConstraint</span><span class="p">(</span><span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">role</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+
+                <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="n">ior</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">covered_by</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_changed</span>
+
+<span class="c">###############################################################################</span>
+<span class="c"># Overlapping Internal Frequency Constraint (IFC) Transformation</span>
+<span class="c">###############################################################################</span></div></div>
+<div class="viewcode-block" id="OverlappingIFCTransformation"><a class="viewcode-back" href="../../lib.html#lib.Transformation.OverlappingIFCTransformation">[docs]</a><span class="k">class</span> <span class="nc">OverlappingIFCTransformation</span><span class="p">(</span><span class="n">Transformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Uses IFC-Strengthening transformations to remove overlapping part of </span>
+<span class="sd">        internal frequency constraints whereever possible.  Recall that</span>
+<span class="sd">        internal uniqueness constraints (IUCs) are a special case of IFC. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OverlappingIFCTransformation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OverlappingIFCTransformation.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.OverlappingIFCTransformation.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute the transformation. &quot;&quot;&quot;</span>
+        <span class="n">is_ifc</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">FrequencyConstraint</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">internal</span>
+
+        <span class="k">for</span> <span class="n">fact_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="p">:</span>
+            <span class="c"># Get IFCs covering this fact type</span>
+            <span class="n">ifc_set</span> <span class="o">=</span> <span class="p">{</span><span class="n">cons</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span>
+                            <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">role</span><span class="o">.</span><span class="n">covered_by</span> <span class="k">if</span> <span class="n">is_ifc</span><span class="p">(</span><span class="n">cons</span><span class="p">)}</span>
+
+            <span class="c"># Sort set so we process more restrictive constraints first</span>
+            <span class="n">ifc_set</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ifc_set</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">covers</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+            <span class="c"># Compare each pair of IFCs that cover the fact type</span>
+            <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">ifc_set</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="n">covers0</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">covers</span><span class="p">)</span>
+                <span class="n">covers1</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">covers</span><span class="p">)</span>
+
+                <span class="c"># Don&#39;t process a constraint we&#39;ve already removed</span>
+                <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="p">):</span>
+                    <span class="k">continue</span>
+
+                <span class="c"># Case 1: No overlap</span>
+                <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">covers0</span> <span class="o">&amp;</span> <span class="n">covers1</span><span class="p">):</span>
+                    <span class="k">continue</span>
+
+                <span class="c"># Case 2: pair[0] contains pair[1]</span>
+                <span class="k">elif</span> <span class="ow">not</span><span class="p">(</span><span class="n">covers1</span> <span class="o">-</span> <span class="n">covers0</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_contained_overlap</span><span class="p">(</span><span class="n">inner</span><span class="o">=</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">outer</span><span class="o">=</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+                <span class="c"># Case 3: pair[1] contains pair[0]</span>
+                <span class="k">elif</span> <span class="ow">not</span><span class="p">(</span><span class="n">covers0</span> <span class="o">-</span> <span class="n">covers1</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_contained_overlap</span><span class="p">(</span><span class="n">inner</span><span class="o">=</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">outer</span><span class="o">=</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+                <span class="c"># Case 4: Non-containing overlap</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_non_contained_overlap</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_changed</span>
+</div>
+    <span class="k">def</span> <span class="nf">_contained_overlap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inner</span><span class="p">,</span> <span class="n">outer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Outer constraint covers all roles covered by inner constraint. &quot;&quot;&quot;</span>
+
+        <span class="c"># If both inner and outer constraints can be replaced by IUCs, then we</span>
+        <span class="c"># can just convert the inner to an IUC and remove the outer.</span>
+        <span class="k">if</span> <span class="n">inner</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">==</span> <span class="n">outer</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c"># Save list of reference roles played by the identified type.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ref_roles</span> <span class="o">=</span> <span class="n">outer</span><span class="o">.</span><span class="n">identifier_for</span><span class="o">.</span><span class="n">ref_roles</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">ref_roles</span> <span class="o">=</span> <span class="bp">None</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">outer</span><span class="p">)</span>
+
+            <span class="c"># Preserve the set of reference roles: strengthening an IFC doesn&#39;t</span>
+            <span class="c"># change the nature of what is and is not a ref role.</span>
+            <span class="k">if</span> <span class="n">ref_roles</span><span class="p">:</span>
+                <span class="n">outer</span><span class="o">.</span><span class="n">identifier_for</span><span class="o">.</span><span class="n">ref_roles</span> <span class="o">=</span> <span class="n">ref_roles</span>
+
+            <span class="k">if</span> <span class="n">inner</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">inner</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+                <span class="n">inner</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="mi">1</span> <span class="c"># Force inner to act as IUC</span>
+                <span class="n">inner</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span>
+
+        <span class="c"># If only the outer can be replaced by an IUC, then convert it and </span>
+        <span class="c"># shorten it to just cover the roles not covered by the inner constraint</span>
+        <span class="k">elif</span> <span class="n">outer</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_shorten</span><span class="p">(</span><span class="n">outer</span><span class="p">,</span> <span class="n">inner</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_non_contained_overlap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pair</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constraints overlap but each covers at least one role not covered</span>
+<span class="sd">            by the other constraint. &quot;&quot;&quot;</span>
+        <span class="n">pair</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pair</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min_freq</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c"># At least one must be convertible to an IUC</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shorten</span><span class="p">(</span><span class="o">*</span><span class="n">pair</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_shorten</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Shorten this constraint relative to other constraint. &quot;&quot;&quot;</span>
+        <span class="n">shortlist</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">covers</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">covers</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">this</span><span class="o">.</span><span class="n">min_freq</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">shortlist</span><span class="p">:</span>
+            <span class="n">this</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="n">this</span><span class="o">.</span><span class="n">max_freq</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">this</span><span class="o">.</span><span class="n">covers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">shortlist</span><span class="p">)</span>
+            <span class="n">this</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+
+<span class="c">###############################################################################</span>
+<span class="c"># External Uniqueness Constraint (EUC) Strengthening Transformation</span>
+<span class="c">###############################################################################</span></div>
+<div class="viewcode-block" id="EUCStrengtheningTransformation"><a class="viewcode-back" href="../../lib.html#lib.Transformation.EUCStrengtheningTransformation">[docs]</a><span class="k">class</span> <span class="nc">EUCStrengtheningTransformation</span><span class="p">(</span><span class="n">Transformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Uses EUC-Strengthening transformations to remove external uniqueness </span>
+<span class="sd">        constraints whereever possible.  &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EUCStrengtheningTransformation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EUCStrengtheningTransformation.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.EUCStrengtheningTransformation.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute the transformation. &quot;&quot;&quot;</span>
+        <span class="n">is_euc</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">UniquenessConstraint</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">internal</span>
+
+        <span class="k">for</span> <span class="n">euc</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="n">is_euc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="p">):</span>
+            <span class="n">join_path</span> <span class="o">=</span> <span class="n">euc</span><span class="o">.</span><span class="n">covers</span><span class="o">.</span><span class="n">join_path</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Strengthened_IUC_from_&quot;</span> <span class="o">+</span> <span class="n">euc</span><span class="o">.</span><span class="n">name</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">first_role</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_role</span><span class="p">(</span><span class="n">euc</span><span class="p">,</span> <span class="n">join_path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">continue</span> <span class="c"># Some problem with this EUC.  Don&#39;t transform.</span>
+
+            <span class="c"># Preserve the ref roles identified by the EUC</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ref_roles</span> <span class="o">=</span> <span class="n">euc</span><span class="o">.</span><span class="n">identifier_for</span><span class="o">.</span><span class="n">ref_roles</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">ref_roles</span> <span class="o">=</span> <span class="bp">None</span>
+
+            <span class="c"># Replace EUC with an internal uniqueness constraint on first_role</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">euc</span><span class="p">)</span>
+
+            <span class="c"># Restore the reference roles, because strengthening an EUC doesn&#39;t </span>
+            <span class="c"># change the nature of what is and is not a reference role.</span>
+            <span class="k">if</span> <span class="n">ref_roles</span><span class="p">:</span>
+                <span class="n">euc</span><span class="o">.</span><span class="n">identifier_for</span><span class="o">.</span><span class="n">ref_roles</span> <span class="o">=</span> <span class="n">ref_roles</span>
+
+            <span class="c"># The IUC does not become the identifying constraint because it </span>
+            <span class="c"># doesn&#39;t cover all of the reference roles.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">(</span><span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">first_role</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+
+            <span class="c"># Cover each in-role of the join path with an internal uniqueness</span>
+            <span class="c"># constraint (IUC).  An in-role is the second role in a join pair.</span>
+            <span class="k">for</span> <span class="n">join_pair</span> <span class="ow">in</span> <span class="n">join_path</span><span class="o">.</span><span class="n">joins</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">join_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">(</span><span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">join_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_changed</span>
+</div>
+    <span class="k">def</span> <span class="nf">_first_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">euc</span><span class="p">,</span> <span class="n">join_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return role covered by EUC in first fact type on join path.  Raise</span>
+<span class="sd">            KeyError if the EUC doesn&#39;t cover a role in the first fact type. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">join_path</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;No join path for EUC&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fact_roles</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">join_path</span><span class="o">.</span><span class="n">fact_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
+            <span class="n">covers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">euc</span><span class="o">.</span><span class="n">covers</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">covers</span> <span class="o">&amp;</span> <span class="n">fact_roles</span><span class="p">)</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span> <span class="c"># Raises KeyError if empty</span>
+
+<span class="c">###############################################################################</span>
+<span class="c"># Unsupported Subset Removal Transformation</span>
+<span class="c">###############################################################################</span></div>
+<div class="viewcode-block" id="UnsupportedSubsetRemoval"><a class="viewcode-back" href="../../lib.html#lib.Transformation.UnsupportedSubsetRemoval">[docs]</a><span class="k">class</span> <span class="nc">UnsupportedSubsetRemoval</span><span class="p">(</span><span class="n">Transformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A transformations that removes unsupported subset constraints. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">UnsupportedSubsetRemoval</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subtype_graph</span> <span class="o">=</span> <span class="n">SubtypeGraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="UnsupportedSubsetRemoval.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.UnsupportedSubsetRemoval.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remove_joins</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute the transformation. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_unsupported_subsets</span><span class="p">(</span><span class="n">remove_joins</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_subset_cycles</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_changed</span>
+</div>
+    <span class="k">def</span> <span class="nf">_remove_unsupported_subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remove_joins</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove subset constraints from the model that we cannot support.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">SubsetConstraint</span><span class="p">):</span>   
+            <span class="c"># Remove join subsets (materialization should have happened earlier)</span>
+            <span class="k">try</span><span class="p">:</span>            
+                <span class="k">if</span> <span class="n">remove_joins</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">join_path</span> <span class="ow">or</span> <span class="n">cons</span><span class="o">.</span><span class="n">superset</span><span class="o">.</span><span class="n">join_path</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+                    <span class="k">continue</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+            
+            <span class="c"># Remove if cons covers same role more than once</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">))</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c"># Check each pair of subset and superset roles</span>
+            <span class="k">for</span> <span class="n">subset</span><span class="p">,</span> <span class="n">superset</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">subset</span><span class="p">,</span> <span class="n">cons</span><span class="o">.</span><span class="n">superset</span><span class="p">):</span> 
+                <span class="c"># Confirm subset role and superset role are compatible</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compatible</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">superset</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="c"># If subset role is non-reference and player is subject to IDMC:</span>
+                <span class="c"># Strengthen role to mandatory if superset is a ref role OR </span>
+                <span class="c"># played by a subtype.</span>
+                <span class="c">#</span>
+                <span class="c"># NOTE: In theory, we could relax this if the ref role / subtype</span>
+                <span class="c">#       role is in turn a subset of a non-ref role.</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">subset</span><span class="o">.</span><span class="n">player</span>
+                <span class="n">subject_to_idmc</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">subject_to_idmc</span> <span class="ow">and</span> \
+                                  <span class="ow">not</span> <span class="n">subset</span><span class="o">.</span><span class="n">mandatory</span> <span class="ow">and</span> \
+                                  <span class="n">subset</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">non_ref_roles</span>
+                <span class="n">superset_is_ref</span> <span class="o">=</span> <span class="n">superset</span> <span class="ow">in</span> <span class="n">superset</span><span class="o">.</span><span class="n">player</span><span class="o">.</span><span class="n">ref_roles</span>
+                <span class="n">superset_is_subtype</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">superset</span><span class="o">.</span><span class="n">player</span><span class="o">.</span><span class="n">primitive</span>
+
+                <span class="k">if</span> <span class="n">subject_to_idmc</span> <span class="ow">and</span> <span class="p">(</span><span class="n">superset_is_ref</span> <span class="ow">or</span> <span class="n">superset_is_subtype</span><span class="p">):</span>
+                    <span class="c">#self._remove(cons)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">MandatoryConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;subset_mc&quot;</span><span class="p">,</span> <span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">subset</span><span class="p">]))</span>
+        
+    <span class="k">def</span> <span class="nf">_remove_subset_cycles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove subset constraints that form cycles in the model.</span>
+<span class="sd">            Credit: DFS algorithm, Cormen et al. 2003 (p. 541) &quot;&quot;&quot;</span>
+
+        <span class="c"># Create set of roles that participate in some subset constraint</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="p">{</span><span class="n">role</span> <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">SubsetConstraint</span><span class="p">)</span>
+                  <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">cons</span><span class="o">.</span><span class="n">covers</span><span class="p">}</span>
+
+        <span class="c"># Initially color all vertices as WHITE</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="p">{</span><span class="n">role</span><span class="p">:</span> <span class="s">&quot;WHITE&quot;</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">V</span><span class="p">}</span>
+        <span class="n">backedges</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c"># Visit each unvisited (WHITE) node</span>
+        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">V</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">color</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;WHITE&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_visit</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">backedges</span><span class="p">)</span>        
+
+        <span class="c"># Remove back edges, which create cycles in subset graph</span>
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">backedges</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_visit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">backedges</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; DFS visit algorithm per Cormen et al. p541 (2003). &quot;&quot;&quot;</span>
+        <span class="n">color</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;GRAY&quot;</span> <span class="c"># Mark role as partially visited.</span>
+
+        <span class="k">for</span> <span class="n">child</span><span class="p">,</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">direct_subsets</span><span class="p">(</span><span class="n">role</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">color</span><span class="p">[</span><span class="n">child</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;GRAY&quot;</span><span class="p">:</span> <span class="c"># Cycle!</span>
+                <span class="n">backedges</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">color</span><span class="p">[</span><span class="n">child</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;WHITE&quot;</span><span class="p">:</span> <span class="c"># Unvisited</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_visit</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">backedges</span><span class="p">)</span>
+        
+        <span class="n">color</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;BLACK&quot;</span> <span class="c"># Mark role as completely visited.</span>
+
+    <span class="k">def</span> <span class="nf">_compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role1</span><span class="p">,</span> <span class="n">role2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subtype_graph</span><span class="o">.</span><span class="n">compatible</span><span class="p">(</span><span class="n">role1</span><span class="o">.</span><span class="n">player</span><span class="p">,</span> <span class="n">role2</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+
+<span class="c">###############################################################################</span>
+<span class="c"># Tuple Subset Transformation</span>
+<span class="c">###############################################################################</span></div>
+<div class="viewcode-block" id="TupleSubsetTransformation"><a class="viewcode-back" href="../../lib.html#lib.Transformation.TupleSubsetTransformation">[docs]</a><span class="k">class</span> <span class="nc">TupleSubsetTransformation</span><span class="p">(</span><span class="n">Transformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Add implied simple subset (or equality) constraints for each tuple </span>
+<span class="sd">        subset (or equality), and strengthen roles with IUCs as needed.  &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TupleSubsetTransformation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TupleSubsetTransformation.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.TupleSubsetTransformation.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute the transformation. &quot;&quot;&quot;</span> 
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tuple_subset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Added_due_to_&quot;</span> <span class="o">+</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">cons_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span> <span class="c"># SubsetConstraint or EqualityConstraint</span>
+
+            <span class="n">n_super_uniq</span> <span class="o">=</span> <span class="mi">0</span> <span class="c"># Number of superset roles covered by simple IUC</span>
+
+            <span class="c"># Loop over each pair of (subset, superset) roles</span>
+            <span class="k">for</span> <span class="n">subset</span><span class="p">,</span> <span class="n">superset</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">subset</span><span class="p">,</span> <span class="n">cons</span><span class="o">.</span><span class="n">superset</span><span class="p">):</span>
+                <span class="c"># Add implied simple subset or equality constraint</span>
+                <span class="c"># TODO: Not certain this is needed. May be redundant/overkill.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">cons_type</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">subset</span><span class="p">],</span> <span class="n">superset</span><span class="o">=</span><span class="p">[</span><span class="n">superset</span><span class="p">]))</span>
+
+                <span class="c"># For now, take easy approach and cover all subset roles with</span>
+                <span class="c"># simple IUC.</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">subset</span><span class="o">.</span><span class="n">unique</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">subset</span><span class="p">]))</span>
+
+                <span class="k">if</span> <span class="n">superset</span><span class="o">.</span><span class="n">unique</span><span class="p">:</span>
+                    <span class="n">n_super_uniq</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c"># If none of the superset roles are unique, and this is an </span>
+            <span class="c"># equality constraint, strengthen the last superset role</span>
+            <span class="k">if</span> <span class="n">n_super_uniq</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">EqualityConstraint</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">superset</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_changed</span>
+</div>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_tuple_subset</span><span class="p">(</span><span class="n">cons</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns True iff constraint is a tuple subset. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">SubsetConstraint</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+
+
+<span class="c">###############################################################################</span>
+<span class="c"># Root Role Transformation</span>
+<span class="c">###############################################################################</span></div>
+<div class="viewcode-block" id="RootRoleTransformation"><a class="viewcode-back" href="../../lib.html#lib.Transformation.RootRoleTransformation">[docs]</a><span class="k">class</span> <span class="nc">RootRoleTransformation</span><span class="p">(</span><span class="n">Transformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Add root_role attribute to each role in the model that has a root role.</span>
+<span class="sd">        If a role has more than one root, correct this via the addition of</span>
+<span class="sd">        SubsetConstraints. </span>
+
+<span class="sd">        IMPORTANT: We assume here that the subset graph contains no cycles.  </span>
+<span class="sd">        More specifically, we assume that UnsupportedSubsetRemoval and </span>
+<span class="sd">        TupleSubsetTransformation were executed earlier. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RootRoleTransformation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RootRoleTransformation.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.RootRoleTransformation.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute the transformation.  &quot;&quot;&quot;</span> 
+      
+        <span class="c"># Find current list of roots</span>
+        <span class="n">roots</span> <span class="o">=</span> <span class="p">{</span><span class="n">role</span> <span class="k">for</span> <span class="n">fact</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span>
+                      <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">fact</span><span class="o">.</span><span class="n">roles</span> <span class="k">if</span> <span class="n">is_root</span><span class="p">(</span><span class="n">role</span><span class="p">)}</span>
+
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># Initial list of (root, subsets) pairs</span>
+        <span class="n">final</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># Final list of (root, subsets) pairs</span>
+
+        <span class="c"># For each root, determine its direct and indirect subset roles</span>
+        <span class="k">for</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">roots</span><span class="p">:</span>
+            <span class="n">subsets</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_subsets</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">subsets</span><span class="p">)</span>  <span class="c"># CRITICAL: Assumes no cycles!  </span>
+            <span class="n">pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">subsets</span><span class="p">)</span> <span class="p">)</span>
+
+        <span class="c"># Sort pairs list.  See _sort_key() docstring for justification.</span>
+        <span class="n">pairs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sort_key</span><span class="p">)</span> 
+
+        <span class="c"># Correct overlap between root subsets by adding Subset Constraints</span>
+        <span class="k">while</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="n">root1</span><span class="p">,</span> <span class="n">subsets1</span> <span class="o">=</span> <span class="n">pairs</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
+                <span class="n">root2</span><span class="p">,</span> <span class="n">subsets2</span> <span class="o">=</span> <span class="n">pair</span>
+                <span class="k">if</span> <span class="n">subsets1</span> <span class="o">&amp;</span> <span class="n">subsets2</span><span class="p">:</span> <span class="c"># Overlap between subsets                    </span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">SubsetConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;From_RootRoleTransform&quot;</span><span class="p">,</span>
+                                              <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">root2</span><span class="p">],</span> <span class="n">superset</span><span class="o">=</span><span class="p">[</span><span class="n">root1</span><span class="p">]))</span>
+                    <span class="n">subsets1</span> <span class="o">|=</span> <span class="n">subsets2</span> <span class="o">|</span> <span class="nb">set</span><span class="p">([</span><span class="n">root2</span><span class="p">])</span>
+                    <span class="n">pairs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+                
+            <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="n">root1</span><span class="p">,</span> <span class="n">subsets1</span><span class="p">)</span> <span class="p">)</span>
+
+        <span class="c"># Add an attribute to each role containing its root role</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">final</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">:</span>
+                <span class="n">role</span><span class="o">.</span><span class="n">root_role</span> <span class="o">=</span> <span class="n">root</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_changed</span>
+</div>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_sort_key</span><span class="p">(</span><span class="n">pair</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Sort by whether the root player is subject to the IDMC, then by</span>
+<span class="sd">            whether the root is non-reference, then by the size of the subset.</span>
+<span class="sd">            In this way, we will process all non-ref, primitive, non-independent</span>
+<span class="sd">            roots before we process anything else. &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">player</span>
+        <span class="n">subsets</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">subject_to_idmc</span><span class="p">,</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">non_ref_roles</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">subsets</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_get_subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">subsets</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add all direct and indirect subset roles of *role* to subsets. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">child</span><span class="p">,</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">direct_subsets</span><span class="p">(</span><span class="n">role</span><span class="p">):</span>
+            <span class="n">subsets</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_subsets</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">subsets</span><span class="p">)</span>        
+
+<span class="c">###############################################################################</span>
+<span class="c"># Join Materialization</span>
+<span class="c">###############################################################################</span></div>
+<div class="viewcode-block" id="JoinMaterialization"><a class="viewcode-back" href="../../lib.html#lib.Transformation.JoinMaterialization">[docs]</a><span class="k">class</span> <span class="nc">JoinMaterialization</span><span class="p">(</span><span class="n">Transformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Transformation to convert a join path to a join fact type. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JoinMaterialization</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="JoinMaterialization.execute"><a class="viewcode-back" href="../../lib.html#lib.Transformation.JoinMaterialization.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Execute the transformation. &quot;&quot;&quot;</span>
+
+        <span class="c"># For now, we&#39;ll just support subset and equality constraints</span>
+        <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">of_type</span><span class="p">(</span><span class="n">SubsetConstraint</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">subset</span><span class="p">,</span> <span class="s">&#39;join_path&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_materialize</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">cons</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span>
+   
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">superset</span><span class="p">,</span> <span class="s">&#39;join_path&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_materialize</span><span class="p">(</span><span class="n">cons</span><span class="p">,</span> <span class="n">cons</span><span class="o">.</span><span class="n">superset</span><span class="p">)</span>                
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_changed</span>
+</div>
+    <span class="k">def</span> <span class="nf">_materialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cons</span><span class="p">,</span> <span class="n">roleseq</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Materialize the join path. &quot;&quot;&quot;</span>
+
+        <span class="n">join_path</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">roleseq</span><span class="p">,</span> <span class="s">&#39;join_path&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">join_path</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">join_path</span><span class="o">.</span><span class="n">fact_types</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">joinfact</span> <span class="o">=</span> <span class="n">JoinFactType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cons</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;_join_fact&quot;</span><span class="p">)</span>
+        
+        <span class="c"># Initialize list of equality constraints that will cover join fact type</span>
+        <span class="n">eq_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">EqualityConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;join_eq&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="p">[],</span> <span class="n">superset</span><span class="o">=</span><span class="p">[])]</span>
+
+        <span class="c"># Add first fact type to join fact type</span>
+        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">join_path</span><span class="o">.</span><span class="n">fact_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+            <span class="n">new_role</span> <span class="o">=</span> <span class="n">joinfact</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="n">player</span><span class="o">=</span><span class="n">role</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+            <span class="n">joinfact</span><span class="o">.</span><span class="n">corr</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_role</span>
+
+            <span class="n">eq_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+            <span class="n">eq_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">superset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_role</span><span class="p">)</span>
+        
+        <span class="c"># Build out the full join fact type</span>
+        <span class="k">for</span> <span class="n">join</span> <span class="ow">in</span> <span class="n">join_path</span><span class="o">.</span><span class="n">joins</span><span class="p">:</span>
+            <span class="n">eq</span> <span class="o">=</span> <span class="n">EqualityConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;join_eq&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="p">[],</span> <span class="n">superset</span><span class="o">=</span><span class="p">[])</span>
+
+            <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">join</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fact_type</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">role</span> <span class="ow">is</span> <span class="n">join</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">new_role</span> <span class="o">=</span> <span class="n">joinfact</span><span class="o">.</span><span class="n">corr</span><span class="p">[</span><span class="n">join</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">new_role</span> <span class="o">=</span> <span class="n">joinfact</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="n">player</span><span class="o">=</span><span class="n">role</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+                    
+                <span class="n">joinfact</span><span class="o">.</span><span class="n">corr</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_role</span> 
+
+                <span class="n">eq</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+                <span class="n">eq</span><span class="o">.</span><span class="n">superset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_role</span><span class="p">)</span>
+
+            <span class="n">eq_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eq</span><span class="p">)</span>
+
+        <span class="n">new_seq</span> <span class="o">=</span> <span class="p">[</span><span class="n">joinfact</span><span class="o">.</span><span class="n">corr</span><span class="p">[</span><span class="n">role</span><span class="p">]</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">roleseq</span><span class="p">]</span>
+
+        <span class="c"># Ensure join constraint still covers same number of roles!</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">new_seq</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">roleseq</span><span class="p">):</span>
+            <span class="k">return</span> <span class="c"># We haven&#39;t changed anything yet.  BAIL OUT!</span>
+
+        <span class="c"># Update the constraint to cover join fact roles instead of orig roles</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="k">del</span> <span class="n">roleseq</span><span class="p">[:]</span> <span class="c"># Empty out the role sequence</span>
+        <span class="n">roleseq</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_seq</span><span class="p">)</span>
+        <span class="n">roleseq</span><span class="o">.</span><span class="n">join_path</span> <span class="o">=</span> <span class="bp">None</span> <span class="c"># Join path is gone now</span>
+
+        <span class="c"># Cover join roles on original and join fact type with simple IUCs</span>
+        <span class="c"># Must be done *after* we validate new_seq length above</span>
+        <span class="k">for</span> <span class="n">join</span> <span class="ow">in</span> <span class="n">join_path</span><span class="o">.</span><span class="n">joins</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_make_unique</span><span class="p">(</span><span class="n">join</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_make_unique</span><span class="p">(</span><span class="n">join</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_make_unique</span><span class="p">(</span><span class="n">joinfact</span><span class="o">.</span><span class="n">corr</span><span class="p">[</span><span class="n">join</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+    
+        <span class="c"># Commit changes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">joinfact</span><span class="p">)</span>
+        <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">,</span> <span class="n">eq_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="p">(</span><span class="n">cons</span><span class="p">)</span> 
+        <span class="n">cons</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>       
+
+    <span class="k">def</span> <span class="nf">_make_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Cover role with a simple IUC if it is not already unique. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">role</span><span class="o">.</span><span class="n">unique</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">UniquenessConstraint</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;join_uc&quot;</span><span class="p">,</span> <span class="n">covers</span><span class="o">=</span><span class="p">[</span><span class="n">role</span><span class="p">]))</span>        
+</div>
+<div class="viewcode-block" id="JoinFactType"><a class="viewcode-back" href="../../lib.html#lib.Transformation.JoinFactType">[docs]</a><span class="k">class</span> <span class="nc">JoinFactType</span><span class="p">(</span><span class="n">FactType</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A join fact type produced by a join materialization transformation. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JoinFactType</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corr</span> <span class="o">=</span> <span class="p">{}</span> <span class="c"># Correlation between old roles and new roles</span>
+
+<div class="viewcode-block" id="JoinFactType.commit"><a class="viewcode-back" href="../../lib.html#lib.Transformation.JoinFactType.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Commit side effects. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">orig_role</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">corr</span><span class="p">:</span>
+            <span class="n">ref_roles</span> <span class="o">=</span> <span class="n">orig_role</span><span class="o">.</span><span class="n">player</span><span class="o">.</span><span class="n">ref_roles</span>
+            <span class="n">new_role</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">corr</span><span class="p">[</span><span class="n">orig_role</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">orig_role</span> <span class="ow">in</span> <span class="n">ref_roles</span> <span class="ow">and</span> <span class="n">new_role</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ref_roles</span><span class="p">:</span>
+                <span class="n">ref_roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_role</span><span class="p">)</span>
+
+        <span class="n">FactType</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="JoinFactType.rollback"><a class="viewcode-back" href="../../lib.html#lib.Transformation.JoinFactType.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Rollback side effects. &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>    
+
+<span class="c">###############################################################################</span>
+<span class="c"># Utility Functions</span>
+<span class="c">###############################################################################</span></div></div>
+<div class="viewcode-block" id="subset_triples"><a class="viewcode-back" href="../../lib.html#lib.Transformation.subset_triples">[docs]</a><span class="k">def</span> <span class="nf">subset_triples</span><span class="p">(</span><span class="n">role</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Generator function that yields all triples (cons, subset role, </span>
+<span class="sd">        superset role) in which role plays one of the roles. &quot;&quot;&quot;</span>
+    <span class="n">subset_cons</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">SubsetConstraint</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="n">subset_cons</span><span class="p">,</span> <span class="n">role</span><span class="o">.</span><span class="n">covered_by</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">subset</span><span class="p">,</span> <span class="n">superset</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">subset</span><span class="p">,</span> <span class="n">cons</span><span class="o">.</span><span class="n">superset</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">subset</span> <span class="o">==</span> <span class="n">role</span> <span class="ow">or</span> <span class="n">superset</span> <span class="o">==</span> <span class="n">role</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">cons</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">superset</span>  
+</div>
+<div class="viewcode-block" id="direct_subsets"><a class="viewcode-back" href="../../lib.html#lib.Transformation.direct_subsets">[docs]</a><span class="k">def</span> <span class="nf">direct_subsets</span><span class="p">(</span><span class="n">role</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return the list of edges (subset constraints) and nodes (roles)</span>
+<span class="sd">        adjacent to role, where role is the superset. &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">cons</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">superset</span> <span class="ow">in</span> <span class="n">subset_triples</span><span class="p">(</span><span class="n">role</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">superset</span> <span class="o">==</span> <span class="n">role</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">subset</span><span class="p">,</span> <span class="n">cons</span>
+</div>
+<div class="viewcode-block" id="is_root"><a class="viewcode-back" href="../../lib.html#lib.Transformation.is_root">[docs]</a><span class="k">def</span> <span class="nf">is_root</span><span class="p">(</span><span class="n">role</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return True iff the role is a root role. &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">cons</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">superset</span> <span class="ow">in</span> <span class="n">subset_triples</span><span class="p">(</span><span class="n">role</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">subset</span> <span class="o">==</span> <span class="n">role</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="bp">True</span>
+        </div>
 </pre></div>
 
           </div>

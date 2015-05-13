@@ -62,6 +62,9 @@
 <span class="kn">import</span> <span class="nn">lib.FactType</span> <span class="kn">as</span> <span class="nn">FactType</span>
 <span class="kn">from</span> <span class="nn">lib.ORMMinusModel</span> <span class="kn">import</span> <span class="n">ORMMinusModel</span>
 <span class="kn">from</span> <span class="nn">lib.Constraint</span> <span class="kn">import</span> <span class="n">FrequencyConstraint</span>
+<span class="kn">from</span> <span class="nn">lib.SubtypeGraph</span> <span class="kn">import</span> <span class="n">SubtypeGraph</span>
+<span class="kn">from</span> <span class="nn">lib.Transformation</span> <span class="kn">import</span> <span class="n">AbsorptionFactType</span>
+
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">cycle</span>
 
 <div class="viewcode-block" id="Population"><a class="viewcode-back" href="../../lib.html#lib.Population.Population">[docs]</a><span class="k">class</span> <span class="nc">Population</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -97,28 +100,46 @@
     <span class="k">def</span> <span class="nf">_populate_object_types_and_roles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Populate all object types and roles in the model. &quot;&quot;&quot;</span>
 
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">SubtypeGraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">base_model</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="n">obj_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">fullname</span>
-            <span class="n">domain</span> <span class="o">=</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">domain</span>
-            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>            
+            <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> 
 
-            <span class="c"># Populate the object type from its domain </span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">domain</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
+            <span class="c"># Get the domain of this object type&#39;s root type (note that the root</span>
+            <span class="c"># of a primitive type is itself).  In ValueConstraintTransformation,</span>
+            <span class="c"># we ensured that by drawing the first n elements from the root </span>
+            <span class="c"># type&#39;s domain, a subtype&#39;s population will be a subset of any of</span>
+            <span class="c"># its supertypes&#39; populations.</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">root_of</span><span class="p">[</span><span class="n">obj_type</span><span class="p">]</span><span class="o">.</span><span class="n">domain</span>                       
 
-            <span class="c"># Populate the roles played by this object type</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_populate_roles</span><span class="p">(</span><span class="n">obj_type</span><span class="p">)</span>
+            <span class="c"># Populate the object type from its root type&#39;s domain </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">domain</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_populate_roles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_type</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Populate all roles played by an object type. &quot;&quot;&quot;</span>
+            <span class="c"># Populate the root roles played by this object type</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_populate_root_roles</span><span class="p">(</span><span class="n">obj_type</span><span class="p">)</span>
+
+        <span class="c"># Iterate over object types again to populate non-root roles. Populating </span>
+        <span class="c"># root roles first ensures that root populations are available to </span>
+        <span class="c"># non-root roles, even if played by a different (but compatible) type</span>
+        <span class="k">for</span> <span class="n">obj_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">object_types</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_populate_non_root_roles</span><span class="p">(</span><span class="n">obj_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_populate_root_roles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Populate all root roles played by an object type. &quot;&quot;&quot;</span>
         
         <span class="c"># Create an iterator that will cycle over all objects in the object</span>
         <span class="c"># type&#39;s domain in an endless loop.</span>
         <span class="n">obj_name</span> <span class="o">=</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">fullname</span>
         <span class="n">obj_cycle</span> <span class="o">=</span> <span class="n">cycle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_types</span><span class="p">[</span><span class="n">obj_name</span><span class="p">])</span>
 
-        <span class="c"># Populate each role by drawing the next &lt;size&gt; elements from obj_cycle, </span>
-        <span class="c"># where &lt;size&gt; is the value of the role variable in the solution.</span>
-        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">roles</span><span class="p">:</span>
+        <span class="c"># Get lists of root roles.  For non-experimental case (i.e. McGill), </span>
+        <span class="c"># root_roles should equal obj_type.roles.</span>
+        <span class="n">root_roles</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">roles</span> <span class="k">if</span> <span class="n">is_root_role</span><span class="p">(</span><span class="n">r</span><span class="p">)]</span>
+
+        <span class="c"># Populate each root role by drawing the next N elements from obj_cycle, </span>
+        <span class="c"># where N is the value of the role variable in the solution.</span>
+        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">root_roles</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">fullname</span>
             <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
             <span class="n">pop</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">([</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">])</span> <span class="c"># Create an empty population</span>
@@ -127,6 +148,21 @@
                 <span class="nb">next</span> <span class="o">=</span> <span class="n">obj_cycle</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
                 <span class="n">pop</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="nb">next</span><span class="p">])</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span>
+
+    <span class="k">def</span> <span class="nf">_populate_non_root_roles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Populate non-root roles with first N elements of root role&#39;s pop.&quot;&quot;&quot;</span>
+
+        <span class="n">non_root_roles</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">obj_type</span><span class="o">.</span><span class="n">roles</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">is_root_role</span><span class="p">(</span><span class="n">r</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">non_root_roles</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">fullname</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">root_role</span><span class="o">.</span><span class="n">fullname</span><span class="p">]</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+                <span class="n">pop</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">role</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="c"># Fix the column name in case of subtype</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Cannot find root role for &quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span>
        
     <span class="k">def</span> <span class="nf">_populate_role_sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -155,7 +191,11 @@
             <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
             <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">get_parts</span><span class="p">(</span><span class="n">fact_type</span><span class="p">)</span>            
             <span class="n">pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_partial_pops</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">AbsorptionFactType</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_split_absorption_pop</span><span class="p">(</span><span class="n">fact_type</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>                
+                <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span>
 
     <span class="k">def</span> <span class="nf">_combine_partial_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">parts</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Combine populations of elements in parts list to create a combined</span>
@@ -166,6 +206,34 @@
             <span class="n">next_pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">fullname</span><span class="p">]</span>
             <span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">next_pop</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pop</span>
+
+    <span class="k">def</span> <span class="nf">_split_absorption_pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fact_type</span><span class="p">,</span> <span class="n">pop</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Split the population of an AbsorptionFactType into populations of </span>
+<span class="sd">            the original fact types. &quot;&quot;&quot;</span>
+        
+        <span class="c"># Pre-condition: role names in fact_type are unique</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">names</span><span class="p">),</span> <span class="s">&quot;Role names not unique&quot;</span>
+
+        <span class="c"># Population of root role of absorption </span>
+        <span class="n">root_pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roles</span><span class="p">[</span><span class="n">fact_type</span><span class="o">.</span><span class="n">root_role</span><span class="o">.</span><span class="n">fullname</span><span class="p">]</span>
+
+        <span class="c"># Get a list of projections on each role of pop</span>
+        <span class="n">projections</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pop</span><span class="p">)</span> 
+
+        <span class="c"># Combine each non-root role population with the root role population</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">arity</span><span class="p">):</span>
+            <span class="n">role_name</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">role_name</span> <span class="o">==</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">root_role</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">role_pop</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="n">role_name</span><span class="p">])</span>
+            <span class="n">role_pop</span><span class="o">.</span><span class="n">extend</span><span class="p">([[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">projections</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">root_pop</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">role_pop</span><span class="p">),</span> <span class="s">&quot;Unexpected population size&quot;</span>
+
+            <span class="n">fact_pop</span> <span class="o">=</span> <span class="n">root_pop</span><span class="o">.</span><span class="n">combine_with</span><span class="p">(</span><span class="n">role_pop</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">root_pop</span><span class="p">))</span>
+            <span class="n">fact_name</span> <span class="o">=</span> <span class="n">fact_type</span><span class="o">.</span><span class="n">fact_type_names</span><span class="p">[</span><span class="n">role_name</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fact_types</span><span class="p">[</span><span class="n">fact_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">fact_pop</span>               
 
     <span class="k">def</span> <span class="nf">_write_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Write the populate of an object type to a file stream. &quot;&quot;&quot;</span>
@@ -230,6 +298,12 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Cannot add tuple of arity &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tupl</span><span class="p">))</span> <span class="o">+</span>
                             <span class="s">&quot; to a Relation of arity &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arity</span><span class="p">))</span>
 </div>
+<div class="viewcode-block" id="Relation.first"><a class="viewcode-back" href="../../lib.html#lib.Population.Relation.first">[docs]</a>    <span class="k">def</span> <span class="nf">first</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return a new Relation containing first n elements of this one. &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">Relation</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">))</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">[:</span><span class="n">n</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">result</span>
+        </div>
 <div class="viewcode-block" id="Relation.combine_with"><a class="viewcode-back" href="../../lib.html#lib.Population.Relation.combine_with">[docs]</a>    <span class="k">def</span> <span class="nf">combine_with</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Combine self with a target relation according to the enumeration </span>
 <span class="sd">            algorithm of Smaragdakis, et al. &quot;&quot;&quot;</span>
@@ -265,7 +339,10 @@
     <span class="sd">&quot;&quot;&quot; Return the least common multiple of a and b. &quot;&quot;&quot;</span>
     <span class="c"># Credit: http://rosettacode.org/wiki/Least_common_multiple#Python. </span>
     <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="n">fractions</span><span class="o">.</span><span class="n">gcd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">and</span> <span class="n">b</span> <span class="k">else</span> <span class="mi">0</span>
-            
+            </div>
+<div class="viewcode-block" id="is_root_role"><a class="viewcode-back" href="../../lib.html#lib.Population.is_root_role">[docs]</a><span class="k">def</span> <span class="nf">is_root_role</span><span class="p">(</span><span class="n">role</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Returns True if role is a root role. &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="s">&quot;root_role&quot;</span><span class="p">)</span> <span class="c"># Always True if not experimental</span>
 </pre></div></div>
 
           </div>

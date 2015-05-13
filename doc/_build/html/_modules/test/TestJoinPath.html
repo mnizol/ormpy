@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>test.TestJoinPath &mdash; ORMPY 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ORMPY 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for test.TestJoinPath</h1><div class="highlight"><pre>
+<span class="c">##############################################################################</span>
+<span class="c"># Package: ormpy</span>
+<span class="c"># File:    TestJoinPath.py</span>
+<span class="c"># Author:  Matthew Nizol</span>
+<span class="c">##############################################################################</span>
+
+<span class="sd">&quot;&quot;&quot; This file contains unit tests for :class:`lib.JoinPath.JoinPath` &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+
+<span class="kn">from</span> <span class="nn">lib.JoinPath</span> <span class="kn">import</span> <span class="n">JoinPath</span><span class="p">,</span> <span class="n">JoinPathException</span>
+<span class="kn">from</span> <span class="nn">lib.FactType</span> <span class="kn">import</span> <span class="n">FactType</span>
+<span class="kn">from</span> <span class="nn">lib.ObjectType</span> <span class="kn">import</span> <span class="n">ObjectType</span>
+<span class="kn">from</span> <span class="nn">lib.Constraint</span> <span class="kn">import</span> <span class="n">SubtypeConstraint</span>
+
+<div class="viewcode-block" id="TestJoinPath"><a class="viewcode-back" href="../../test.html#test.TestJoinPath.TestJoinPath">[docs]</a><span class="k">class</span> <span class="nc">TestJoinPath</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Unit tests for the JoinPath class. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestJoinPath.setUp"><a class="viewcode-back" href="../../test.html#test.TestJoinPath.TestJoinPath.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obj1</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;A&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obj2</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;B&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obj3</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;C&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact1</span> <span class="o">=</span> <span class="n">FactType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;AHasB&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact1</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact1</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact2</span> <span class="o">=</span> <span class="n">FactType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;BHasC&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact2</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact2</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj3</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact3</span> <span class="o">=</span> <span class="n">FactType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;ALikesA&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact3</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact3</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact4</span> <span class="o">=</span> <span class="n">FactType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;ALikesB&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact4</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fact4</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj2</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestJoinPath.test_incompatible_roles"><a class="viewcode-back" href="../../test.html#test.TestJoinPath.TestJoinPath.test_incompatible_roles">[docs]</a>    <span class="k">def</span> <span class="nf">test_incompatible_roles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test an attempt to join fact types on incompatible roles.&quot;&quot;&quot;</span>
+        <span class="n">join_path</span> <span class="o">=</span> <span class="n">JoinPath</span><span class="p">()</span>
+        
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">JoinPathException</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact1</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact2</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;join roles must be played by compatible object types&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span> 
+</div>
+<div class="viewcode-block" id="TestJoinPath.test_compatible_roles_via_subtype"><a class="viewcode-back" href="../../test.html#test.TestJoinPath.TestJoinPath.test_compatible_roles_via_subtype">[docs]</a>    <span class="k">def</span> <span class="nf">test_compatible_roles_via_subtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test case where join is OK because one role player is a subtype of</span>
+<span class="sd">            the other role player. &quot;&quot;&quot;</span>
+        <span class="n">obj1</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;A&quot;</span><span class="p">)</span>
+        <span class="n">obj2</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;B&quot;</span><span class="p">)</span>
+        <span class="n">obj3</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;C&quot;</span><span class="p">)</span>
+
+        <span class="n">fact1</span> <span class="o">=</span> <span class="n">FactType</span><span class="p">(</span><span class="s">&quot;AIsB&quot;</span><span class="p">)</span>
+        <span class="n">fact1</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="n">obj1</span><span class="p">)</span>
+        <span class="n">fact1</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="n">obj2</span><span class="p">)</span>
+
+        <span class="n">fact2</span> <span class="o">=</span> <span class="n">FactType</span><span class="p">(</span><span class="s">&quot;BIsC&quot;</span><span class="p">)</span>
+        <span class="n">fact2</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="n">obj2</span><span class="p">)</span>
+        <span class="n">fact2</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="n">obj3</span><span class="p">)</span>
+
+        <span class="n">join1</span> <span class="o">=</span> <span class="p">(</span><span class="n">fact1</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fact2</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">join2</span> <span class="o">=</span> <span class="p">(</span><span class="n">fact2</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fact1</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">join_path</span> <span class="o">=</span> <span class="n">JoinPath</span><span class="p">()</span>
+
+        <span class="c"># At this point there is no subtype relation from obj1 to obj2, so the</span>
+        <span class="c"># join fails</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">JoinPathException</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="o">*</span><span class="n">join1</span><span class="p">)</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;join roles must be played by compatible object types&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">JoinPathException</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="o">*</span><span class="n">join2</span><span class="p">)</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;join roles must be played by compatible object types&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+        <span class="c"># Create a subtype relation so the join succeeds.</span>
+        <span class="n">cons</span> <span class="o">=</span> <span class="n">SubtypeConstraint</span><span class="p">(</span><span class="n">obj1</span><span class="p">,</span> <span class="n">obj2</span><span class="p">)</span>
+        <span class="n">cons</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="o">*</span><span class="n">join1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">join_path</span><span class="o">.</span><span class="n">joins</span><span class="p">,</span> <span class="p">[</span><span class="n">join1</span><span class="p">])</span>
+
+        <span class="c"># Reset the join path and try the join in the opposite direction</span>
+        <span class="n">join_path</span> <span class="o">=</span> <span class="n">JoinPath</span><span class="p">()</span>
+        <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="o">*</span><span class="n">join2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">join_path</span><span class="o">.</span><span class="n">joins</span><span class="p">,</span> <span class="p">[</span><span class="n">join2</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="TestJoinPath.test_disconnected"><a class="viewcode-back" href="../../test.html#test.TestJoinPath.TestJoinPath.test_disconnected">[docs]</a>    <span class="k">def</span> <span class="nf">test_disconnected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that the first join role must be on a fact type already on</span>
+<span class="sd">            the path. &quot;&quot;&quot;</span>
+        <span class="n">join_path</span> <span class="o">=</span> <span class="n">JoinPath</span><span class="p">()</span>
+        <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact1</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact2</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">JoinPathException</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact3</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact4</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;first join role must already be on the join path&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>  
+</div>
+<div class="viewcode-block" id="TestJoinPath.test_cycle_1"><a class="viewcode-back" href="../../test.html#test.TestJoinPath.TestJoinPath.test_cycle_1">[docs]</a>    <span class="k">def</span> <span class="nf">test_cycle_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that a self-join is rejected. &quot;&quot;&quot;</span>
+        <span class="n">join_path</span> <span class="o">=</span> <span class="n">JoinPath</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">JoinPathException</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact3</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact3</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;join would create a cycle in the join path&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestJoinPath.test_cycle_2"><a class="viewcode-back" href="../../test.html#test.TestJoinPath.TestJoinPath.test_cycle_2">[docs]</a>    <span class="k">def</span> <span class="nf">test_cycle_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that a join to a fact type already in the path is rejected. &quot;&quot;&quot;</span>
+        <span class="n">join_path</span> <span class="o">=</span> <span class="n">JoinPath</span><span class="p">()</span>
+
+        <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact1</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact2</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">JoinPathException</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact2</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact1</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;join would create a cycle in the join path&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestJoinPath.test_valid_join"><a class="viewcode-back" href="../../test.html#test.TestJoinPath.TestJoinPath.test_valid_join">[docs]</a>    <span class="k">def</span> <span class="nf">test_valid_join</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test that a valid join path is stored as expected. &quot;&quot;&quot;</span>
+        <span class="n">join_path</span> <span class="o">=</span> <span class="n">JoinPath</span><span class="p">()</span>
+
+        <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact1</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact2</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact1</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact4</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">join_path</span><span class="o">.</span><span class="n">add_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact4</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact3</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">join_path</span><span class="o">.</span><span class="n">fact_types</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fact1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact3</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">join_path</span><span class="o">.</span><span class="n">joins</span><span class="p">,</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact1</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact2</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact1</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact4</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fact4</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fact3</span><span class="o">.</span><span class="n">roles</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
+            
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ORMPY 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Matthew Nizol.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

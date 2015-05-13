@@ -89,6 +89,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">check_model</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">populate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ubound</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">deontic</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;test.orm&quot;</span><span class="p">)</span>
 
         <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-dp&quot;</span><span class="p">,</span> <span class="s">&quot;-o /home&quot;</span><span class="p">,</span> <span class="s">&quot;test.orm&quot;</span><span class="p">])</span>
@@ -100,6 +101,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">populate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ubound</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">directory</span><span class="p">,</span> <span class="s">&quot; /home&quot;</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;--include-deontic&quot;</span><span class="p">,</span> <span class="s">&quot;test.orm&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">deontic</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">experimental</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;--experimental&quot;</span><span class="p">,</span> <span class="s">&quot;test.orm&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">experimental</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TestCommandLine.test_log_config"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_log_config">[docs]</a>    <span class="k">def</span> <span class="nf">test_log_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test configuration of the logger. &quot;&quot;&quot;</span>
@@ -124,7 +132,8 @@
 <div class="viewcode-block" id="TestCommandLine.test_import_model"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_import_model">[docs]</a>    <span class="k">def</span> <span class="nf">test_import_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test successful import of a small model. &quot;&quot;&quot;</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-cu 10&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">))</span>
@@ -137,9 +146,10 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span> <span class="c"># Don&#39;t want stack trace</span>
 
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;does_not_exist.orm&quot;</span><span class="p">)</span>
-        
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-cu 10&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>
+
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">formatLogRecords</span><span class="p">(),</span> 
             <span class="p">[</span><span class="s">&quot;ERROR: Could not load does_not_exist.orm: [Errno 2] No such file or directory: &#39;&quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s">&quot;&#39;&quot;</span><span class="p">])</span>
@@ -149,18 +159,29 @@
         <span class="sd">&quot;&quot;&quot; Test checking unsatisfiable model.&quot;&quot;&quot;</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;unsat_smarag_1.orm&quot;</span><span class="p">)</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-cu 10&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
         <span class="n">capture_stdout</span><span class="p">()</span>
         <span class="n">CommandLine</span><span class="o">.</span><span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>        
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">read_stdout</span><span class="p">(),</span> <span class="s">&quot;Model is unsatisfiable.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
         <span class="n">restore_stdout</span><span class="p">()</span>
 </div>
+<div class="viewcode-block" id="TestCommandLine.test_check_unsat_strengthened"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_check_unsat_strengthened">[docs]</a>    <span class="k">def</span> <span class="nf">test_check_unsat_strengthened</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test checking unsatisfiable strengthened model.&quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;disjunctive_reference_scheme_unsat.orm&quot;</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-cu 10&quot;</span><span class="p">,</span> <span class="s">&quot;--experimental&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+        <span class="n">capture_stdout</span><span class="p">()</span>
+        <span class="n">CommandLine</span><span class="o">.</span><span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">read_stdout</span><span class="p">(),</span> <span class="s">&quot;Model satisfiability cannot be determined.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="n">restore_stdout</span><span class="p">()</span>
+</div>
 <div class="viewcode-block" id="TestCommandLine.test_check_sat"><a class="viewcode-back" href="../../test.html#test.TestCommandLine.TestCommandLine.test_check_sat">[docs]</a>    <span class="k">def</span> <span class="nf">test_check_sat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test checking a satisfiable model. &quot;&quot;&quot;</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-cu 1&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
         <span class="n">capture_stdout</span><span class="p">()</span>
         <span class="n">CommandLine</span><span class="o">.</span><span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>        
@@ -171,7 +192,7 @@
         <span class="sd">&quot;&quot;&quot; Test populating a satisfiable model. &quot;&quot;&quot;</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;no_fact_types.orm&quot;</span><span class="p">)</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-pu 1&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
         <span class="n">capture_stdout</span><span class="p">()</span>
         <span class="n">CommandLine</span><span class="o">.</span><span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>        
@@ -184,7 +205,7 @@
         <span class="n">bad</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="s">&quot;..&quot;</span><span class="p">,</span> <span class="s">&quot;output&quot;</span><span class="p">,</span> <span class="s">&quot;NOT_A_DIRECTORY&quot;</span><span class="p">)</span>
 
         <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-pu 1&quot;</span><span class="p">,</span> <span class="s">&quot;-o&quot;</span><span class="p">,</span> <span class="n">bad</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
         <span class="n">capture_stdout</span><span class="p">()</span>
         <span class="n">CommandLine</span><span class="o">.</span><span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>        
@@ -200,7 +221,7 @@
         <span class="n">args</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">&quot;-pu 1&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">])</span> <span class="c"># No -o option so we&#39;ll try to write to stdout</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="bp">None</span> <span class="c"># Force an exception when trying to write to stdout</span>
 
-        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>        
+        <span class="n">model</span> <span class="o">=</span> <span class="n">CommandLine</span><span class="o">.</span><span class="n">import_model</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>        
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="n">CommandLine</span><span class="o">.</span><span class="n">check_or_populate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>                

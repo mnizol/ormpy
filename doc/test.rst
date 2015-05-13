@@ -44,6 +44,14 @@ test.TestInequalitySystem module
     :undoc-members:
     :show-inheritance:
 
+test.TestJoinPath module
+------------------------
+
+.. automodule:: test.TestJoinPath
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 test.TestModel module
 ---------------------
 
@@ -104,6 +112,14 @@ test.TestTestDataLocator module
 -------------------------------
 
 .. automodule:: test.TestTestDataLocator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+test.TestTransformation module
+------------------------------
+
+.. automodule:: test.TestTransformation
     :members:
     :undoc-members:
     :show-inheritance:

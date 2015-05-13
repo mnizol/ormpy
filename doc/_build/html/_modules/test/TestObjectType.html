@@ -84,7 +84,12 @@
 
         <span class="n">actual</span> <span class="o">=</span> <span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Test1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">expect</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Test1_0&#39;</span><span class="p">,</span> <span class="s">&#39;Test1_1&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertItemsEqual</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expect</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestObjectType.test_rollback"><a class="viewcode-back" href="../../test.html#test.TestObjectType.TestObjectType.test_rollback">[docs]</a>    <span class="k">def</span> <span class="nf">test_rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Test rollback of an ObjectType. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="n">ObjectType</span><span class="p">()</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span></div></div>
 </pre></div>
 
           </div>

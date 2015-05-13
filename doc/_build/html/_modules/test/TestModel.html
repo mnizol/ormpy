@@ -98,23 +98,37 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;O1&quot;</span><span class="p">),</span> <span class="n">obj1</span><span class="p">)</span>
 
-        <span class="n">model</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">obj1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">object_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;O1&quot;</span><span class="p">),</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">obj1</span><span class="p">)</span>
+
+        <span class="c"># I decided for now to just raise a NotImplementedError for rollback,</span>
+        <span class="c"># since I&#39;m not sure what the right behavior should be.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        model.remove(obj1)</span>
+<span class="sd">        self.assertEquals(model.object_types.count(), 0)</span>
+<span class="sd">        self.assertEquals(model.object_types.get(&quot;O1&quot;), None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </div>
 <div class="viewcode-block" id="TestModel.test_add_remove_fact_type"><a class="viewcode-back" href="../../test.html#test.TestModel.TestModel.test_add_remove_fact_type">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_remove_fact_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test adding and removing a fact type from the model. &quot;&quot;&quot;</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
         <span class="n">fact</span> <span class="o">=</span> <span class="n">FactType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;F1&quot;</span><span class="p">)</span>
-        <span class="n">fact</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Role</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;R1&quot;</span><span class="p">))</span>
+        <span class="n">fact</span><span class="o">.</span><span class="n">add_role</span><span class="p">(</span><span class="n">player</span><span class="o">=</span><span class="n">ObjectType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;O1&quot;</span><span class="p">))</span>
         <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fact</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;F1&quot;</span><span class="p">),</span> <span class="n">fact</span><span class="p">)</span>
 
-        <span class="n">model</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fact</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fact_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;F1&quot;</span><span class="p">),</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fact</span><span class="p">)</span>
+
+        <span class="c"># I decided for now to just raise a NotImplementedError for rollback,</span>
+        <span class="c"># since I&#39;m not sure what the right behavior should be.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        model.remove(fact)</span>
+<span class="sd">        self.assertEquals(model.fact_types.count(), 0)</span>
+<span class="sd">        self.assertEquals(model.fact_types.get(&quot;F1&quot;), None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </div>
 <div class="viewcode-block" id="TestModel.test_add_remove_generic_constraint"><a class="viewcode-back" href="../../test.html#test.TestModel.TestModel.test_add_remove_generic_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">test_add_remove_generic_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Test adding and removing a generic constraint from the model. &quot;&quot;&quot;</span>

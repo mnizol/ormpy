@@ -3,9 +3,10 @@
 Object Role Modeling (ORM) models developed with the [NORMA modeling tool](http://sourceforge.net/projects/orm/).
 The primary algorithm is based upon research by [Smaragdakis, et al.](http://dl.acm.org/citation.cfm?id=1507652)
 
-**ormpy** is a work-in-progress.  Currently, the Smaragdakis algorithm
-is implemented, and we are working to add extensions by 
-[McGill, et al.](http://dl.acm.org/citation.cfm?id=2001428) and [Nizol, et al.](http://dl.acm.org/citation.cfm?id=2593771)
+**ormpy** is a work-in-progress.  The Smaragdakis algorithm
+is implemented with extensions by [McGill, et al.](http://dl.acm.org/citation.cfm?id=2001428)
+The `--experimental` command-line option accesses extensions published by [Nizol, et al.](http://dl.acm.org/citation.cfm?id=2593771)
+as well as unpublished extensions.
 
 ## Dependencies
 **ormpy** has been tested with Python 2.7 on a 64-bit Linux machine.  To 

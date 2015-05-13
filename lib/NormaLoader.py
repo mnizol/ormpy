@@ -461,7 +461,7 @@ class NormaLoader(object):
         kind = "Exclusion constraint"
 
         seq_node = find(xml_node, "RoleSequences")
-        first_seq = self._load_role_sequence(seq_node[0], name)
+        first_seq = self._load_role_sequence(seq_node[0], kind + " " + name)
         if isinstance(first_seq[0], Constraint.SubtypeConstraint):
             kind = "Subtype " + kind.lower()
 
@@ -471,11 +471,12 @@ class NormaLoader(object):
     def _load_subset_constraint(self, xml_node):
         """ Load subset constraint. """
         attribs, name = get_basic_attribs(xml_node)
+        name = "Subset constraint " + name
 
         sequences_node = find(xml_node, "RoleSequences")
 
         if len(sequences_node) != 2:
-            msg = "Constraint {0} does not have exactly two role sequences"
+            msg = "{0} does not have exactly two role sequences"
             raise Exception(msg.format(name))
 
         # Load subset and superset role sequences
@@ -487,6 +488,7 @@ class NormaLoader(object):
     def _load_equality_constraint(self, xml_node):
         """ Load equality constraint. """
         attribs, name = get_basic_attribs(xml_node)
+        name = "Equality constraint " + name
 
         sequences_node = find(xml_node, "RoleSequences")
 
@@ -509,6 +511,7 @@ class NormaLoader(object):
     def _load_frequency_constraint(self, xml_node):
         """ Load frequency constraint. """
         attribs, name = get_basic_attribs(xml_node)
+        name = "Frequency constraint " + name
 
         # Parse frequency attributes
         min_freq = int(xml_node.get("MinFrequency"))
@@ -524,9 +527,9 @@ class NormaLoader(object):
     def _load_mandatory_constraint(self, xml_node):
         """ Load mandatory constraint. """
         attribs, name = get_basic_attribs(xml_node)
-
+        
         implied = (xml_node.get("IsImplied") == "true")
-        covers = self._load_role_sequence(xml_node, name)
+        covers = self._load_role_sequence(xml_node, "Mandatory constraint " + name)
 
         # Lambda function to decide if constraint covers a subtype
         subtype = lambda x: x and isinstance(x[0], Constraint.SubtypeConstraint)
@@ -543,6 +546,7 @@ class NormaLoader(object):
     def _load_uniqueness_constraint(self, xml_node):
         """ Load uniqueness constraint. """
         attribs, name = get_basic_attribs(xml_node)
+        name = "Uniqueness constraint " + name
 
         # Get object type that this constraint is a preferred id for
         pref_node = find(xml_node, "PreferredIdentifierFor")
@@ -647,15 +651,15 @@ class NormaLoader(object):
                 try:
                     role_sequence.join_path = self._load_join_rule(node)
                 except JoinPathException as ex:
-                    msg = "Constraint {0} because its join path {1}."
+                    msg = "{0} because its join path {1}."
                     self.omissions.append(msg.format(name, ex.message))
                     return None
             else:
-                msg = "Constraint {0} has unexpected role sequence."
+                msg = "{0} has unexpected role sequence."
                 raise Exception(msg.format(name))
 
         if 0 < implied_roles < total_roles:
-            msg = "Constraint {0} because it covers implied and explicit roles"               
+            msg = "{0} because it covers implied and explicit roles"               
             self.omissions.append(msg.format(name))
             return None
         elif implied_roles == total_roles: # Implied constraint 
@@ -668,7 +672,7 @@ class NormaLoader(object):
 
         # Confirm deprecated path data is not present
         if find(xml_node, "ProjectedFrom") is not None:
-            msg = "Constraint " + constraint_name +" has deprecated join rule."
+            msg = constraint_name +" has deprecated join rule."
             raise Exception(msg)
 
         uid = xml_node.get("ref")

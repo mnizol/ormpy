@@ -400,7 +400,7 @@ class TestNormaLoader(TestCase):
         with self.assertRaises(Exception) as ex:
             loader = NormaLoader(self.data_dir + "partial_subset.orm")
         self.assertEquals(ex.exception.message, 
-            "Constraint SubsetConstraint1 does not have exactly two role sequences")
+            "Subset constraint SubsetConstraint1 does not have exactly two role sequences")
 
     def test_implicit_role(self):
         """ Confirm constraint that covers implicit role is removed. """
@@ -412,13 +412,13 @@ class TestNormaLoader(TestCase):
         with self.assertRaises(Exception) as ex:
             loader = NormaLoader(self.data_dir + "deprecated_join.orm")
         self.assertEquals(ex.exception.message, 
-            "Constraint SubsetConstraint1 has deprecated join rule.")
+            "Subset constraint SubsetConstraint1 has deprecated join rule.")
 
     def test_join_subset_omission(self):
         """ Confirm that join subset constraints are (for now) omitted. """
         loader = NormaLoader(self.data_dir + "join_subset_omission.orm")
         self.assertItemsEqual(loader.omissions, 
-            ["Constraint SubsetConstraint1 because its join path does not have exactly one JoinPath node."])
+            ["Subset constraint SubsetConstraint1 because its join path does not have exactly one JoinPath node."])
 
         cons = loader.model.constraints.get("SubsetConstraint1")
         self.assertIsNone(cons)
@@ -519,7 +519,7 @@ class TestNormaLoader(TestCase):
         """ Confirm exception fires for invalid node in RoleSequence. """
         with self.assertRaises(Exception) as ex:
             loader = NormaLoader(self.data_dir + "bad_role_sequence.orm")
-        self.assertEquals(ex.exception.message, "Constraint " +
+        self.assertEquals(ex.exception.message, "Uniqueness constraint " +
             "ExternalUniquenessConstraint1 has unexpected role sequence.")
 
     def test_freq_on_unary(self):
@@ -724,7 +724,7 @@ class TestNormaLoader(TestCase):
             "constraint_covers_both_implied_and_regular_roles.orm.orm")
         model = loader.model
 
-        expected = ["Constraint EUC1 because it covers implied and explicit roles"]
+        expected = ["Uniqueness constraint EUC1 because it covers implied and explicit roles"]
 
         self.assertIsNone(model.constraints.get("EUC1"))
         self.assertEquals(model.constraints.count(), 2)
@@ -767,7 +767,7 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("ExternalUniquenessConstraint1") 
         self.assertIsNone(cons)
 
-        expected = "Constraint ExternalUniquenessConstraint1 because its join path does not have exactly one JoinPath node."
+        expected = "Uniqueness constraint ExternalUniquenessConstraint1 because its join path does not have exactly one JoinPath node."
         self.assertEquals(loader.omissions, [expected])
 
     def test_join_rule_with_subquery(self):
@@ -779,7 +779,7 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("FC1_with_subquery") 
         self.assertIsNone(cons)
 
-        expected = "Constraint FC1_with_subquery because its join path has a JoinPath node with an unsupported child node: Subqueries."
+        expected = "Frequency constraint FC1_with_subquery because its join path has a JoinPath node with an unsupported child node: Subqueries."
         self.assertEquals(loader.omissions, [expected])
 
     def test_join_rule_with_no_role_path(self):
@@ -791,7 +791,7 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("FrequencyConstraint1") 
         self.assertIsNone(cons)
 
-        expected = "Constraint FrequencyConstraint1 because its join path does not have exactly one RolePath node."
+        expected = "Frequency constraint FrequencyConstraint1 because its join path does not have exactly one RolePath node."
         self.assertEquals(loader.omissions, [expected])
 
     def test_join_rule_with_unsupported_splits(self):
@@ -807,8 +807,8 @@ class TestNormaLoader(TestCase):
         self.assertIsNone(cons_neg)
         self.assertIsNone(cons_or)
 
-        expected = ["Constraint EUC_negated because its join path has a negated path split.",
-                    "Constraint EUC_or because its join path combines paths with an operator other than AND."]
+        expected = ["Uniqueness constraint EUC_negated because its join path has a negated path split.",
+                    "Uniqueness constraint EUC_or because its join path combines paths with an operator other than AND."]
         self.assertEquals(loader.omissions, expected)
 
     def test_subpath_with_bad_child_node(self):
@@ -822,7 +822,7 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("EUC1")
         self.assertIsNone(cons)
 
-        expected = ["Constraint EUC1 because its join path has a SubPaths node with an unsupported child node: BadSubPath."]
+        expected = ["Uniqueness constraint EUC1 because its join path has a SubPaths node with an unsupported child node: BadSubPath."]
         self.assertEquals(loader.omissions, expected)
 
     def test_pathed_roles_with_bad_child_node(self):
@@ -834,7 +834,7 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("FrequencyConstraint1")
         self.assertIsNone(cons)
 
-        expected = ["Constraint FrequencyConstraint1 because its join path has a PathedRoles node with an unsupported child node: PathedRole2."]
+        expected = ["Frequency constraint FrequencyConstraint1 because its join path has a PathedRoles node with an unsupported child node: PathedRole2."]
         self.assertEquals(loader.omissions, expected)
 
     def test_join_rule_covering_implicit_roles(self):
@@ -846,7 +846,7 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("EUC1")
         self.assertIsNone(cons) # Not loaded because it covers implicit roles
 
-        expected = ["Constraint EUC1 because its join path includes an implicit role."]
+        expected = ["Uniqueness constraint EUC1 because its join path includes an implicit role."]
         self.assertEquals(loader.omissions, expected)
 
     def test_pathed_role_with_value_restriction_child_node(self):
@@ -858,7 +858,7 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("FrequencyConstraint1")
         self.assertIsNone(cons)
 
-        expected = ["Constraint FrequencyConstraint1 because its join path has a PathedRole node with an unsupported child node: ValueRestriction."]
+        expected = ["Frequency constraint FrequencyConstraint1 because its join path has a PathedRole node with an unsupported child node: ValueRestriction."]
         self.assertEquals(loader.omissions, expected)
 
     def test_pathed_role_with_outer_join(self):
@@ -870,7 +870,7 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("FrequencyConstraint1")
         self.assertIsNone(cons)
 
-        expected = ["Constraint FrequencyConstraint1 because its join path includes an outer join."]
+        expected = ["Frequency constraint FrequencyConstraint1 because its join path includes an outer join."]
         self.assertEquals(loader.omissions, expected)
 
     def test_pathed_role_with_negated_join(self):
@@ -882,7 +882,7 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("FrequencyConstraint1")
         self.assertIsNone(cons)
 
-        expected = ["Constraint FrequencyConstraint1 because its join path includes a negated role."]
+        expected = ["Frequency constraint FrequencyConstraint1 because its join path includes a negated role."]
         self.assertEquals(loader.omissions, expected)
 
     def test_valid_linear_join_path(self):
@@ -915,7 +915,7 @@ class TestNormaLoader(TestCase):
         cons = model.constraints.get("FrequencyConstraint1")
         self.assertIsNone(cons)
 
-        expected = ["Constraint FrequencyConstraint1 because its join path has " \
+        expected = ["Frequency constraint FrequencyConstraint1 because its join path has " \
             "a RolePath node with an unsupported child node: SubqueryParameterInputs."]
         self.assertEquals(loader.omissions, expected)
 

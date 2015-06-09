@@ -1,3 +1,8 @@
 .coverage
 .coveragerc
 *.pyc
+
+# Setuptools stuff
+dist/
+build/
+*.egg-info

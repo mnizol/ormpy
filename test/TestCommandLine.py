@@ -5,11 +5,14 @@
 ##############################################################################
 
 """ This file contains unit tests for the lib.CommandLine module. """
+from __future__ import print_function
 
 from unittest import TestCase
 
 import lib.CommandLine as CommandLine
 import lib.TestDataLocator as TestDataLocator
+from lib.Population import Population
+
 from nose.plugins.logcapture import LogCapture
 
 import sys
@@ -59,6 +62,10 @@ class TestCommandLine(TestCase):
 
         args = CommandLine.parse_args(["--experimental", "test.orm"])
         self.assertTrue(args.experimental)
+        self.assertEquals(args.generator, 'csv')
+
+        args = CommandLine.parse_args(["-p", "--output-type", "logiql", "test.orm"])
+        self.assertEquals(args.generator, 'logiql')
 
     def test_log_config(self):
         """ Test configuration of the logger. """
@@ -213,6 +220,22 @@ class TestCommandLine(TestCase):
         CommandLine.execute(["--check-model", "--print-model", path])        
         self.assertEquals(read_stdout(), "Object Types:\n    A\nFact Types:\nConstraints:\nModel is satisfiable.\n")
         restore_stdout()
+
+    def test_select_generator(self):
+        """ Test that different generator functions are correctly called. """
+        path = os.path.join(self.data_dir, "no_fact_types.orm")
+        args = CommandLine.parse_args(["-pu 1", "-o", "/tmp", path])
+        model = CommandLine.import_model(path, args)
+
+        # Add a dummy function to the GENERATOR dictionary
+        args.generator = 'dummy'
+        CommandLine.GENERATOR['dummy'] = lambda p, d: print("Dummy generator was called for directory " + d)
+
+        capture_stdout()
+        CommandLine.check_or_populate(model, args)        
+        self.assertEquals(read_stdout(), "Dummy generator was called for directory /tmp\n")
+        restore_stdout() 
+
 
 
 ##############################################################################

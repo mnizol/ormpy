@@ -17,6 +17,12 @@ from lib.NormaLoader import NormaLoader
 from lib.ORMMinusModel import ORMMinusModel
 from lib.Population import Population
 
+import lib.generators.CSV as CSV
+import lib.generators.LogiQL as LogiQL
+
+GENERATOR = {'csv'   : CSV.CSV,
+             'logiql': LogiQL.LogiQL}
+
 ###############################################################################
 # Command line user interface
 ###############################################################################
@@ -71,6 +77,8 @@ def parse_args(arglist=None):
     # Other parameters
     parser.add_argument('-u', '--upper-bound', type=int, 
         dest='ubound', default=10, help='upper bound on model element sizes')
+    parser.add_argument('--output-type', help='output type',
+        dest='generator', default='csv', choices=['csv', 'logiql'])
     parser.add_argument('-o', '--output-dir', help='output directory',
         dest='directory', default='')
     parser.add_argument('--include-deontic', help='include deontic constraints',
@@ -123,15 +131,16 @@ def check_or_populate(model, args):
                 print "Model is unsatisfiable."
         elif args.populate:
             pop = Population(model)
+            dirname = args.directory.strip()
 
-            if args.directory.strip() == '':
+            if dirname == '':
                 pop.write_stdout()
             else:
                 try:
-                    pop.write_csv(args.directory.strip())
+                    GENERATOR[args.generator](pop, dirname)
                 except:
                     print "Model is satisfiable."
-                    print "Cannot write population to " + args.directory
+                    print "Cannot write population to " + dirname
         else:
             print "Model is satisfiable."
     except Exception as exception:

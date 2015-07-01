@@ -229,14 +229,32 @@ class TestCommandLine(TestCase):
 
         # Add a dummy function to the GENERATOR dictionary
         args.generator = 'dummy'
-        CommandLine.GENERATOR['dummy'] = lambda p, d: print("Dummy generator was called for directory " + d)
+        CommandLine.GENERATOR['dummy'] = lambda m, p, d: print("Dummy generator was called for directory " + d)
 
         capture_stdout()
         CommandLine.check_or_populate(model, args)        
         self.assertEquals(read_stdout(), "Dummy generator was called for directory /tmp\n")
         restore_stdout() 
 
+    def test_confirm_original_model_passed_to_generator(self):
+        """ Confirm the untransformed model is passed to the generator method."""
+        path = os.path.join(self.data_dir, "join_rule_valid_linear_path_euc.orm")
 
+        # Important: need --experimental so that EUC strenghtening is applied
+        args = CommandLine.parse_args(["-p", "-o", "/tmp", "--experimental", path])
+        model = CommandLine.import_model(path, args)
+
+        # Hijack the generator function
+        args.generator = 'dummy'
+        template = "Original: {0}, Transformed: {1}"
+        CommandLine.GENERATOR['dummy'] = lambda m, p, d: \
+            print(template.format(str(m.constraints.get("EUC") is not None), 
+                                  str(p._model.constraints.get("EUC") is not None)))
+
+        capture_stdout()
+        CommandLine.check_or_populate(model, args)        
+        self.assertEquals(read_stdout(), "Original: True, Transformed: False\n")
+        restore_stdout()
 
 ##############################################################################
 # Utility functions

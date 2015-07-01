@@ -137,10 +137,13 @@ def check_or_populate(model, args):
                 pop.write_stdout()
             else:
                 try:
-                    GENERATOR[args.generator](pop, dirname)
+                    # Pass the original, untransformed model to the GENERATOR
+                    original_model = import_model(args.filename, args)
+                    GENERATOR[args.generator](original_model, pop, dirname)
                 except:
                     print "Model is satisfiable."
                     print "Cannot write population to " + dirname
+                    if args.debug: raise
         else:
             print "Model is satisfiable."
     except Exception as exception:

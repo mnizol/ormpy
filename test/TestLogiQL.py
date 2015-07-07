@@ -338,6 +338,80 @@ class TestLogiQL(TestCase):
         
         self.assertItemsEqual(actual, expected)
 
+    def test_euc_linear(self):
+        """ Test writing out of linear EUC constraints. """
+        model = NormaLoader(TestData.path("join_rule_valid_linear_path_euc.orm")).model
+
+        # Remove all but EUC
+        to_delete = [c for c in model.constraints if c.name != "EUC"]
+        for cons in to_delete: 
+            model.constraints.remove(cons)
+
+        tempdir = os.path.join(self.tempdir, "test_euc_linear")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+                    "    // EUC\n",
+
+                    ("    JoinFact_EUC(projected_1_A, projected_2_D, join_1_B, join_2_C) <-"
+                         " model:predicates:AHasB(projected_1_A, join_1_B)," 
+                         " model:predicates:BHasC(join_1_B, join_2_C),"
+                         " model:predicates:CHasD(join_2_C, projected_2_D).\n")
+,
+                    ("JoinFact_EUC(projected_1_A_, projected_2_D_, join_1_B_, join_2_C_),"
+                     " JoinFact_EUC(projected_1_A_, projected_2_D_, join_1_B_2, join_2_C_2) ->"
+                     " join_1_B_ = join_1_B_2, join_2_C_ = join_2_C_2.\n"),
+
+                    "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
+    def test_euc_branching(self):
+        """ Test writing out of branching EUC constraints. """
+        model = NormaLoader(TestData.path("join_rule_valid_complex_branching_path.orm")).model
+
+        # Remove all but EUC
+        to_delete = [c for c in model.constraints if c.name != "EUC1"]
+        for cons in to_delete: 
+            model.constraints.remove(cons)
+
+        tempdir = os.path.join(self.tempdir, "test_euc_branching")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+                    "    // EUC1\n",
+
+                    ("    JoinFact_EUC1(projected_1_D, projected_2_F, projected_3_H, projected_4_C,"
+                                        " join_1_E, join_2_B, join_3_G) <-"
+                         " model:predicates:DHasE(projected_1_D, join_1_E)," 
+                         " model:predicates:EHasB(join_1_E, join_2_B),"
+                         " model:predicates:GHasB(join_3_G, join_2_B),"
+                         " model:predicates:FHasG(projected_2_F, join_3_G),"
+                         " model:predicates:HHasG(projected_3_H, join_3_G),"
+                         " model:predicates:BHasC(join_2_B, projected_4_C).\n")
+,
+                    ("JoinFact_EUC1(projected_1_D_, projected_2_F_, projected_3_H_, projected_4_C_,"
+                                    " join_1_E_, join_2_B_, join_3_G_),"
+                     " JoinFact_EUC1(projected_1_D_, projected_2_F_, projected_3_H_, projected_4_C_,"
+                                    " join_1_E_2, join_2_B_2, join_3_G_2) ->"
+                     " join_1_E_ = join_1_E_2, join_2_B_ = join_2_B_2, join_3_G_ = join_3_G_2.\n"),
+
+                    "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
 ##############################################################################
 # Utility functions
 ##############################################################################

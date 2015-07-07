@@ -268,19 +268,19 @@ class LogiQL(object):
             If the constraint is internal and covers roles r & s, the format is:
                P(r, x, y, s), P(r, x2, y2, s) -> x=x2, y=y2.
         """
-        if not cons.internal:
+        if not cons.internal: # External uniqueness 
             result = self._materialize_join(cons.name, cons.covers)
             pred, covered, rule = result # Unpack tuple
             local = True
-        else:
+        else: # Internal uniqueness
             pred = cons.covers[0].fact_type  
             covered = cons.covers
             rule = ""
             local = False
 
-        uncovered = set(pred.roles) - set(covered)
+        uncovered = [r for r in pred.roles if r not in covered]
 
-        pred1 = pred_with_args(pred, pred.roles, "{0}_", local=local)
+        pred1 = pred_with_args(pred, default="{0}_", local=local)
         pred2 = pred_with_args(pred, uncovered, "{0}_2", default="{0}_", local=local)
         equals = ', '.join(["{0}_ = {0}_2".format(r.name) for r in uncovered])
 

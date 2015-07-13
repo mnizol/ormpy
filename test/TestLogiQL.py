@@ -412,6 +412,42 @@ class TestLogiQL(TestCase):
         
         self.assertItemsEqual(actual, expected)
 
+    def test_euc_covering_left_join_role(self):
+        """ Test writing EUC constraint that covers the left role in a join. """
+        model = NormaLoader(TestData.path("euc_covering_join_role.orm")).model
+
+        # Remove all but EUC
+        to_delete = [c for c in model.constraints if c.name != "EUC"]
+        for cons in to_delete: 
+            model.constraints.remove(cons)
+
+        tempdir = os.path.join(self.tempdir, "test_euc_covering_left_join_role")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+                    "    // EUC\n",
+
+                    ("    JoinFact_EUC(projected_1_A, projected_2_B, projected_3_C, "
+                                        "other_AHasDHasB_D, other_BHasDHasC_D) <-"
+                         " model:predicates:AHasDHasB(projected_1_A, other_AHasDHasB_D, projected_2_B)," 
+                         " model:predicates:BHasDHasC(projected_2_B, other_BHasDHasC_D, projected_3_C).\n")
+,
+                    ("JoinFact_EUC(projected_1_A_, projected_2_B_, projected_3_C_, "
+                                  "other_AHasDHasB_D_, other_BHasDHasC_D_), "
+                     "JoinFact_EUC(projected_1_A_, projected_2_B_, projected_3_C_, "
+                                  "other_AHasDHasB_D_2, other_BHasDHasC_D_2) -> "
+                     "other_AHasDHasB_D_ = other_AHasDHasB_D_2, other_BHasDHasC_D_ = other_BHasDHasC_D_2.\n"),
+
+                    "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
 ##############################################################################
 # Utility functions
 ##############################################################################

@@ -314,10 +314,6 @@ class LogiQL(object):
             pred = cons.superset[0].fact_type
             superset_pred = pred_with_args(pred, cons.superset, "__index__")
 
-        # TODO: Test case where order of roles is swapped betw. subset and superset
-        # TODO: Test case where there is an intervening role
-        # TODO: Test case where corresponding role is subtype of the other 
-
         rule += "{0} -> {1}.".format(subset_pred, superset_pred)
         return rule
 
@@ -332,30 +328,25 @@ class LogiQL(object):
         projected = [] # List of roles in *JoinFact* corresponding to *role_seq*
 
         # Create dictionary FROM covered roles TO name and add roles to JoinFact
-        index = 1
+        #
+        # IMPORTANT: We add covered roles to the join fact type before 
+        # adding any other roles from the join path to ensure that the covered 
+        # roles appear in the same order as in the constraint's "covered" list.
         for role in role_seq:
-            name[role] = "projected_{0}_{1}".format(str(index), role.name)
+            name[role] = "{0}_{1}".format(role.fact_type.name, role.name)
             new_role = JoinFact.add_role(role.player, name[role])
             projected.append(new_role)
-            index += 1
-
-        # Loop over joins, add to dictionary and to JoinFact
-        # This block relies on the fact that the first role in each join pair is
-        # guaranteed to be part of the partial join fact type created so far.
-        index = 1
-        for role1, role2 in role_seq.join_path.joins:
-            if role1 not in name:
-                name[role1] = "join_{0}_{1}".format(str(index), role1.name)
-                JoinFact.add_role(role1.player, name[role1])
-                index += 1
-            name[role2] = name[role1]            
 
         # Add remaining roles in join path to join fact type
         for fact_type in role_seq.join_path.fact_types:
             for role in fact_type.roles:
                 if role not in name:
-                    name[role] = "other_{0}_{1}".format(fact_type.name, role.name)
+                    name[role] = "{0}_{1}".format(fact_type.name, role.name)
                     JoinFact.add_role(role.player, name[role])
+
+        # Generate role equality constraint for each join 
+        joins = ["{0} = {1}".format(name[role1], name[role2]) 
+                  for role1, role2 in role_seq.join_path.joins]
 
         # Create IDB rule for join fact type
         # See https://developer.logicblox.com/content/docs4/core-reference/webhelp/rules.html
@@ -364,7 +355,7 @@ class LogiQL(object):
         for fact_type in role_seq.join_path.fact_types:
             args = ', '.join([name[role] for role in fact_type.roles])
             tail.append("{0}({1})".format(pred_name(fact_type), args))
-        rule = "{0} <- {1}.\n\n".format(head, ', '.join(tail))
+        rule = "{0} <- {1}.\n\n".format(head, ', '.join(tail + joins))
 
         return JoinFact, projected, rule
 

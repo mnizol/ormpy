@@ -358,14 +358,19 @@ class TestLogiQL(TestCase):
                     "    string(x) -> string(x).\n",
                     "    // EUC\n",
 
-                    ("    JoinFact_EUC(projected_1_A, projected_2_D, join_1_B, join_2_C) <-"
-                         " model:predicates:AHasB(projected_1_A, join_1_B)," 
-                         " model:predicates:BHasC(join_1_B, join_2_C),"
-                         " model:predicates:CHasD(join_2_C, projected_2_D).\n")
+                    ("    JoinFact_EUC(AHasB_A, CHasD_D, AHasB_B, BHasC_B, BHasC_C, CHasD_C) <-"
+                         " model:predicates:AHasB(AHasB_A, AHasB_B)," 
+                         " model:predicates:BHasC(BHasC_B, BHasC_C),"
+                         " model:predicates:CHasD(CHasD_C, CHasD_D),"
+                         " AHasB_B = BHasC_B,"
+                         " BHasC_C = CHasD_C.\n")
 ,
-                    ("JoinFact_EUC(projected_1_A_, projected_2_D_, join_1_B_, join_2_C_),"
-                     " JoinFact_EUC(projected_1_A_, projected_2_D_, join_1_B_2, join_2_C_2) ->"
-                     " join_1_B_ = join_1_B_2, join_2_C_ = join_2_C_2.\n"),
+                    ("JoinFact_EUC(AHasB_A_, CHasD_D_, AHasB_B_, BHasC_B_, BHasC_C_, CHasD_C_), "
+                     "JoinFact_EUC(AHasB_A_, CHasD_D_, AHasB_B_2, BHasC_B_2, BHasC_C_2, CHasD_C_2) -> "
+                     "AHasB_B_ = AHasB_B_2, "
+                     "BHasC_B_ = BHasC_B_2, "
+                     "BHasC_C_ = BHasC_C_2, "
+                     "CHasD_C_ = CHasD_C_2.\n"),
 
                     "  })\n",
                     "} <-- .\n"]
@@ -392,20 +397,35 @@ class TestLogiQL(TestCase):
                     "    string(x) -> string(x).\n",
                     "    // EUC1\n",
 
-                    ("    JoinFact_EUC1(projected_1_D, projected_2_F, projected_3_H, projected_4_C,"
-                                        " join_1_E, join_2_B, join_3_G) <-"
-                         " model:predicates:DHasE(projected_1_D, join_1_E)," 
-                         " model:predicates:EHasB(join_1_E, join_2_B),"
-                         " model:predicates:GHasB(join_3_G, join_2_B),"
-                         " model:predicates:FHasG(projected_2_F, join_3_G),"
-                         " model:predicates:HHasG(projected_3_H, join_3_G),"
-                         " model:predicates:BHasC(join_2_B, projected_4_C).\n")
+                    ("    JoinFact_EUC1(DHasE_D, FHasG_F, HHasG_H, BHasC_C, "
+                                        "DHasE_E, EHasB_E, EHasB_B, GHasB_G, "
+                                        "GHasB_B, FHasG_G, HHasG_G, BHasC_B) <-"
+                         " model:predicates:DHasE(DHasE_D, DHasE_E)," 
+                         " model:predicates:EHasB(EHasB_E, EHasB_B),"
+                         " model:predicates:GHasB(GHasB_G, GHasB_B),"
+                         " model:predicates:FHasG(FHasG_F, FHasG_G),"
+                         " model:predicates:HHasG(HHasG_H, HHasG_G),"
+                         " model:predicates:BHasC(BHasC_B, BHasC_C),"
+                         " DHasE_E = EHasB_E,"
+                         " EHasB_B = GHasB_B,"
+                         " GHasB_G = FHasG_G,"
+                         " GHasB_G = HHasG_G,"
+                         " EHasB_B = BHasC_B.\n")
 ,
-                    ("JoinFact_EUC1(projected_1_D_, projected_2_F_, projected_3_H_, projected_4_C_,"
-                                    " join_1_E_, join_2_B_, join_3_G_),"
-                     " JoinFact_EUC1(projected_1_D_, projected_2_F_, projected_3_H_, projected_4_C_,"
-                                    " join_1_E_2, join_2_B_2, join_3_G_2) ->"
-                     " join_1_E_ = join_1_E_2, join_2_B_ = join_2_B_2, join_3_G_ = join_3_G_2.\n"),
+                    ("JoinFact_EUC1(DHasE_D_, FHasG_F_, HHasG_H_, BHasC_C_, "
+                                    "DHasE_E_, EHasB_E_, EHasB_B_, GHasB_G_, "
+                                    "GHasB_B_, FHasG_G_, HHasG_G_, BHasC_B_), "
+                     "JoinFact_EUC1(DHasE_D_, FHasG_F_, HHasG_H_, BHasC_C_, "
+                                    "DHasE_E_2, EHasB_E_2, EHasB_B_2, GHasB_G_2, "
+                                    "GHasB_B_2, FHasG_G_2, HHasG_G_2, BHasC_B_2) -> "
+                     "DHasE_E_ = DHasE_E_2, "
+                     "EHasB_E_ = EHasB_E_2, "
+                     "EHasB_B_ = EHasB_B_2, "
+                     "GHasB_G_ = GHasB_G_2, "
+                     "GHasB_B_ = GHasB_B_2, "
+                     "FHasG_G_ = FHasG_G_2, "
+                     "HHasG_G_ = HHasG_G_2, "
+                     "BHasC_B_ = BHasC_B_2.\n"),
 
                     "  })\n",
                     "} <-- .\n"]
@@ -432,18 +452,144 @@ class TestLogiQL(TestCase):
                     "    string(x) -> string(x).\n",
                     "    // EUC\n",
 
-                    ("    JoinFact_EUC(projected_1_A, projected_2_B, projected_3_C, "
-                                        "other_AHasDHasB_D, other_BHasDHasC_D) <-"
-                         " model:predicates:AHasDHasB(projected_1_A, other_AHasDHasB_D, projected_2_B)," 
-                         " model:predicates:BHasDHasC(projected_2_B, other_BHasDHasC_D, projected_3_C).\n")
+                    ("    JoinFact_EUC(AHasDHasB_A, AHasDHasB_B, BHasDHasC_C, "
+                                      "AHasDHasB_D, BHasDHasC_B, BHasDHasC_D) <-"
+                         " model:predicates:AHasDHasB(AHasDHasB_A, AHasDHasB_D, AHasDHasB_B)," 
+                         " model:predicates:BHasDHasC(BHasDHasC_B, BHasDHasC_D, BHasDHasC_C),"
+                         " AHasDHasB_B = BHasDHasC_B.\n")
 ,
-                    ("JoinFact_EUC(projected_1_A_, projected_2_B_, projected_3_C_, "
-                                  "other_AHasDHasB_D_, other_BHasDHasC_D_), "
-                     "JoinFact_EUC(projected_1_A_, projected_2_B_, projected_3_C_, "
-                                  "other_AHasDHasB_D_2, other_BHasDHasC_D_2) -> "
-                     "other_AHasDHasB_D_ = other_AHasDHasB_D_2, other_BHasDHasC_D_ = other_BHasDHasC_D_2.\n"),
+                    ("JoinFact_EUC(AHasDHasB_A_, AHasDHasB_B_, BHasDHasC_C_, "
+                                  "AHasDHasB_D_, BHasDHasC_B_, BHasDHasC_D_), "
+                     "JoinFact_EUC(AHasDHasB_A_, AHasDHasB_B_, BHasDHasC_C_, "
+                                  "AHasDHasB_D_2, BHasDHasC_B_2, BHasDHasC_D_2) -> "
+                     "AHasDHasB_D_ = AHasDHasB_D_2, "
+                     "BHasDHasC_B_ = BHasDHasC_B_2, "
+                     "BHasDHasC_D_ = BHasDHasC_D_2.\n"),
 
                     "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
+    def test_subset(self):
+        """ Test writing subset constraints. """
+        model = NormaLoader(TestData.path("subset_constraint.orm"), deontic=True).model
+
+        # Remove all but SubsetConstraint1
+        to_delete = [c for c in model.constraints if not c.name.startswith("SubsetConstraint")]
+        for cons in to_delete: 
+            model.constraints.remove(cons)
+
+        tempdir = os.path.join(self.tempdir, "test_subset")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+                    "    // SubsetConstraint1\n",
+                    "    model:predicates:AHasB(_0, _) -> model:predicates:ALikesB(_0, _).\n",
+                    "    // SubsetConstraint2\n",
+                    "    model:predicates:ALikesB(_, _0) -> model:predicates:AHasB(_, _0).\n",
+                    "    // SubsetConstraint3\n",
+                    "    model:predicates:CPlusAPlusB(_2, _0, _1) -> model:predicates:AAndBAndC(_0, _1, _2).\n",
+                    "    // SubsetConstraint4\n",
+                    "    model:predicates:CPlusAPlusB(_, _0, _1) -> model:predicates:AAndBAndC(_0, _1, _).\n",
+                    "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
+    def test_subset_2(self):
+        """ Test writing subset constraints. """
+        model = NormaLoader(TestData.path("subset_constraint_2.orm"), deontic=True).model
+
+        # Remove all but SubsetConstraints
+        to_delete = [c for c in model.constraints if not c.name.startswith("SubsetConstraint")]
+        for cons in to_delete: 
+            model.constraints.remove(cons)
+
+        tempdir = os.path.join(self.tempdir, "test_subset_2")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+                    "    // SubsetConstraint1\n",
+                    "    model:predicates:AAndBAndC(_0, _, _1) -> model:predicates:CAndBAndA(_1, _, _0).\n",
+                     "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
+    def test_join_subset(self):
+        """ Test writing join subset constraints. """
+        model = NormaLoader(TestData.path("join_subset_simple.orm")).model
+
+        # Remove all but SubsetConstraints
+        to_delete = [c for c in model.constraints if not c.name.startswith("SUB")]
+        for cons in to_delete: 
+            model.constraints.remove(cons)
+
+        tempdir = os.path.join(self.tempdir, "test_join_subset")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+                    "    // SUB\n",
+
+                    ("    JoinFact_SUB_subset(AHasB_A, BHasC_C, AHasB_B, BHasC_B) <- "
+                          "model:predicates:AHasB(AHasB_A, AHasB_B), "
+                          "model:predicates:BHasC(BHasC_B, BHasC_C), "
+                          "AHasB_B = BHasC_B.\n"),
+
+                     "JoinFact_SUB_subset(_0, _1, _, _) -> model:predicates:AHasC(_0, _1).\n",
+                     "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
+    def test_join_subset_2(self):
+        """ Test writing join subset constraints. """
+        model = NormaLoader(TestData.path("join_subset_simple_2.orm")).model
+
+        # Remove all but SubsetConstraints
+        to_delete = [c for c in model.constraints if not c.name.startswith("SUB")]
+        for cons in to_delete: 
+            model.constraints.remove(cons)
+
+        tempdir = os.path.join(self.tempdir, "test_join_subset_2")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+                    "    // SUB\n",
+
+                    ("    JoinFact_SUB_subset(AHasB_A, BHasC_C, AHasB_B, BHasC_B) <- "
+                          "model:predicates:AHasB(AHasB_A, AHasB_B), "
+                          "model:predicates:BHasC(BHasC_B, BHasC_C), "
+                          "AHasB_B = BHasC_B.\n"),
+
+                    ("JoinFact_SUB_superset(AHasE_A, EHasD_D, AHasE_E, EHasD_E) <- "
+                          "model:predicates:AHasE(AHasE_A, AHasE_E), "
+                          "model:predicates:EHasD(EHasD_E, EHasD_D), "
+                          "AHasE_E = EHasD_E.\n"),
+
+                     "JoinFact_SUB_subset(_0, _1, _, _) -> JoinFact_SUB_superset(_0, _1, _, _).\n",
+                     "  })\n",
                     "} <-- .\n"]
         
         self.assertItemsEqual(actual, expected)

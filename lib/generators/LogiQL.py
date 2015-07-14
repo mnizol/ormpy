@@ -9,6 +9,7 @@
 """
 
 import os
+import platform
 import logging
 import textwrap
 import subprocess
@@ -363,72 +364,81 @@ class LogiQL(object):
         """ Import logic. """
         filename = os.path.join(self.rootdir, "import.logic")
 
-        type_import_template =  """\
+        with open(filename, 'w') as out:
+            for obj in self.object_types:
+                self._write_type_import_logic(out, obj)
+             
+            for pred in self.fact_types:
+                self._write_pred_import_logic(out, pred)
+
+    def _write_type_import_logic(self, stream, obj):
+        """ Write import logic for a type. """
+        template =  """\
            {0}[offset] = v -> int(offset), string(v).
            lang:physical:filePath[`{0}] = "{1}".
            lang:physical:fileMode[`{0}] = "import".
-           +model:types:{2}(x), +model:types:{3}_constructor(x: v) <- {0}[_] = v.
+           +{2}(x), +{3}(x: v) <- {0}[_] = v.
            """
 
-        pred_import_template = """\
+        stream.write("// Import code for {0}\n".format(obj.name))
+
+        in_name = "_import_types_" + obj.name
+        csv_name = os.path.join(self.importdir, obj.fullname + '.csv')
+        entity_name = type_name(obj)
+        constr_name = constructor(self.type_graph.root_of[obj], local=False)
+
+        text = template.format(in_name, csv_name, entity_name, constr_name)
+        stream.write(textwrap.dedent(text))
+        stream.write("\n")
+
+    def _write_pred_import_logic(self, stream, pred):
+        """ Write import logic for a predicate. """
+
+        template = """\
             {0}(offset; {1}) -> int(offset), {2}.
             lang:physical:filePath[`{0}] = "{3}".
             lang:physical:fileMode[`{0}] = "import".
             lang:physical:columnNames[`{0}] = "{1}".
-            +model:predicates:{4}({5}) <- {0}(_; {1}), {6}. 
+            +{4} <- {0}(_; {1}), {5}.
             """
 
         # LogicBlox gives a warning if we use semi-colon syntax for unaries.
-        pred_import_template_unary = """\
+        template_unary = """\
             {0}[offset] = {1} -> int(offset), {2}.
             lang:physical:filePath[`{0}] = "{3}".
             lang:physical:fileMode[`{0}] = "import".
             lang:physical:columnNames[`{0}] = "{1}".
-            +model:predicates:{4}({5}) <- {0}[_] = {1}, {6}.
+            +{4} <- {0}[_] = {1}, {5}.
             """
 
-        with open(filename, 'w') as out:
-            for obj in self.object_types:
-                out.write("// Import code for {0}\n".format(obj.name))
-                in_name = "_import_types_" + obj.name
-                csv_name = os.path.join(self.importdir, obj.fullname + '.csv')
-                root = self.type_graph.root_of[obj]
-                text = type_import_template.format(in_name, csv_name, obj.name, root.name)
-                out.write(textwrap.dedent(text))
-                out.write("\n")
-             
-            for pred in self.fact_types:
-                out.write("// Import code for {0}\n".format(pred.name))
-                in_name = "_import_predicates_" + pred.name
-                in_args = role_names_to_csv(pred.roles)
-                in_types = role_names_to_csv(pred.roles, template="string({0})")
+        stream.write("// Import code for {0}\n".format(pred.name))
 
-                csv_name = os.path.join(self.importdir, pred.fullname + '.csv')
+        in_name = "_import_predicates_" + pred.name
+        in_args = role_names_to_csv(pred.roles)
+        in_types = role_names_to_csv(pred.roles, template="string({0})")
 
-                out_args = role_names_to_csv(pred.roles, template="{0}_")
+        csv_name = os.path.join(self.importdir, pred.fullname + '.csv')
 
-                out_types = []
-                for r in pred.roles:
-                    root_template = "model:types:{0}_constructor({1}_ : {1})"
-                    root_name = self.type_graph.root_of[r.player].name
-                    root_format = root_template.format(root_name, r.name)
+        out_pred = pred_with_args(pred, default="{0}_")
 
-                    type_template = "model:types:{0}({1}_)"
-                    type_format = type_template.format(r.player.name, r.name)
+        out_types = []
+        for r in pred.roles:
+            root = constructor(self.type_graph.root_of[r.player], local=False)
+            root_format = "{0}({1}_ : {1})".format(root, r.name)
+            type_format = "{0}({1}_)".format(type_name(r.player), r.name)
+            out_types.extend([root_format, type_format])
+        out_types = ', '.join(out_types)
+                       
+        if pred.arity() == 1:
+            text = template_unary
+        else:
+            text = template
 
-                    out_types.extend([root_format, type_format])
-                out_types = ', '.join(out_types)
-                               
-                if pred.arity() == 1:
-                    text = pred_import_template_unary
-                else:
-                    text = pred_import_template
+        text = text.format(in_name, in_args, in_types, csv_name, out_pred, out_types)
 
-                text = text.format(in_name, in_args, in_types, csv_name, 
-                                   pred.name, out_args, out_types)
+        stream.write(textwrap.dedent(text))
+        stream.write("\n")
 
-                out.write(textwrap.dedent(text))
-                out.write("\n")
 
     def _log_constraint(self, cons):
         """ Write a log message about an unimplemented constraint. """
@@ -436,28 +446,29 @@ class LogiQL(object):
         self.logger.warning(msg.format(cons.name))
         
     def _build_workspace(self):
-        """ Build workspace. """
+        """ Build workspace.  Assumes a Linux environment. """
 
-        # TODO: This only will work on Linux/Unix
+        # NOTE: I purposefully don't have unit tests for this method because
+        # compiling and building a LogicBlox workspace takes > 1 second.
 
-        filename = os.path.join(self.rootdir, "build.sh")
+        if platform.system() == 'Linux':
+            filename = os.path.join(self.rootdir, "build.sh")
 
-        with open(filename, 'w') as out:
-            script_contents = """\
-                #!/bin/bash
-                cd {0}
-                lb config
-                make clean
-                make 
-                make check-ws-{1} 
-                """.format(self.rootdir, self.projname)
-            out.write(textwrap.dedent(script_contents))
-        
-        try:
+            with open(filename, 'w') as out:
+                script_contents = """\
+                    #!/bin/bash
+                    cd {0}
+                    lb config
+                    make clean
+                    make 
+                    make check-ws-{1} 
+                    """.format(self.rootdir, self.projname)
+                out.write(textwrap.dedent(script_contents))
+            
             subprocess.check_call(["chmod", "+x", filename])
             subprocess.check_call([filename])
-        except:
-            raise # TODO: What should I do here?
+        else:
+            self.logger.warning("Cannot build workspace on non-Linux platform.")
        
 ################################################################################
 # Utility Methods
@@ -531,7 +542,6 @@ def pred_with_args(pred, roles1=None, template1="{0}",
             
     return "{0}({1})".format(pred_name(pred, local), ', '.join(args))
 
-# TODO: Get rid of these and replace use with pred_with_args()
 def role_names_to_csv(roles, template="{0}"):
     return ', '.join([template.format(r.name) for r in roles])
 

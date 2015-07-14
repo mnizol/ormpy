@@ -11,6 +11,7 @@ from unittest import TestCase
 import tempfile
 import shutil
 import os
+from nose.plugins.logcapture import LogCapture
 
 import lib.TestDataLocator as TestData
 
@@ -19,6 +20,7 @@ from lib.NormaLoader import NormaLoader
 from lib.Model import Model
 from lib.ORMMinusModel import ORMMinusModel
 from lib.Population import Population
+from lib.Constraint import Constraint
 
 class TestLogiQL(TestCase):
     """ Unit tests for the LogiQL module. """
@@ -27,6 +29,11 @@ class TestLogiQL(TestCase):
     def setUpClass(cls):
         cls.maxDiff = None
         cls.tempdir = tempfile.mkdtemp()
+
+        # Log capturing
+        cls.log = LogCapture()
+        cls.log.logformat = '%(levelname)s: %(message)s'
+        cls.log.begin()
 
     @classmethod
     def tearDownClass(cls):
@@ -270,6 +277,31 @@ class TestLogiQL(TestCase):
                     "} <-- .\n"]
         
         self.assertItemsEqual(actual, expected)
+
+    def test_unsupported_constraint(self):
+        """ Test handling of unsupported constraint. """
+        self.log.beforeTest(None)
+        model = NormaLoader(TestData.path("empty_model.orm")).model
+        model.constraints.add(UnsupportedConstraint(name="Dummy"))
+
+        tempdir = os.path.join(self.tempdir, "test_unsupported_constraint")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+                    "    // Not implemented: Dummy\n",
+                    "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
+        expected = ["WARNING: Constraint not implemented in LogiQL output: Dummy"]
+        self.assertItemsEqual(self.log.formatLogRecords(), expected)
+        self.log.afterTest(None)
 
     def test_mandatory_constraint(self):
         """ Test writing out of mandatory constraints. """
@@ -593,6 +625,126 @@ class TestLogiQL(TestCase):
                     "} <-- .\n"]
         
         self.assertItemsEqual(actual, expected)
+
+    ############################################################################
+    # Import testing
+    ############################################################################
+
+    def test_import_types(self):
+        """ Test writing type import logic. """
+        model = NormaLoader(TestData.path("object_type_tests_2.orm")).model
+        pop = Population(ORMMinusModel(model))
+
+        tempdir = os.path.join(self.tempdir, "test_import_types")
+        logiql = LogiQL(model, pop, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "import.logic"))
+       
+        AFile = os.path.join(tempdir, "import", "ObjectTypes.A.csv")
+        BFile = os.path.join(tempdir, "import", "ObjectTypes.B.csv") 
+
+        expected = ["// Import code for A\n",
+                    "_import_types_A[offset] = v -> int(offset), string(v).\n",
+                    'lang:physical:filePath[`_import_types_A] = "{0}".\n'.format(AFile),
+                    'lang:physical:fileMode[`_import_types_A] = "import".\n',
+                    "+model:types:A(x), +model:types:A_constructor(x: v) <- _import_types_A[_] = v.\n",
+        
+                    # Note here the constructor is A_constructor because B is a subtype of A
+                    "// Import code for B\n",
+                    "_import_types_B[offset] = v -> int(offset), string(v).\n",
+                    'lang:physical:filePath[`_import_types_B] = "{0}".\n'.format(BFile),
+                    'lang:physical:fileMode[`_import_types_B] = "import".\n',
+                    "+model:types:B(x), +model:types:A_constructor(x: v) <- _import_types_B[_] = v.\n"
+                   ]
+        
+        self.assertItemsEqual(actual, expected)
+
+    def test_import_preds(self):
+        """ Test writing predicate import logic. """
+        model = NormaLoader(TestData.path("fact_type_tests_2.orm")).model
+        pop = Population(ORMMinusModel(model))
+
+        tempdir = os.path.join(self.tempdir, "test_import_preds")
+        logiql = LogiQL(model, pop, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "import.logic"))
+       
+        AFile = os.path.join(tempdir, "import", "ObjectTypes.A.csv")
+        BFile = os.path.join(tempdir, "import", "ObjectTypes.B.csv") 
+        CFile = os.path.join(tempdir, "import", "ObjectTypes.C.csv") 
+        DFile = os.path.join(tempdir, "import", "ObjectTypes.D.csv") 
+
+        UnaryFile = os.path.join(tempdir, "import", "FactTypes.AExists.csv")
+        BinaryFile = os.path.join(tempdir, "import", "FactTypes.AHasB.csv") 
+        TernaryFile = os.path.join(tempdir, "import", "FactTypes.AHasCHasB.csv")
+
+        expected = ["// Import code for A\n",
+                    "_import_types_A[offset] = v -> int(offset), string(v).\n",
+                    'lang:physical:filePath[`_import_types_A] = "{0}".\n'.format(AFile),
+                    'lang:physical:fileMode[`_import_types_A] = "import".\n',
+                    "+model:types:A(x), +model:types:A_constructor(x: v) <- _import_types_A[_] = v.\n",
+
+                    "// Import code for B\n",
+                    "_import_types_B[offset] = v -> int(offset), string(v).\n",
+                    'lang:physical:filePath[`_import_types_B] = "{0}".\n'.format(BFile),
+                    'lang:physical:fileMode[`_import_types_B] = "import".\n',
+                    "+model:types:B(x), +model:types:B_constructor(x: v) <- _import_types_B[_] = v.\n",
+
+                    # Note use of D_constructor because C is a subtype of D
+                    "// Import code for C\n",
+                    "_import_types_C[offset] = v -> int(offset), string(v).\n",
+                    'lang:physical:filePath[`_import_types_C] = "{0}".\n'.format(CFile),
+                    'lang:physical:fileMode[`_import_types_C] = "import".\n',
+                    "+model:types:C(x), +model:types:D_constructor(x: v) <- _import_types_C[_] = v.\n",
+
+                    "// Import code for D\n",
+                    "_import_types_D[offset] = v -> int(offset), string(v).\n",
+                    'lang:physical:filePath[`_import_types_D] = "{0}".\n'.format(DFile),
+                    'lang:physical:fileMode[`_import_types_D] = "import".\n',
+                    "+model:types:D(x), +model:types:D_constructor(x: v) <- _import_types_D[_] = v.\n",
+
+                    "// Import code for AExists\n",
+                    "_import_predicates_AExists[offset] = A -> int(offset), string(A).\n",
+                    'lang:physical:filePath[`_import_predicates_AExists] = "{0}".\n'.format(UnaryFile),
+                    'lang:physical:fileMode[`_import_predicates_AExists] = "import".\n',
+                    'lang:physical:columnNames[`_import_predicates_AExists] = "A".\n',
+                    ("+model:predicates:AExists(A_) <- _import_predicates_AExists[_] = A, "
+                                                       "model:types:A_constructor(A_ : A), "
+                                                       "model:types:A(A_).\n"),
+        
+                    "// Import code for AHasB\n",
+                    "_import_predicates_AHasB(offset; A, B) -> int(offset), string(A), string(B).\n",
+                    'lang:physical:filePath[`_import_predicates_AHasB] = "{0}".\n'.format(BinaryFile),
+                    'lang:physical:fileMode[`_import_predicates_AHasB] = "import".\n',
+                    'lang:physical:columnNames[`_import_predicates_AHasB] = "A, B".\n',
+                    ("+model:predicates:AHasB(A_, B_) <- _import_predicates_AHasB(_; A, B), "
+                                                        "model:types:A_constructor(A_ : A), "
+                                                        "model:types:A(A_), "
+                                                        "model:types:B_constructor(B_ : B), "
+                                                        "model:types:B(B_).\n"),
+
+                    # Note use of D_constructor because C is a subtype of D
+                    "// Import code for AHasCHasB\n",
+                    "_import_predicates_AHasCHasB(offset; A, C, B) -> int(offset), string(A), string(C), string(B).\n",
+                    'lang:physical:filePath[`_import_predicates_AHasCHasB] = "{0}".\n'.format(TernaryFile),
+                    'lang:physical:fileMode[`_import_predicates_AHasCHasB] = "import".\n',
+                    'lang:physical:columnNames[`_import_predicates_AHasCHasB] = "A, C, B".\n',
+                    ("+model:predicates:AHasCHasB(A_, C_, B_) <- _import_predicates_AHasCHasB(_; A, C, B), "
+                                                        "model:types:A_constructor(A_ : A), "
+                                                        "model:types:A(A_), "
+                                                        "model:types:D_constructor(C_ : C), "
+                                                        "model:types:C(C_), "
+                                                        "model:types:B_constructor(B_ : B), "
+                                                        "model:types:B(B_).\n")
+                   ]
+        
+        self.assertItemsEqual(actual, expected)
+
+##############################################################################
+# UnsupportedConstraint
+##############################################################################
+class UnsupportedConstraint(Constraint):
+    pass
 
 ##############################################################################
 # Utility functions

@@ -45,7 +45,8 @@ def execute(arglist=None):
     if args.random:
         apply_random_sizes(model, args.ubound)
 
-    apply_custom_size_file(model, args.custom_size_file)    
+    if args.custom_size_file:
+        apply_custom_size_file(model, args.custom_size_file, args.ubound)    
 
     # Print the model, if requested
     if args.print_model:
@@ -143,9 +144,33 @@ def apply_random_sizes(model, ubound, seed=None):
         ranges = [CardinalityRange(1, random.randint(1, ubound))]
         model.add(CardinalityConstraint(ranges, covers=[element]))
 
-def apply_custom_size_file(model, filename):
+def apply_custom_size_file(model, filename, ubound):
     """ Apply custom size file to model element sizes (subject to ubound). """
-    pass
+    try:
+        with open(filename, 'r') as in_file:
+            for line in in_file:
+                if line.strip() == "": continue
+                split = [s.strip() for s in line.partition(",")]
+
+                element = model.get(split[0])
+
+                if element is None:
+                    msg = "{0} is not in the model. Try using full element name." 
+                    raise ValueError(msg.format(split[0]))
+                    
+                try:
+                    size = min(int(split[2]), ubound)
+                except ValueError:
+                    msg = "{0} cannot have non-integer cardinality."
+                    raise ValueError(msg.format(split[0]))
+
+                ranges = [CardinalityRange(1, size)]
+                model.add(CardinalityConstraint(ranges, covers=[element]))
+
+    except Exception as exception:
+        logging.error("Could not load %s: %s", filename, exception)
+        logging.debug("Stack trace:", exc_info=sys.exc_info())
+        sys.exit(2)        
         
 def check_or_populate(model, args):
     """ Check or populate the model, as requested. """

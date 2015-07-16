@@ -127,6 +127,86 @@ class TestCommandLine(TestCase):
             ["ERROR: Could not load does_not_exist.orm: [Errno 2] No such file or directory: '" + path + "'"])
         self.log.afterTest(None)
 
+    def test_custom_size_file_not_found(self):
+        """ Test failed loading of custom size file. """
+        self.log.beforeTest(None)
+        logging.getLogger().setLevel(logging.WARNING) # Don't want stack trace
+
+        path = os.path.join(self.data_dir, "empty_model.orm")
+        dne = os.path.join(self.data_dir, "non_existent_size_file")
+        args = CommandLine.parse_args(["-cu 10", "--custom-size-file", dne, path])
+
+        model = CommandLine.import_model(path, args)
+
+        with self.assertRaises(SystemExit) as ex:
+            CommandLine.apply_custom_size_file(model, args.custom_size_file, args.ubound)    
+
+        self.assertItemsEqual(self.log.formatLogRecords(), 
+            ["ERROR: Could not load " + dne + ": [Errno 2] No such file or directory: '" + dne + "'"])
+        self.log.afterTest(None)
+
+    def test_custom_size_bad_line(self):
+        """ Test failed loading of custom size file due to bad line. """
+        self.log.beforeTest(None)
+        logging.getLogger().setLevel(logging.WARNING) # Don't want stack trace
+
+        path = os.path.join(self.data_dir, "simple_model.orm")
+        size = os.path.join(self.data_dir, "custom_size_bad_line.txt")
+        args = CommandLine.parse_args(["-cu 10", "--custom-size-file", size, path])
+
+        model = CommandLine.import_model(path, args)
+
+        with self.assertRaises(SystemExit) as ex:
+            CommandLine.apply_custom_size_file(model, args.custom_size_file, args.ubound)    
+
+        self.assertItemsEqual(self.log.formatLogRecords(), 
+            ["ERROR: Could not load " + size + ": bad line is not in the model. Try using full element name."])
+        self.log.afterTest(None)
+
+    def test_custom_size_bad_cardinality(self):
+        """ Test failed loading of custom size file due to bad cardinality. """
+        self.log.beforeTest(None)
+        logging.getLogger().setLevel(logging.WARNING) # Don't want stack trace
+
+        path = os.path.join(self.data_dir, "simple_model.orm")
+        size = os.path.join(self.data_dir, "custom_size_bad_cardinality.txt")
+        args = CommandLine.parse_args(["-cu 10", "--custom-size-file", size, path])
+
+        model = CommandLine.import_model(path, args)
+
+        with self.assertRaises(SystemExit) as ex:
+            CommandLine.apply_custom_size_file(model, args.custom_size_file, args.ubound)    
+
+        self.assertItemsEqual(self.log.formatLogRecords(), 
+            ["ERROR: Could not load " + size + ": ObjectTypes.A cannot have non-integer cardinality."])
+        self.log.afterTest(None)
+
+    def test_custom_bounds(self):
+        """ Test application of custom bounds. """
+        path = os.path.join(self.data_dir, "simple_model.orm")
+        size = os.path.join(self.data_dir, "custom_size.txt")
+        args = CommandLine.parse_args(["-cu 10", "--custom-size-file", size, path])
+        model = CommandLine.import_model(path, args)
+
+        self.assertEquals(len(model.constraints.of_type(CardinalityConstraint)), 0)
+
+        CommandLine.apply_custom_size_file(model, args.custom_size_file, args.ubound)
+
+        sizes = [c.ranges[0].upper for c in model.constraints.of_type(CardinalityConstraint)]
+
+        self.assertEquals(len(sizes), 4)
+        self.assertItemsEqual(sizes, [3,10,8,4]) # The cardinality of 25 is truncated to ubound of 10
+
+        pop = Population(ORMMinusModel(model, ubound=args.ubound))
+
+        self.assertEquals(len(pop.object_types["ObjectTypes.A"]), 10)
+        self.assertEquals(len(pop.object_types["ObjectTypes.B"]), 3)
+        self.assertEquals(len(pop.object_types["ObjectTypes.C"]), 10)
+
+        self.assertEquals(len(pop.fact_types["FactTypes.BHasC"]), 4)
+        self.assertEquals(len(pop.fact_types["FactTypes.ALikesB"]), 10)
+        self.assertEquals(len(pop.fact_types["FactTypes.AHasB"]), 8)
+
     def test_random_bounds(self):
         """ Test application of random bounds. """
         path = os.path.join(self.data_dir, "simple_model.orm")

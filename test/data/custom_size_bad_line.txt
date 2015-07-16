@@ -1,0 +1,4 @@
+ObjectTypes.A, 5
+  
+bad line
+

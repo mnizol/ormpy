@@ -119,5 +119,20 @@ class TestModel(TestCase):
             model.add("Invalid")
         self.assertEquals(ex.exception.message, "Unexpected model element type")
         
+    def test_get_elements(self):
+        """ Test get() method. """
+        model = Model()
+        obj = ObjectType(name="O1")
+        cons = Constraint(name="O1")
+        fact = FactType(name="F1")
+    
+        model.add(obj)
+        model.add(cons)
+        model.add(fact)
 
+        self.assertEquals(model.get("ObjectTypes.O1"), obj)
+        self.assertEquals(model.get("Constraints.O1"), cons)
+        self.assertEquals(model.get("FactTypes.F1"), fact)
+        self.assertEquals(model.get("ObjectTypes."), None)
+        self.assertEquals(model.get("F1"), None)       
 

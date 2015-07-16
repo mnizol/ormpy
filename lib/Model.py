@@ -29,6 +29,18 @@ class Model(object):
         #: (:class:`lib.Constraint.ConstraintSet`)
         self.constraints = ConstraintSet()
 
+    def get(self, full_name):
+        """ Get a model element by name from the model. """
+        if full_name.startswith('ObjectTypes.'):
+            _set = self.object_types
+        elif full_name.startswith('FactTypes.'):
+            _set = self.fact_types
+        elif full_name.startswith('Constraints.'):
+            _set = self.constraints
+        else:
+            _set = None
+
+        return _set.get(full_name.partition(".")[2]) if _set else None
 
     def add(self, model_element):
         """ Add a model element to the model. """        

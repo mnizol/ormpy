@@ -1,0 +1,9 @@
+ObjectTypes.B,3
+
+ObjectTypes.C, 25
+
+
+    
+   FactTypes.AHasB,    8     
+
+FactTypes.BHasC, 4

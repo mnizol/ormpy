@@ -12,6 +12,8 @@ from unittest import TestCase
 import lib.CommandLine as CommandLine
 import lib.TestDataLocator as TestDataLocator
 from lib.Population import Population
+from lib.ORMMinusModel import ORMMinusModel
+from lib.Constraint import CardinalityConstraint
 
 from nose.plugins.logcapture import LogCapture
 
@@ -67,6 +69,18 @@ class TestCommandLine(TestCase):
         args = CommandLine.parse_args(["-p", "--output-type", "logiql", "test.orm"])
         self.assertEquals(args.generator, 'logiql')
 
+        args = CommandLine.parse_args(["-p", "test.orm"])
+        self.assertEquals(args.random, False)
+
+        args = CommandLine.parse_args(["-p", "--random-bounds", "test.orm"])
+        self.assertEquals(args.random, True)
+        self.assertEquals(args.custom_size_file, None)
+
+        args = CommandLine.parse_args(["-p", "--custom-size-file", "/dev/null", "test.orm"])
+        self.assertEquals(args.random, False)
+        self.assertEquals(args.custom_size_file, "/dev/null")
+
+
     def test_log_config(self):
         """ Test configuration of the logger. """
         root = logging.getLogger()
@@ -112,6 +126,31 @@ class TestCommandLine(TestCase):
         self.assertItemsEqual(self.log.formatLogRecords(), 
             ["ERROR: Could not load does_not_exist.orm: [Errno 2] No such file or directory: '" + path + "'"])
         self.log.afterTest(None)
+
+    def test_random_bounds(self):
+        """ Test application of random bounds. """
+        path = os.path.join(self.data_dir, "simple_model.orm")
+        args = CommandLine.parse_args(["-cu 10", path])
+        model = CommandLine.import_model(path, args)
+
+        self.assertEquals(len(model.constraints.of_type(CardinalityConstraint)), 0)
+
+        CommandLine.apply_random_sizes(model, args.ubound, seed=0)
+
+        sizes = [c.ranges[0].upper for c in model.constraints.of_type(CardinalityConstraint)]
+
+        self.assertEquals(len(sizes), 6)
+        self.assertItemsEqual(sizes, [9,8,5,3,6,5])
+
+        pop = Population(ORMMinusModel(model))
+
+        self.assertEquals(len(pop.object_types["ObjectTypes.A"]), 9)
+        self.assertEquals(len(pop.object_types["ObjectTypes.B"]), 5)
+        self.assertEquals(len(pop.object_types["ObjectTypes.C"]), 8)
+
+        self.assertEquals(len(pop.fact_types["FactTypes.BHasC"]), 3)
+        self.assertEquals(len(pop.fact_types["FactTypes.ALikesB"]), 6)
+        self.assertEquals(len(pop.fact_types["FactTypes.AHasB"]), 5)
 
     def test_check_unsat(self):
         """ Test checking unsatisfiable model."""

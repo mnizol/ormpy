@@ -12,10 +12,12 @@ import sys
 import argparse
 import logging
 import os
+import random
 
 from lib.NormaLoader import NormaLoader
 from lib.ORMMinusModel import ORMMinusModel
 from lib.Population import Population
+from lib.Constraint import CardinalityConstraint, CardinalityRange
 
 import lib.generators.CSV as CSV
 import lib.generators.LogiQL as LogiQL
@@ -38,6 +40,12 @@ def execute(arglist=None):
 
     # Import model from .ORM file
     model = import_model(args.filename, args)
+
+    # Modify size distribution if requested
+    if args.random:
+        apply_random_sizes(model, args.ubound)
+
+    apply_custom_size_file(model, args.custom_size_file)    
 
     # Print the model, if requested
     if args.print_model:
@@ -74,13 +82,23 @@ def parse_args(arglist=None):
     parser.add_argument('-p', '--populate', action='store_true',
         dest='populate', default=False, help='populate the model')
 
-    # Other parameters
+    # Options related to upper bounds on element sizes
     parser.add_argument('-u', '--upper-bound', type=int, 
         dest='ubound', default=10, help='upper bound on model element sizes')
+    parser.add_argument('--random-bounds', dest='random', action='store_true', 
+        help='distribute upper bounds on element sizes randomly '
+             '(subject to --upper-bound)', default=False)
+    parser.add_argument('--custom-size-file', type=str, dest='custom_size_file', 
+        help='name of file containing "ELEMENT_NAME, UPPER_BOUND" pairs '
+             '(subject to --upper-bound)')
+
+    # Output generation options
     parser.add_argument('--output-type', help='output type',
         dest='generator', default='csv', choices=['csv', 'logiql'])
     parser.add_argument('-o', '--output-dir', help='output directory',
         dest='directory', default='')
+
+    # Other parameters
     parser.add_argument('--include-deontic', help='include deontic constraints',
         dest='deontic', action='store_true', default=False)
     parser.add_argument('--experimental', help='use experimental extensions',
@@ -118,6 +136,17 @@ def import_model(path, args):
         logging.debug("Stack trace:", exc_info=sys.exc_info())
         sys.exit(2)
 
+def apply_random_sizes(model, ubound, seed=None):
+    """ Apply random size limits to the model elements (subject to ubound). """
+    random.seed(seed)
+    for element in list(model.object_types) + list(model.fact_types):
+        ranges = [CardinalityRange(1, random.randint(1, ubound))]
+        model.add(CardinalityConstraint(ranges, covers=[element]))
+
+def apply_custom_size_file(model, filename):
+    """ Apply custom size file to model element sizes (subject to ubound). """
+    pass
+        
 def check_or_populate(model, args):
     """ Check or populate the model, as requested. """
     try:

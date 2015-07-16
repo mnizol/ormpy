@@ -24,7 +24,9 @@ class FactType(ModelElement):
         super(FactType, self).__init__(*args, **kwargs)
 
         self.roles = [] #: List of roles in the fact type
-
+        self.covered_by = []  #: Constraints that cover the fact type (rather
+                              #: than covering role(s) of the fact type).
+                              #: Populated when a constraint is committed.
     @property
     def fullname(self):
         """ Returns name that is unique within the model. """

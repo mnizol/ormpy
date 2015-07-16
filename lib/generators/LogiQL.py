@@ -316,6 +316,11 @@ class LogiQL(object):
             superset_pred = pred_with_args(pred, cons.superset, "__index__")
 
         rule += "{0} -> {1}.".format(subset_pred, superset_pred)
+
+        # If it is also an Equality Constraint, add reverse subset constraint
+        if isinstance(cons, EqualityConstraint):
+            rule += "\n{0} -> {1}.".format(superset_pred, subset_pred)
+
         return rule
 
     def _materialize_join(self, suffix, role_seq):

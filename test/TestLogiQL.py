@@ -626,6 +626,32 @@ class TestLogiQL(TestCase):
         
         self.assertItemsEqual(actual, expected)
 
+    def test_equality(self):
+        """ Test writing equality constraints. """
+        model = NormaLoader(TestData.path("equality_tuple.orm")).model
+
+        # Remove all but SubsetConstraints
+        to_delete = [c for c in model.constraints if not c.name.startswith("EQ")]
+        for cons in to_delete: 
+            model.constraints.remove(cons)
+
+        tempdir = os.path.join(self.tempdir, "test_equality")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+                    "    // EQ\n",
+                    "    model:predicates:AHasBCD(_0, _1, _, _2) -> model:predicates:AHasBD(_0, _1, _2).\n",
+                    "model:predicates:AHasBD(_0, _1, _2) -> model:predicates:AHasBCD(_0, _1, _, _2).\n",
+                     "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
     ############################################################################
     # Import testing
     ############################################################################

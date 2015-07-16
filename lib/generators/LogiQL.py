@@ -188,6 +188,14 @@ class LogiQL(object):
             write_comment(out, "Dummy constraint")
             write_logic(out, "string(x) -> string(x).")
 
+            # Write implicit disjunctive mandatory constraints
+            for obj in self.object_types:
+                logic = self._idmc_to_logic(obj)
+                if logic:
+                    comment = "Implicit disjunctive mandatory constraint for {0}"
+                    write_comment(out, comment.format(obj.name))
+                    write_logic(out, logic)
+                
             # Write logic based upon the constraint type
             # TODO: Handle all constraint types
             for cons in self.constraints:
@@ -213,6 +221,18 @@ class LogiQL(object):
 
             end_clauses(out)
             end_block(out)
+
+    def _idmc_to_logic(self, obj):
+        """ Return LogiQL representing implicit disjunctive mandatory constraint
+            for a given object type. """
+        if obj.subject_to_idmc:
+            head = type_name(obj)
+            tail = []
+            for role in obj.non_ref_roles:
+                tail.append(pred_with_args(role.fact_type, [role], "x"))
+            return "{0}(x) -> {1}.".format(head, '; '.join(tail))
+        else:
+            return None
 
     def _mandatory_cons_to_logic(self, cons):
         """ Return LogiQL representation of mandatory constraint.  

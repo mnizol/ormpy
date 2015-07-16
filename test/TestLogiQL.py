@@ -306,6 +306,8 @@ class TestLogiQL(TestCase):
     def test_mandatory_constraint(self):
         """ Test writing out of mandatory constraints. """
         model = NormaLoader(TestData.path("mandatory_constraint_2.orm")).model
+        make_all_independent(model) # So that IDMC doesn't apply
+
         tempdir = os.path.join(self.tempdir, "test_mandatory_constraint")
         logiql = LogiQL(model, None, tempdir, make=False)
 
@@ -329,6 +331,8 @@ class TestLogiQL(TestCase):
     def test_value_constraint(self):
         """ Test writing out of value constraints. """
         model = NormaLoader(TestData.path("value_constraints.orm")).model
+        make_all_independent(model) # So that IDMC doesn't apply
+
         tempdir = os.path.join(self.tempdir, "test_value_constraint")
         logiql = LogiQL(model, None, tempdir, make=False)
 
@@ -350,6 +354,8 @@ class TestLogiQL(TestCase):
     def test_internal_uniq_constraint(self):
         """ Test writing out of internal uniqueness constraints. """
         model = NormaLoader(TestData.path("uniqueness_constraints_2.orm")).model
+        make_all_independent(model) # So that IDMC doesn't apply
+
         tempdir = os.path.join(self.tempdir, "test_internal_uniq_constraint")
         logiql = LogiQL(model, None, tempdir, make=False)
 
@@ -373,6 +379,7 @@ class TestLogiQL(TestCase):
     def test_euc_linear(self):
         """ Test writing out of linear EUC constraints. """
         model = NormaLoader(TestData.path("join_rule_valid_linear_path_euc.orm")).model
+        make_all_independent(model) # So that IDMC doesn't apply
 
         # Remove all but EUC
         to_delete = [c for c in model.constraints if c.name != "EUC"]
@@ -412,6 +419,7 @@ class TestLogiQL(TestCase):
     def test_euc_branching(self):
         """ Test writing out of branching EUC constraints. """
         model = NormaLoader(TestData.path("join_rule_valid_complex_branching_path.orm")).model
+        make_all_independent(model) # So that IDMC doesn't apply
 
         # Remove all but EUC
         to_delete = [c for c in model.constraints if c.name != "EUC1"]
@@ -467,6 +475,7 @@ class TestLogiQL(TestCase):
     def test_euc_covering_left_join_role(self):
         """ Test writing EUC constraint that covers the left role in a join. """
         model = NormaLoader(TestData.path("euc_covering_join_role.orm")).model
+        make_all_independent(model) # So that IDMC doesn't apply
 
         # Remove all but EUC
         to_delete = [c for c in model.constraints if c.name != "EUC"]
@@ -506,6 +515,7 @@ class TestLogiQL(TestCase):
     def test_subset(self):
         """ Test writing subset constraints. """
         model = NormaLoader(TestData.path("subset_constraint.orm"), deontic=True).model
+        make_all_independent(model) # So that IDMC doesn't apply
 
         # Remove all but SubsetConstraint1
         to_delete = [c for c in model.constraints if not c.name.startswith("SubsetConstraint")]
@@ -537,6 +547,7 @@ class TestLogiQL(TestCase):
     def test_subset_2(self):
         """ Test writing subset constraints. """
         model = NormaLoader(TestData.path("subset_constraint_2.orm"), deontic=True).model
+        make_all_independent(model) # So that IDMC doesn't apply
 
         # Remove all but SubsetConstraints
         to_delete = [c for c in model.constraints if not c.name.startswith("SubsetConstraint")]
@@ -562,6 +573,7 @@ class TestLogiQL(TestCase):
     def test_join_subset(self):
         """ Test writing join subset constraints. """
         model = NormaLoader(TestData.path("join_subset_simple.orm")).model
+        make_all_independent(model) # So that IDMC doesn't apply
 
         # Remove all but SubsetConstraints
         to_delete = [c for c in model.constraints if not c.name.startswith("SUB")]
@@ -593,6 +605,7 @@ class TestLogiQL(TestCase):
     def test_join_subset_2(self):
         """ Test writing join subset constraints. """
         model = NormaLoader(TestData.path("join_subset_simple_2.orm")).model
+        make_all_independent(model) # So that IDMC doesn't apply
 
         # Remove all but SubsetConstraints
         to_delete = [c for c in model.constraints if not c.name.startswith("SUB")]
@@ -629,6 +642,7 @@ class TestLogiQL(TestCase):
     def test_equality(self):
         """ Test writing equality constraints. """
         model = NormaLoader(TestData.path("equality_tuple.orm")).model
+        make_all_independent(model) # So that IDMC doesn't apply
 
         # Remove all but SubsetConstraints
         to_delete = [c for c in model.constraints if not c.name.startswith("EQ")]
@@ -648,6 +662,60 @@ class TestLogiQL(TestCase):
                     "    model:predicates:AHasBCD(_0, _1, _, _2) -> model:predicates:AHasBD(_0, _1, _2).\n",
                     "model:predicates:AHasBD(_0, _1, _2) -> model:predicates:AHasBCD(_0, _1, _, _2).\n",
                      "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
+    def test_idmc(self):
+        """ Test writing of IDMC inequality. """
+        model = NormaLoader(TestData.path("idmc_test.orm")).model
+
+        tempdir = os.path.join(self.tempdir, "test_idmc")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+
+                    "    // Implicit disjunctive mandatory constraint for A\n",
+                    ("    model:types:A(x) -> "
+                         "model:predicates:BIsAA(_, x); model:predicates:AHasC(x, _); model:predicates:AHasD(x, _).\n"),
+           
+                    "    // Implicit disjunctive mandatory constraint for C\n",
+                    "    model:types:C(x) -> model:predicates:BHasC(_, x); model:predicates:AHasC(_, x).\n",
+          
+                    "    // Implicit disjunctive mandatory constraint for C_id\n",
+                    "    model:types:C_id(x) -> model:predicates:CHasCId(_, x).\n",
+
+                    "    // Implicit disjunctive mandatory constraint for E_id\n",
+                    "    model:types:E_id(x) -> model:predicates:EHasEId(_, x).\n",
+
+                    "    // SimpleMandatoryConstraint2\n",
+                    "    model:types:C(x) -> model:predicates:CHasCId(x, _).\n",
+
+                    "    // SimpleMandatoryConstraint3\n",
+                    "    model:types:E(x) -> model:predicates:EHasEId(x, _).\n",
+
+                    "    // InternalUniquenessConstraint4\n",
+                    ("    model:predicates:CHasCId(C_, C_id_), model:predicates:CHasCId(C_, C_id_2) -> "
+                          "C_id_ = C_id_2.\n"),
+
+                    "    // InternalUniquenessConstraint3\n",
+                    ("    model:predicates:CHasCId(C_, C_id_), model:predicates:CHasCId(C_2, C_id_) -> "
+                          "C_ = C_2.\n"),
+
+                    "    // InternalUniquenessConstraint6\n",
+                    ("    model:predicates:EHasEId(E_, E_id_), model:predicates:EHasEId(E_, E_id_2) -> "
+                          "E_id_ = E_id_2.\n"),
+
+                    "    // InternalUniquenessConstraint5\n",
+                    ("    model:predicates:EHasEId(E_, E_id_), model:predicates:EHasEId(E_2, E_id_) -> "
+                          "E_ = E_2.\n"),
+
+                    "  })\n",
                     "} <-- .\n"]
         
         self.assertItemsEqual(actual, expected)
@@ -780,3 +848,6 @@ def file_lines(filename):
         contents = [line for line in infile.readlines() if line != "\n"]
     return contents
        
+def make_all_independent(model):
+    for obj in model.object_types:
+       obj.independent = True 

@@ -20,7 +20,7 @@ from lib.NormaLoader import NormaLoader
 from lib.Model import Model
 from lib.ORMMinusModel import ORMMinusModel
 from lib.Population import Population
-from lib.Constraint import Constraint
+from lib.Constraint import Constraint, CardinalityConstraint, CardinalityRange
 
 class TestLogiQL(TestCase):
     """ Unit tests for the LogiQL module. """
@@ -404,12 +404,12 @@ class TestLogiQL(TestCase):
                          " AHasB_B = BHasC_B,"
                          " BHasC_C = CHasD_C.\n")
 ,
-                    ("JoinFact_EUC(AHasB_A_, CHasD_D_, AHasB_B_, BHasC_B_, BHasC_C_, CHasD_C_), "
-                     "JoinFact_EUC(AHasB_A_, CHasD_D_, AHasB_B_2, BHasC_B_2, BHasC_C_2, CHasD_C_2) -> "
-                     "AHasB_B_ = AHasB_B_2, "
-                     "BHasC_B_ = BHasC_B_2, "
-                     "BHasC_C_ = BHasC_C_2, "
-                     "CHasD_C_ = CHasD_C_2.\n"),
+                    ("    JoinFact_EUC(AHasB_A_, CHasD_D_, AHasB_B_, BHasC_B_, BHasC_C_, CHasD_C_), "
+                         "JoinFact_EUC(AHasB_A_, CHasD_D_, AHasB_B_2, BHasC_B_2, BHasC_C_2, CHasD_C_2) -> "
+                         "AHasB_B_ = AHasB_B_2, "
+                         "BHasC_B_ = BHasC_B_2, "
+                         "BHasC_C_ = BHasC_C_2, "
+                         "CHasD_C_ = CHasD_C_2.\n"),
 
                     "  })\n",
                     "} <-- .\n"]
@@ -452,20 +452,20 @@ class TestLogiQL(TestCase):
                          " GHasB_G = HHasG_G,"
                          " EHasB_B = BHasC_B.\n")
 ,
-                    ("JoinFact_EUC1(DHasE_D_, FHasG_F_, HHasG_H_, BHasC_C_, "
-                                    "DHasE_E_, EHasB_E_, EHasB_B_, GHasB_G_, "
-                                    "GHasB_B_, FHasG_G_, HHasG_G_, BHasC_B_), "
-                     "JoinFact_EUC1(DHasE_D_, FHasG_F_, HHasG_H_, BHasC_C_, "
-                                    "DHasE_E_2, EHasB_E_2, EHasB_B_2, GHasB_G_2, "
-                                    "GHasB_B_2, FHasG_G_2, HHasG_G_2, BHasC_B_2) -> "
-                     "DHasE_E_ = DHasE_E_2, "
-                     "EHasB_E_ = EHasB_E_2, "
-                     "EHasB_B_ = EHasB_B_2, "
-                     "GHasB_G_ = GHasB_G_2, "
-                     "GHasB_B_ = GHasB_B_2, "
-                     "FHasG_G_ = FHasG_G_2, "
-                     "HHasG_G_ = HHasG_G_2, "
-                     "BHasC_B_ = BHasC_B_2.\n"),
+                    ("    JoinFact_EUC1(DHasE_D_, FHasG_F_, HHasG_H_, BHasC_C_, "
+                                       "DHasE_E_, EHasB_E_, EHasB_B_, GHasB_G_, "
+                                       "GHasB_B_, FHasG_G_, HHasG_G_, BHasC_B_), "
+                         "JoinFact_EUC1(DHasE_D_, FHasG_F_, HHasG_H_, BHasC_C_, "
+                                       "DHasE_E_2, EHasB_E_2, EHasB_B_2, GHasB_G_2, "
+                                       "GHasB_B_2, FHasG_G_2, HHasG_G_2, BHasC_B_2) -> "
+                         "DHasE_E_ = DHasE_E_2, "
+                         "EHasB_E_ = EHasB_E_2, "
+                         "EHasB_B_ = EHasB_B_2, "
+                         "GHasB_G_ = GHasB_G_2, "
+                         "GHasB_B_ = GHasB_B_2, "
+                         "FHasG_G_ = FHasG_G_2, "
+                         "HHasG_G_ = HHasG_G_2, "
+                         "BHasC_B_ = BHasC_B_2.\n"),
 
                     "  })\n",
                     "} <-- .\n"]
@@ -499,13 +499,13 @@ class TestLogiQL(TestCase):
                          " model:predicates:BHasDHasC(BHasDHasC_B, BHasDHasC_D, BHasDHasC_C),"
                          " AHasDHasB_B = BHasDHasC_B.\n")
 ,
-                    ("JoinFact_EUC(AHasDHasB_A_, AHasDHasB_B_, BHasDHasC_C_, "
-                                  "AHasDHasB_D_, BHasDHasC_B_, BHasDHasC_D_), "
-                     "JoinFact_EUC(AHasDHasB_A_, AHasDHasB_B_, BHasDHasC_C_, "
-                                  "AHasDHasB_D_2, BHasDHasC_B_2, BHasDHasC_D_2) -> "
-                     "AHasDHasB_D_ = AHasDHasB_D_2, "
-                     "BHasDHasC_B_ = BHasDHasC_B_2, "
-                     "BHasDHasC_D_ = BHasDHasC_D_2.\n"),
+                    ("    JoinFact_EUC(AHasDHasB_A_, AHasDHasB_B_, BHasDHasC_C_, "
+                                      "AHasDHasB_D_, BHasDHasC_B_, BHasDHasC_D_), "
+                         "JoinFact_EUC(AHasDHasB_A_, AHasDHasB_B_, BHasDHasC_C_, "
+                                      "AHasDHasB_D_2, BHasDHasC_B_2, BHasDHasC_D_2) -> "
+                         "AHasDHasB_D_ = AHasDHasB_D_2, "
+                         "BHasDHasC_B_ = BHasDHasC_B_2, "
+                         "BHasDHasC_D_ = BHasDHasC_D_2.\n"),
 
                     "  })\n",
                     "} <-- .\n"]
@@ -596,7 +596,7 @@ class TestLogiQL(TestCase):
                           "model:predicates:BHasC(BHasC_B, BHasC_C), "
                           "AHasB_B = BHasC_B.\n"),
 
-                     "JoinFact_SUB_subset(_0, _1, _, _) -> model:predicates:AHasC(_0, _1).\n",
+                     "    JoinFact_SUB_subset(_0, _1, _, _) -> model:predicates:AHasC(_0, _1).\n",
                      "  })\n",
                     "} <-- .\n"]
         
@@ -628,12 +628,12 @@ class TestLogiQL(TestCase):
                           "model:predicates:BHasC(BHasC_B, BHasC_C), "
                           "AHasB_B = BHasC_B.\n"),
 
-                    ("JoinFact_SUB_superset(AHasE_A, EHasD_D, AHasE_E, EHasD_E) <- "
+                    ("    JoinFact_SUB_superset(AHasE_A, EHasD_D, AHasE_E, EHasD_E) <- "
                           "model:predicates:AHasE(AHasE_A, AHasE_E), "
                           "model:predicates:EHasD(EHasD_E, EHasD_D), "
                           "AHasE_E = EHasD_E.\n"),
 
-                     "JoinFact_SUB_subset(_0, _1, _, _) -> JoinFact_SUB_superset(_0, _1, _, _).\n",
+                     "    JoinFact_SUB_subset(_0, _1, _, _) -> JoinFact_SUB_superset(_0, _1, _, _).\n",
                      "  })\n",
                     "} <-- .\n"]
         
@@ -660,8 +660,91 @@ class TestLogiQL(TestCase):
                     "    string(x) -> string(x).\n",
                     "    // EQ\n",
                     "    model:predicates:AHasBCD(_0, _1, _, _2) -> model:predicates:AHasBD(_0, _1, _2).\n",
-                    "model:predicates:AHasBD(_0, _1, _2) -> model:predicates:AHasBCD(_0, _1, _, _2).\n",
+                    "    model:predicates:AHasBD(_0, _1, _2) -> model:predicates:AHasBCD(_0, _1, _, _2).\n",
                      "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
+    def test_cardinality(self):
+        """ Test writing cardinality constraints. """
+        model = NormaLoader(TestData.path("test_cardinality_constraint.orm"), deontic=True).model
+        make_all_independent(model) # So that IDMC doesn't apply
+
+        # Remove all but CardinalityConstraints
+        to_delete = [c for c in model.constraints if not c.name.startswith("CC")]
+        for cons in to_delete: 
+            model.constraints.remove(cons)
+
+        tempdir = os.path.join(self.tempdir, "test_cardinality")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+                    "    // CC1\n",
+                    "    CC1_cardinality[] = n <- agg<< n = count() >> model:types:A(_).\n",
+                    "    CC1_cardinality[] = n -> (0 <= n, n <= 4).\n",
+
+                    "    // CC2\n",
+                    "    CC2_cardinality[] = n <- agg<< n = count() >> model:types:B(_).\n",
+                    "    CC2_cardinality[] = n -> (2 <= n).\n",
+
+                    "    // CC3\n",
+                    "    CC3_projection(x) <- model:predicates:AExists(x).\n",
+                    "    CC3_cardinality[] = n <- agg<< n = count() >> CC3_projection(_).\n",
+                    "    CC3_cardinality[] = n -> (4 <= n, n <= 7).\n",
+
+                    "    // CC4\n",
+                    "    CC4_projection(x) <- model:predicates:BHopes(x).\n",
+                    "    CC4_cardinality[] = n <- agg<< n = count() >> CC4_projection(_).\n",
+                    "    CC4_cardinality[] = n -> (4 <= n, n <= 4).\n",
+
+                    "    // CC5\n",
+                    "    CC5_projection(x) <- model:predicates:BDances(x).\n",
+                    "    CC5_cardinality[] = n <- agg<< n = count() >> CC5_projection(_).\n",
+                    "    CC5_cardinality[] = n -> (0 <= n, n <= 2); (5 <= n, n <= 5); (8 <= n, n <= 10); (12 <= n).\n",
+                    "  })\n",
+                    "} <-- .\n"]
+        
+        self.assertItemsEqual(actual, expected)
+
+    def test_cardinality_on_projected_role(self):
+        """ Test writing cardinality constraint on a role projected from ternary
+            fact type.  This type of constraint is not permitted in Norma, so 
+            we create it dynamically in the test. """
+        model = NormaLoader(TestData.path("canonical_example.orm")).model
+        make_all_independent(model) # So that IDMC doesn't apply
+
+        # Remove all constraints
+        to_delete = [c for c in model.constraints]
+        for cons in to_delete: 
+            model.constraints.remove(cons)
+
+        # Create cardinality constraint
+        ranges = [CardinalityRange(2, 4)]
+        role = model.get("ObjectTypes.B").roles[0]
+        model.add(CardinalityConstraint(ranges, name="CC1", covers=[role]))
+
+        tempdir = os.path.join(self.tempdir, "test_cardinality_on_projected_role")
+        logiql = LogiQL(model, None, tempdir, make=False)
+
+        actual = file_lines(os.path.join(tempdir, "model", "constraints.logic"))
+        
+        expected = ["block(`constraints) {\n",
+                    "  clauses(`{\n", 
+                    "    // Dummy constraint\n",
+                    "    string(x) -> string(x).\n",
+
+                    "    // CC1\n",
+                    "    CC1_projection(x) <- model:predicates:AAndBLikeC(_, x, _).\n",
+                    "    CC1_cardinality[] = n <- agg<< n = count() >> CC1_projection(_).\n",
+                    "    CC1_cardinality[] = n -> (2 <= n, n <= 4).\n",
+
+                    "  })\n",
                     "} <-- .\n"]
         
         self.assertItemsEqual(actual, expected)
@@ -682,10 +765,10 @@ class TestLogiQL(TestCase):
 
                     "    // Implicit disjunctive mandatory constraint for A\n",
                     ("    model:types:A(x) -> "
-                         "model:predicates:BIsAA(_, x); model:predicates:AHasC(x, _); model:predicates:AHasD(x, _).\n"),
+                         "model:predicates:AHasC(x, _); model:predicates:AHasD(x, _); model:predicates:BIsAA(_, x).\n"),
            
                     "    // Implicit disjunctive mandatory constraint for C\n",
-                    "    model:types:C(x) -> model:predicates:BHasC(_, x); model:predicates:AHasC(_, x).\n",
+                    "    model:types:C(x) -> model:predicates:AHasC(_, x); model:predicates:BHasC(_, x).\n",
           
                     "    // Implicit disjunctive mandatory constraint for C_id\n",
                     "    model:types:C_id(x) -> model:predicates:CHasCId(_, x).\n",
@@ -845,7 +928,7 @@ class UnsupportedConstraint(Constraint):
 ##############################################################################
 def file_lines(filename):
     with open(filename, 'r') as infile:
-        contents = [line for line in infile.readlines() if line != "\n"]
+        contents = [line for line in infile.readlines() if line.strip() != ""]
     return contents
        
 def make_all_independent(model):

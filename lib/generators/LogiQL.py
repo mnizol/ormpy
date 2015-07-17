@@ -209,6 +209,8 @@ class LogiQL(object):
                     logic = self._uniq_cons_to_logic(cons)
                 elif isinstance(cons, SubsetConstraint):
                     logic = self._subset_cons_to_logic(cons)
+                elif isinstance(cons, CardinalityConstraint):
+                    logic = self._card_cons_to_logic(cons)
                 else:
                     logic = None # Unhandled constraint
 
@@ -228,7 +230,8 @@ class LogiQL(object):
         if obj.subject_to_idmc:
             head = type_name(obj)
             tail = []
-            for role in obj.non_ref_roles:
+            roles = sorted(obj.non_ref_roles, key=lambda x: x.fact_type.name)
+            for role in roles:
                 tail.append(pred_with_args(role.fact_type, [role], "x"))
             return "{0}(x) -> {1}.".format(head, '; '.join(tail))
         else:
@@ -340,6 +343,35 @@ class LogiQL(object):
         # If it is also an Equality Constraint, add reverse subset constraint
         if isinstance(cons, EqualityConstraint):
             rule += "\n{0} -> {1}.".format(superset_pred, subset_pred)
+
+        return rule
+
+    def _card_cons_to_logic(self, cons):
+        """ Return LogiQL representation of cardinality constraint. """
+        
+        element = cons.covers[0]        
+        rule = ""
+
+        if isinstance(element, ObjectType):            
+            source = type_name(element)
+        elif isinstance(element, Role) and len(cons.covers)==1:
+            source = "{0}_projection".format(cons.name)
+            pred = pred_with_args(element.fact_type, [element], "x")            
+            rule += "{0}(x) <- {1}.\n".format(source, pred)
+        else: # Unsupported
+            return None
+ 
+        head = "{0}_cardinality[] = n".format(cons.name)
+        rule += "{0} <- agg<< n = count() >> {1}(_).\n".format(head, source)  
+
+        tail = []
+        for rng in cons.ranges:
+            range_str = "{0} <= n".format(str(rng.lower))
+            if rng.upper: 
+                range_str += ", n <= {0}".format(str(rng.upper))
+            tail.append("({0})".format(range_str))
+                        
+        rule += "{0} -> {1}.".format(head, '; '.join(tail))
 
         return rule
 
@@ -527,6 +559,7 @@ def write_comment(stream, comment):
     stream.write("    // {0}\n".format(comment))
 
 def write_logic(stream, logic):
+    logic = logic.replace('\n', '\n' + (4 * ' ')) # Indent multi-line logic
     stream.write("    {0}\n\n".format(logic))
 
 def type_name(obj_type):
